@@ -1,0 +1,49 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+
+
+@model Core.Models.Child
+
+@{
+    Layout = null;
+}
+@{
+    ViewData["Title"] = "Child Notes";
+}
+
+<div style="padding: 20px; background-color: #f2f2f2">
+<h2 style="padding-bottom:10px">Notes</h2>
+
+
+
+<!-- ✅ Form to Add a New Payment -->
+
+
+    <form asp-action="ManageNotes" method="post">
+        <input type="hidden" asp-for="ChildID" />
+        <input type="hidden" name="childId" value=@Model.ChildID/>
+
+        <div class="form-group mb-3">
+           
+            <textarea asp-for="Notes" class="form-control" rows="15" style="width:100%;"></textarea>
+            <span asp-validation-for="Notes" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+
+
+    @if (TempData["SuccessMessage"] != null)
+   {
+        <div style="padding-top: 20px;">
+        </div>
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+
+
+</div>

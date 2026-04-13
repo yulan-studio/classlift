@@ -1,0 +1,232 @@
+﻿@model Core.ViewModels.ManageCourseViewModel
+
+<h2 class="mb-4">Manage Courses</h2>
+
+<!-- Notice -->
+<div class="alert alert-light border">
+    <p class="mb-1">
+        At this stage, coaches are requested to complete the original coaching time log in parallel
+        and ensure that both records are consistent.
+    </p>
+    <p class="mb-1">
+        在现阶段，请教练同时填写原来的教练时间登记表，且两份记录保持一致。
+    </p>
+    <a href="https://sites.google.com/view/nsns-coach-attendance/%E9%A6%96%E9%A1%B5"
+       target="_blank">
+        NSNS Coach Attendance
+    </a>
+</div>
+
+<style>
+    /* =========================
+               DESKTOP DEFAULT (TABLE)
+               ========================= */
+    table.mobile-stack {
+        display: table;
+        width: 100%;
+    }
+
+        table.mobile-stack thead {
+            display: table-header-group;
+        }
+
+        table.mobile-stack tbody {
+            display: table-row-group;
+        }
+
+        table.mobile-stack tr {
+            display: table-row;
+        }
+
+        table.mobile-stack th,
+        table.mobile-stack td {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+    /* =========================
+               MOBILE ONLY (CARDS)
+               ========================= */
+    @@media (max-width: 767px) {
+
+        .desktop-only {
+            display: none !important;
+        }
+
+        table.mobile-stack thead {
+            display: none;
+        }
+
+        table.mobile-stack,
+        table.mobile-stack tbody,
+        table.mobile-stack tr,
+        table.mobile-stack td {
+            display: block;
+            width: 100%;
+        }
+
+            table.mobile-stack tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                background: #fff;
+                padding: 10px;
+            }
+
+            table.mobile-stack td {
+                border: none !important;
+                padding: 6px 0;
+                font-size: 14px;
+            }
+
+                table.mobile-stack td::before {
+                    content: attr(data-label);
+                    font-weight: 600;
+                    display: block;
+                    color: #1B7BAB;
+                    margin-bottom: 2px;
+                }
+
+            table.mobile-stack a {
+                display: inline-block;
+                margin-top: 6px;
+                padding: 6px 12px;
+                background: #1B7BAB;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+    }
+</style>
+
+@foreach (var specialty in Model.Specialties)
+{
+    <!-- Specialty -->
+    <div class="mt-5 mb-3 p-2 bg-light border-start border-4"
+         style="border-color:#1B7BAB;">
+        <strong style="color:#1B7BAB;">@specialty.SpecialtyTitle</strong>
+    </div>
+
+    @foreach (var course in specialty.Courses)
+    {
+        <div class="mb-4 p-3 border rounded bg-white">
+
+            <p class="mb-1">
+                <strong>Course:</strong>
+                @($"{course.CourseTitle}" +
+                        (course.CourseDescription != null
+                        ? $" | {course.CourseDescription}"
+                        : ""))
+        &nbsp; &nbsp; &nbsp;
+        @if (course.CourseType == "Group")
+                {
+                    <a href="@Url.Action("Attendance", "Course", new { courseId = course.CourseID })">
+                        View Attendance
+                    </a>
+
+                    
+                }
+            </p>
+
+            @if (course.SessionCount != null)
+            {
+                <p class="mb-2">
+                    <strong>Session Count:</strong> @course.SessionCount
+                </p>
+            }
+
+            <table class="mobile-stack table table-bordered mt-3">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Child Name</th>
+                        <th class="desktop-only">Gender</th>
+                        <th class="desktop-only">City</th>
+                        <th class="desktop-only">Birthday</th>
+                        <th class="desktop-only">Registration Date</th>
+                        <th class="desktop-only">Scheduled</th>
+                        <th>Request to Reschedule</th>
+                        <th class="desktop-only">Deleted</th>
+                        <th>Completed</th>
+
+                        @if (course.CourseType != "Group")
+                        {
+                            <th>Schedules</th>
+                            <th>Enrollments</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (course.RegisteredChildren.Any())
+                    {
+                        foreach (var child in course.RegisteredChildren)
+                        {
+                            <tr>
+                                <td data-label="Child Name">@child.Name</td>
+                                <td class="desktop-only" data-label="Gender">@child.Gender</td>
+                                <td class="desktop-only" data-label="City">@child.City</td>
+                                <td class="desktop-only" data-label="Birthday">
+                                    @(child.BirthDate?.ToString("yyyy-MM-dd") ?? "N/A")
+                                </td>
+                                <td class="desktop-only" data-label="Registration Date">
+                                    @child.RegisteredDate.ToString("yyyy-MM-dd")
+                                </td>
+                                <td class="desktop-only" data-label="Scheduled">@child.Scheduled</td>
+                                <td data-label="Request to Reschedule"
+                                    style="background-color:@(child.RequestToReschedule > 0 ? "#FFDBF6" : "transparent")">
+                                    @child.RequestToReschedule
+                                </td>
+                                <td class="desktop-only" data-label="Deleted">@child.Deleted</td>
+                                <td data-label="Completed">@child.Completed</td>
+
+                                @if (course.CourseType != "Group")
+                                {
+                                    <td data-label="Schedules">
+                                        <a href="/Coach/ManageSchedules/@child.ChildID?courseId=@course.CourseID&enrollmentId=@child.EnrollmentID">
+                                            Manage
+                                        </a>
+                                    </td>
+                                    <td data-label="Enrollments">
+                                        <a href="/Coach/ManageEnrollments/@child.ChildID?courseId=@course.CourseID">
+                                            Manage
+                                        </a>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center fw-bold bg-light">
+                                No registered children for this course.
+                            </td>
+                        </tr>
+                    }
+                    @* 
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <tr>
+                            <td colspan="11">
+                                <div class="alert alert-success">
+                                    @TempData["SuccessMessage"]
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <tr>
+                            <td colspan="11">
+                                <div class="alert alert-danger">
+                                    @TempData["ErrorMessage"]
+                                </div>
+                            </td>
+                        </tr>
+                    } *@
+                </tbody>
+            </table>
+        </div>
+    }
+}

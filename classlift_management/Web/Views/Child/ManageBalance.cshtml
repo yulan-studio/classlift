@@ -1,0 +1,217 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Core.ViewModels.ManageChildBalanceViewModel
+
+@{
+    Layout = null;
+}
+
+@{
+    ViewData["Title"] = "Child Balance Statement";
+    // decimal finalBalance = ViewBag.FinalBalance;
+}
+
+<h2>Balance Statement</h2>
+
+<div style="padding-top: 20px;">
+  
+</div>
+
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 10px; border: 1px solid #ddd;">Statement Date</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Type</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Course / Activity</th>
+             <th style="padding: 10px; border: 1px solid #ddd;">Scheduled At</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Actual Hours</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Cost</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Screenshot</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.BalanceHistory!=null &&Model.BalanceHistory.Any())
+        {
+            foreach (var item in Model.BalanceHistory)
+            {
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@item.Type</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">
+                        @if (!string.IsNullOrEmpty(item.CourseName))
+                        {
+                            <span>Course: @item.CourseName</span>
+                        }
+                        else if (!string.IsNullOrEmpty(item.ActivityName))
+                        {
+                            <span>Activity: @item.ActivityName</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@item.ScheduledAt</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@item.ActualHours</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; color: @(item.BalanceChange < 0 ? "red" : "green");">
+                
+                        @if (!string.IsNullOrEmpty(item.Remarks))
+                        {
+                           
+                            <a href="#"
+                               onclick="loadRemarks('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(item.Remarks))')"
+                               style="color: @(item.BalanceChange < 0 ? "red" : "green");">
+                                
+                                $@item.BalanceChange.ToString("F2")
+                            </a>
+                        }
+                        else
+                        {
+                            @($"${item.BalanceChange:F2}")
+                        }
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @if (!string.IsNullOrEmpty(item.Calculation))
+
+                        {
+                            <a href="@item.Calculation" target="_blank">
+                                <img src="@item.Calculation" alt="Calculation" width="100">
+                            </a>
+                        }
+
+                       
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">$@item.Balance.ToString("F2")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 15px; background-color: #f8f9fa; font-weight: bold;">
+                    No balance history available for this child.
+                </td>
+            </tr>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <tr>
+                <td colspan="8">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <tr>
+                <td colspan="7">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h5 style="margin-top: 30px;">Final Balance: <strong>  $@Model.CurrentBalance @* $@finalBalance.ToString("F2") *@</strong></h5>
+
+<hr />
+
+
+
+
+
+
+<!-- ✅ Form to Add a New Payment -->
+<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+    <b>Adjust or Refund Balance</b>
+    <div style="margin-bottom: 10px;"></div>
+<!-- Adjustment / Refund Form -->
+    <form method="post" asp-action="FixBalance" enctype="multipart/form-data"  style="margin-top: 20px;">
+    <input type="hidden" name="ChildID" value="@Model.ChildID" />
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <!-- Select Action Type -->
+        <tr>
+            <td style="padding-top: 16px; width: 200px; vertical-align: top"><label>Action Type:</label></td>
+                <td style="padding-top: 16px; vertical-align: top">
+                <input type="radio" id="adjustBalance" name="actionType" value="Adjustment" checked />
+                <label for="ajustBalance">Adjust Balance</label>
+                &nbsp;&nbsp;
+                <input type="radio" id="refundBalance" name="actionType" value="Refund" />
+                <label for="refundBalance">Refund</label>
+                <br/>
+
+                    <label style="font-size:0.9em; color:darkslategray">"Adjust Balance" is used for system errors, human errors, or a participant's first time on leave. <br/>"Refund" is used when a participant quits the course. </label>
+            </td>
+        </tr>
+
+        <!-- Amount -->
+        <tr>
+                <td style="padding-top: 16px; vertical-align: top"><label for="Amount">Amount:</label></td>
+                <td style="padding-top: 16px; vertical-align: top">
+                <input id="Amount" name="amount" type="number" step="0.01" required style="width: 20%;" />
+               
+            </td>
+        </tr>
+
+        <!-- Remarks (optional but helpful for logs) -->
+        <tr>
+                <td style="padding-top: 16px; vertical-align: top"><label for="Remarks">Remarks:</label></td>
+                <td style="padding-top: 16px; vertical-align: top">
+                <textarea id="Remarks" name="remarks" style="width: 40%; height: 100px" required></textarea>
+            </td>
+        </tr>
+
+        <tr>
+                <td style="padding: 8px;"><label for="calculationFile">Upload Screenshot:</label></td>
+                <td><input type="file" name="file" accept="image/*"  style="width: 20%;" /></td>
+        </tr>
+
+           
+
+        <!-- Submit -->
+        <tr>
+                <td style="padding-top: 16px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 5px;">
+                    Submit
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+</div>
+
+
+<div class="modal fade" id="remarksModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remarks</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="remarksContent"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function loadRemarks(remark) {
+       
+        document.getElementById('remarksContent').innerText = remark;
+        var modal = new bootstrap.Modal(document.getElementById('remarksModal'));
+        modal.show();
+    }
+</script>

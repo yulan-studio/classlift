@@ -1,0 +1,116 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+
+
+@*
+    Activity Add Form - Follows the Staff Form Layout
+*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Add Activity";
+}
+
+<h2>Add Activity</h2>
+
+<form method="post" action="/Activity/Add">
+    <table style="border-collapse: collapse; width: 80%; text-align: left; width:80%">
+        <tr>
+            <td style="padding: 8px; width: 20%"><label for="Title">Name:</label></td>
+            <td style="padding: 8px; width: 80%"><input type="text" name="Title" placeholder="Activity Name" style="width: 70%;" required /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Description">Description:</label></td>
+            <td style="padding: 8px;">
+                <textarea name="Description" placeholder="Enter activity description" style="width: 70%;" rows="3"></textarea>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Address">Address:</label></td>
+            <td style="padding: 8px;"><input type="text" name="Address" placeholder="Activity Address" style="width: 70%;" /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
+            <td style="padding: 8px;"><input type="number" name="MaxCapacity" placeholder="Enter max participants" step="1" value="50" min="0" style="width: 25%;" /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="ScheduledAt">Scheduled Date:</label></td>
+            <td style="padding: 8px;"><input type="datetime-local" name="ScheduledAt" style="width: 25%;" /></td>
+        </tr>
+
+        @* <tr>
+            <td style="padding: 8px;"><label for="Cost">Cost:</label></td>
+            <td style="padding: 8px;"><input type="number" name="cost" step="1" min="0"  placeholder="Enter cost" style="width: 100%;" /></td>
+        </tr> *@
+
+       @*  <tr>
+            <td style="padding: 8px;"><label for="IsActive">Active:</label></td>
+            <td style="padding: 8px;">
+                <input id="IsActive" name="IsActive" type="checkbox" value="true" />
+                <input name="IsActive" type="hidden" value="false" />
+                <label for="IsActive">Check if the activity is active</label>
+            </td>
+        </tr> *@
+
+        <tr>
+
+            <td style="padding: 8px;"><label for="Status">Status:</label></td>
+            <td style="padding: 8px;">
+                <select name="status" style="width: 25%;">
+                    <option value="" selected>-- Select Status --</option>
+                    <option value="Open">Open to registration</option>
+                    <option value="Closed">Closed to registration</option> 
+                  @*   <option value="Canceled">Canceled</option>
+                    <option value="Completed">Completed</option> *@
+                </select>
+            </td>
+        </tr>
+        @* <tr>
+            <td style="padding: 8px;"><label for="ContactID">Contact Person:</label></td>
+            <td style="padding: 8px;">
+                <select name="ContactID" style="width: 100%;">
+                    <option value="" selected>Select Contact</option>
+                    @foreach (var user in ViewBag.ContactList)
+                    {
+                        <option value="@user.Value">@user.Text</option>
+                    }
+                </select>
+            </td>
+        </tr> *@
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Activity</button>
+                <a href="/Activity/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @error.ErrorMessage
+                        </div>
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+
+
+
+
+
+

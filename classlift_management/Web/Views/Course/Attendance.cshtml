@@ -1,0 +1,94 @@
+﻿@model Core.ViewModels.SessionAttendanceViewModel
+
+<h2>Course Attendance</h2>
+
+<a href="/Coach/ManageCourse">Back to Courses</a>
+
+<div style="padding-top: 40px; padding-bottom: 20px">
+    <span class="badge bg-success">Finished</span>
+    <span class="badge bg-info">Scheduled</span>
+    <span class="badge bg-secondary">Canceled</span>
+    <span class="badge bg-warning">Request To Leave</span>
+    <span class="badge bg-warning">On Leave</span>
+</div>
+
+<div style="padding-top: 40px; padding-bottom: 20px">
+
+
+   @*  <strong>Course:</strong> @Model.Course.Title <br /><br />
+
+
+    <strong>Session Count:</strong> @Model.Course.SessionCount <br /> *@
+
+
+    <strong>Course:</strong>
+    @($"{Model.Course.Title}" +
+        (Model.Course.Description != null
+        ? $" | {Model.Course.Description}"
+        : ""))
+
+
+   
+   
+
+
+</div>
+
+
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Session</th>
+            @foreach (var child in Model.ChildrenList)
+            {
+                <th>@child.Name</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var session in Model.Sessions)
+        {
+            <tr>
+                <td>@session.ScheduledAt.ToString("yyyy-MM-dd HH:mm")</td>
+                @foreach (var child in Model.ChildrenList)
+                {
+                    <td>
+                        @if (session.Children.ContainsKey(child.ChildID))
+                        {
+                            var status = session.Children[child.ChildID];
+                            if (status == "Completed")
+                            {
+                                <span class="badge bg-success">F</span>
+                            }
+                            else if (status == "Scheduled")
+                            {
+                                <span class="badge bg-info">S</span>
+                            }
+                            else if (status == "Canceled")
+                            {
+                                <span class="badge bg-secondary">C</span>
+                            }
+                            else if (status == "RequestToLeave")
+                            {
+                                <span class="badge bg-warning">RL</span>
+                            }
+                            else if (status == "OnLeave")
+                            {
+                                <span class="badge bg-warning">L</span>
+                            }
+                            else
+                            {
+                                <span>@status</span>
+                            }
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

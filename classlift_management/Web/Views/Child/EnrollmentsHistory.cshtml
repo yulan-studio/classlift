@@ -1,0 +1,101 @@
+﻿@model Core.ViewModels.EnrollmentsHistoryViewModel
+
+@{
+    Layout = null;
+}
+
+<h3>Enrollments History</h3>
+
+@* <div style="padding-top: 20px">
+    <p><strong>Name:</strong> @Model.Child.Name</p>
+    <p><strong>Birth Date:</strong> @(Model.Child.BirthDate.HasValue ? Model.Child.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</p>
+    <p><strong>Gender:</strong> @Model.Child.Gender</p>
+    <p><strong>City:</strong> @(Model.Child.City != null ? Model.Child.City.Name : "N/A")</p>
+</div>
+<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to Children List</a>
+<div style="border-top: 2px solid #ddd; margin: 30px 0;"></div> *@
+
+<div style="padding-top: 20px; padding-bottom: 20px">
+    <h4 style="color:steelblue">- Courses -</h4>
+</div>
+
+<table id="CompletedCourses" style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Course</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Coach</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled At</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled Hours</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Actual Hours</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Hourly Cost</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CompletedCourses!=null && Model.CompletedCourses.Any())
+        {
+            foreach (var enrollment in Model.CompletedCourses)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Course.Title</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.Course.Coach?.Name ?? "N/A")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledHours</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ActualHours</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.Child.HasOAP? enrollment.Course.HourlyCost : enrollment.Course.HourlyCost2)</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Status</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 10px;">No completed courses.</td>
+            </tr>
+        }
+
+       
+    </tbody>
+</table>
+
+
+<div style="padding-top: 20px; padding-bottom: 20px">
+    <h4 style="color:steelblue">- Activities -</h4>
+</div>
+
+<table id="CompletedActivities" style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Activity</th>
+            
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled At</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Cost</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CompletedActivities!=null && Model.CompletedActivities.Any())
+           
+        {
+            foreach (var enrollment in Model.CompletedActivities)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.Title</td>
+               
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.ScheduledAt</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@* @enrollment.Activity.Cost *@</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" style="text-align: center; padding: 10px;">No completed activities.</td>
+            </tr>
+        }
+
+
+    </tbody>
+</table>
+
+
+

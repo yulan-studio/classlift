@@ -1,0 +1,64 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Add Staff";
+}
+
+
+
+<h2>Add Staff</h2>
+
+
+<form method="post" action="/Staff/Add">
+
+
+    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+    <tr>
+        <td style="padding: 8px;"><label for="name">Name:</label></td>
+        <td style="padding: 8px;"><input type="text" name="name" placeholder="Name" style="width: 100%;" /></td>
+    </tr>
+      
+    <tr>
+        <td style="padding: 8px;"><label for="email">Email:</label></td>
+        <td style="padding: 8px;"><input type="email" name="email" placeholder="Email" style="width: 100%;" required /></td>
+    </tr>
+    <tr>
+        <td style="padding: 8px;"><label for="phone">Phone:</label></td>
+        <td style="padding: 8px;"><input type="text" name="phone" placeholder="Phone" style="width: 100%;" /></td>
+    </tr>
+    <tr>
+        <td style="padding: 8px;"><label for="wechat">WeChat:</label></td>
+        <td style="padding: 8px;"><input type="text" name="wechat" placeholder="WeChat" style="width: 100%;" /></td>
+    </tr>
+    <tr>
+            <td style="padding: 8px; vertical-align:top"><label for="password">Password:</label></td>
+        <td style="padding: 8px;"><input type="text" name="password" placeholder="Password" value="nsns123!" style="width: 100%;" required/>
+            <small style="color:darkslategray">Password must be at least 6 characters, include one lowercase letter, and one special character.</small>
+         </td>
+    </tr>
+    <tr>
+            <td colspan="2" style="text-align: left;  padding: 20px 16px 16px 8px;">
+            <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Staff</button>
+                <a href="/Staff/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+        </td>
+    </tr>
+</table>
+
+
+@if (!ViewData.ModelState.IsValid)
+{
+    foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+    {
+        <div class="alert alert-danger">
+            @error.ErrorMessage
+        </div>
+    }
+}
+
+</form>
+
+
+

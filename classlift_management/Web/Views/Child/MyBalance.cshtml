@@ -1,0 +1,195 @@
+﻿@model List<Core.ViewModels.ChildBalance>
+@{
+    ViewData["Title"] = "Child Balance Statement";
+    decimal finalBalance = ViewBag.FinalBalance;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+<style>
+    /* ===== Desktop default ===== */
+    table.mobile-stack {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.mobile-stack th,
+    table.mobile-stack td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        vertical-align: top;
+    }
+
+    /* ===== Mobile stacked cards ===== */
+    @@media (max-width: 767px) {
+    /* .balance-table {
+        display: none;
+    } */
+
+        
+        .desktop-only {
+            display: none !important;
+        }
+    }
+       
+
+  /*   table.mobile-stack thead
+    {
+        display: none;
+    } 
+
+    table.mobile-stack,
+    table.mobile-stack tbody,
+    table.mobile-stack tr,
+    table.mobile-stack td {
+        display: block;
+        width: 100%;
+    }
+
+        table.mobile-stack tr {
+            margin-bottom: 16px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        table.mobile-stack td {
+            border: none;
+            padding: 6px 0;
+        }
+
+        table.mobile-stack td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #1B7BAB;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+    }
+
+        */
+</style>
+
+<h2>Balance Statement</h2>
+
+<div class="balance-table">
+<table class="mobile-stack table table-bordered mt-3">
+    <thead class="table-primary">
+        <tr>
+                <th style="padding: 8px; border: 1px solid #ddd;" class="desktop-only">Statement Date</th>
+                <th style="padding: 8px; border: 1px solid #ddd;" class="desktop-only">Type</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Course / Activity</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Scheduled At</th>
+                <th style="padding: 8px; border: 1px solid #ddd;" class="desktop-only">Actual Hours</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Cost</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Balance</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td @* data-label="Statement Date" *@ class="desktop-only">
+                        @item.CreatedDate.ToString("yyyy-MM-dd HH:mm")
+                    </td>
+
+                    <td @* data-label="Type" *@ class="desktop-only">
+                        @item.Type
+                    </td>
+
+                    <td @* data-label="Course / Activity" *@>
+                        @if (!string.IsNullOrEmpty(item.CourseName))
+                        {
+                            <span>Course: @item.CourseName</span>
+                        }
+                        else if (!string.IsNullOrEmpty(item.ActivityName))
+                        {
+                            <span>Activity: @item.ActivityName</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+
+                    <td @* data-label="Scheduled At" *@>
+                        @item.ScheduledAt
+                    </td>
+
+                        <td class="desktop-only" @* data-label="Actual Hours" *@>
+                        @item.ActualHours
+                    </td>
+
+                    <td @* data-label="Cost" *@
+                        style="color:@(item.BalanceChange < 0 ? "red" : "green")">
+                        @if (!string.IsNullOrEmpty(item.Remarks))
+                        {
+                            <a href="javascript:void(0);"
+                               onclick="loadRemarks('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(item.Remarks))')"
+                               style="color:@(item.BalanceChange < 0 ? "red" : "green")">
+                                $@item.BalanceChange.ToString("F2")
+                            </a>
+                        }
+                        else
+                        {
+                            @($"${item.BalanceChange:F2}")
+                        }
+                    </td>
+
+                    <td @* data-label="Balance" *@>
+                        $@item.Balance.ToString("F2")
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center p-3">
+                    No balance history available for this child.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+
+<div>
+    <h5 class="mt-4">
+        Final Balance:
+        <strong>$@finalBalance.ToString("F2")</strong>
+    </h5>
+</div>
+
+<!-- ===== Remarks Modal ===== -->
+<div class="modal fade" id="remarksModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remarks</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="remarksContent"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function loadRemarks(remark) {
+        document.getElementById('remarksContent').innerText = remark;
+        var modal = new bootstrap.Modal(document.getElementById('remarksModal'));
+        modal.show();
+    }
+</script>
+

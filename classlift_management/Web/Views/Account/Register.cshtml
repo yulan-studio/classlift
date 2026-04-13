@@ -1,0 +1,94 @@
+﻿@model Core.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "User Registration";
+}
+
+@* <h2>User Registration</h2>
+
+<form method="post" asp-controller="Account" asp-action="Register">
+    <div>
+        <label>Email:</label>
+        <input asp-for="Email" type="email" required />
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div>
+        <label>Password:</label>
+        <input asp-for="Password" type="password" required />
+        <span asp-validation-for="Password"></span>
+    </div>
+
+    <div>
+        <label>Role:</label>
+        <select asp-for="Role">
+            <option value="Admin">Admin</option>
+            <option value="Staff">Staff</option>
+            <option value="Coach">Coach</option>
+            <option value="Child">Child</option>
+        </select>
+        <span asp-validation-for="Role"></span>
+    </div>
+
+    <button type="submit">Register</button>
+</form>
+
+<a asp-controller="Account" asp-action="Login">Already have an account? Login</a> *@
+
+<h2>User Registration</h2>
+
+<form asp-controller="Account" asp-action="Register" method="post">
+    <table style="border-collapse: collapse; width: 30%; text-align: left;">
+        <tr>
+            <td style="padding: 8px;"><label for="email">Email:</label></td>
+            <td style="padding: 8px;">
+                <input type="email" name="Email" value="@Model.Email" placeholder="Email" style="width: 100%;" required />
+                <span asp-validation-for="Email" style="color: red;"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="password">Password:</label></td>
+            <td style="padding: 8px;">
+                <input type="password" name="Password" value="@Model.Password" placeholder="Password" style="width: 100%;" required />
+                <span asp-validation-for="Password" style="color: red;"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="role">Role:</label></td>
+            <td style="padding: 8px;">
+                <select name="Role" style="width: 100%;" required>
+                    <option value="Admin">Admin</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Coach">Coach</option>
+                    <option value="Child">Child</option>
+                </select>
+                <span asp-validation-for="Role" style="color: red;"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="padding: 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
+                <a href="/" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @error.ErrorMessage
+                        </div>
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+</form>
+
+<a asp-controller="Account" asp-action="Login" style="text-decoration: none; color: #007bff;">Already have an account? Login</a>

@@ -1,0 +1,149 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@{
+    // ViewData["Title"] = "Admin Dashboard";
+    // var role = User.IsInRole("Admin") ? "Admin" :
+    //            User.IsInRole("Staff") ? "Staff" :
+    //            User.IsInRole("Coach") ? "Coach" :
+    //            User.IsInRole("Child") ? "Child" : "Guest";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: #f4a261;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #575757;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+            flex-grow: 1;
+            width: calc(100% - 270px);
+        }
+
+        .dashboard-title {
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            text-align: center;
+        }
+
+        .card h3 {
+            margin: 10px 0;
+        }
+
+        .card i {
+            font-size: 40px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="https://example.com">
+            <img src="/images/nsns_logo.jpg" alt="NSNS" style="width: 100px; height: auto;" />
+        </a>
+        <ul>
+        
+                <li><a href="/Admin/List"><i class="fa fa-users"></i> Manage Users</a></li>
+                <li><a href="/Course/List"><i class="fa fa-book"></i> Manage Courses</a></li>
+                <li><a href="/Reports"><i class="fa fa-chart-bar"></i> Reports</a></li>
+     
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-title">Admin Dashboard</div>
+
+        <div class="dashboard-cards">
+            <div class="card">
+                <i class="fa fa-users"></i>
+                <h3>Total Users</h3>
+                <p>150</p>
+            </div>
+
+            <div class="card">
+                <i class="fa fa-book"></i>
+                <h3>Active Courses</h3>
+                <p>20</p>
+            </div>
+
+            <div class="card">
+                <i class="fa fa-calendar-check"></i>
+                <h3>Upcoming Events</h3>
+                <p>5</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

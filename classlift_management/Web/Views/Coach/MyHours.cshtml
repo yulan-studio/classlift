@@ -1,0 +1,117 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@* @model List<Core.ViewModels.HoursViewModel> *@
+@model List<Core.DTOs.CoachMonthlyIncome>
+@{
+    ViewData["Title"] = "Coach Hours";
+    //decimal total = ViewBag.TotalIncome;
+}
+
+@* <h2>Coach Income</h2>
+
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
+    <thead>
+        <tr style="background-color: #1B7BAB; color: white;">
+            <th>Session Date</th>
+            <th>Course</th>
+            <th>Child</th>
+            <th>Hours</th>
+            <th>Income for Session</th>
+            <th>Total Income So Far</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.SessionDate.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@item.CourseName</td>
+                <td>@item.ChildName</td>
+                <td>@item.SessionHours</td>
+                <td>$@item.IncomeChange.ToString("F2")</td>
+                <td>$@item.TotalIncomeSoFar.ToString("F2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>Total Income: <strong>$@total.ToString("F2")</strong></h4> *@
+
+
+<h2>My Hours</h2>
+
+<div style="padding: 10px 20px 10px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
+    At this stage, coaches are requested to complete the original coaching time log in parallel and ensure that both records are consistent. <br />
+    在现阶段，请教练同时填写原来的教练时间登记表，且两份记录保持一致。<br />
+    <span style="align-content:end"><a href="https://sites.google.com/view/nsns-coach-attendance/%E9%A6%96%E9%A1%B5" target="_blank">NSNS Coach Attendance</a></span>
+</div>
+
+    @foreach (var month in Model)
+    {
+    <div style="margin: 20px 0; padding: 15px; border-radius: 5px; border: 1px solid #ddd; background-color: #fff;">
+        <h4 style="color:#1B7BAB;">@month.Year - @month.Month</h4>
+
+        
+       
+
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom: 10px;">
+            <span style="width:16%; background-color:#f9f9f9;">
+                <strong>Total Hours:</strong> @month.TotalHours
+            </span>
+
+            <a href="#"
+               class="text-decoration-none"
+               onclick="toggleDetails('details-@month.Year-@month.Month'); return false;">
+                Show / Hide Details
+            </a>
+        </div>
+
+        
+
+     
+
+        <div id="details-@month.Year-@month.Month">
+            <table style="width:100%; table-layout:fixed;">
+                <colgroup>
+                    <col style="width:20%;" />
+                    <col style="width:25%;" />
+                    <col style="width:35%;" />
+                    <col style="width:20%;" />
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Child</th>
+                        <th>Course</th>
+                        <th>Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in month.Details)
+                    {
+                        <tr>
+                            <td>@d.ScheduledAt.ToShortDateString()</td>
+                            <td>@d.ChildName</td>
+                            <td>@d.CourseName</td>
+                            <td>@d.Hours</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+
+   
+
+
+<script>
+    function toggleDetails(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+    }
+</script>

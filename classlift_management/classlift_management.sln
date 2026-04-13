@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{4CEA206F-2218-4DC8-A099-C86F1870E64B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C5891154-67AC-4A25-ACD5-300A7B33B5D7} = {C5891154-67AC-4A25-ACD5-300A7B33B5D7}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{C5891154-67AC-4A25-ACD5-300A7B33B5D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{737D945A-AC99-41EC-B3FB-A740A033136F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{39948179-4D71-4E89-9441-AE09D18FF256}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile = Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DB_backup", "DB_backup", "{D72C54B1-7C67-45FD-A80A-ACC6E2429FD7}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\..\Backups\backup_restore_command.txt = ..\..\..\..\..\Backups\backup_restore_command.txt
+		..\..\..\OneDrive\桌面\Data_04_19_2025.zip = ..\..\..\OneDrive\桌面\Data_04_19_2025.zip
+		..\..\..\..\..\Backups\nsns_db3_backup_2025_04_19.sql = ..\..\..\..\..\Backups\nsns_db3_backup_2025_04_19.sql
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4CEA206F-2218-4DC8-A099-C86F1870E64B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CEA206F-2218-4DC8-A099-C86F1870E64B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CEA206F-2218-4DC8-A099-C86F1870E64B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CEA206F-2218-4DC8-A099-C86F1870E64B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5891154-67AC-4A25-ACD5-300A7B33B5D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5891154-67AC-4A25-ACD5-300A7B33B5D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5891154-67AC-4A25-ACD5-300A7B33B5D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5891154-67AC-4A25-ACD5-300A7B33B5D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{737D945A-AC99-41EC-B3FB-A740A033136F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{737D945A-AC99-41EC-B3FB-A740A033136F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{737D945A-AC99-41EC-B3FB-A740A033136F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{737D945A-AC99-41EC-B3FB-A740A033136F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E9F8BB72-5CEA-4A45-B1A9-E7E44840F8AE}
+	EndGlobalSection
+EndGlobal

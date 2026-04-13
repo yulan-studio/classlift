@@ -1,0 +1,146 @@
+﻿
+
+@model Core.Models.Activity
+
+
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Edit Activity";
+}
+
+<h2>Edit Activity</h2>
+
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="activityId" value="@Model.ActivityID" />
+
+    <table style="border-collapse: collapse; width: 80%; text-align: left;">
+        <tr>
+            <td style="padding: 8px;"><label for="Title">Title:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="title" value="@Model.Title" placeholder="Activity Title" style="width: 100%;" required />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Description">Description:</label></td>
+            <td style="padding: 8px;">
+                <textarea name="description" placeholder="Enter activity description" style="width: 100%;" rows="3">@Model.Description</textarea>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Address">Address:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="address" value="@Model.Address" placeholder="Activity Address" style="width: 100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
+            <td style="padding: 8px;">
+                <input type="number" name="maxCapacity" step="1" min="0" value="@Model.MaxCapacity" placeholder="Enter max participants" style="width: 100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="ScheduledAt">Scheduled At:</label></td>
+            <td style="padding: 8px;">
+                <input type="datetime-local" name="scheduledAt"
+                       value="@(Model.ScheduledAt.ToString("yyyy-MM-dd HH:mm"))"
+                       style="width: 100%;" />
+            </td>
+        </tr>
+
+      @*   <tr>
+            <td style="padding: 8px;"><label for="Cost">Cost:</label></td>
+            <td style="padding: 8px;">
+                <input type="hidden" name="cost" step="0.01" value="@Model.Cost" placeholder="Enter cost" style="width: 100%;" />
+                @Model.Cost
+            </td>
+        </tr> *@
+
+       @*  <tr>
+            <td style="padding: 8px;"><label for="IsActive">Active:</label></td>
+            <td style="padding: 8px;">
+                <input id="isActive" name="isActive" type="checkbox" value="true" />
+                <input name="isActive" type="hidden" value="false" />
+                <label for="IsActive">Check if the course is active</label>
+            </td>
+        </tr> *@
+
+        @* <tr>
+          
+            <td style="padding: 8px;"><label for="isActive">Is Active:</label></td>
+            <td style="padding: 8px;"> <input asp-for="IsActive" type="checkbox" /></td></>
+            <input type="hidden" asp-for="IsActive" value="false" />
+        </tr> *@
+
+
+        <tr>
+           
+            <td style="padding: 8px;"><label for="Status">Status:</label></td>
+            <td style="padding: 8px;">
+                <select name="status" style="width: 100%;">
+                    <option value="">-- Select Status --</option>
+                    <option value="Open" selected="@(Model.Status == "Open" ? "selected" : null)">Open to registration</option>
+                    <option value="Closed" selected="@(Model.Status == "Closed" ? "selected" : null)">Closed to registration</option> 
+                    <option value="Canceled" selected="@(Model.Status == "Canceled" ? "selected" : null)">Canceled</option>
+                    @* <option value="Completed" selected="@(Model.Status == "Completed" ? "selected" : null)">Completed</option> *@
+                </select>
+            </td>
+        </tr>
+
+        @*   <tr>
+          
+            <td style="padding: 8px;"> <input id="isActive" name="isActive" type="checkbox" value="@Model.IsActive" /> </td> 
+            <td style="padding: 8px;"><label for="isActive">Is Active:</label></td>
+            <td style="padding: 8px;"> <input asp-for="IsActive" type="checkbox" /></td></>
+            <input type="hidden" asp-for="IsActive" value="false" />
+        </tr>  *@
+
+        @*  <tr>
+            <td style="padding: 8px;"><label for="ContactID">Contact Person:</label></td>
+            <td style="padding: 8px;">
+                <select name="ContactID" style="width: 100%;">
+                    <option value="" selected>Select Contact</option>
+                    @foreach (var user in ViewBag.ContactList)
+                    {
+                        <option value="@user.Value" @(Model.ContactID == int.Parse(user.Value) ? "selected" : "")>@user.Text</option>
+                    }
+                </select>
+            </td>
+        </tr> *@
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
+                <a href="/Activity/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @error.ErrorMessage
+                        </div>
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+
+
+@* @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} *@
+
+

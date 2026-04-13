@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" /> 
+   
+
+</head>
+<body>
+    <!-- First-Level Menu -->
+    <nav>
+        <ul class="first-level-menu">
+    @if (User.IsInRole("Admin"))
+
+    {
+
+                <li>
+                    <a href="/Dashboard/Admin">Dashboard</a>
+                </li>
+                
+                <li>
+                    <a href="/Admin/List">Manage Admins</a>
+                </li>
+                <li>
+                    <a href="/Staff/List">Manage Staff</a>
+                </li>
+                <li>
+                    <a href="#">Reports</a>
+                </li>
+    }
+
+    else if (User.IsInRole("Staff"))
+
+    {
+                <li>
+                    <a href="/Dashboard/Staff">Dashboard</a>
+                </li>
+                <li>
+                    <a href="/Specialty/List">Specialties</a>
+                </li>
+                <li>
+                    <a href="/City/List">Cities</a>
+                </li>
+                <li>
+                    <a href="/Coach/List">Manage Coaches</a>
+                </li>
+                <li>
+                    <a href="/Course/List">Manage Courses</a>
+                </li>
+                <li>
+                    <a href="/Activity/List">Manage Activities</a>
+                </li>
+                
+                <li>
+                    <a href="/Child/ManageRegistrations">Manage Registrations</a>
+                </li>
+                <li>
+                    <a href="/Child/ManagePayment">Manage Payments</a>
+                </li>
+
+    }
+
+    else if (User.IsInRole("Coach"))
+
+    {
+                <li>
+                    <a href="/Dashboard/Coach">Dashboard</a>
+                </li>
+                <li>
+                    <a href="/Coach/ManageCourse">My Courses</a>
+                </li>
+                <li>
+                    <a href="#">My Feedbacks</a>
+                </li>
+                <li>
+                    <a href="#">My Statistics</a>
+                </li>
+    }
+
+    else if (User.IsInRole("Child"))
+
+    {
+                <li>
+                    <a href="/Dashboard/Child">Dashboard</a>
+                </li>
+                <li>
+                    <a href="/Child/EnrollmentsHistory">My Enrollments</a>
+                </li>
+                <li>
+                    <a href="#">My Notifications</a>
+                </li>
+                <li>
+                    <a href="#">My Statistics</a>
+                </li>
+    }
+        </ul>
+    </nav>
+
+    @* <nav>
+        <ul class="first-level-menu">
+            <li><a href="@Url.Action("Index", "Admin")" data-menu="admin-users">Manage Users</a></li>
+            <li><a href="@Url.Action("Index", "Settings")" data-menu="settings">Settings</a></li>
+            <li><a href="@Url.Action("Index", "Reports")" data-menu="reports">Reports</a></li>
+        </ul>
+    </nav> *@
+
+    <div>
+        @RenderBody() <!-- Page Content Goes Here -->
+    </div>
+</body>
+</html>

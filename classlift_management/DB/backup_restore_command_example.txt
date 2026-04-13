@@ -1,0 +1,20 @@
+C:\ProgramData\MySQL\MySQL Server 8.0\Data	---  Default data directory used by official MySQL Server installs.
+C:\Program Files\MySQL\MySQL Server 8.0\Data --- Not usually used unless manually configured   this is the program folder, not the default for data.
+
+
+
+
+backup local MySQL:
+mysqldump -u root -p nsns_db3 > C:\Backups\nsns_db3_backup.sql
+
+
+Test connect to railway database:
+mysql -h yamanote.proxy.rlwy.net -u root -p --port 26454 --protocol=TCP
+use railway
+exit
+
+Restore backup into railway database:
+mysql -h yamanote.proxy.rlwy.net -P 26454 -u root -p railway < C:\Backups\nsns_db3_backup_2025_04_19.sql
+
+
+

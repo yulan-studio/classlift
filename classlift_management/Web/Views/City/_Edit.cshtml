@@ -1,0 +1,56 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model City
+
+
+
+@* <form id="cityForm">
+    <table style="border-collapse: collapse;  text-align: left;">
+        <tr>
+            <td style="padding: 8px; width: 40%"><label for="name">City Name:</label></td>
+            <td style="padding: 8px; width: 60%">
+                <input type="text" name="Name" placeholder="City Name" value="@Model.Name"  style="width: 100%;" required />
+                <input type="hidden" asp-for="CityID" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="button" onclick="saveCity()" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
+                <a href="/City/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+                
+            </td>
+        </tr>
+    </table>
+</form>
+ *@
+
+
+<form asp-action="Save" asp-controller="City" method="post" id="cityForm">
+    <table style="border-collapse: collapse; text-align: left;">
+        <tr>
+            <td style="padding: 8px; width: 40%">
+                <label asp-for="Name">City Name:</label>
+            </td>
+            <td style="padding: 8px; width: 60%">
+                <input asp-for="Name" class="form-control" placeholder="City Name" style="width: 100%;" required />
+                <input type="hidden" asp-for="CityID" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
+                <a asp-action="List" asp-controller="City" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+
+
+
+
+
+

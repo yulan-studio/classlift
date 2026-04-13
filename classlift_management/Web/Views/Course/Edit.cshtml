@@ -1,0 +1,115 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewData["Title"] = "Edit Course";
+}
+
+@model Core.Models.Course
+
+
+
+<h2>Edit Course</h2>
+
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="courseId" value="@Model.CourseID" />
+
+    <table style="border-collapse: collapse; width: 70%; text-align: left;">
+        <tr>
+            <td style="padding: 8px;"><label for="name">Coach:</label></td>
+           @*  <td style="padding: 8px;"><input type="text" name="name" value="@Model.Coach.Name" placeholder="Name" style="width: 60%;" readonly /><label>   Not to change</label></td> *@
+           <td style="padding: 8px;">@Model.Coach?.Name</td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="title">Title:</label></td>
+            <td style="padding: 8px;"><input type="text" name="title" value="@Model.Title" placeholder="Title" style="width: 60%;" /></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px;"><label for="description">Description:</label></td>
+            <td style="padding: 8px;"><input type="text" name="description" value="@Model.Description" placeholder="Description" style="width: 60%;" /></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px;"><label for="CourseType">Course Type:</label></td>
+            <input type="hidden" name="courseType" value="@Model.CourseType" />
+            <td style="padding: 8px;">@Model.CourseType</td>
+            
+        </tr>
+        <tr>
+            <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
+            <td style="padding: 8px;">
+                <input id="MaxCapacity" name="MaxCapacity" value="@(Model.MaxCapacity)" type="number" step="1" min="2" placeholder="Enter Max Capacity" style="width: 60%;" @(Model.CourseType == "Private" ? "disabled" : "") />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="SessionCount">Session Count:</label></td>
+           @*  <td style="padding: 8px;"><input id="SessionCount" name="SessionCount" value="@(Model.SessionCount)" type="number" step="1" min="1" placeholder="Enter Session Count" style="width: 100%;"  /> </td> *@
+            <input type="hidden" name="SessionCount" value="@Model.SessionCount" />
+            <td style="padding: 8px;">@Model.SessionCount</td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="hourlyCost">Hourly Cost:</label></td>
+            @* <td style="padding: 8px;"><input type="text" name="hourlyCost" value="@Model.HourlyCost" placeholder="HourlyCost" style="width: 60%;" readonly /></td> *@
+            <input type="hidden" name="hourlyCost" value="@Model.HourlyCost" />
+            <td style="padding: 8px;">@Model.HourlyCost</td>
+           
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="hourlyCost2">Hourly Cost(No funding):</label></td>
+            @* <td style="padding: 8px;"><input type="text" name="hourlyCost" value="@Model.HourlyCost" placeholder="HourlyCost" style="width: 60%;" readonly /></td> *@
+            <input type="hidden" name="hourlyCost2" value="@Model.HourlyCost2" />
+            <td style="padding: 8px;">@Model.HourlyCost2</td>
+        </tr>
+
+
+         <tr>
+           @*  <td style="padding: 8px;"><label for="isActive">Is Active:</label></td>
+            <td style="padding: 8px;"> <input id="isActive" name="isActive" type="checkbox" value="@Model.IsActive" /> </td> *@
+            <td style="padding: 8px;"><label for="isActive">Is Active:</label></td> 
+            <td style="padding: 8px;"> <input asp-for="IsActive" type="checkbox" /></td>
+            
+            <input type="hidden" asp-for="IsActive" value="false" />
+        </tr> 
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <small style="color:darkslategray">Note: A course with scheduled sessions can't be set to inactive</small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
+                <a href="/Course/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+        </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+             
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @error.ErrorMessage
+                        </div>
+                    }
+                }
+             </td>
+        </tr>
+    </table>
+
+   
+</form>
+
+
+@* @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    } *@

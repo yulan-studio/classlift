@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NSNS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+
+
+    <style>
+        body {
+            min-height: 100vh; /* Ensure the body covers the full height of the viewport */
+            display: flex;
+            flex-direction: column; /* Arrange header, main, and footer vertically */
+        }
+
+        main {
+            flex: 1; /* Allow the main content to stretch and take up available space */
+        }
+    </style>
+
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            @* <a class="navbar-brand" href="/nsns_logo.jpg">NSNS</a> *@
+
+            <a href="https://example.com">
+                <img src="/images/nsns_logo.jpg" alt="NSNS" style="width: 100px; height: auto;" />
+            </a>
+             
+
+
+
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Admin/List">Admin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Staff/List">Staff</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Coach/List">Coach</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="/Child/List">Child</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Course/List">Course</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="/Activity/List">Activity</a>
+                    </li>
+
+                     <li class="nav-item">
+                        <a class="nav-link" href="/City/List">City</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="/Specialty/List">Specialty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/PaymentPackage/List">PaymentPackage</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Coach/ManageCourse">ManageCourse</a>
+                    </li>
+
+                   @*  <li class="nav-item">
+                        <a class="nav-link" href="/Coach/ManageSchedules">Schedule</a>
+                    </li> *@
+                   
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Admin/Report">Report</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Account/Register">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Account/Login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Account/Logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-4">
+        @RenderBody()
+    </main>
+
+    <footer class="text-center mt-4">
+        <p>&copy; @DateTime.UtcNow.Year - NSNS</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @* <script src="/js/site.js"></script> *@
+    <script>$.ajaxSetup({ cache: false });</script>
+</body>
+</html>

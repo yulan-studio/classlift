@@ -1,0 +1,146 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Core.ViewModels.CoachHoursViewModel
+@{
+    ViewData["Title"] = "Coach Hours";
+    //decimal total = ViewBag.TotalIncome;
+}
+
+@* <h2>Coach Income</h2>
+
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
+    <thead>
+        <tr style="background-color: #1B7BAB; color: white;">
+            <th>Session Date</th>
+            <th>Course</th>
+            <th>Child</th>
+            <th>Hours</th>
+            <th>Income for Session</th>
+            <th>Total Income So Far</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.SessionDate.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@item.CourseName</td>
+                <td>@item.ChildName</td>
+                <td>@item.SessionHours</td>
+                <td>$@item.IncomeChange.ToString("F2")</td>
+                <td>$@item.TotalIncomeSoFar.ToString("F2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>Total Income: <strong>$@total.ToString("F2")</strong></h4> *@
+
+
+<h2>Coach Hours</h2>
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Specialties</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">City</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Coach.Name</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">
+                @if (Model.Coach.CoachSpecialties != null && Model.Coach.CoachSpecialties.Any())
+                {
+                    @string.Join(", ", Model.Coach.CoachSpecialties.Select(cs => cs.Specialty.Title))
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Coach.Gender</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">
+                @(Model.Coach.City != null ? Model.Coach.City.Name : "N/A")
+            </td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Coach.Phone</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Coach.User.Email</td>
+        </tr>
+    </tbody>
+</table>
+
+
+    @foreach (var month in Model.MonthlyIncomes)
+    {
+        <div style="margin: 20px 0; padding: 15px; border-radius: 5px; border: 1px solid #ddd; background-color: #fff;">
+            <h4 style="color:#1B7BAB;">@month.Year - @month.Month</h4>
+
+
+
+
+            <div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom: 10px;">
+                <span style="width:11%; background-color:#f9f9f9;">
+                    <strong>Total Hours:</strong> @month.TotalHours
+                </span>
+
+                <a href="#"
+                   class="text-decoration-none"
+                   onclick="toggleDetails('details-@month.Year-@month.Month'); return false;">
+                    Show / Hide Details
+                </a>
+            </div>
+
+
+
+
+
+            <div id="details-@month.Year-@month.Month">
+                <table style="width:100%; table-layout:fixed;">
+                    <colgroup>
+                        <col style="width:20%;" />
+                        <col style="width:25%;" />
+                        <col style="width:35%;" />
+                        <col style="width:20%;" />
+                    </colgroup>
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Child</th>
+                            <th>Course</th>
+                            <th>Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in month.Details)
+                        {
+                            <tr>
+                                <td>@d.ScheduledAt.ToShortDateString()</td>
+                                <td>@d.ChildName</td>
+                                <td>@d.CourseName</td>
+                                <td>@d.Hours</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+
+<script>
+    function toggleDetails(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+    }
+</script>
+
+@* <h5 style="margin-top: 20px;">Total Income: <strong>$@total.ToString("F2")</strong></h5> *@

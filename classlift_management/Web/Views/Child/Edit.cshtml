@@ -1,0 +1,108 @@
+﻿@*
+    Edit Child Page - Follows the same format as Coach Edit Page
+*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Edit Child";
+}
+
+@model Core.Models.Child
+
+<h2>Edit Child</h2>
+
+<form asp-action="Edit" method="post">
+   @*  <input type="hidden" name="childId" value="@Model.ChildID" /> *@
+    <input type="hidden" name="childId" value="@Model.ChildID" />
+
+    <input type="hidden" name="role" value="Child" />
+
+    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+
+        @* <tr>
+            <td style="padding: 8px;"><label for="memberID">Member ID:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="memberID" value="@Model.MemberID" placeholder="Enter child's Member ID" style="width: 100%;" />
+            </td>
+        </tr> *@
+
+        <tr>
+            <td style="padding: 8px;"><label for="name">Name:</label></td>
+            <td style="padding: 8px;"><input type="text" name="name" value="@Model.Name" placeholder="Enter child's name" style="width: 100%;" required /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="birthDate">Birth Date:</label></td>
+            <td style="padding: 8px;">
+                <input type="date" name="birthDate" value="@(Model.BirthDate.HasValue ? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "")" style="width: 100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="gender">Gender:</label></td>
+            <td style="padding: 8px;">
+                <select name="gender" class="form-control" style="width: 100%;">
+                    <option value="">-- Select Gender --</option>
+                    <option value="Male" selected="@(Model.Gender == "Male" ? "selected" : null)">Male</option>
+                    <option value="Female" selected="@(Model.Gender == "Female" ? "selected" : null)">Female</option>
+                    <option value="N/A" selected="@(Model.Gender == "N/A" ? "selected" : null)">N/A</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="cityId">City:</label></td>
+            <td style="padding: 8px;">
+                <select name="cityId" class="form-control" style="width: 100%;">
+                    <option value="">Select City</option>
+                    @foreach (var city in ViewBag.CityList)
+                    {
+                        <option value="@city.Value" selected="@(Model.CityID == int.Parse(city.Value) ? "selected" : null)">@city.Text</option>
+                    }
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Email">Email:</label></td>
+            <td style="padding: 8px;"><input type="email" name="email" value="@Model.User.Email"  placeholder="Email" style="width: 100%;" /></td>
+        </tr>
+
+        @* <tr>
+            <td style="padding: 8px;"><label for="Password">Password:</label></td>
+            <td style="padding: 8px;"><input type="text" name="password" value="@Model.User.PasswordHash" placeholder="Password" value="12345" style="width: 100%;" /></td>
+        </tr> *@
+
+         <tr>
+            <td style="padding: 8px;"><label for="hasOAP">Has OAP:</label></td>
+            <td style="padding: 8px;">
+                <select name="hasOAP" class="form-control" style="width: 100%;">
+                    <option value="">-- Select Has OAP --</option>
+                    <option value="true" selected="@(Model.HasOAP == true ? "selected" : null)">True</option>
+                    <option value="false" selected="@(Model.HasOAP == false ? "selected" : null)">False</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
+                <a href="/Child/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @error.ErrorMessage
+                        </div>
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+</form>

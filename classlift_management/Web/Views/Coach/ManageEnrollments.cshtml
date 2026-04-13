@@ -1,0 +1,360 @@
+﻿@model Core.ViewModels.ManageEnrollmentsViewModel
+
+<style>
+
+
+    /* .btn-primary {
+        background-color: #1B7BAB;
+        border: 1px solid #1B7BAB;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary.active {
+        background-color: #23A1E0 !important;
+        border-color: #23A1E0 !important;
+        box-shadow: none !important;
+    } */
+
+    /* Desktop default */
+    table.mobile-stack {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.mobile-stack th,
+    table.mobile-stack td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    .row-same {
+        margin-right:10px;
+        margin-bottom: 10px;
+    }
+
+    /* Desktop: ActualHours + CoachNote on same line */
+    .row-fields {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: nowrap;
+    }
+
+    .input-hours {
+        width: 60px;
+        margin-right: 10px;
+        margin-bottom: 15px;
+    }
+
+   
+
+    .input-note {
+       /*  width: 200px;
+        resize: none;
+        height: 38px;  */
+        /* same as Bootstrap input */
+       /*  line-height: 1.5; */
+        /* overflow-y: hidden; */
+       /*  margin-bottom: 10px; */
+        width: 90%;
+        height: auto;
+        min-height: 80px;
+        margin-bottom: 15px;
+    }
+
+    /* Mobile: keep table, improve form */
+
+    @@media (max-width: 767px) {
+
+        .desktop-only {
+            display: none !important;
+        }
+
+        .complete-form
+
+        {
+            display: block;
+        }
+
+        .row-same {
+            margin-bottom: 10px;
+        }
+
+        .row-fields {
+            flex-direction: column;
+            align-items: stretch;
+        }
+       /*  .row-fields {
+            display: flex;
+            gap: 8px;
+        } */
+
+        .row-same {
+            margin-bottom: 10px;
+        }
+
+        .input-hours {
+            width: 60px;
+            margin-bottom: 10px;
+        }
+
+        
+
+        .input-note {
+            width: 100%;
+            height: auto;
+            min-height: 80px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        input::placeholder {
+            font-size: 12px;
+        }
+       
+
+    }
+   
+</style>
+
+<h2>Manage Enrollments</h2>
+
+
+<a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
+
+<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+    <p><strong>Course:</strong> @Model.Course.Title</p>
+    <p><strong>Child:</strong> @Model.Child.Name</p>
+    @if(Model.Course.SessionCount!= null )
+    {
+        <p><strong>Session Count:</strong> @Model.Course.SessionCount</p>
+    }
+
+</div>
+
+
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Sessions Awaiting Completion</h5></div>
+
+<div style="padding: 10px 10px 10px 10px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #FFDBF6; ">
+    To complete the session, the coach is required to enter the actual hours and then click the 'Complete' button.<br/>
+    For courses with a fixed number of sessions, completing all sessions will automatically mark the root enrollment as completed.<br />
+    Ensure total completed hours = Session Count × Duration per Session for fixed-session courses.
+</div>
+
+<div class="table-responsive">
+    <table id="scheduleTable" class="mobile-stack table table-bordered mt-3"  style="border-collapse: collapse;">
+        <thead class="table-primary">
+            <tr>
+
+                <th>Scheduled At</th>
+                <th>Scheduled Hours</th>
+                <th>Actual Hours</th>
+            
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.WaitToCompleteEnrollments.Any())
+            {
+                foreach (var schedule in Model.WaitToCompleteEnrollments)
+                {
+                    <tr>
+
+                        <td>@((schedule.ScheduledAt.HasValue) ? schedule.ScheduledAt.Value.ToString("yyyy-MM-dd HH:mm") : "")</td>
+                        <td>@schedule.ScheduledHours</td>
+                        <td>
+
+
+                            <form method="post" action="/Coach/CompleteSession" class="complete-form">
+                                <input type="hidden" name="enrollmentId" value="@schedule.EnrollmentID" />
+                                <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+                                <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+                                <!-- Checkbox to show/hide fields -->
+                                <!-- Checkbox for "Same as Schedule" -->
+                                <div class="row-same">
+                                    <label>
+                                        <input type="checkbox" id="sameAsSchedule_@schedule.EnrollmentID"
+                                               onchange="toggleFields('@schedule.EnrollmentID', this.checked);" checked />
+                                        Same as Schedule
+                                    </label>
+                               </div>
+                                
+                                <!-- Fields to show/hide -->
+
+                                <div id="extraFields_@schedule.EnrollmentID"
+                                     class="row-fields"
+                                     style="display:none; margin-top:10px;">
+
+                                    <input name="actualHours"
+                                           value="@schedule.ActualHours"
+                                           type="number"
+                                           step="0.25"
+                                           min="0"
+                                           style="width:50px"
+                                           class="input-hours" />
+
+                                    @* <input name="coachNote"
+                                           value="@schedule.CoachNote"
+                                           type="text"
+                                           placeholder="Please enter notes if the hours are different."
+                                           class="input-note" /> *@
+
+                                    <textarea name="coachNote"
+                                      class="input-note form-control"
+                                      placeholder="Please enter notes if the hours are different.">@schedule.CoachNote</textarea>
+                                     
+                                    
+
+                                </div>
+
+
+                                @* <div id="extraFields_@schedule.EnrollmentID" class="row-fields" style="display: none; margin-top: 5px;">
+                                    <input name="actualHours" value="@schedule.ActualHours" type="number" step="0.25" min="0"  style="width:60px" /> &nbsp;&nbsp;
+                                    <input name="coachNote" value="@schedule.CoachNote" type="text" placeholder="Please enter notes if the hours are different." style="width: 360px" /> &nbsp;&nbsp;
+                                </div> *@
+
+                                <div class="row-button">
+                                    <button type="submit" class="btn btn-primary">
+                                        Complete
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" style="text-align: center; padding: 10px;">No scheduled sessions.</td>
+                </tr>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <tr>
+                    <td colspan="3">
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    </td>
+                </tr>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <tr>
+                    <td colspan="3">
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div style="padding-top: 30px"></div>
+
+
+
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Completed Sessions</h5></div>
+
+
+<table id="completeTable" class="mobile-stack table table-bordered mt-3" >
+    <thead class="table-primary">
+        <tr>
+
+            <th>Scheduled At</th>
+            <th>Scheduled Hours</th>
+            <th>Actual Hours</th>
+            <th class="desktop-only">Parent Note</th>
+            <th class="desktop-only">My Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CompletedEnrollments.Any())
+        {
+            foreach (var complete in Model.CompletedEnrollments)
+            {
+                <tr>
+
+                    <td>@((complete.ScheduledAt.HasValue) ? complete.ScheduledAt.Value.ToString("yyyy-MM-dd") : "")</td>
+                    <td>@complete.ScheduledHours</td>
+                    <td>@complete.ActualHours</td>
+                    <td class="desktop-only">@complete.ParentNote</td>
+                    <td class="desktop-only">@complete.CoachNote</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 10px;">No completed sessions.</td>
+            </tr>
+        }
+
+        
+    </tbody>
+</table>
+
+
+
+
+<div style="padding-top: 30px"></div>
+
+
+
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Deleted Sessions</h5></div>
+
+
+<table id="deletedTable" class="mobile-stack table table-bordered mt-3" style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead class="table-primary">
+        <tr>
+
+            <th>Scheduled At</th>
+            <th>Scheduled Hours</th>
+            <th class="desktop-only">Actual Hours</th>
+            <th>Parent Note</th>
+            <th class="desktop-only">My Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.DeletedEnrollments.Any())
+        {
+            foreach (var deleted in Model.DeletedEnrollments)
+            {
+                <tr>
+
+                    <td>@((deleted.ScheduledAt.HasValue) ? deleted.ScheduledAt.Value.ToString("yyyy-MM-dd HH:mm") : "")</td>
+                    <td>@deleted.ScheduledHours</td>
+                    <td class="desktop-only">@deleted.ActualHours</td>
+                    <td>@deleted.ParentNote</td>
+                    <td class="desktop-only">@deleted.CoachNote</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 10px;">No Deleted sessions.</td>
+            </tr>
+        }
+
+
+    </tbody>
+</table>
+
+
+
+
+<script>
+        function toggleFields(id, isChecked) {
+        const fieldsDiv = document.getElementById('extraFields_' + id);
+        // If "Same as Schedule" is checked, hide fields; otherwise show
+        fieldsDiv.style.display = isChecked ? 'none' : 'inline';
+    }
+</script>

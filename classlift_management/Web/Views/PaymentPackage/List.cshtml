@@ -1,0 +1,76 @@
+﻿@model IEnumerable<Core.ViewModels.PackageWithDeleteViewModel>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewData["Title"] = "Manage Payment Packages";
+}
+
+<h1>Payment Packages</h1>
+
+<!-- ✅ Add New Package Button -->
+<a href="/PaymentPackage/AddEdit" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add Payment Package</a>
+
+<!-- ✅ Table Showing Payment Packages -->
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Title</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Amount</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Is Active</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var packageWithDelete in Model)
+
+        {
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;">@packageWithDelete.Package.Title</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@packageWithDelete.Package.Description</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">$@packageWithDelete.Package.Amount</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@(packageWithDelete.Package.IsActive ? "Yes" : "No")</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">
+                    <a href="/PaymentPackage/AddEdit/@packageWithDelete.Package.PackageID" style="margin-right: 10px; color: #007bff; text-decoration: none;">Edit</a>
+                    @if (packageWithDelete.CanDelete)
+                    {
+                        <a href="/PaymentPackage/ConfirmDelete/@packageWithDelete.Package.PackageID" style="color: #007bff; text-decoration: none;">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+
+        @if (!Model.Any())
+
+        {
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 10px;">No payment packages found.</td>
+            </tr>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+
+        {
+            <tr>
+                <td colspan="5">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+
+        {
+            <tr>
+                <td colspan="5">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

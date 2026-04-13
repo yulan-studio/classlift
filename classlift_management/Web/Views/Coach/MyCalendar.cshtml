@@ -1,0 +1,147 @@
+﻿@{
+    ViewData["Title"] = "My Calendar";
+}
+
+<h2 class="page-title">My Calendar</h2>
+
+<style>
+    /* Page spacing */
+    .page-title {
+        margin-bottom: 15px;
+    }
+
+    #calendar {
+        max-width: 100%;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    /* Events */
+    .fc-event {
+        cursor: pointer;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        padding: 4px;
+    }
+
+    /* FullCalendar buttons */
+    .fc .fc-button {
+        background-color: #33C3FD;
+        border-color: #33C3FD;
+        color: #ffffff;
+    }
+
+        .fc .fc-button:hover,
+        .fc .fc-button.fc-button-active {
+            background-color: #2198D4;
+            border-color: #2198D4;
+        }
+
+        .fc .fc-button:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            opacity: 0.7;
+        }
+
+    /* Date numbers */
+    .fc .fc-daygrid-day-number {
+        color: #363636;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    /* Weekday header */
+    .fc .fc-col-header-cell-cushion {
+        color: #2198D4;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    /* ===========================
+           📱 Mobile Optimizations
+           =========================== */
+    @@media (max-width: 767px) {
+     h2 {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    #calendar {
+        padding: 5px;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1rem;
+    }
+
+    .fc .fc-button {
+        padding: 4px 6px;
+        font-size: 0.75rem;
+    }
+
+    .fc-event {
+        font-size: 0.85rem;
+    }
+
+    }
+</style>
+
+<div id="calendar"></div>
+
+<!-- CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+<link href="~/lib/tippy/tippy.css" rel="stylesheet" />
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="~/lib/popper/popper.min.js"></script>
+<script src="~/lib/tippy/tippy.umd.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const isMobile = window.innerWidth <= 767;
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+
+            initialView: isMobile ? 'listWeek' : 'dayGridMonth',
+            height: "auto",
+
+            headerToolbar: {
+                left: isMobile ? 'prev,next' : 'prev,next today',
+                center: 'title',
+                right: isMobile ? '' : 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+
+            events: {
+                url: '/Coach/GetCoachSchedules',
+                method: 'GET'
+            },
+
+            eventDidMount: function (info) {
+                // Disable tooltip on mobile (better UX)
+                if (!isMobile) {
+                    tippy(info.el, {
+                        content: `
+                            <strong>${info.event.title}</strong><br/>
+                            Start: ${info.event.start.toLocaleString()}<br/>
+                            End: ${info.event.end.toLocaleString()}<br/>
+                            Status: ${info.event.extendedProps.status}
+                        `,
+                        allowHTML: true,
+                        theme: 'light-border',
+                        placement: 'top'
+                    });
+                }
+            },
+
+            eventColor: '#3788d8',
+            eventTextColor: '#ffffff'
+        });
+
+        calendar.render();
+    });
+</script>

@@ -1,0 +1,117 @@
+wwwroot\calculations\8565f262-e211-4a20-8ece-3f0249fea3be_buddy_up_program_right.jpg
+wwwroot\css\bootstrap.min.css
+wwwroot\css\site.css
+wwwroot\css\site_old.css
+wwwroot\favicon.ico
+wwwroot\images\nsns_logo_new.jpg
+wwwroot\images\nsns_logo_old.jpg
+wwwroot\js\cities.js
+wwwroot\js\coaches.js
+wwwroot\js\courses.js
+wwwroot\js\payments.js
+wwwroot\js\registrations.js
+wwwroot\js\schedules.js
+wwwroot\js\sessions.js
+wwwroot\js\site.js
+wwwroot\js\specialties.js
+wwwroot\lib\bootstrap\LICENSE
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map
+wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt
+wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js
+wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js
+wwwroot\lib\jquery-validation\LICENSE.md
+wwwroot\lib\jquery-validation\dist\additional-methods.js
+wwwroot\lib\jquery-validation\dist\additional-methods.min.js
+wwwroot\lib\jquery-validation\dist\jquery.validate.js
+wwwroot\lib\jquery-validation\dist\jquery.validate.min.js
+wwwroot\lib\jquery\LICENSE.txt
+wwwroot\lib\jquery\dist\jquery.js
+wwwroot\lib\jquery\dist\jquery.min.js
+wwwroot\lib\jquery\dist\jquery.min.map
+wwwroot\lib\popper\popper.min.js
+wwwroot\lib\tippy\tippy.css
+wwwroot\lib\tippy\tippy.umd.min.js
+wwwroot\receipts\008e2224-5bf2-4d80-bf32-e435166b0ad8_2.jpg
+wwwroot\receipts\01a2141a-3e19-4add-9078-4eeaf5369337_Camp_Adelaide1.jpg
+wwwroot\receipts\0337932a-e510-4af2-bbdc-aac3780686e3_1.webp
+wwwroot\receipts\117af195-4d81-469a-8521-8a2b3af902fa_istockphoto-2166776302-1024x1024_cleanup.jpg
+wwwroot\receipts\19d14672-e210-4457-bebd-aca7012766b6_IMG_2138.jpg
+wwwroot\receipts\1ad40d58-b900-44d4-982b-6e8cfc9ab2fb_2.jpg
+wwwroot\receipts\1b10dacd-f8e3-48ae-8374-7b5d2eefc62d_IMG_2138.jpg
+wwwroot\receipts\1d93fd51-8a5d-49f9-b2fc-7f0fdcd3484d_YMCA_Camp_Pine_Crest.jpg
+wwwroot\receipts\21bdc664-ea44-4aaf-92d6-631656a15fb8_key term & key theme 2.jpg
+wwwroot\receipts\3332a603-b62a-41f1-9380-64fa7ff1b617_d0cc809b34d61faf98b53538a788485d.JPG
+wwwroot\receipts\347ee6af-fe0a-4239-b277-c3df2e29f27e_key term & key theme 2.jpg
+wwwroot\receipts\3e55c50b-6773-408b-a9bf-1695dd830ae7_1.jpg
+wwwroot\receipts\48915607-0ead-4de8-8f1a-1b753baf01f5_IMG_2138.jpg
+wwwroot\receipts\4bf208cc-5ecf-45d1-96a0-1f2bf1c188fc_Camp_Pine_Crest .jpg
+wwwroot\receipts\583f76c7-330a-46e3-a277-a9db406c0367_volunteers.jpg
+wwwroot\receipts\5ae95511-3b83-4975-9f57-040b5694d996_blocks.jpg
+wwwroot\receipts\5c60df3a-34ff-4533-92a1-f4226f5b2805_Camp_Adelaide.jpg2.jpg
+wwwroot\receipts\648ab6fc-f33f-4f1b-b966-6a4f6c517a84_Camp_Adelaide (1).jpg
+wwwroot\receipts\69180cee-db04-47f7-9067-35fa18cca289_Camp_Adelaide1.jpg
+wwwroot\receipts\7af794ad-6513-47cf-866f-d5515c8fbc5e_volunteers.jpg
+wwwroot\receipts\7e254c64-c68f-4aff-9949-669718bdf8dd_padding (1).jpg
+wwwroot\receipts\938057aa-254a-4f7e-bbd5-cc7e09a538a7_istockphoto-1340016904-1024x1024_cleanup (1).jpg
+wwwroot\receipts\a5ea234e-d324-4fa9-a3fc-ee93332e82d3_buddy_up_program.jpg
+wwwroot\receipts\afb18891-4da7-417e-9668-e4df93388335_1.jpg
+wwwroot\receipts\b5245202-1ddd-48b1-b63f-a11d91830b7d_495598683_1250300560430588_5310992573347463378_n (1).jpg
+wwwroot\receipts\be8f6c0d-0dca-47e2-85b2-1a0729829480_dragon_boat_event.jpg
+wwwroot\receipts\c5189129-dd46-47b5-bd1b-44c921d6e276_istockphoto-668609866-1024x1024 (1) (1).jpg
+wwwroot\receipts\c7e486f6-7e9b-4ef8-a9b2-96b3536fe20f_soccer_watching3.JPG
+wwwroot\receipts\d165bdb9-9e00-4e0e-abb6-ad8e52585f00_Camp_Adelaide (1).jpg
+wwwroot\receipts\d6ae7881-b535-4a8b-bba6-2dc6efd8f1d5_drawing_event2.jpg
+wwwroot\receipts\e33b9e93-e7cf-41a2-96e7-8b915dedcc8c_istockphoto-1303107115-1024x1024.jpg
+wwwroot\receipts\e8ed644d-7aa6-4dfc-98c4-8a4341b34e27_8eed29f765497b7389f422fdfa08371c.JPG
+wwwroot\receipts\eaf93fb8-8601-40a2-ab96-652bd7e6908b_soccer_watching3.JPG
+wwwroot\receipts\f0adf5d1-fca9-4cd3-a5cd-859b55b65e07_hockey_event.jpg
+wwwroot\receipts\f2f92fc3-978e-4d10-b0b3-311743588dfb_padding2 (1).jpg
+wwwroot\receipts\f3ff5ed1-ba65-42a2-937c-554873368657_Camp_Adelaide (1).jpg
+wwwroot\receipts\f57aa64c-1292-4c74-9c8b-c8140a0ce7e8_Camp_Adelaide.jpg2.jpg
+wwwroot\receipts\f8e6a19a-a731-4b43-bcd8-5fd52ed627c7_dragon_boat_event.jpg
+wwwroot\receipts\fb59329f-f4d6-4f2b-ac9b-ccddae59d124_padding2 (1).jpg
+wwwroot\receipts\fbeff3a5-b0d4-488e-b2c4-7ffe0a460915_music_class.jpg
+wwwroot\receipts\fe1834c5-fc40-4bfa-ae6d-847f92eee30d_IMG_2138.jpg

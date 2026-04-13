@@ -1,0 +1,350 @@
+﻿@model Core.ViewModels.ManageSchedulesViewModel
+
+<style>
+
+    /* .btn-primary {
+        background-color: #1B7BAB;
+        border: 1px solid #1B7BAB;
+        
+    }
+    
+    .btn-primary:hover,
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary.active {
+        background-color: #23A1E0 !important;
+        border-color: #23A1E0 !important;
+        box-shadow: none !important;
+    } */
+
+    
+
+    /* ===== Desktop default ===== */
+    table.mobile-stack {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.mobile-stack th,
+    table.mobile-stack td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    /* ===== Mobile card view ===== */
+    @@media (max-width: 767px) {
+        table.mobile-stack thead {
+            display: none;
+        }
+
+        table.mobile-stack,
+        table.mobile-stack tbody,
+        table.mobile-stack tr,
+        table.mobile-stack td {
+            display: block;
+            width: 100%;
+        }
+
+        table.mobile-stack tr {
+            margin-bottom: 16px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        table.mobile-stack td {
+            border: none;
+            padding: 6px 0;
+        }
+
+        table.mobile-stack td::before {
+            content: attr(data-label);
+            display: block;
+            font-weight: 600;
+            color: #1B7BAB;
+            margin-bottom: 2px;
+        }
+
+        /* Make inputs, textareas, buttons full-width on mobile */
+        table.mobile-stack textarea,
+        table.mobile-stack input,
+        table.mobile-stack button,
+        table.mobile-stack a {
+            width: 100%;
+            margin-top: 6px;
+        }
+
+        /* Stack buttons vertically for easier tapping */
+        table.mobile-stack td .view-mode,
+        table.mobile-stack td .edit-mode {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+
+
+
+<h2 class="mb-3">Manage Schedule</h2>
+
+<a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
+
+@* btn-light  mb-3*@
+<!-- Info Panel -->
+<div class="p-3 mb-4 bg-light border rounded">
+    <strong>Course:</strong> @Model.Course.Title <br />
+    <strong>Child:</strong> @Model.Child.Name <br />
+    <strong>Gender:</strong> @Model.Child.Gender <br />
+    <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br />
+    <strong>City:</strong> @Model.Child.City.Name <br /><br />
+
+    @foreach (var pc in Model.Parents)
+    {
+        <div class="d-none d-md-block">
+            <strong>@pc.Relationship:</strong> @pc.Parent.Name
+            <strong>&nbsp; &nbsp; Phone:</strong> @pc.Parent.Phone
+            <strong>&nbsp; &nbsp; WeChat:</strong> @pc.Parent.Wechat
+        </div>
+
+        <div class="d-block d-md-none">
+            <div><strong>@pc.Relationship:</strong> @pc.Parent.Name</div>
+            <div><strong>Phone:</strong> @pc.Parent.Phone</div>
+            <div><strong>WeChat:</strong> @pc.Parent.Wechat</div>
+        </div>
+    }
+</div>
+
+
+
+<h4 class="mt-4">Upcoming Sessions</h4>
+
+<table class="mobile-stack table table-bordered mt-3" @* class="mobile-stack mt-3" *@>
+    <thead class="table-primary">
+        <tr>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Parent Note</th>
+            <th>Coach Note</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.Schedules.Any())
+        {
+            foreach (var s in Model.Schedules)
+            {
+                var start = s.ScheduledAt.HasValue ? s.ScheduledAt.Value :Core.DateTimeHelper.GetTorontoTime();
+                var hours = s.ScheduledHours ?? 0;
+                var end = start.AddHours((double)hours);
+                var now = Core.DateTimeHelper.GetTorontoTime();
+                //var now = DateTime.UtcNow;
+                //var scheduledUtc = start.HasValue ? TimeZoneInfo.ConvertTimeToUtc(start.Value, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")) : now;
+                var isWithin24Hours = (start - now).TotalHours < 24;
+
+                <tr id="row-@s.EnrollmentID">
+                    <td data-label="Date">@start.ToString("yyyy-MM-dd")</td>
+                    <td data-label="Start">@start.ToString("HH:mm")</td>
+                    <td data-label="End">@end.ToString("HH:mm")</td>
+
+                    <td data-label="Location">
+                        <span id="locationView-@s.EnrollmentID" class="view-mode">@s.Location</span>
+                        <input id="locationEdit-@s.EnrollmentID" value="@s.Location" class="form-control edit-mode" style="display:none" />
+
+                        
+                    </td>
+
+                    <td data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FFDBF6" : "transparent")">@s.Status</td>
+                    <td data-label="Parent Note">@s.ParentNote</td>
+                    <td data-label="Coach Note"><textarea class="form-control">@s.CoachNote</textarea></td>
+
+                    <td data-label="Actions">
+                        @if (s.Status != "Deleted" && !isWithin24Hours)
+                        {
+                            <a href="javascript:void(0);" class="view-mode" onclick="enterEditMode(@s.EnrollmentID)">Edit</a>
+                            
+                            <button type="button" class="edit-mode btn btn-primary" style="display:none" onclick="saveSchedule(@s.EnrollmentID)">Save</button>
+
+
+                            <button type="button" class="edit-mode btn btn-secondary" style="display:none" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
+                        }
+
+                        @if (s.Status != "Deleted" && !isWithin24Hours)
+                        {
+                            <form method="post" action="/Coach/DeleteSchedule" style="display:inline-block; margin-top:3px; margin-left: 5px;">
+                                <input type="hidden" name="enrollmentId" value="@s.EnrollmentID" />
+                                <input type="hidden" name="childId" id="childId" value="@Model.Child.ChildID" />
+                                <input type="hidden" name="courseId" id="courseId" value="@Model.Course.CourseID" />
+                                <input type="hidden" name="enrollmentId_Ref" id="enrollmentId_Ref" value="@Model.EnrollmentID" />
+                                <button type="submit" class="view-mode btn btn btn-primary">Remove</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center">No scheduled courses.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<form method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
+<div class="mb-3">
+    <strong>Schedule Type</strong><br />
+    <input type="radio" name="isRecurring" value="false" checked onclick="toggleRecurring(false)"> Single
+    <input type="radio" name="isRecurring" value="true" onclick="toggleRecurring(true)"> Recurring
+</div>
+
+<!-- Schedule Form -->
+<div class="mt-4 p-3 bg-light border rounded">
+    
+        <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+        <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+        <input type="hidden" name="enrollmentId_Ref" value="@Model.EnrollmentID" />
+
+        <div class="mb-2">
+            <strong>Scheduled Date</strong>
+            <input type="datetime-local" id="scheduledAt" name="scheduledAt" class="form-control" required />
+            <span id="scheduledAtError" class="text-danger"></span>
+        </div>
+
+        <div class="mb-2">
+            <strong>Scheduled Hours</strong>
+            <input id="scheduledHours" name="scheduledHours" type="number" step="0.25" min="0.5" class="form-control" required />
+            <small id="minutesDisplay" class="text-muted"></small>
+        </div>
+
+        <div class="mb-3">
+            <strong>Location</strong>
+            <input name="location" class="form-control" required />
+        </div>
+
+        <div id="recurringFields" style="display:none;">
+            <div class="mb-2">
+                <strong>Recurrence</strong>
+
+                
+                
+                <select name="recurrenceType" class="form-control">
+                    <option value="Weekly">Weekly</option>
+                    <option value="Daily">Daily</option>
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <strong>Number of Sessions</strong>
+                <input name="recurrenceCount" type="number" min="1" value="1" class="form-control" />
+            </div>
+        </div>
+
+        <button class="btn btn-primary">Schedule</button>
+    
+</div>
+</form>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<script>
+
+    function toggleRecurring(isRecurring) {
+        const section = document.getElementById("recurringFields");
+        section.style.display = isRecurring ? "block" : "none";
+
+        document.querySelector('[name="recurrenceCount"]').disabled = !isRecurring;
+    }
+
+
+    function validateScheduleTime() {
+        const el = document.getElementById("scheduledAt");
+        const err = document.getElementById("scheduledAtError");
+        if (!el.value || new Date(el.value) <= new Date()) {
+            err.textContent = "Scheduled time must be in the future.";
+            return false;
+        }
+        err.textContent = "";
+        return true;
+    }
+
+    function updateMinutesDisplay() {
+        const v = parseFloat(document.getElementById("scheduledHours").value);
+        document.getElementById("minutesDisplay").textContent =
+            isNaN(v) ? "" : `(${Math.round(v*60)} minutes)`;
+    }
+
+    document.getElementById("scheduledHours")?.addEventListener("input", updateMinutesDisplay);
+
+    function enterEditMode(id) {
+        document.querySelectorAll(`#row-${id} .view-mode`).forEach(e => e.style.display="none");
+        document.querySelectorAll(`#row-${id} .edit-mode`).forEach(e => e.style.display="inline-block");
+    }
+
+    function cancelEdit(id) {
+        document.querySelectorAll(`#row-${id} .edit-mode`).forEach(e => e.style.display="none");
+        document.querySelectorAll(`#row-${id} .view-mode`).forEach(e => e.style.display="inline-block");
+    }
+
+    // function saveSchedule(id) {
+    //     const location = document.getElementById(`locationEdit-${id}`).value;
+    //     fetch('/Coach/UpdateSchedule', {
+    //         method: 'POST',
+    //         headers: { 'Content-Type':'application/json' },
+    //         body: JSON.stringify({
+    //             enrollmentId: id,
+    //             location: location,
+    //             childId: document.getElementById("childId").value,
+    //             courseId: document.getElementById("courseId").value,
+    //             enrollmentId_Ref: document.getElementById("enrollmentId_Ref").value
+    //         })
+    //     })
+    //     .then(r => r.json())
+    //     .then(data => {
+    //         if (data.redirectUrl) window.location.href = data.redirectUrl;
+    //     });
+    // }
+
+
+        function saveSchedule(id) {
+       // const location=document.getElementById("locationEdit-${id}").value;
+       const location = document.getElementById(`locationEdit-${id}`).value;
+       
+
+        fetch('/Coach/UpdateSchedule', {
+            method: 'POST', headers: {
+                'Content-Type': 'application/json'
+            }
+
+            , body: JSON.stringify({
+                enrollmentId: id, 
+                location: location, 
+                childId: document.getElementById("childId").value, 
+                courseId: document.getElementById("courseId").value, 
+                enrollmentId_Ref: document.getElementById("enrollmentId_Ref").value
+            })
+
+    }) .then(r=> r.json()) .then(data=> {
+            if (data.redirectUrl) {
+                window.location.href=data.redirectUrl;
+            }
+        });
+    }
+</script>

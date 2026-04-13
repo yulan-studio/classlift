@@ -1,0 +1,22 @@
+﻿@*
+    Delete Child Page - Follows the same format as Delete Coach Page
+*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Delete Child";
+}
+
+<h2>Delete Child</h2>
+<p>Are you sure you want to delete the following child?</p>
+
+<p><strong>Name:</strong> @Model.Name</p>
+<p><strong>Birth Date:</strong> @(Model.BirthDate.HasValue ? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</p>
+<p><strong>Gender:</strong> @Model.Gender</p>
+<p><strong>City:</strong> @(Model.City != null ? Model.City.Name : "N/A")</p>
+
+<form method="post" action="/Child/Delete">
+    <input type="hidden" name="ChildID" value="@Model.ChildID" />
+    <button type="submit" style="background-color: #ff4d4d; color: white; padding: 10px;">Confirm Delete</button>
+    <a href="/Child/List" style="margin-left: 10px;">Cancel</a>
+</form>

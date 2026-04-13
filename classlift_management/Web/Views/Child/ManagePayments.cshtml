@@ -1,0 +1,339 @@
+﻿
+
+
+@* <script src="/js/payments.js"></script> *@
+
+ @model Core.ViewModels.ManagePaymentsViewModel
+
+@{
+    Layout = null;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+@* <div>
+    <p><strong>Name:</strong> @Model.Child.Name</p>
+    <p><strong>Birth Date:</strong> @(Model.Child.BirthDate.HasValue? Model.Child.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</p>
+    <p><strong>Gender:</strong> @Model.Child.Gender</p>
+    <p><strong>City:</strong> @(Model.Child.City != null ? Model.Child.City.Name : "N/A")</p>
+</div>
+<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to Children List</a>
+<div style="border-top: 2px solid #ddd; margin: 20px 0;"></div> *@
+
+
+
+<!-- ✅ Table Showing Payments -->
+<h3 style="color: 007bff">Manage Payments</h3>
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Parent</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Token Payment</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Direct Payment | OAP Payment</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Amount</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Payment Date</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Screenshot</th>
+
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Payments.Any())
+
+        {
+
+            foreach (var payment in Model.Payments)
+
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@payment.Parent.Name</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.PaymentPackage != null ? payment.PaymentPackage.Title : "")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.Fee != null ? (payment.Fee.CourseEnrollment != null ? payment.Fee.CourseEnrollment.Course.Title : (payment.Fee.ActivityEnrollment!=null?payment.Fee.ActivityEnrollment.Activity.Title:"")) : "")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">$@payment.Amount</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(payment.PaymentDate.HasValue? payment.PaymentDate.Value.ToString("yyyy-MM-dd") : "")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @if (!string.IsNullOrEmpty(payment.Receipt))
+
+                        {
+                            <a href="@payment.Receipt" target="_blank">
+                                <img src="@payment.Receipt" alt="Receipt" width="100">
+                            </a>
+                        }
+
+                        else
+
+                        {
+                            <span>No Receipt</span>
+                        }
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <form method="post" action="/Child/RemovePayment">
+                            <input type="hidden" name="paymentId" value="@payment.PaymentID" />
+                            <input type="hidden" name="childId" value="@payment.Child.ChildID" />
+                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+                                Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+
+        }
+
+        else
+
+        {
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 10px;">No payments found.</td>
+            </tr>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+
+        {
+            <tr>
+                <td colspan="7">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+
+        {
+            <tr>
+                <td colspan="7">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+<!-- ✅ Form to Add a New Payment -->
+<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+    <b>Add Payment for @Model.Child.Name</b>
+    <div style="margin-bottom: 10px;"></div>
+ 
+
+    <form method="post" action="/Child/AddPayment" enctype="multipart/form-data">
+        <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+       
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <!-- Select Parent -->
+            <tr>
+                <td style="padding: 8px; width: 200px;"><label for="parentId">Select Parent:</label></td>
+                <td>
+                    <select id="parentId" name="parentId" required style="width: 20%;">
+                        <option value="">-- Select Parent --</option>
+                        @foreach (var parent in ViewBag.ParentList)
+                        {
+                            <option value="@parent.Value">@parent.Text</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <!-- Payment Type -->
+            <tr>
+                <td style="padding: 8px;"><label>Payment Type:</label></td>
+                <td>
+                    <input type="radio" id="packagePayment" name="paymentType" value="package" checked onchange="togglePaymentType()">
+                    <label for="packagePayment">Token Payment</label>
+                    &nbsp;&nbsp;
+                    <input type="radio" id="manualPayment" name="paymentType" value="manual" onchange="togglePaymentType()">
+                    <label for="manualPayment">Direct Payment</label>
+                    &nbsp;&nbsp;
+                    
+                    <input type="radio" id="oapPayment" name="paymentType" value="oap"  onchange="togglePaymentType()">
+                    <label for="oapPayment">OAP Payment</label>
+                </td>
+            </tr>
+            <!-- Package Row -->
+            <tr id="packageRow">
+                <td style="padding: 8px;"><label for="packageId">Select Package:</label></td>
+                <td>
+                    <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" style="width: 20%;">
+                        <option value="">-- Select Package --</option>
+                        @foreach (var package in ViewBag.PaymentPackages)
+                        {
+                            <option value="@package.Value">@package.Text</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+
+
+            <!-- Direct Payment Row -->
+            <tr id="directPaymentRow" style="display: none;">
+                <td style="padding: 8px; vertical-align: top;"><label>Select Course or Activity:</label></td>
+                <td>
+                    @if (ViewBag.UnpaidDirectItems != null && ViewBag.UnpaidDirectItems.Count > 0)
+                    {
+                        
+                            @foreach (var item in ViewBag.UnpaidDirectItems)
+                            {
+                                <div style="margin-bottom: 6px;">
+                                     <input type="radio"
+                                           name="selectedFeeId"
+                                           value="@item.FeeID"
+                                           data-cost="@item.TotalCost"
+                                           data-feeId="@item.FeeID"
+                                           id="fee_@item.FeeID"
+                                           onchange="updateAmountFromFee(this)" /> 
+                                    <label for="fee_@item.FeeID">[@item.Type] @item.Title (@item.TotalCost.ToString("C"))</label>
+                                </div>
+                               
+                                @* <label for="fee_@item.FeeID">@item.Type: @item.Title (@item.TotalCost.ToString("C"))</label> *@
+
+                                @* @item.Type  @item.Title @item.TotalCost.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-CA")); *@
+                            }
+
+                        <input type="hidden" name="feeId" id="feeId" />
+                       
+                    }
+                    else
+                    {
+                        <p style="color: gray;">No unpaid courses or activities available.</p>
+                    }
+                </td>
+            </tr>
+
+
+            <!-- OAP Payment Row -->
+            <tr id="oapPaymentRow" style="display: none;">
+                <td style="padding: 8px; vertical-align: top;"><label>Select Course or Activity:</label></td>
+                <td>
+                    @if (ViewBag.UnpaidOAPItems != null && ViewBag.UnpaidOAPItems.Count > 0)
+                    {
+
+                        @foreach (var item in ViewBag.UnpaidOAPItems)
+                        {
+                            <div style="margin-bottom: 6px;">
+                                <input type="radio"
+                                       name="selectedFeeId"
+                                       value="@item.FeeID"
+                                       data-cost="@item.TotalCost"
+                                       data-feeId="@item.FeeID"
+                                       id="fee_@item.FeeID"
+                                       onchange="updateAmountFromFee(this)" />
+                                <label for="fee_@item.FeeID">[@item.Type] @item.Title (@item.TotalCost.ToString("C"))</label>
+                            </div>
+
+                            @* <label for="fee_@item.FeeID">@item.Type: @item.Title (@item.TotalCost.ToString("C"))</label> *@
+
+                            @* @item.Type  @item.Title @item.TotalCost.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-CA")); *@
+                        }
+
+                        <input type="hidden" name="feeId" id="feeId" />
+
+                    }
+                    else
+                    {
+                        <p style="color: gray;">No unpaid courses or activities available.</p>
+                    }
+                </td>
+            </tr>
+
+         
+
+            <!-- Amount -->
+            <tr>
+                <td style="padding: 8px;"><label for="amount">Amount:</label></td>
+                <td><input id="amount" name="amount" required readonly style="width: 20%;" /></td>
+            </tr>
+
+            <!-- Upload Receipt -->
+            <tr>
+                <td style="padding: 8px;"><label for="file">Upload Screenshot:</label></td>
+                <td><input type="file" name="file" accept="image/*" required style="width: 20%;" /></td>
+            </tr>
+            <!-- Payment Date -->
+            <tr>
+                <td style="padding: 8px;"><label for="paymentDate">Payment Date:</label></td>
+                <td><input type="date" name="paymentDate" required style="width: 20%;" /></td>
+            </tr>
+            <!-- Submit -->
+            <tr>
+                <td style="padding: 8px;">
+                    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 5px;">
+                        Add Payment
+                    </button>
+                </td>
+               @*  <td>
+                   
+                </td> *@
+            </tr>
+        </table>
+    </form>
+
+
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function togglePaymentType() {
+        //alert("toggleAmountField called");
+        var isPackage = document.getElementById('packagePayment').checked;
+        var isDirect = document.getElementById('manualPayment').checked;
+        var isOAP = document.getElementById('oapPayment').checked;
+
+        //document.getElementById('packageDiv').style.display = isPackage ? 'block' : 'none';
+        // Toggle the <tr> rows
+        //document.getElementById('packageRow').style.display = isPackage ? 'table-row' : 'none';
+        document.getElementById('packageRow').style.display = isPackage ? 'table-row' : 'none';
+        document.getElementById('directPaymentRow').style.display = isDirect ? 'table-row' : 'none';
+        document.getElementById('oapPaymentRow').style.display = isOAP ? 'table-row' : 'none';
+        document.getElementById('amount').readOnly = isPackage;
+
+        if (!isPackage) {
+            document.getElementById('amount').value = ''; // clear for manual entry
+        }
+    }
+
+    // Fetch package amount (existing function)
+
+
+        function fetchPackageAmount(packageId) {
+    //alert("fetchPackageAmount called");
+        if (!packageId) {
+            document.querySelector("input[name='amount']").value = "";
+            return;
+        }
+
+        fetch(`/PaymentPackage/GetPackageAmount?packageId=${packageId}`)
+            .then(response => response.json())
+            .then(data => {
+                const amountInput = document.querySelector("input[name='amount']");
+                if (data.success) {
+                    amountInput.value = data.amount;
+                } else {
+                    amountInput.value = "";
+                    alert("Failed to retrieve package amount.");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching package amount:", error);
+                document.querySelector("input[name='amount']").value = "";
+            });
+    }
+
+
+    function updateAmountFromFee(radio) {
+        const cost = radio.getAttribute('data-cost');
+        const feeId = radio.getAttribute('data-feeId');
+        document.getElementById('amount').value = cost;
+        document.getElementById('feeId').value = feeId;
+    }
+
+
+    // Initialize on page load
+    //toggleAmountField();
+</script>

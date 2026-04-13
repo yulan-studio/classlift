@@ -1,0 +1,291 @@
+﻿
+
+
+@* <script src="/js/registrations.js"></script> *@
+@model Core.ViewModels.ManageRegisterationsViewModel
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+<style>
+    /* ===== Desktop default ===== */
+    table.mobile-stack {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        table.mobile-stack th,
+        table.mobile-stack td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+
+
+
+
+
+    /* ===== Mobile card layout ===== */
+    @@media (max-width: 767px) {
+
+        .desktop-only {
+            display: none !important;
+        }
+
+        .course-title {
+            font-weight: 600;
+        }
+
+        table.mobile-stack thead
+        {
+            display: none;
+        }
+
+        table.mobile-stack,
+        table.mobile-stack tbody,
+        table.mobile-stack tr,
+        table.mobile-stack td {
+            display: block;
+            width: 100%;
+        }
+
+        table.mobile-stack tr {
+            margin-bottom: 16px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        table.mobile-stack td {
+            border: none;
+            padding: 6px 0;
+        }
+
+        table.mobile-stack td::before {
+            content: attr(data-label);
+            display: block;
+            font-weight: 600;
+            color: #1B7BAB;
+            margin-bottom: 2px;
+        }
+
+    }
+</style>
+
+
+
+
+<h2>Registeration History</h2>
+
+
+
+
+<!-- ✅ Table Showing Already Registered Courses -->
+<div style="padding-top: 20px; padding-bottom: 20px">
+    <h4 style="color:steelblue">- Courses -</h4>
+</div>
+<div style="padding: 10px 10px 10px 10px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
+    
+   
+    Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the courses you have registered for. To view upcoming course session schedules, please check the <a href="/Child/MySchedules">Schedules</a> section. For completed sessions, please refer to the <a href="/Child/MyEnrollmentsHistory">Enrollments</a> section.<br />
+   
+    请在<a href="/Child/MyConfirmations">Confirmations</a>页面确认已注册课程。如需查看即将开始的课程安排，请前往 <a href="/Child/MySchedules">Schedules</a> 页面。已完成的课程请查看 <a href="/Child/MyEnrollmentsHistory">Enrollments</a> 页面。
+  
+</div>
+<table class="mobile-stack table table-bordered mt-3" @* class="mobile-stack" *@>
+    <thead class="table-primary">
+        <tr>
+            <th>Course</th>
+            <th class="desktop-only">Specialty</th>
+            <th>Coach</th>
+            <th>Session Count</th>
+            <th class="desktop-only">Scheduled</th>
+            <th>Completed</th>
+            <th>Canceled</th>
+            <th class="desktop-only">Request To Reschedule</th>
+            <th class="desktop-only">Request To Leave</th>
+            <th>On Leave</th>
+            <th>Status</th>
+            <th>Is Paid</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CourseEnrollments.Any())
+        {
+
+            foreach (var enrollment in Model.CourseEnrollments)
+
+            {
+                <tr>
+                    <td class="course-title" data-label="Course">@enrollment.Title</td>
+                    <td class="desktop-only" data-label="Specialty">@enrollment.SpecialtyName</td>
+                    <td data-label="Coach">@enrollment.CoachName</td>
+                    <td data-label="Session Count">@enrollment.SessionCount</td>
+                    <td class="desktop-only" data-label="Scheduled">@enrollment.ScheduledSessions</td>
+                    <td data-label="Completed">@enrollment.CompletedSessions</td>
+                    <td data-label="Canceled">@enrollment.CanceledSessions</td>
+                    <td class="desktop-only" data-label="Request To Reschedule">@enrollment.RequestToRescheduleSessions</td>
+                    <td class="desktop-only" data-label="Request To Leave">@enrollment.RequestToLeaveSessions</td>
+                    <td data-label="On Leave">@enrollment.OnLeaveSessions</td>
+                    <td data-label="Status">@enrollment.Status</td>
+                    <td data-label="Is Paid">
+                        @if (!enrollment.IsPaid)
+                        {
+                            <a href="javascript:void(0);" onclick="showPaymentModal('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(enrollment.PaymentDescription))')">
+                                False
+                            </a>
+                        }
+                        else
+                        {
+                            @enrollment.IsPaid
+                        }
+                    </td>
+
+
+                 
+                </tr>
+            }
+           
+        }
+        else
+        {
+            <tr>
+                <td colspan="14" style="text-align: center; padding: 10px;">No courses enrolled.</td>
+            </tr>
+        }
+
+
+        
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+<!-- ✅ Table Showing Already Enrolled Activities -->
+<div style="padding-top: 20px; padding-bottom: 20px">
+    <h4 style="color:steelblue">- Activities - </h4>
+</div>
+<div style="padding: 10px 10px 10px 10px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
+    
+    Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the activities you have registered for. For upcoming activities, please check the <a href="/Child/MySchedules">Schedules</a> section. For completed activities, please refer to the <a href="/Child/MyEnrollmentsHistory">Enrollments</a> section.<br />
+    
+    请在<a href="/Child/MyConfirmations">Confirmations</a>页面确认已注册活动。即将开始的活动，请查看<a href="/Child/MySchedules">Schedules</a> 页面。 已完成的活动请查看 <a href="/Child/MyEnrollmentsHistory">Enrollments</a> 页面。
+
+
+
+</div>
+<table class="mobile-stack table table-bordered mt-3" @* class="mobile-stack" *@>
+   @*  <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Activity</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Address</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled At</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Is Paid</th>
+        </tr>
+    </thead> *@
+
+
+    <thead class="table-primary">
+        <tr>
+            <th>Activity</th>
+            <th>Description</th>
+            <th>Address</th>
+            <th>Scheduled At</th>
+            <th>Status</th>
+            <th>Is Paid</th>
+          
+        </tr>
+    </thead>
+       
+    <tbody>
+        @if (Model.ActivityEnrollments.Any())
+        {
+            foreach (var enrollment in Model.ActivityEnrollments)
+            {
+                <tr>
+                    <td data-label="Activity">@enrollment.Title</td>
+                    <td data-label="Description">@enrollment.Description</td>
+                    <td data-label="Address">@enrollment.Address</td>
+                    <td data-label="Scheduled At">@enrollment.ScheduledAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td data-label="Status">@enrollment.Status</td>
+                    <td data-label="Is Paid">
+                        @if (!enrollment.IsPaid)
+                        {
+                            <a href="javascript:void(0);" onclick="showPaymentModal('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(enrollment.PaymentDescription))')">
+                                False
+                            </a>
+                        }
+                        else
+                        {
+                            @enrollment.IsPaid
+                        }
+                    </td>
+
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 10px;">No activities enrolled.</td>
+            </tr>
+        }
+
+      
+    </tbody>
+</table>
+
+
+
+@* <script>
+    function showPaymentDescription(description) {
+        alert(description);
+    }
+</script> *@
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Payment Description</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="paymentModalBody">
+                <!-- Content will be filled dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+<script>
+    function showPaymentModal(description) {
+
+        var modalBody = document.getElementById('paymentModalBody');
+        modalBody.textContent = description;
+
+        var modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        modal.show();
+    }
+</script>
+
+
+
+
+
+     
+
+

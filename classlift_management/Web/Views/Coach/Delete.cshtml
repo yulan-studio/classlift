@@ -1,0 +1,12 @@
+﻿
+
+<h2>Delete Coach</h2>
+<p>Are you sure you want to delete the following coach member?</p>
+<p>Name: @Model.Name</p>
+<p>Email: @Model.Email</p>
+
+<form method="post" action="/Staff/Delete">
+    <input type="hidden" name="CoachID" value="@Model.CoachID" />
+    <button type="submit" style="background-color: #ff4d4d; color: white; padding: 10px;">Confirm Delete</button>
+    <a href="/Staff/List" style="margin-left: 10px;">Cancel</a>
+</form>

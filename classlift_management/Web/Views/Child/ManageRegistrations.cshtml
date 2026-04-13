@@ -1,0 +1,524 @@
+﻿@model Core.ViewModels.ManageRegisterationsViewModel
+
+@{
+    Layout = null;
+}
+
+@{
+    // Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Manage Registrations";
+
+    var concernIds = (ViewData["ConcernEnrollmentIds"] as IEnumerable<int>)?.ToList() ?? new List<int>();
+    
+}
+
+
+
+<!-- ✅ Table Showing Already Registered Courses -->
+
+<h3 style="color: 007bff">Registration History</h3>
+<div style="padding-top: 20px; padding-bottom: 20px">
+    <h4 style="color:steelblue">- Courses -</h4>
+</div>
+
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Course</th>
+           @*  <th style="padding: 8px; border: 1px solid #ddd;">Course Type</th> *@
+          @*   <th style="padding: 8px; border: 1px solid #ddd;">Specialty</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Coach</th> *@
+         @*    <th style="padding: 8px; border: 1px solid #ddd;">Hourly Cost</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Hourly Cost(No funding)</th> *@
+    @*         <th style="padding: 8px; border: 1px solid #ddd;">Is Active</th> *@
+            
+            <th style="padding: 8px; border: 1px solid #ddd;">Session Count</th>
+            @* <th style="padding: 8px; border: 1px solid #ddd;">Registered</th> *@
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Completed</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Canceled</th>
+           @*  <th style="padding: 8px; border: 1px solid #ddd;">Request To Reschedule</th> *@
+            <th style="padding: 8px; border: 1px solid #ddd;">Request To Leave</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">On Leave</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Total Cost</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Paid</th>
+            
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Group Sessions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CourseEnrollments.Any())
+        {
+
+            foreach (var enrollment in Model.CourseEnrollments)
+
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
+                    @* <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.CourseType</td> *@
+                   @*  <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.SpecialtyName</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.CoachName</td> *@
+                    
+                    @* <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.HourlyCost</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.HourlyCost2</td> *@
+                @*     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.IsActive</td> *@
+                   
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.SessionCount</td>
+                   @*  <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC; @(enrollment.RegisteredSessions > 0 ? "color: red" : "")">@enrollment.RegisteredSessions</td> *@
+                    <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC;">@enrollment.ScheduledSessions</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC;">@enrollment.CompletedSessions</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC; @(enrollment.CanceledSessions > 0 ? "color: red" : "")">@enrollment.CanceledSessions</td>
+                  @*   <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC; color:@((enrollment.RequestToRescheduleSessions > 0) && enrollment.CourseType == "Group"? "red" : "black");" >@enrollment.RequestToRescheduleSessions</td> *@
+                    <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC; background-color:@(enrollment.RequestToLeaveSessions > 0 ? "#FFDBF6" : "#EDFDFC");">@enrollment.RequestToLeaveSessions</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC;">@enrollment.OnLeaveSessions</td>
+                   
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                       
+                            <a href="#"
+                               onclick="loadEditCourseFeeForm(@enrollment.EnrollmentID)"
+                               style="margin-left: 10px; color: #007bff; text-decoration: none;">
+                                @enrollment.TotalCost
+                            </a>
+                      
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Status</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; @(enrollment.IsPaid == false ? "color: red" : "")">@enrollment.IsPaid</td>
+                    
+
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <form method="post" action="/Child/UnregisterCourse">
+                            <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@enrollment.ChildID" />
+                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;@(enrollment.CompletedSessions == 0 && enrollment.ScheduledSessions == 0 && !@enrollment.IsPaid ? "" : "display: none;")">
+                                Remove
+                            </button>
+                        </form>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd; @(concernIds.Contains(@enrollment.EnrollmentID) ? "background-color: #F8C3DF;" : "")">
+                        <a href="/Child/ManageSessionRegistrations?childId=@enrollment.ChildID&courseId=@enrollment.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(enrollment.CourseType == "Group" ?"":"display: none;")">Manage</a>
+                        
+                       @*  <a asp-controller="Child"
+                           asp-action="ManageSessionRegistrations"
+                           asp-route-childId="@enrollment.ChildID"
+                           asp-route-courseId="@enrollment.CourseID"
+                           style="margin-left: 10px; color: #007bff; text-decoration: none; @(enrollment.CourseType == "Group" ? "" : "display: none;")">
+                            Schedule
+                        </a> *@
+
+
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="13" style="text-align: center; padding: 10px;">No private courses enrolled.</td>
+            </tr>
+        }
+
+         @if (TempData["SuccessMessage1"] != null)
+        {
+            <tr>
+                <td colspan="13">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage1"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage1"] != null)
+        {
+            <tr>
+                <td colspan="13">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage1"]
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+<div id="courseFeeModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Course Fee</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="courseModalContent">
+                <!-- The Edit form will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+
+
+
+<b>Register @Model.Child.Name in a Course</b>
+<div style="margin-bottom: 10px;"></div>
+    <form method="post" action="/Child/RegisterCourse">
+        <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+
+        <!-- Select Specialty First -->
+        <label for="specialtyId">Select Specialty:</label>
+        <select id="specialtyId" name="specialtyId" required onchange="fetchCoursesBySpecialty(this.value)">
+            <option value="">-- Select Specialty --</option>
+            @foreach (var specialty in ViewBag.SpecialtyList)
+
+            {
+                <option value="@specialty.Value">@specialty.Text</option>
+            }
+        </select>
+
+        <!-- Select Course Based on Specialty -->
+        <label for="courseId">Select Course:</label>
+        <select id="courseId" name="courseId" required onchange="checkIfGroupClass(this.value)">
+            <option value="">-- Select Course --</option>
+        </select>
+
+        <input type="hidden" name="scheduledHours" value="0" />
+        <div style="margin-top: 20px; margin-bottom:20px;">
+        <!-- Select Payment Model -->
+        <label for="paymentModel">Payment Model:</label>
+            <select id="paymentModel" name="paymentModel" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
+            <option value="">-- Select Payment Model --</option>
+            <option value="Direct">Direct</option>
+            <option value="Token">Token</option>
+            <option value="OAP">OAP</option>
+        </select>
+
+            <label style="font-size:0.9em; color:darkslategray"> - If there is enough balance, choose 'Token'.</label>
+
+        <!-- Fee Input (visible conditionally) -->
+        <span id="feeSection" style="display:none; margin-top:10px;">
+            <label for="totalCost">Fee:</label>
+                <input type="number" step="1" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" />
+
+            <!-- Description Textarea -->
+            <label for="description" style="margin-top:8px; display:block;">Description:</label>
+            <textarea id="description" name="description" rows="5" cols="40"
+                      placeholder="Enter fee details here..."></textarea>
+        </span>
+        </div>
+
+        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
+    </form>
+
+</div>
+@* 
+<div style="border-top: 1px solid #007bff; margin: 40px 0;"></div> *@
+
+<div style="margin-bottom: 10px;"></div>
+
+<!-- ✅ Table Showing Already Enrolled Activities -->
+<div style="padding-top: 20px; padding-bottom: 20px">
+    <h4 style="color:steelblue">- Activities -</h4>
+</div>
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Activity Title</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Address</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled Date</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Total Cost</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Is Paid</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.ActivityEnrollments.Any())
+        {
+            foreach (var enrollment in Model.ActivityEnrollments)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Address</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToString("yyyy-MM-dd")</td>
+                   @*  <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.Cost</td> *@
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+
+                        <a href="#"
+                           onclick="loadEditActivityFeeForm(@enrollment.EnrollmentID)"
+                           style="margin-left: 10px; color: #007bff; text-decoration: none;">
+                            @enrollment.TotalCost
+                        </a>
+
+                    </td>
+
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.IsPaid</td>
+
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Status</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <form method="post" action="/Child/UnregisterActivity">
+                            <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@enrollment.ChildID" />
+                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(enrollment.Status == "Canceled" || enrollment.Status == "Completed" ? "display: none" : "")">
+                                Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 10px;">No activities enrolled.</td>
+            </tr>
+        }
+
+        @if (TempData["SuccessMessage2"] != null)
+        {
+            <tr>
+                <td colspan="7">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage2"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage2"] != null)
+        {
+            <tr>
+                <td colspan="7">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage2"]
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+<div id="activityFeeModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Activity Fee</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="activityModalContent">
+                <!-- The Edit form will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+
+<!-- ✅ Form to Enroll Child in an Activity -->
+<b>Register @Model.Child.Name in Activity</b>
+<div style="margin-bottom: 10px;"></div>
+
+<form method="post" action="/Child/RegisterActivity">
+    <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+
+    <label for="activityId">Select Activity:</label>
+    <select id="activityId" name="activityId" required>
+        <option value="">-- Select Activity --</option>
+        @foreach (var activity in ViewBag.ActivityList)
+        {
+            <option value="@activity.Value">@activity.Text</option>
+        }
+    </select>
+        <div style="margin-top: 10px; margin-bottom:20px;">
+        <!-- Select Payment Model -->
+        <label @* for="PaymentModel2" *@>Payment Model:</label>
+            <select id="paymentModel" name="paymentModel" required onchange="toggleActivityFeeInput(this);updateDescription(this);">
+            <option value="">-- Select Payment Model --</option>
+            <option value="Token">Token</option>
+            <option value="OAP">OAP</option>
+            <option value="Direct">Direct</option>
+        </select>
+
+        <label style="font-size:0.9em; color:darkslategray"> - If there is enough balance, choose 'Token'.</label>
+
+        <!-- Fee Input (visible conditionally) -->
+        <span id="activityFeeSection" style="display:none; margin-top:10px;">
+            <label for="totalCost">Fee:</label>
+                <input type="number" step="1" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" />
+
+            <!-- Description Textarea -->
+            <label for="description" style="margin-top:8px; display:block;">Description:</label>
+            <textarea id="description" name="description" rows="3" cols="40"
+                      placeholder="Enter fee details here..."></textarea>
+                
+        </span>
+     </div>
+
+    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
+        @* <small style="color:darkslategray">   - Open activities are shown here</small> *@
+</form>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
+<script>
+        function fetchCoursesBySpecialty(specialtyId) {
+            if (!specialtyId) {
+                document.getElementById('courseId').innerHTML = '<option value="">-- Select Course --</option>';
+                return;
+            }
+
+            fetch(`/Child/GetCoursesBySpecialty?specialtyId=${specialtyId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const courseDropdown = document.getElementById('courseId');
+                    courseDropdown.innerHTML = '<option value="">-- Select Course --</option>';
+                    data.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.courseID;
+                        option.text = course.title;
+                        option.setAttribute("data-course-type", course.courseType);
+                        courseDropdown.add(option);
+                    });
+                });
+    }
+
+
+    let isGroupClass = false;
+
+    function checkIfGroupClass(courseId) {
+        const courseDropdown = document.getElementById("courseId");
+        const selectedOption = courseDropdown.options[courseDropdown.selectedIndex];
+        const courseType = selectedOption.getAttribute("data-course-type");
+
+        if (courseType === "Group") {
+            isGroupClass = true;
+        } else {
+            isGroupClass = false;
+        }
+
+        toggleCourseFeeInput();
+    }
+
+    function toggleCourseFeeInput(element) {
+        const parentDiv = element.closest("div"); // Find nearest div section
+        const paymentModelDropdown = parentDiv.querySelector("[name='paymentModel']");
+        const paymentModel = paymentModelDropdown.value;
+        const feeSection = document.getElementById("feeSection");
+
+        if (paymentModel === "Direct") {
+            feeSection.style.display = "block";
+            document.getElementById("totalCost").setAttribute("required", "required");
+        }
+        else if (paymentModel === "Token") {
+            if (isGroupClass) {
+                feeSection.style.display = "block";
+                document.getElementById("totalCost").setAttribute("required", "required");
+
+
+
+            }
+            else {
+                feeSection.style.display = "none";
+                document.getElementById("totalCost").removeAttribute("required");
+            }
+        }
+        else if (paymentModel === "OAP") {
+            
+                feeSection.style.display = "block";
+                document.getElementById("totalCost").setAttribute("required", "required");
+         
+        }
+        else {
+            feeSection.style.display = "none";
+            document.getElementById("totalCost").removeAttribute("required");
+        }
+
+
+    }
+
+
+    function loadEditCourseFeeForm(courseEnrollmentId) {
+        $.get("/Fee/EditCourseFee/" + courseEnrollmentId, function (data) {
+            //alert(data);
+            $("#courseModalContent").html(data);
+            $("#courseFeeModal").modal("show");
+        });
+    }
+
+    function loadEditActivityFeeForm(activityEnrollmentId) {
+        $.get("/Fee/EditActivityFee/" + activityEnrollmentId, function (data) {
+            //alert(data);
+            $("#activityModalContent").html(data);
+            $("#activityFeeModal").modal("show");
+        });
+    }
+
+
+
+    function toggleActivityFeeInput(element) {
+        const parentDiv = element.closest("div"); // Find nearest div section
+        const paymentModelDropdown = parentDiv.querySelector("[name='paymentModel']");
+        //const paymentModel = document.getElementById("paymentModel").value;
+        const paymentModel = paymentModelDropdown.value;
+        const feeSection = document.getElementById("activityFeeSection");
+
+        if (paymentModel === "Direct") {
+            feeSection.style.display = "block";
+            document.getElementById("totalCost").setAttribute("required", "required");
+        }
+        else if (paymentModel === "Token") {
+
+                feeSection.style.display = "block";
+                document.getElementById("totalCost").setAttribute("required", "required");
+        }
+        else if (paymentModel === "OAP") {
+
+                feeSection.style.display = "block";
+                document.getElementById("totalCost").setAttribute("required", "required");
+        }
+        else {
+                feeSection.style.display = "none";
+                document.getElementById("totalCost").removeAttribute("required");
+        }
+    }
+
+
+
+        function updateDescription(element) {
+        const parentDiv = element.closest("div"); // Find nearest div section
+        const paymentModelDropdown = parentDiv.querySelector("[name='paymentModel']");
+        const totalCostInput = parentDiv.querySelector("[name='totalCost']");
+        const descriptionInput = parentDiv.querySelector("[name='description']");
+
+        const paymentModel = paymentModelDropdown.value;
+        const totalCost = totalCostInput.value.trim();
+
+        if (paymentModel === "Token" && totalCost && totalCost !== "0") {
+            descriptionInput.value = `Use Token - $${totalCost} will be deducted from your balance once confirmed.`;
+        } else if (paymentModel === "Direct" && totalCost && totalCost !== "0") {
+            descriptionInput.value = `Please email transfer $${totalCost} to accounting@ncoatoronto.ca, and send screenshot to customer service.`;
+        } 
+        else if (paymentModel === "OAP" && totalCost && totalCost !== "0") {
+            descriptionInput.value = `Please email transfer $${totalCost} to info@nutcrackertherapy.ca, and send screenshot to customer service.`;
+        }
+        // else if (paymentModel === "Token" && totalCost === null) {
+        //     descriptionInput.value = "To be charged in sessions";
+        // }
+        else {
+            descriptionInput.value = "Free";
+        }
+    }
+
+</script>

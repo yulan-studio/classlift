@@ -1,0 +1,63 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Core.Models.Parent
+
+<h5>Edit Parent</h5>
+<form method="post" action="/Child/EditParent">
+    <input type="hidden" name="parentId" id="ParentID" value="@ViewBag.ParentId" />
+
+
+    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+        <tr>
+            <td style="padding: 8px;"> <label for="Name">Parent Name:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="parentName" id="Name" placeholder="Enter Parent Name" required style="margin-right: 10px;" />
+            </td>
+        </tr>
+
+
+
+        <tr>
+            <td style="padding: 8px;"><label for="relationship">Relationship:</label></td>
+            <td style="padding: 8px;">
+                <select name="relationship" readonly style="margin-right: 10px;">
+                    <option value="">-- Select Relationship --</option>
+                    <option value="Father">Father</option>
+                    <option value="Mother">Mother</option>
+                    <option value="Guardian">Guardian</option>
+
+                </select>
+            </td>
+        </tr>
+
+
+
+        <tr>
+            <td style="padding: 8px;"><label for="phone">Phone:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="phone" id="Phone" placeholder="Enter Phone Number" style="margin-right: 10px;" />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="email">Email:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="email" id="Email" placeholder="Enter Email Address" style="margin-right: 10px;" />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="wechat">WeChat:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="wechat" id="Wechat" placeholder="Enter WeChat account" style="margin-right: 10px;" />
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Parent</button>
+            </td>
+        </tr>
+    </table>
+</form>

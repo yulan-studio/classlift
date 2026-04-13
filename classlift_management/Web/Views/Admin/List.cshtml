@@ -1,0 +1,81 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Manage Staff";
+}
+
+
+@model IEnumerable<Admin>
+
+
+<h1>Manage Admin</h1>
+
+<a href="/Admin/Add" style="display: inline-block; margin-bottom: 20px;">Add Admin</a>
+
+<table style="border-collapse: collapse; width: 50%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Wechat</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var admin in Model)
+        {
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;">@admin.Name</td>
+ 
+                <td style="padding: 8px; border: 1px solid #ddd;">@admin.User.Email</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@admin.Phone</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@admin.Wechat</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">
+               
+                    <a href="/Admin/ConfirmDelete/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
+                    <a href="/Admin/Edit/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <tr>
+                <td colspan="5" >
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <tr>
+                <td colspan="5" >
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+        
+    </tbody>
+</table>
+
+@* @if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+} *@

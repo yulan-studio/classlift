@@ -1,0 +1,98 @@
+﻿@model Core.Models.Child
+
+@* <div>
+    <p><strong>Name:</strong> @Model.Name</p>
+    <p><strong>Birth Date:</strong> @(Model.BirthDate.HasValue ? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</p>
+    <p><strong>Gender:</strong> @Model.Gender</p>
+    <p><strong>City:</strong> @(Model.City != null ? Model.City.Name : "N/A")</p>
+
+    <p><strong>Has OAP:</strong> @Model.HasOAP</p>
+    <p><strong>Email:</strong> @Model.User.Email</p>
+</div> *@
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Member ID</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Birth Date</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">City</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Has OAP</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Name</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.MemberID</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">
+                @(Model.BirthDate.HasValue? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")
+            </td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Gender</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">
+                @(Model.City != null ? Model.City.Name : "N/A")
+            </td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.HasOAP</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.User.Email</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; margin-right: 20px; border: 1px solid #ccc;">Back to Children List</a>
+<a href="/Child/Participation/@Model.ChildID">Participation</a>
+<div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" ? "active" : "")" href="#" data-url="/Child/CoreInfo/@Model.ChildID">Core Member Information</a></li>
+    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Parents" ? "active" : "")" href="#" data-url="/Child/Parents/@Model.ChildID">Parents</a></li>
+    @* <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "ManagePayments" ? "active" : "")" href="#" data-url="/Child/ManagePayments/@Model.ChildID">Payments</a></li>
+    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Registerations" ? "active" : "")" href="#" data-url="/Child/Registrations/@Model.ChildID">Registrations</a></li>
+    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "EnrollmentsHistory" ? "active" : "")" href="#" data-url="/Child/EnrollmentsHistory/@Model.ChildID">Enrollments</a></li> *@
+    @* <li class="nav-item"><a class="nav-link" href="#" data-url="/Child/ManageRegistrations/@Model.ChildID">Manage Registration</a></li> *@
+    @*<li class="nav-item"><a class="nav-link" href="#" data-url="/Course/List?childId=@Model.Id">Courses</a></li> *@
+</ul>
+
+<!-- Content Area -->
+<div id="contentArea" class="border p-3">
+    <!-- Subpage will load here -->
+</div>
+
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // alert("Page ready!");
+            // Load first tab by default
+            
+
+            var activeLink = $("ul.nav-tabs a.active");
+            var url = activeLink.data("url");
+
+            // if we are on Parents tab, append editParentId
+            var editParentId = '@(ViewBag.EditParentId ?? 0)';
+            if (activeLink.text().includes("Parents") && editParentId > 0) {
+                url += "?editParentId=" + editParentId;
+            }
+            $("#contentArea").load(url);
+
+
+            // Handle clicks
+            $("ul.nav-tabs a").on("click", function (e) {
+                e.preventDefault();
+                $("ul.nav-tabs a").removeClass("active");
+                $(this).addClass("active");
+
+                var url = $(this).data("url");
+                $("#contentArea").load(url);
+            });
+        });
+    </script>
+}
+
+
+

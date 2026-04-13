@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/site.css">
+   
+</head>
+<body>
+
+        <!-- Top Menu (First-Level) -->
+        <div class="top-menu">
+           
+           
+                @if (User.IsInRole("Admin"))
+                {
+                   
+                    <a href="/Dashboard/Admin">Dashboard</a>
+                    <a href="/Specialty/List">Specialties</a>
+                    <a href="/City/List">Cities</a>
+                    <a href="#" onclick="loadSubMenu('admin-users')">Manage Users</a>
+                    <a href="#" onclick="loadSubMenu('admin-reports')">Reports</a>
+                }
+                else if (User.IsInRole("Staff"))
+                {
+                    <a href="/Dashboard/Staff">Dashboard</a>
+                    <a href="/Course/List">Manage Courses</a>
+                    <a href="/Activity/List">Manage Activities</a>
+                    <a href="/Course/List">Manage Enrollments</a>
+               
+                }
+                else if (User.IsInRole("Coach"))
+                {
+                    <a href="/Dashboard/Coach">Dashboard</a>
+                    <a href="#" onclick="loadSubMenu('coach-courses')">My Courses</a>
+                    <a href="#" onclick="loadSubMenu('coach-feedback')">My Feedbacks</a>
+                    <a href="#" onclick="loadSubMenu('coach-statistics')">My Statistics</a>
+                }
+                else if (User.IsInRole("Child"))
+                {
+                    <a href="/Dashboard/Child">Dashboard</a>
+                    <a href="#" onclick="loadSubMenu('child-enrollments')">My Enrollments</a>
+                    <a href="#" onclick="loadSubMenu('child-notifications')">My Notifications</a>
+                    <a href="#" onclick="loadSubMenu('child-statistics')">My Statistics</a>
+                }
+          
+        </div>
+
+    <!-- Second Level Menu (Auto-populated) -->
+    <div id="subMenuContainer" class="sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="content">
+        @RenderBody()
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function loadSubMenu(menuType) {
+            alert("Function called! MenuType: " + menuType);
+            $.get('/Menu/GetSubMenu?menuType=' + menuType, function (data) {
+                $('#subMenuContainer').html(data);
+                localStorage.setItem('selectedMenu', menuType); // Store selected menu
+            });
+        }
+
+        $(document).ready(function () {
+            var savedMenu = localStorage.getItem('selectedMenu');
+            if (savedMenu) {
+                loadSubMenu(savedMenu);
+            }
+        });
+
+        $(window).on('beforeunload', function () {
+            alert("Function called! beforeunload " );
+            localStorage.removeItem('selectedMenu');
+        });
+
+    </script>
+</body>
+</html>

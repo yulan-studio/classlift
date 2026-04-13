@@ -1,0 +1,182 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Manage Activities";
+}
+
+
+@* @model IEnumerable<Core.ViewModels.ActivityViewModel> *@
+
+@model X.PagedList.IPagedList<Core.ViewModels.ActivityViewModel>
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+
+
+<style>
+    .pagination {
+        justify-content: center;
+    }
+
+    .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .page-link {
+        color: #007bff;
+    }
+</style>
+
+
+<h1>Manage Activities</h1>
+
+<a href="/Activity/Add" style="display: inline-block; margin-bottom: 20px; text-decoration: none;">Add Activity</a>
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" style="color: black; text-decoration: none; ">
+                    Name
+                    @if ((string)ViewData["CurrentSort"] == "name")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "name_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+
+            <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["AddressSortParm"]" style="color: black; text-decoration: none; ">
+                    Address
+                    @if ((string)ViewData["CurrentSort"] == "address")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "address_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Max Capacity</th>
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationSortParm"]" style="color: black; text-decoration: none; ">
+                    # of Registrations
+                    @if ((string)ViewData["CurrentSort"] == "registrations")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "registeration_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["ScheduledAtSortParm"]" style="color: black; text-decoration: none; ">
+                    Scheduled At
+                    @if ((string)ViewData["CurrentSort"] == "scheduledAt")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "scheduledAt_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            @* <th style="padding: 8px; border: 1px solid #ddd;">Cost</th> *@
+          @*   <th style="padding: 8px; border: 1px solid #ddd;">Contact</th> *@
+        @*     <th style="padding: 8px; border: 1px solid #ddd;">Is Active</th> *@
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" style="color: black; text-decoration: none;  ">
+                    Status
+                    @if ((string)ViewData["CurrentSort"] == "status")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "status_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var activity in Model)
+        {
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;">@activity.Title</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@activity.Description</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@activity.Address</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@activity.MaxCapacity</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@activity.RegisteredChildrenCount</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@(activity.ScheduledAt.ToString("yyyy-MM-dd HH:mm"))</td>
+              @*   <td style="padding: 8px; border: 1px solid #ddd;">@(activity.Cost.ToString("C"))</td> *@
+            @*     <td style="padding: 8px; border: 1px solid #ddd;">@activity.IsActive</td> *@
+                <td style="padding: 8px; border: 1px solid #ddd;">@activity.Status</td>
+              @*   <td style="padding: 8px; border: 1px solid #ddd;">@activity.Contact</td> *@
+                <td style="padding: 8px; border: 1px solid #ddd;">
+                    <a href="/Activity/ConfirmDelete/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed"||activity.RegisteredChildrenCount>0 ?"display: none;":"")">Delete</a>
+                    <a href="/Activity/Edit/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed" ?"display: none;":"")">Edit</a>
+                </td>
+            </tr>
+        }
+                                                                                                               
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <tr>
+                <td colspan="8">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <tr>
+                <td colspan="8">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div style="margin-top: 20px; text-align: center;">
+    @Html.PagedListPager(
+    Model,
+    page => Url.Action("List", new { page, sortOrder = ViewData["CurrentSort"] }),
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            UlElementClasses = new[] { "pagination" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" }
+        })
+</div>
+

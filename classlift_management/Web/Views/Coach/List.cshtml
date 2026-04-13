@@ -1,0 +1,221 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Manage Coaches";
+}
+
+
+@* @model IEnumerable<Coach> *@
+@* @model List<Core.ViewModels.CoachWithDeleteViewModel> *@
+
+@model X.PagedList.IPagedList<Core.ViewModels.CoachWithDeleteViewModel>
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+
+<style>
+    .pagination {
+        justify-content: center;
+    }
+
+    .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .page-link {
+        color: #007bff;
+    }
+</style>
+
+<h1>Manage Coaches</h1>
+
+<a href="/Coach/Add" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add Coach</a>
+
+
+<form method="get" asp-action="List" style="margin-bottom:15px;">
+    <input type="text" name="searchName" placeholder="Search coach name..."
+           style="padding:5px; width:250px;" value="@Context.Request.Query["searchName"]" />
+
+    <button type="submit" style="padding:5px 10px; margin-left: 10px;">Search</button>
+    <a href="/Coach/List" style="display: inline-block; margin-left: 10px; text-decoration: none; ">Reset</a>
+</form>
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">#</th>
+
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" style="color: black; text-decoration: none; ">
+                    Member ID
+                    @if ((string)ViewData["CurrentSort"] == "id")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "id_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" style="color: black; text-decoration: none; ">
+                    Name
+                    @if ((string)ViewData["CurrentSort"] == "name")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "name_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["PreferedNameSortParm"]" style="color: black; text-decoration: none; ">
+                    Chosen Name
+                    @if ((string)ViewData["CurrentSort"] == "preferedName")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "preferedName_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Specialties</th>
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["GenderSortParm"]" style="color: black; text-decoration: none; ">
+                    Gender
+                    @if ((string)ViewData["CurrentSort"] == "gender")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "gender_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
+            @* <th style="padding: 8px; border: 1px solid #ddd;">Wechat</th> *@
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["CitySortParm"]" style="color: black; text-decoration: none; ">
+                    City
+                    @if ((string)ViewData["CurrentSort"] == "city")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "city_desc")
+                    {
+
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Hours</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int index = 1;
+            
+            foreach (var coachWithDelete in Model)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.MemberID</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Name</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.PreferedName</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @if (coachWithDelete.Coach.CoachSpecialties != null && coachWithDelete.Coach.CoachSpecialties.Any())
+                        {
+                            @string.Join(", ", coachWithDelete.Coach.CoachSpecialties.Select(cs => cs.Specialty.Title))
+                        }
+                        else
+                        {
+                            <span>N/A</span>
+                        }
+                    
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Gender</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.User.Email</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Phone</td>
+                    @*   <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Wechat</td> *@
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(coachWithDelete.Coach.City != null ? coachWithDelete.Coach.City.Name : "N/A")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @if (coachWithDelete.CanDelete)
+                        {
+                            <a href="/Coach/ConfirmDelete/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
+                        }
+                        <a href="/Coach/Edit/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
+
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <a href="/Coach/MoreInfo/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <a href="/Coach/Hours/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Show</a>
+                    </td>
+                </tr>
+                index++;
+            }
+        }
+
+
+
+       
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <tr>
+                <td colspan="10">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <tr>
+                <td colspan="10">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div style="margin-top: 20px; text-align: center;">
+    @Html.PagedListPager(
+    Model,
+    page => Url.Action("List", new { page, sortOrder = ViewData["CurrentSort"] }),
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            UlElementClasses = new[] { "pagination" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" }
+        })
+</div>
+

@@ -1,0 +1,49 @@
+﻿@model PaymentPackage
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewData["Title"] = Model.PackageID == 0 ? "Add Payment Package" : "Edit Payment Package";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="post" action="/PaymentPackage/Save">
+    <input type="hidden" name="PackageID" value="@Model.PackageID" />
+
+    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+        <tr>
+            <td style="padding: 8px;"><label for="Title">Title:</label></td>
+            <td style="padding: 8px;"><input type="text" name="Title" value="@Model.Title" required style="width: 100%;" /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Description">Description:</label></td>
+            <td style="padding: 8px;"><textarea name="Description" style="width: 100%;">@Model.Description</textarea></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Amount">Amount ($):</label></td>
+            <td style="padding: 8px;"><input type="number" name="Amount" value="@Model.Amount" step="0.01" required style="width: 100%;" /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="Active">Is Active:</label></td>
+            <td style="padding: 8px;">
+               @*  <input type="checkbox" name="Active" value="true" @(Model.Active ? "checked" : "") /> *@
+
+            <input asp-for="IsActive" type="checkbox" />
+            <input type="hidden" asp-for="IsActive" value="false" />
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 16px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                    Save
+                </button>
+                <a href="/PaymentPackage/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            </td>
+        </tr>
+    </table>
+</form>

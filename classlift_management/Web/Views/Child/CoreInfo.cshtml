@@ -1,0 +1,142 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+
+
+@model Core.Models.Child
+
+@{
+    Layout = null;
+}
+
+<h2>Core Information</h2>
+
+<form asp-action="CoreInfo" method="post">
+
+
+    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+
+        <tr>
+            <td style="padding: 8px;"><label asp-for="MemberID">Member ID</label></td>
+            <td style="padding: 8px;">
+                @* <input type="text" name="memberID" placeholder="Enter child's Member ID" style="width: 100%;" /> *@
+                <input asp-for="MemberID" class="form-control" />
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 8px;"><label asp-for="PrimaryDiagnosis">Primary Diagnosis</label></td>
+            <td style="padding: 8px;">
+                @* <input type="text" name="memberID" placeholder="Enter child's Member ID" style="width: 100%;" /> *@
+                <input asp-for="PrimaryDiagnosis" class="form-control" />
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 8px;"><label asp-for="City">City</label></td>
+            <td style="padding: 8px;">
+                @(Model.City != null ? Model.City.Name : "N/A")
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 8px;"><label asp-for="Address">Address</label></td>
+            <td style="padding: 8px;">
+                <input asp-for="Address" class="form-control" />
+            </td>
+        </tr>
+     @*    <tr>
+            <td style="padding: 8px;"><label asp-for="OAPAmount"></label></td>
+            <td style="padding: 8px;">
+                <input asp-for="OAPAmount" type="number" class="form-control" />
+            </td>
+        </tr> *@
+        <tr>
+            <td style="padding: 8px;"><label asp-for="PhotoConsent">Photo Consent</label></td>
+            <td style="padding: 8px;">
+                <input asp-for="PhotoConsent" type="checkbox" class="form-check-input" />
+            </td>
+        </tr>
+    </table>
+
+
+
+    <br /><br />
+    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
+</form>
+
+
+<div style="margin-bottom: 50px;"></div>
+
+<h4>Emergency Contacts</h4>
+
+
+
+
+
+
+
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Relationship</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var ec in Model.EmergencyContacts)
+        {
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;">@ec.ContactName</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@ec.Relationship</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@ec.Phone</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@ec.Email</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">
+                    <form asp-action="DeleteEmergencyContact" asp-route-contactId="@ec.EmergencyContactID" method="post">
+                        @Html.AntiForgeryToken()
+                        @* <input type="hidden" name="contactId" value="@ec.EmergencyContactID" /> *@
+                        <input type="hidden" name="childId" value="@Model.ChildID" />
+                        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-bottom: 50px;"></div>
+
+<form asp-action="AddEmergencyContact" asp-controller="Child" asp-route-childId="@Model.ChildID" method="post">
+    @Html.AntiForgeryToken()
+    @*   <input type="hidden" name="childId" value="@Model.ChildID" /> *@
+    <input name="contactName" placeholder="ContactName" />
+    <input name="relationship" placeholder="Relationship" />
+    <input name="phone" placeholder="Phone" />
+    <input name="email" placeholder="Email" />
+    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Contact</button>
+</form>
+
+<div style="margin-bottom: 50px;"></div>
+
+@section Scripts {
+   @*  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        
+        let rowIndex = 1;
+        function addRow() {
+             alert("addRow called");
+            let newRow = `
+                <tr>
+                    <td><input name="EmergencyContacts[${rowIndex}].Name" class="form-control" /></td>
+                    <td><input name="EmergencyContacts[${rowIndex}].Relationship" class="form-control" /></td>
+                    <td><input name="EmergencyContacts[${rowIndex}].Phone" class="form-control" /></td>
+                    <td><input name="EmergencyContacts[${rowIndex}].Email" class="form-control" /></td>
+                </tr>`;
+            document.getElementById("contact-rows").insertAdjacentHTML("beforeend", newRow);
+            rowIndex++;
+        }
+    </script> *@
+}

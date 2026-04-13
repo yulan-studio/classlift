@@ -1,0 +1,311 @@
+﻿@model Core.ViewModels.ManageSessionRegistrationsViewModel
+
+@{
+    ViewData["Title"] = "Manage Sessions";
+}
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Birth Date</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">City</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Has OAP</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Child.Name</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">
+                
+                @(Model.Child.BirthDate.HasValue? Model.Child.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")
+            </td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Child.Gender</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">
+                @(Model.Child.City != null ? Model.Child.City.Name : "N/A")
+            </td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Child.HasOAP</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Child.User.Email</td>
+        </tr>
+    </tbody>
+</table>
+
+<div style="margin-top: 30px">
+    
+    <p><strong>Course Name:</strong> @Model.Course.Title</p>
+    <p><strong>Session Count:</strong> @Model.Course.SessionCount</p>
+  @*   <p><strong>Child Name:</strong> @Model.Child.Name</p>
+    <p><strong>Birth Date:</strong> @(Model.Child.BirthDate.HasValue ? Model.Child.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</p>
+    <p><strong>Gender:</strong> @Model.Child.Gender</p>
+    <p><strong>City:</strong> @(Model.Child.City != null ? Model.Child.City.Name : "N/A")</p>
+    <p><strong>Has OAP:</strong> @Model.Child.HasOAP</p> *@
+  
+</div>
+
+<a href="/Child/Participation/@Model.Child.ChildID?tab=ManageRegistrations" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to Child Courses List</a>
+
+<div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
+
+
+
+<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2; border-radius: 8px;">
+
+    <h2>Add Sessions </h2>
+    <br/>
+     Total session count: @Model.CourseSessionsCount  |  @Model.EnrolledSessionsCount sessions added
+    <br /><br />
+    <form method="post" asp-action="AddRegisteredSessions">
+        <input type="hidden" name="ChildID" value="@Model.ChildID" />
+        <input type="hidden" name="CourseID" value="@Model.CourseID" />
+        <input type="hidden" name="EnrolledSessionsCount" value="@Model.EnrolledSessionsCount" />
+        <input type="hidden" name="CourseSessionsCount" value="@Model.CourseSessionsCount" />
+
+        <table class="table" style="background-color: #f2f2f2; ">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Scheduled At</th>
+                    <th>Scheduled Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.AvailableSessions.Any())
+                {
+                    @for (int i = 0; i < Model.AvailableSessions.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                <input asp-for="AvailableSessions[i].IsSelected" />
+                                <input type="hidden" asp-for="AvailableSessions[i].EnrollmentID" />
+                                <input type="hidden" asp-for="AvailableSessions[i].ScheduledAt" />
+                                <input type="hidden" asp-for="AvailableSessions[i].ScheduledHours" />
+                                
+                            </td>
+                            <td>@Model.AvailableSessions[i].ScheduledAt.ToString("g")</td>
+                            <td>@Model.AvailableSessions[i].ScheduledHours</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 10px;">No session to be added.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Sessions</button>
+        <p style="margin-top: 20px">
+            <small style="color:darkslategray"> - After sessions are added to the child, their status will be set to 'Registered'. Click 'Save Changes', an email will be sent to remind the parent to confirm the sessions. Once the parent confirms, the status will change to 'Scheduled'. </small> <br /><br />
+            <small style="color:#ff4d4d">
+                - If staff add additional sessions after a parent has confirmed registration, please ask the parent to log in to the portal and confirm the new sessions. Once confirmed, the session status will update to 'Scheduled'.  <strong>[important]</strong>.
+            </small>
+        </p>
+
+    </form>
+</div>
+
+<div style="margin-top: 20px;"></div>
+
+
+
+<h3>All Sessions</h3>
+
+<form method="post" asp-action="UpdateAllSessions">
+    <input type="hidden" name="ChildID" value="@Model.ChildID" />
+    <input type="hidden" name="CourseID" value="@Model.CourseID" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Scheduled At</th>
+                <th>Scheduled Hours</th>
+                <th>Status</th>
+                <th>Parent Note</th>
+                <th>Staff Note</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model.AllSessions.Any())
+            {
+                @for (int i = 0; i < Model.AllSessions.Count; i++)
+                {
+                    <tr>
+                        <td>@Model.AllSessions[i].ScheduledAt.ToString("g")</td>
+                        <td>@Model.AllSessions[i].ScheduledHours</td>
+                        <td style="@(Model.AllSessions[i].Status == "RequestToLeave" ? "background-color: #F8C3DF;" : "")">
+                            <select name="AllSessions[@i].Status" class="form-select">
+
+                               @*  <option value="Registered" selected="@("Registered" == Model.AllSessions[i].Status)">Registered</option>
+                                <option value="Deleted" selected="@("Deleted" == Model.AllSessions[i].Status)">Deleted</option> *@
+                                @if (Model.AllSessions[i].Status == "Registered")
+                                {
+                                    <option value="Registered" selected>Registered</option>
+                                    <option value="Deleted">Deleted</option> 
+                                }
+                                else if (Model.AllSessions[i].Status == "Scheduled")
+                                {
+                                    <option value="Scheduled" selected>Scheduled</option>
+                                    <option value="Canceled">Canceled</option>
+                                }
+                                else if (Model.AllSessions[i].Status == "RequestToLeave")
+                                {
+                                    <option value="RequestToLeave" selected>Request To Leave</option>
+                                    <option value="OnLeave">On Leave</option>
+                                }
+                                else if (Model.AllSessions[i].Status == "Completed")
+                                {
+                                    <option value="Completed" selected>Completed</option>
+                                }
+                                else if (Model.AllSessions[i].Status == "Canceled")
+                                {
+
+                                    <option value="Deleted" selected="@(Model.AllSessions[i].Status == "Canceled")">Canceled</option>
+                                }
+                                else if (Model.AllSessions[i].Status == "OnLeave")
+                                {
+                                    <option value="OnLeave">On Leave</option>
+                                }
+                               
+                               
+                               
+                            </select>
+                            <input type="hidden" name="AllSessions[@i].EnrollmentID" value="@Model.AllSessions[i].EnrollmentID" />
+                        </td>
+                        <td style="@((Model.AllSessions[i].ParentNote != null)&&(Model.AllSessions[i].Status=="Registered") ? "background-color: #F8C3DF;" : "")">@Model.AllSessions[i].ParentNote</td>
+                        <td>
+                            <textarea name="AllSessions[@i].StaffNote" class="form-control">@Model.AllSessions[i].StaffNote</textarea>
+                        </td>
+                    </tr>
+                }
+            }
+
+
+
+
+            else
+            {
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 10px;">No session has been added.</td>
+            </tr>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <tr>
+                    <td colspan="5">
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    </td>
+                </tr>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <tr>
+                    <td colspan="5">
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button> <small style="color:darkslategray"> - Click 'Save Changes' to save changes in Status/Staff Note and send an email to the child about the changes.</small>
+</form>
+
+
+
+
+
+@* <div style="margin-top: 20px;"></div>
+
+
+
+<h3>Scheduled Sessions</h3>
+
+<form method="post" asp-action="UpdateScheduledSessions">
+    <input type="hidden" name="ChildID" value="@Model.ChildID" />
+    <input type="hidden" name="CourseID" value="@Model.CourseID" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Scheduled At</th>
+                <th>Scheduled Hours</th>
+                <th>Status</th>
+                <th>Parent Note</th>
+                <th>Staff Note</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model.ScheduledSessions.Any())
+            {
+                @for (int i = 0; i < Model.ScheduledSessions.Count; i++)
+                {
+                    <tr>
+                        <td>@Model.ScheduledSessions[i].ScheduledAt.ToString("g")</td>
+                        <td>@Model.ScheduledSessions[i].ScheduledHours</td>
+                        <td>
+                            <select name="ScheduledSessions[@i].Status" class="form-select">
+                                <option value="Registered" selected="@("Registered" == Model.ScheduledSessions[i].Status)">Registered</option>
+                                <option value="Deleted" selected="@("Deleted" == Model.ScheduledSessions[i].Status)">Deleted</option>
+
+                            </select>
+                            <input type="hidden" name="ScheduledSessions[@i].EnrollmentID" value="@Model.ScheduledSessions[i].EnrollmentID" />
+                        </td>
+                        <td>@Model.ScheduledSessions[i].ParentNote</td>
+                        <td>
+                            <textarea name="ScheduledSessions[@i].StaffNote" class="form-control">@Model.ScheduledSessions[i].StaffNote</textarea>
+                        </td>
+                    </tr>
+                }
+            }
+
+
+
+
+            else
+            {
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 10px;">No session has been scheduled.</td>
+                </tr>
+            }
+
+            @if (TempData["SuccessMessage2"] != null)
+            {
+                <tr>
+                    <td colspan="5">
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage2"]
+                        </div>
+                    </td>
+                </tr>
+            }
+
+            @if (TempData["ErrorMessage2"] != null)
+            {
+                <tr>
+                    <td colspan="5">
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage2"]
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button>
+</form> *@
+
+

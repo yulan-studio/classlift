@@ -1,0 +1,115 @@
+﻿@*
+    Add Child Page - Follows the same format as Staff Add Page
+*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Add Child";
+}
+
+<h2>Add Child</h2>
+
+<form method="post" action="/Child/Add">
+    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+
+        @* <tr>
+            <td style="padding: 8px;"><label for="memberID">Member ID:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="memberID" placeholder="Enter child's Member ID" style="width: 100%;"  />
+            </td>
+        </tr> *@
+
+        <tr>
+            <td style="padding: 8px;"><label for="Name">Name:</label></td>
+            <td style="padding: 8px;">
+                <input type="text" name="name" placeholder="Enter child's name" style="width: 100%;" required />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="birthDate">Birth Date:</label></td>
+            <td style="padding: 8px;">
+                <input type="date" name="birthDate" style="width: 100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="gender">Gender:</label></td>
+            <td style="padding: 8px;">
+                <select name="gender" style="width: 100%;">
+                    <option value="" selected>-- Select Gender --</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="N/A">N/A</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="cityID">City:</label></td>
+            <td style="padding: 8px;">
+                <select name="cityID" style="width: 100%;">
+                    <option value="" selected>-- Select City --</option>
+                    @foreach (var city in ViewBag.CityList)
+                    {
+                        <option value="@city.Value">@city.Text</option>
+                    }
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="hasOAP">Has OAP:</label></td>
+            <td style="padding: 8px;">
+                <select name="hasOAP" style="width: 100%;">
+                    <option value="" selected>-- Select Has OAP --</option>
+                    <option value= "true">True</option>
+                    <option value= "false">False</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="email">Email:</label></td>
+            <td style="padding: 8px;"><input type="email" name="email" placeholder="Email" style="width: 100%;" /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="password">Password:</label></td>
+            <td style="padding: 8px;"><input type="text" name="password" placeholder="Password" value="nsns123!" style="width: 100%;" /></td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                    Add Child
+                </button>
+                <a href="/Child/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">
+                    Cancel
+                </a>
+            </td>
+        </tr>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <tr>
+                <td colspan="2">
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <tr>
+                <td colspan="2">
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                </td>
+            </tr>
+        }
+    </table>
+</form>
