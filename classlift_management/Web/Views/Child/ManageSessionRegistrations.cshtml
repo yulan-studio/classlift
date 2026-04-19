@@ -151,7 +151,7 @@
                                 else if (Model.AllSessions[i].Status == "Scheduled")
                                 {
                                     <option value="Scheduled" selected>Scheduled</option>
-                                    <option value="Canceled">Canceled</option>
+                                    <option value="OnLeave">OnLeave</option>
                                 }
                                 else if (Model.AllSessions[i].Status == "RequestToLeave")
                                 {
@@ -165,7 +165,7 @@
                                 else if (Model.AllSessions[i].Status == "Canceled")
                                 {
 
-                                    <option value="Deleted" selected="@(Model.AllSessions[i].Status == "Canceled")">Canceled</option>
+                                    <option value="Canceled" selected="@(Model.AllSessions[i].Status == "Canceled")">Canceled</option>
                                 }
                                 else if (Model.AllSessions[i].Status == "OnLeave")
                                 {
