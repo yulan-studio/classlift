@@ -52,3 +52,5 @@
 /classlift_management/Web/obj/Debug/net8.0/Web.genruntimeconfig.cache
 /classlift_management/Web/obj/Debug/net8.0/Web.pdb
 /classlift_management/Web/obj/Debug/net8.0/Web.sourcelink.json
+/classlift_management/Web/obj/Debug/net8.0/staticwebassets.build.endpoints.json
+/classlift_management/Web/bin/Debug/net8.0/Web.staticwebassets.endpoints.json
