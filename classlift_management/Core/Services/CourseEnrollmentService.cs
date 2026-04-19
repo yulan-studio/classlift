@@ -464,7 +464,8 @@ namespace Core.Services
                 enrollment.CoachNote = coachNote;
             }
 
-            if (coachNote == "MISTAKE")
+            //if (coachNote == "MISTAKE")
+            if (string.Equals(coachNote?.Trim(), "MISTAKE", StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
