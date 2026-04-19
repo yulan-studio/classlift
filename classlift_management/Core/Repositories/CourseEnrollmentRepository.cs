@@ -65,6 +65,21 @@ namespace Core.Repositories
             }
         }
 
+
+        public async Task<bool> DeleteAsync(CourseEnrollment entity)
+        {
+            try
+            {
+                _context.CourseEnrollments.Remove(entity);
+                await _context.SaveChangesAsync();  // Commit the changes asynchronously
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false; // Return failure in case of an exception
+            }
+        }
+
         //Get Registered/Scheduled/completed/request to schedule/request to leave/deleted group or private course session
         public async Task<IEnumerable<CourseEnrollment>> GetEnrollmentsByChildAsync(int childId, string status)
         {

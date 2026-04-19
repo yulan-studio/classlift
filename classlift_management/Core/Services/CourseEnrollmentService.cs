@@ -463,17 +463,34 @@ namespace Core.Services
                 enrollment.Status = "Deleted";
                 enrollment.CoachNote = coachNote;
             }
-           
 
-            try
+            if (coachNote == "MISTAKE")
             {
-                //return await _enrollmentRepository.RemoveAsync(enrollmentId);
-                return await _enrollmentRepository.UpdateAsync(enrollment);
+                try
+                {
+                    //return await _enrollmentRepository.RemoveAsync(enrollmentId);
+                    return await _enrollmentRepository.DeleteAsync(enrollment);
+                }
+
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message, ex.InnerException);
+                }
+
             }
 
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex.InnerException);
+            else 
+            { 
+                try
+                {
+                    //return await _enrollmentRepository.RemoveAsync(enrollmentId);
+                    return await _enrollmentRepository.UpdateAsync(enrollment);
+                }
+
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message, ex.InnerException);
+                }
             }
         }
 
