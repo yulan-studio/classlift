@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj": {}
+    "C:\\Users\\Yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj": {}
   },
   "projects": {
-    "C:\\Users\\yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj": {
+    "C:\\Users\\Yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj",
+        "projectUniqueName": "C:\\Users\\Yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj",
         "projectName": "Test",
-        "projectPath": "C:\\Users\\yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj",
-        "packagesPath": "C:\\Users\\yulan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\yulan\\source\\repos\\classlift\\classlift_management\\Test\\obj\\",
+        "projectPath": "C:\\Users\\Yulan\\source\\repos\\classlift\\classlift_management\\Test\\Test.csproj",
+        "packagesPath": "C:\\Users\\Yulan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Yulan\\source\\repos\\classlift\\classlift_management\\Test\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\yulan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Yulan\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -30,6 +30,7 @@
         },
         "frameworks": {
           "net8.0": {
+            "framework": "net8.0",
             "targetAlias": "net8.0",
             "projectReferences": {}
           }
@@ -48,6 +49,7 @@
       },
       "frameworks": {
         "net8.0": {
+          "framework": "net8.0",
           "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.NET.Test.Sdk": {
@@ -95,7 +97,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
