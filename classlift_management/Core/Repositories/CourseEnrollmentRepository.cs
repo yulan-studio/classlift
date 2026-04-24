@@ -1,5 +1,6 @@
 ﻿using Core.Contexts;
 using Core.DTOs;
+using Core.DTOs.Report;
 using Core.Interfaces;
 using Core.Models;
 using Core.ViewModels;
@@ -784,6 +785,38 @@ namespace Core.Repositories
                 Status = e.Status
             }).ToListAsync();
 
+        }
+
+
+        //Reporting methods
+        public List<StudentCourseCountDto> GetTopStudents()
+        {
+            return _context.CourseEnrollments
+             .Where(e => e.ChildID != null
+                         && (e.Status == "Completed" || e.Status == "Confirmed")
+                         && e.ScheduledAt == null)
+             .GroupBy(e => new { e.ChildID, e.Child.Name })
+             .Select(g => new StudentCourseCountDto
+             {
+                 ChildId = (int)g.Key.ChildID,
+                 Name = g.Key.Name,
+                 Count = g.Select(x => x.CourseID).Distinct().Count()
+             })
+             .OrderByDescending(x => x.Count)
+             .Take(10)
+             .ToList();
+        }
+
+        public List<CourseDto> GetCoursesByStudent(int childId)
+        {
+            return _context.CourseEnrollments
+                .Where(e => e.ChildID == childId)
+                .Select(e => new CourseDto
+                {
+                    CourseName = e.Course.Title
+                })
+                .Distinct()
+                .ToList();
         }
 
 

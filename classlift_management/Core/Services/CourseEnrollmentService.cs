@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.DTOs.Report;
 using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
@@ -744,10 +745,19 @@ namespace Core.Services
 
             return vm;
         }
-    
 
+        public List<StudentCourseCountDto> GetTopStudents()
+        {
+            // You can add business logic here later
+            return _enrollmentRepository.GetTopStudents();
+        }
 
-}
+        public List<CourseDto> GetCoursesByStudent(int childId)
+        {
+            return _enrollmentRepository.GetCoursesByStudent(childId);
+        }
+
+    }
 
 
 }

@@ -1,0 +1,110 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<h3>Top Students by Course Enrollment</h3>
+
+<div style="width: 400px; height: 200px;">
+<canvas id="studentChart" width="400" height="200"></canvas>
+</div>
+
+<h3>Student Courses</h3>
+<div style="width: 400px; height: 200px;">
+<canvas id="courseChart" width="400"  height="200"></canvas>
+</div>
+
+
+<script>
+
+    let studentChart = null;
+    let courseChart = null;
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    loadStudentChart();
+    });
+
+    function loadStudentChart() {
+
+    if (studentChart) {
+    studentChart.destroy();
+    }
+
+    fetch('/Report/GetTopStudents')
+    .then(res => res.json())
+    .then(data => {
+    const labels = data.map(x => x.name);
+    const values = data.map(x => x.count);
+    const ids = data.map(x => x.childId);
+
+    const ctx = document.getElementById('studentChart');
+
+    studentChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+    labels: labels,
+    datasets: [{
+    label: 'Number of Courses',
+    data: values
+    }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+    scales: {
+    y: {
+    beginAtZero: true,
+    ticks: {
+    stepSize: 1   // 👈 forces 0,1,2,3...
+    }
+    }
+    },
+    onClick: (evt, elements) => {
+    if (elements.length > 0) {
+
+    
+    const index = elements[0].index;
+    const childId = ids[index];
+    console.log("Clicked childId:", childId);
+    loadCourses(childId);
+    }
+    }
+    }
+    });
+    });
+    }
+
+    function loadCourses(childId) {
+    fetch(`/Report/GetCoursesByStudent?childId=${childId}`)
+    .then(res => res.json())
+    .then(data => {
+
+    const labels = data.map(x => x.courseName);
+    const values = data.map(() => 1); // just count presence
+
+    const ctx = document.getElementById('courseChart');
+
+    if (courseChart) {
+    courseChart.destroy();
+    }
+
+    courseChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+    labels: labels,
+    datasets: [{
+    label: 'Courses Enrolled',
+    data: values
+    }]
+    },
+    options:{
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y'
+    }
+    });
+    });
+    }
+</script>

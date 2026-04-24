@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.DTOs.Report;
 using Core.Models;
 using Core.Repositories;
 using Core.ViewModels;
@@ -113,6 +114,11 @@ namespace Core.Interfaces
         //Task<IEnumerable<CourseEnrollmentData>> GetSessionsByCourseAsyn(int courseId);
 
         Task<SessionAttendanceViewModel> GetAttendanceAsync(int courseId);
+
+        //Reporting methods
+
+        List<StudentCourseCountDto> GetTopStudents();
+        List<CourseDto> GetCoursesByStudent(int childId);
     }
 
 

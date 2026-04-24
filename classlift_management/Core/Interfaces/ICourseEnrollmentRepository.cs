@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.DTOs.Report;
 using Core.Models;
 using Core.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -94,6 +95,10 @@ namespace Core.Interfaces
         Task<IEnumerable<Child>> GetChildrenByCourseAsync(int courseId);
 
         Task<IEnumerable<CourseEnrollmentData>> GetSessionsDataByCourseAsyn(int courseId);
+
+        //Reporting methods
+        List<StudentCourseCountDto> GetTopStudents();
+        List<CourseDto> GetCoursesByStudent(int childId);
 
     }
 }
