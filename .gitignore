@@ -83,3 +83,5 @@
 /classlift_management/Web/bin/Debug/net8.0/appsettings.json
 /classlift_management/Core/obj/Debug/net8.0/Core.csproj.CoreCompileInputs.cache
 >>>>>>> dev
+/classlift_management/Test/obj/Debug/net8.0/Test.csproj.AssemblyReference.cache
+/classlift_management/Test/obj/Debug/net8.0/Test.csproj.CoreCompileInputs.cache
