@@ -193,16 +193,23 @@
                                     </td>
 
                                     <td data-label="Status">
-                                            <select name="Schedules[@i].Status" class="form-select" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" || courseSchedules.Schedules[i].Status == "OnLeave" || isWithin24Hours ? "disabled" : "")> <option value="Scheduled" selected="@(courseSchedules.Schedules[i].Status == "Scheduled")">Scheduled</option> 
+                                            <select name="Schedules[@i].Status" class="form-select" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" || courseSchedules.Schedules[i].Status == "OnLeave" || isWithin24Hours ? "disabled" : "")> 
+                                                <option value="Scheduled" selected="@(courseSchedules.Schedules[i].Status == "Scheduled")">Scheduled</option> 
                                                 @if (courseSchedules.Course.CourseType == "Private") 
                                                 {
-                                                        <option value="RequestToReschedule" selected="@(courseSchedules.Schedules[i].Status == "RequestToReschedule")">Request to Reschedule</option>
+                                                    <option value="RequestToReschedule" selected="@(courseSchedules.Schedules[i].Status == "RequestToReschedule")">Request to Reschedule</option>
                                                 }
                                                 @if (courseSchedules.Course.CourseType == "Group")
                                                 {
                                                     <option value="RequestToLeave" selected="@(courseSchedules.Schedules[i].Status == "RequestToLeave")">Request to Leave</option>
+                                                    <option value="OnLeave" disabled selected="@(courseSchedules.Schedules[i].Status == "OnLeave")">On Leave</option>
+                                                    <option value="Canceled" disabled selected="@(courseSchedules.Schedules[i].Status == "Canceled")">Canceled</option>
                                                 }
-                                                <option value="OnLeave" disabled selected="@(courseSchedules.Schedules[i].Status == "OnLeave")">On Leave</option> <option value="Canceled" disabled selected="@(courseSchedules.Schedules[i].Status == "Canceled")">Canceled</option> <option value="Deleted" disabled selected="@(courseSchedules.Schedules[i].Status == "Deleted")">Deleted</option> 
+                                                 
+                                                @if (courseSchedules.Course.CourseType == "Private")
+                                                {
+                                                    <option value="Deleted" disabled selected="@(courseSchedules.Schedules[i].Status == "Deleted")">Deleted</option>
+                                                }
                                             </select>
                                     </td>
 

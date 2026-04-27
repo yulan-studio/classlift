@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.DTOs.Report;
 using Core.Models;
 using Core.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +20,9 @@ namespace Core.Interfaces
         Task<CourseEnrollment> GetAsync(int enrollmentId);
 
         Task<bool> UpdateAsync(CourseEnrollment entity);
+
+        Task<bool> DeleteAsync(CourseEnrollment entity);
+
         Task<IEnumerable<CourseEnrollment>> GetEnrollmentsByChildAsync(int childId, string status);
 
         Task<IEnumerable<CourseEnrollment>> GetFinishedEnrollmentsByChildAsync(int childId);
@@ -91,6 +95,10 @@ namespace Core.Interfaces
         Task<IEnumerable<Child>> GetChildrenByCourseAsync(int courseId);
 
         Task<IEnumerable<CourseEnrollmentData>> GetSessionsDataByCourseAsyn(int courseId);
+
+        //Reporting methods
+        List<StudentCourseCountDto> GetTopStudents();
+        List<CourseDto> GetCoursesByStudent(int childId);
 
     }
 }

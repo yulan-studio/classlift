@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.DTOs.Report;
 using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
@@ -463,17 +464,35 @@ namespace Core.Services
                 enrollment.Status = "Deleted";
                 enrollment.CoachNote = coachNote;
             }
-           
 
-            try
+            //if (coachNote == "MISTAKE")
+            if (string.Equals(coachNote?.Trim(), "MISTAKE", StringComparison.OrdinalIgnoreCase))
             {
-                //return await _enrollmentRepository.RemoveAsync(enrollmentId);
-                return await _enrollmentRepository.UpdateAsync(enrollment);
+                try
+                {
+                    //return await _enrollmentRepository.RemoveAsync(enrollmentId);
+                    return await _enrollmentRepository.DeleteAsync(enrollment);
+                }
+
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message, ex.InnerException);
+                }
+
             }
 
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex.InnerException);
+            else 
+            { 
+                try
+                {
+                    //return await _enrollmentRepository.RemoveAsync(enrollmentId);
+                    return await _enrollmentRepository.UpdateAsync(enrollment);
+                }
+
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message, ex.InnerException);
+                }
             }
         }
 
@@ -726,10 +745,19 @@ namespace Core.Services
 
             return vm;
         }
-    
 
+        public List<StudentCourseCountDto> GetTopStudents()
+        {
+            // You can add business logic here later
+            return _enrollmentRepository.GetTopStudents();
+        }
 
-}
+        public List<CourseDto> GetCoursesByStudent(int childId)
+        {
+            return _enrollmentRepository.GetCoursesByStudent(childId);
+        }
+
+    }
 
 
 }
