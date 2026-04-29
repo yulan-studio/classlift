@@ -10,6 +10,8 @@ namespace Core.DTOs.Report
     {
         public string CourseName { get; set; }
         public int SessionsCompleted { get; set; }
+
+        public DateTime? LastSessionDate { get; set; }
     }
 
     public class ChildReportDto

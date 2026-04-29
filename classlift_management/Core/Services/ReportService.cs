@@ -32,8 +32,13 @@ namespace Core.Services
                         .Select(c => new ChildCourseDto
                         {
                             CourseName = c.Key.Title,
-                            SessionsCompleted = c.Count()
-                        }).ToList()
+                            SessionsCompleted = c.Count(),
+
+                            // 👇 NEW: last attended date
+                            LastSessionDate = c.Max(x => x.ScheduledAt)
+                        })
+                        .OrderByDescending(c => c.LastSessionDate) // optional
+                        .ToList()
                 })
                 .OrderByDescending(x => x.TotalCourses)
                 .ToList();
@@ -56,16 +61,24 @@ namespace Core.Services
                             CourseName = c.Key.Title,
                             SessionsFinished = c.Count(),
 
-                            Children = c.Select(x => x.Child.Name)
-                                        .Distinct()
-                                        .ToList()
-                        }).ToList()
+                            // 👇 NEW: child + session count
+                            Children = c.GroupBy(x => x.Child)
+                                .Select(childGroup => new CoachCourseChildDto
+                                {
+                                    ChildName = childGroup.Key.Name,
+                                    SessionsCompleted = childGroup.Count()
+                                })
+                                .OrderByDescending(x => x.SessionsCompleted) // optional
+                                .ToList()
+                        })
+                        .OrderByDescending(x => x.SessionsFinished) // optional
+                        .ToList()
                 })
-                .OrderByDescending(x => x.TotalCourses)
+                .OrderByDescending(x => x.TotalCourses) // optional
                 .ToList();
         }
 
-       
+
 
         public List<CourseReportDto> GetCourseDetails(DateTime? from, DateTime? to)
         {
@@ -78,11 +91,16 @@ namespace Core.Services
                     CourseName = g.Key.Title,
                     SessionsFinished = g.Count(),
 
-                    Children = g.Select(x => x.Child.Name)
-                                .Distinct()
-                                .ToList()
+                    Children = g.GroupBy(x => x.Child)
+                        .Select(c => new CourseChildDto
+                        {
+                            ChildName = c.Key.Name,
+                            SessionsCompleted = c.Count()
+                        })
+                        .OrderByDescending(c => c.SessionsCompleted) // optional
+                        .ToList()
                 })
-                .OrderByDescending(x => x.SessionsFinished) // optional but recommended
+                .OrderByDescending(x => x.SessionsFinished) // optional
                 .ToList();
         }
     }

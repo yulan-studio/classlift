@@ -63,8 +63,8 @@ namespace Web.Controllers.Report
             return Json(data);
         }
 
-        [HttpGet("GetCourseStats")]
-        public IActionResult GetCourseStats(DateTime? from, DateTime? to)
+        [HttpGet("GetCourseDetails")]
+        public IActionResult GetCourseDetails(DateTime? from, DateTime? to)
         {
             var data = _reportService.GetCourseDetails(from, to);
             return Json(data);

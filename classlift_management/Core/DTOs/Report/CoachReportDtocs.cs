@@ -7,11 +7,17 @@ using System.Threading.Tasks;
 namespace Core.DTOs.Report
 {
 
+    public class CoachCourseChildDto
+    {
+        public string ChildName { get; set; }
+        public int SessionsCompleted { get; set; }
+    }
     public class CoachCourseDto
     {
         public string CourseName { get; set; }
         public int SessionsFinished { get; set; }
-        public List<string> Children { get; set; }
+        //public List<string> Children { get; set; }
+        public List<CoachCourseChildDto> Children { get; set; } 
     }
 
     public class CoachReportDto

@@ -131,12 +131,20 @@
 
     function loadCourse() {
 
-        fetch('/Report/GetCourseStats' + getFilter())
+        fetch('/Report/GetCourseDetails' + getFilter())
             .then(r => r.json())
             .then(data => {
                 renderCourseTable(data);
             });
     }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return "N/A";
+
+        const d = new Date(dateStr);
+        return d.toISOString().split("T")[0]; // yyyy-MM-dd
+    }
+
 
 
     function renderChildTable(data) {
@@ -166,7 +174,7 @@
                 ${
                     child.courses && child.courses.length > 0
                     ? child.courses.map(c =>
-                        `<div> - ${c.courseName} (${c.sessionsCompleted} sessions completed)</div>`
+                        `<div> - ${c.courseName} (${c.sessionsCompleted} sessions completed, last: ${formatDate(c.lastSessionDate)})</div>`
                       ).join("")
                     : `<div>No data</div>`
                 }
@@ -180,19 +188,7 @@
     }
 
 
-    // function toggleChild(detailId, headerEl) {
-
-    //     const detail = document.getElementById(detailId);
-    //     const arrow = headerEl.querySelector(".arrow");
-
-    //     if (detail.style.display === "none") {
-    //         detail.style.display = "block";
-    //         arrow.textContent = "▼";
-    //     } else {
-    //         detail.style.display = "none";
-    //         arrow.textContent = "▶";
-    //     }
-    // }
+   
 
 
      function renderCoachTable(data) {
@@ -242,7 +238,7 @@
                 <div id="${courseId}" style="display:none; padding-left:20px;">
                     ${
                         course.children && course.children.length > 0
-                        ? course.children.map(c => `<div>- ${c}</div>`).join("")
+                            ? course.children.map(c =>`<div> - ${c.childName} (${c.sessionsCompleted} sessions completed)</div>`).join("")
                         : `<div>No children</div>`
                     }
                 </div>
@@ -260,7 +256,7 @@
 
 
 
-    function renderCourseTable(data) {
+       function renderCourseTable(data) {
 
         let html = `<div style="width:100%;">`;
 
@@ -286,7 +282,9 @@
             <div id="${detailId}" style="display:none; padding:10px 20px; border-left:2px solid #ddd; margin-bottom:10px;">
                 ${
                     course.children && course.children.length > 0
-                    ? course.children.map(c => `<div>- ${c}</div>`).join("")
+                    ? course.children.map(c =>
+                        `<div> - ${c.childName} (${c.sessionsCompleted} sessions completed)</div>`
+                      ).join("")
                     : `<div>No children</div>`
                 }
             </div>
