@@ -61,5 +61,7 @@
 /classlift_management/Web/obj/project.nuget.cache
 /classlift_management/Web/obj/Web.csproj.nuget.dgspec.json
 /classlift_management/Web/obj/Web.csproj.nuget.g.props
-/classlift_management/Web/bin/Debug/net8.0/appsettings.json
-/classlift_management/Core/obj/Debug/net8.0/Core.csproj.CoreCompileInputs.cache
+/classlift_management/Test/obj/project.assets.json
+/classlift_management/Test/obj/project.nuget.cache
+/classlift_management/Test/obj/Test.csproj.nuget.dgspec.json
+/classlift_management/Test/obj/Test.csproj.nuget.g.props

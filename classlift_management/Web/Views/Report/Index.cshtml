@@ -1,0 +1,328 @@
+﻿<!-- 🔍 SHARED FILTER -->
+<div style="margin-bottom:15px;">
+    <label>From:</label>
+    <input type="date" id="fromDate" />
+
+    <label>To:</label>
+    <input type="date" id="toDate" />
+
+    <button onclick="reloadCurrentTab()">Apply</button>
+</div>
+
+<!-- 📑 TABS -->
+<ul class="nav nav-tabs mb-3" id="reportTabs">
+
+    <li class="nav-item">
+        <a class="nav-link active" href="#" data-tab="childTab">Child</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-tab="coachTab">Coach</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-tab="courseTab">Course</a>
+    </li>
+
+</ul>
+
+<!-- CONTENT -->
+<div id="childTab" class="tab-content">
+    @* <canvas id="childChart"></canvas> *@
+    <div id="childTable"></div>
+</div>
+
+<div id="coachTab" class="tab-content" style="display:none;">
+   @*  <canvas id="coachChart"></canvas> *@
+    <div id="coachTable"></div>
+</div>
+
+<div id="courseTab" class="tab-content" style="display:none;">
+    <div id="courseTable"></div>
+</div>
+
+
+
+<script>
+    let currentTab = "childTab";
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.querySelectorAll("#reportTabs a").forEach(tab => {
+            tab.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                // switch active tab UI
+                document.querySelectorAll("#reportTabs a").forEach(t => t.classList.remove("active"));
+                this.classList.add("active");
+
+                // hide all
+                document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
+
+                // show selected
+                currentTab = this.dataset.tab;
+                document.getElementById(currentTab).style.display = "block";
+
+                // load data
+                loadCurrentTab();
+            });
+        });
+
+        // initial load
+        loadCurrentTab();
+    });
+
+
+    function getFilter() {
+        // const from = document.getElementById("fromDate").value;
+        // const to = document.getElementById("toDate").value;
+        // return `?from=${from}&to=${to}`;
+
+        const from = document.getElementById("fromDate").value;
+        const to = document.getElementById("toDate").value;
+
+        let params = [];
+
+        if (from) params.push(`from=${from}`);
+        if (to) params.push(`to=${to}`);
+
+        return params.length ? `?${params.join("&")}` : "";
+    }
+
+
+    function loadCurrentTab() {
+        if (currentTab === "childTab") {
+            loadChild();
+        }
+        else if (currentTab === "coachTab") {
+            loadCoach();
+        }
+        else if (currentTab === "courseTab") {
+            loadCourse();
+        }
+    }
+
+    function reloadCurrentTab() {
+        loadCurrentTab();
+    }
+
+    
+    function loadChild() {
+        fetch('/Report/GetChildDetails' + getFilter())
+            .then(r => r.json())
+            .then(data => {
+                renderChildTable(data);
+                //loadChildChart(data);
+            });
+    }
+
+
+    function loadCoach() {
+        fetch('/Report/GetCoachDetails' + getFilter())
+            .then(r => r.json())
+            .then(data => {
+                renderCoachTable(data);
+                //loadCoachChart(data);
+            });
+    }
+
+
+
+
+    function loadCourse() {
+
+        fetch('/Report/GetCourseDetails' + getFilter())
+            .then(r => r.json())
+            .then(data => {
+                renderCourseTable(data);
+            });
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return "N/A";
+
+        const d = new Date(dateStr);
+        return d.toISOString().split("T")[0]; // yyyy-MM-dd
+    }
+
+
+
+    function renderChildTable(data) {
+
+        let html = `<div style="width:100%;">`;
+
+        data.forEach((child, index) => {
+
+            const detailId = `child-detail-${index}`;
+
+            html += `
+            <!-- HEADER ROW -->
+            <div onclick="toggleDetail('${detailId}', this)"
+                 style="cursor:pointer; padding:10px; border:1px solid #ddd; margin-bottom:5px; background:#f9f9f9; display:flex; justify-content:space-between; align-items:center;">
+
+                <div>
+                    <strong>${child.childName}</strong>
+                    &nbsp;&nbsp;
+                    <span style="color:#666;">[${child.totalCourses} courses]</span>
+                </div>
+
+                <div class="arrow">▶</div>
+            </div>
+
+            <!-- DETAIL ROW -->
+            <div id="${detailId}" style="display:none; padding:10px 20px; border-left:2px solid #ddd; margin-bottom:10px;">
+                ${
+                    child.courses && child.courses.length > 0
+                    ? child.courses.map(c =>
+                        `<div> - ${c.courseName} (${c.sessionsCompleted} sessions completed, last: ${formatDate(c.lastSessionDate)})</div>`
+                      ).join("")
+                    : `<div>No data</div>`
+                }
+            </div>
+            `;
+        });
+
+        html += `</div>`;
+
+        document.getElementById("childTable").innerHTML = html;
+    }
+
+
+   
+
+
+     function renderCoachTable(data) {
+
+        let html = `<div>`;
+
+        data.forEach((coach, i) => {
+
+            const coachId = `coach-${i}`;
+
+            html += `
+            <!-- COACH HEADER -->
+            <div onclick="toggleDetail('${coachId}', this)"
+                 style="cursor:pointer; padding:10px; border:1px solid #ddd; margin-bottom:5px; background:#f1f1f1; display:flex; justify-content:space-between;">
+             
+                <div>
+                    <strong>${coach.coachName}</strong>
+                    <span style="color:#666;">[${coach.totalCourses} courses]</span>
+                </div>
+
+                <div class="arrow">▶</div>
+            </div>
+
+            <!-- COACH DETAILS -->
+            <div id="${coachId}" style="display:none; padding-left:20px;">
+            `;
+
+            // COURSES
+            coach.courses.forEach((course, j) => {
+
+                const courseId = `${coachId}-course-${j}`;
+
+                html += `
+                <!-- COURSE -->
+                <div onclick="toggleDetail('${courseId}', this)"
+                     style="cursor:pointer; padding:8px; border:1px solid #eee; margin:5px 0; background:#fafafa; display:flex; justify-content:space-between;">
+                
+                    <div>
+                        ${course.courseName}
+                        <span style="color:#999;">(${course.sessionsFinished} sessions finished)</span>
+                    </div>
+
+                    <div class="arrow">▶</div>
+                </div>
+
+                <!-- CHILDREN -->
+                <div id="${courseId}" style="display:none; padding-left:20px;">
+                    ${
+                        course.children && course.children.length > 0
+                            ? course.children.map(c =>`<div> - ${c.childName} (${c.sessionsCompleted} sessions completed)</div>`).join("")
+                        : `<div>No children</div>`
+                    }
+                </div>
+                `;
+            });
+
+            html += `</div>`;
+        });
+
+        html += `</div>`;
+
+        document.getElementById("coachTable").innerHTML = html;
+    }
+
+
+
+
+       function renderCourseTable(data) {
+
+        let html = `<div style="width:100%;">`;
+
+        data.forEach((course, index) => {
+
+            const detailId = `course-detail-${index}`;
+
+            html += `
+            <!-- COURSE HEADER -->
+            <div onclick="toggleDetail('${detailId}', this)"
+                 style="cursor:pointer; padding:10px; border:1px solid #ddd; margin-bottom:5px; background:#f9f9f9; display:flex; justify-content:space-between; align-items:center;">
+
+                <div>
+                    <strong>${course.courseName}</strong>
+                    &nbsp;&nbsp;
+                    <span style="color:#666;">(${course.sessionsFinished} sessions finished)</span>
+                </div>
+
+                <div class="arrow">▶</div>
+            </div>
+
+            <!-- CHILDREN LIST -->
+            <div id="${detailId}" style="display:none; padding:10px 20px; border-left:2px solid #ddd; margin-bottom:10px;">
+                ${
+                    course.children && course.children.length > 0
+                    ? course.children.map(c =>
+                        `<div> - ${c.childName} (${c.sessionsCompleted} sessions completed)</div>`
+                      ).join("")
+                    : `<div>No children</div>`
+                }
+            </div>
+            `;
+        });
+
+        html += `</div>`;
+
+        document.getElementById("courseTable").innerHTML = html;
+    }
+
+    // function toggleCoach(detailId, headerEl) {
+
+    //     const detail = document.getElementById(detailId);
+    //     const arrow = headerEl.querySelector(".arrow");
+
+    //     if (detail.style.display === "none") {
+    //         detail.style.display = "block";
+    //         arrow.textContent = "▼";
+    //     } else {
+    //         detail.style.display = "none";
+    //         arrow.textContent = "▶";
+    //     }
+    // }
+
+
+    function toggleDetail(id, el) {
+        const div = document.getElementById(id);
+        const arrow = el.querySelector(".arrow");
+
+        if (div.style.display === "none") {
+            div.style.display = "block";
+            arrow.textContent = "▼";
+        } else {
+            div.style.display = "none";
+            arrow.textContent = "▶";
+        }
+    }
+
+
+</script>
