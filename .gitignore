@@ -52,36 +52,16 @@
 /classlift_management/Web/obj/Debug/net8.0/Web.genruntimeconfig.cache
 /classlift_management/Web/obj/Debug/net8.0/Web.pdb
 /classlift_management/Web/obj/Debug/net8.0/Web.sourcelink.json
-<<<<<<< HEAD
-/classlift_management/Core/obj/Debug/net8.0/Core.assets.cache
-/classlift_management/Core/obj/Debug/net8.0/Core.GeneratedMSBuildEditorConfig.editorconfig
-/classlift_management/Core/obj/Core.csproj.nuget.dgspec.json
-/classlift_management/Core/obj/Core.csproj.nuget.g.props
-/classlift_management/Core/obj/project.assets.json
-/classlift_management/Core/obj/project.nuget.cache
-/classlift_management/Test/obj/Debug/net8.0/Test.assets.cache
-/classlift_management/Test/obj/Debug/net8.0/Test.GeneratedMSBuildEditorConfig.editorconfig
-/classlift_management/Test/obj/project.assets.json
-/classlift_management/Test/obj/project.nuget.cache
-/classlift_management/Test/obj/Test.csproj.nuget.dgspec.json
-/classlift_management/Test/obj/Test.csproj.nuget.g.props
-/classlift_management/Web/obj/Debug/net8.0/Web.assets.cache
-/classlift_management/Web/obj/Debug/net8.0/Web.GeneratedMSBuildEditorConfig.editorconfig
-=======
 /classlift_management/Web/obj/Debug/net8.0/staticwebassets.build.endpoints.json
 /classlift_management/Web/bin/Debug/net8.0/Web.staticwebassets.endpoints.json
 /classlift_management/Core/obj
 /classlift_management/Test/obj/Debug/net8.0
 /classlift_management/Web/obj/Debug/net8.0
->>>>>>> dev
 /classlift_management/Web/obj/project.assets.json
 /classlift_management/Web/obj/project.nuget.cache
 /classlift_management/Web/obj/Web.csproj.nuget.dgspec.json
 /classlift_management/Web/obj/Web.csproj.nuget.g.props
-<<<<<<< HEAD
-=======
-/classlift_management/Web/bin/Debug/net8.0/appsettings.json
-/classlift_management/Core/obj/Debug/net8.0/Core.csproj.CoreCompileInputs.cache
->>>>>>> dev
-/classlift_management/Test/obj/Debug/net8.0/Test.csproj.AssemblyReference.cache
-/classlift_management/Test/obj/Debug/net8.0/Test.csproj.CoreCompileInputs.cache
+/classlift_management/Test/obj/project.assets.json
+/classlift_management/Test/obj/project.nuget.cache
+/classlift_management/Test/obj/Test.csproj.nuget.dgspec.json
+/classlift_management/Test/obj/Test.csproj.nuget.g.props
