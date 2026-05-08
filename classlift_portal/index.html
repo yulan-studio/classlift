@@ -16,20 +16,61 @@ body { font-family: 'Inter', sans-serif; }
 
 <body class="bg-gray-50 text-gray-800">
 
+
 <!-- NAVBAR -->
 <header class="bg-white/80 backdrop-blur sticky top-0 z-50 border-b">
     <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
+
+        <!-- LOGO -->
         <h1 class="text-xl font-bold text-indigo-600">ClassLift</h1>
-        <div class="space-x-6 hidden md:block">
+
+        <!-- DESKTOP MENU -->
+        <div class="space-x-6 hidden md:flex items-center">
             <a href="./index.html" class="hover:text-indigo-600">Features</a>
             <a href="./pricing.html#pricing" class="hover:text-indigo-600">Pricing</a>
             <a href="./pricing.html" class="hover:text-indigo-600">Demo</a>
+
             <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow hover:bg-indigo-700">
                 Book Demo
             </a>
         </div>
+
+        <!-- MOBILE BUTTON -->
+        <button id="menuBtn" class="md:hidden text-3xl">
+            ☰
+        </button>
+    </div>
+
+    <!-- MOBILE MENU -->
+    <div id="mobileMenu" class="hidden md:hidden px-6 pt-4 pb-4 space-y-4 bg-white border-t">
+
+        <a href="./index.html" class="block hover:text-indigo-600">
+            Features
+        </a>
+
+        <a href="./pricing.html#pricing" class="block hover:text-indigo-600">
+            Pricing
+        </a>
+
+        <a href="./pricing.html" class="block hover:text-indigo-600">
+            Demo
+        </a>
+
+        <a href="#" class="block bg-indigo-600 text-white px-4 py-2 rounded-xl text-center">
+            Book Demo
+        </a>
     </div>
 </header>
+
+<!-- SCRIPT -->
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+
+menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+});
+</script>
 
 <!-- HERO -->
 <section class="relative overflow-hidden">
