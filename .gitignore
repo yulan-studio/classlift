@@ -68,3 +68,5 @@
 /classlist_platform/obj
 /classlist_platform/.vs/classlist_platform.slnx
 /classlift_platform/.vs/classlift_platform.slnx
+/classlift_platform/Core/obj/Debug/net8.0/Core.AssemblyInfo.cs
+/classlift_platform/Core/obj/Debug/net8.0/Core.AssemblyInfoInputs.cache
