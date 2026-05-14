@@ -65,3 +65,6 @@
 /classlift_management/Test/obj/project.nuget.cache
 /classlift_management/Test/obj/Test.csproj.nuget.dgspec.json
 /classlift_management/Test/obj/Test.csproj.nuget.g.props
+/classlist_platform/obj
+/classlist_platform/.vs/classlist_platform.slnx
+/classlift_platform/.vs/classlift_platform.slnx
