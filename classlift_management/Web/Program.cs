@@ -60,6 +60,7 @@ async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
 
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
