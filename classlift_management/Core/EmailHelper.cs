@@ -8,5 +8,6 @@ namespace Core
 {
     internal class EmailHelper
     {
+
     }
 }
