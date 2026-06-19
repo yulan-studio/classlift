@@ -69,3 +69,5 @@
 /classlift_platform/.vs
 /classlift_platform/bin/
 /classlift_platform/obj/
+*.dll
+/classlift_platform/Billing/obj/Debug/net8.0/ref/Billing.dll
