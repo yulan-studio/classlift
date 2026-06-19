@@ -66,3 +66,6 @@
 /classlift_management/Test/obj/Test.csproj.nuget.dgspec.json
 /classlift_management/Test/obj/Test.csproj.nuget.g.props
 /classlift_management/Web/bin/Debug/net8.0/appsettings.json
+/classlift_platform/.vs
+/classlift_platform/bin/
+/classlift_platform/obj/
