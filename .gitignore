@@ -70,3 +70,10 @@
 /classlift_platform/.vs/classlift_platform.slnx
 /classlift_platform/Core/obj/Debug/net8.0/Core.AssemblyInfo.cs
 /classlift_platform/Core/obj/Debug/net8.0/Core.AssemblyInfoInputs.cache
+/classlift_management/Web/bin/Debug/net8.0/appsettings.json
+/classlift_platform/Core/obj/Debug/net8.0/Core.assets.cache
+/classlift_platform/Core/obj/Debug/net8.0/Core.GeneratedMSBuildEditorConfig.editorconfig
+/classlift_platform/Core/obj/Core.csproj.nuget.dgspec.json
+/classlift_platform/Core/obj/Core.csproj.nuget.g.props
+/classlift_platform/Core/obj/project.assets.json
+/classlift_platform/Core/obj/project.nuget.cache
