@@ -1,4 +1,5 @@
 ﻿using Billing.Data;
+using Billing.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,10 +9,14 @@ namespace Billing.Controllers
     public class InvoicesController : Controller
     {
         private readonly BillingDbContext _context;
+        private readonly PaymentService _paymentService;
 
-        public InvoicesController(BillingDbContext context)
+        public InvoicesController(
+                BillingDbContext context,
+                PaymentService paymentService)
         {
             _context = context;
+            _paymentService = paymentService;
         }
 
         [HttpGet("")]
@@ -52,12 +57,16 @@ namespace Billing.Controllers
             if (invoice == null)
                 return NotFound();
 
-            invoice.InvoiceStatus = "Paid";
-            invoice.PaidAt = DateTime.Now;
+            await _paymentService.RecordPaymentAsync(
+                invoice.InvoiceId,
+                "Manual",
+                $"MANUAL-{DateTime.Now:yyyyMMddHHmmss}",
+                invoice.TotalAmount,
+                "CAD",
+                "Manual admin payment"
+            );
 
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Invoice marked as paid.";
+            TempData["Success"] = "Payment recorded and invoice marked as paid.";
 
             return RedirectToAction(nameof(Details), new { id });
         }
