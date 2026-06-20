@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Billing";
+}
+
+<div class="container mt-4">
+
+    <h2>Billing Administration</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <form action="/Billing/GenerateInvoices" method="post">
+        <button type="submit" class="btn btn-primary">
+            Generate Monthly Invoices
+        </button>
+    </form>
+
+   @*  <form asp-controller="Billing" asp-action="GenerateInvoices" method="post">
+        <button type="submit" class="btn btn-primary">
+            Generate Monthly Invoices
+        </button>
+    </form>
+ *@
+    
+
+</div>

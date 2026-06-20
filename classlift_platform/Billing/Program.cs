@@ -1,7 +1,33 @@
+using Billing.Data;
+using Billing.Jobs;
+using Billing.Services;
+
+using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllersWithViews();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<BillingDbContext>(options =>
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
+    ));
+
+
 // Add services to the container.
-builder.Services.AddRazorPages();
+//builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<MonthlyBillingJob>();
+
+
+
+
+
 
 var app = builder.Build();
 
@@ -13,13 +39,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages();
+//app.UseAuthorization();
+
+//app.MapRazorPages();
 
 app.Run();
