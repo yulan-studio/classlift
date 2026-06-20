@@ -1,0 +1,112 @@
+﻿@model Billing.Models.Invoice
+
+@{
+    ViewData["Title"] = "Invoice Details";
+}
+
+<div class="container mt-4">
+    <h2>Invoice #@Model.InvoiceId</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <div class="card mt-3">
+        <div class="card-header">
+            Invoice Information
+        </div>
+
+        <div class="card-body">
+            <p><strong>Organization:</strong> @Model.Organization?.OrganizationName</p>
+            <p><strong>Plan:</strong> @Model.Plan?.PlanName</p>
+            <p><strong>Status:</strong> @Model.InvoiceStatus</p>
+
+            <p>
+                <strong>Billing Period:</strong>
+                @Model.BillingPeriodStart.ToString("yyyy-MM-dd")
+                -
+                @Model.BillingPeriodEnd.ToString("yyyy-MM-dd")
+            </p>
+
+            <hr />
+
+            <p><strong>Coach Count:</strong> @Model.CoachCount</p>
+            <p><strong>Price Per Coach:</strong> @Model.PricePerCoach.ToString("C")</p>
+            <p><strong>Subtotal:</strong> @Model.Subtotal.ToString("C")</p>
+            <p><strong>Discount:</strong> @Model.DiscountAmount.ToString("C")</p>
+            <p><strong>Total:</strong> @Model.TotalAmount.ToString("C")</p>
+
+            <hr />
+
+            <p><strong>Generated At:</strong> @Model.GeneratedAt.ToString("yyyy-MM-dd HH:mm")</p>
+            <p><strong>Paid At:</strong> @(Model.PaidAt?.ToString("yyyy-MM-dd HH:mm") ?? "Not paid")</p>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        @if (Model.InvoiceStatus == "Pending" || Model.InvoiceStatus == "Overdue")
+        {
+            <form asp-controller="Invoices"
+                  asp-action="MarkPaid"
+                  asp-route-id="@Model.InvoiceId"
+                  method="post"
+                  style="display:inline;">
+                <button type="submit" class="btn btn-success">
+                    Mark as Paid
+                </button>
+            </form>
+
+            <form asp-controller="Invoices"
+                  asp-action="Cancel"
+                  asp-route-id="@Model.InvoiceId"
+                  method="post"
+                  style="display:inline;">
+                <button type="submit" class="btn btn-danger">
+                    Cancel Invoice
+                </button>
+            </form>
+        }
+
+        <a class="btn btn-secondary" asp-controller="Invoices" asp-action="Index">
+            Back to Invoices
+        </a>
+    </div>
+
+    <h4 class="mt-4">Payments</h4>
+
+    @if (Model.Payments != null && Model.Payments.Any())
+    {
+        <table class="table table-bordered mt-2">
+            <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Provider</th>
+                    <th>Transaction ID</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Payment Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var payment in Model.Payments)
+                {
+                    <tr>
+                        <td>@payment.PaymentId</td>
+                        <td>@payment.PaymentProvider</td>
+                        <td>@payment.ProviderTransactionId</td>
+                        <td>@payment.Amount.ToString("C")</td>
+                        <td>@payment.PaymentStatus</td>
+                        <td>@payment.PaymentDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No payments recorded yet.</p>
+    }
+</div>
