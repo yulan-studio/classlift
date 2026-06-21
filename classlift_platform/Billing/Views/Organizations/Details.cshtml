@@ -44,6 +44,11 @@
     <strong>@Model.Organization.CurrentPlan?.PlanName</strong>
 </p>
 
+<a class="btn btn-warning"
+   href="/Subscriptions/ChangePlan/@Model.Organization.OrganizationId">
+    Change Plan
+</a>
+
 <p>
     Total Revenue:
     <strong>@Model.TotalRevenue.ToString("C")</strong>

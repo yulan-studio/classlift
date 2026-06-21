@@ -1,0 +1,45 @@
+﻿@model Billing.ViewModels.ChangePlanViewModel
+
+@{
+    ViewData["Title"] = "Change Plan";
+}
+
+<div class="container mt-4">
+    <h2>Change Subscription Plan</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <p><strong>Organization:</strong> @Model.OrganizationName</p>
+            <p><strong>Current Plan:</strong> @(Model.CurrentPlanName ?? "None")</p>
+        </div>
+    </div>
+
+    <form action="/Subscriptions/ChangePlan" method="post" class="mt-4">
+
+        <input type="hidden" asp-for="OrganizationId" />
+        <input type="hidden" asp-for="OrganizationName" />
+        <input type="hidden" asp-for="CurrentPlanId" />
+        <input type="hidden" asp-for="CurrentPlanName" />
+
+        <div class="mb-3">
+            <label asp-for="NewPlanId" class="form-label">New Plan</label>
+            <select asp-for="NewPlanId" asp-items="Model.Plans" class="form-select">
+                <option value="">-- Select Plan --</option>
+            </select>
+            <span asp-validation-for="NewPlanId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Reason" class="form-label">Reason</label>
+            <textarea asp-for="Reason" class="form-control" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Change Plan
+        </button>
+
+        <a class="btn btn-secondary" href="/Organizations/Details/@Model.OrganizationId">
+            Cancel
+        </a>
+    </form>
+</div>

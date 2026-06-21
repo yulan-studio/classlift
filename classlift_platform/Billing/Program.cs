@@ -26,6 +26,7 @@ builder.Services.AddScoped<MonthlyBillingJob>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<DunningService>();
 builder.Services.AddScoped<DunningJob>();
+builder.Services.AddScoped<SubscriptionService>();
 
 
 

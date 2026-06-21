@@ -15,7 +15,7 @@ public partial class Subscriptionplan
 
     public decimal MinimumMonthlyPrice { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
