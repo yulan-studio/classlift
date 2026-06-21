@@ -4,13 +4,13 @@
     ViewData["Title"] = "Organization Details";
 }
 
-@* Organization Info *@
+@* Organization Info  *@
 
 
 
 
 
-<div class="container mt-4">
+
 
     <h2>@Model.Organization.OrganizationName</h2>  
     <a class="btn btn-secondary" href="/Organizations">
@@ -49,7 +49,8 @@
     <strong>@Model.TotalRevenue.ToString("C")</strong>
 </p>
 
-@* Subscription History *@
+
+<h2>Subscription History</h2>
 
 <table class="table table-bordered">
     <thead>
@@ -75,6 +76,7 @@
 </table>
 
 @* Latest Invoices *@
+<h2>Latest Invoices</h2>
 
 <table class="table table-bordered">
     <thead>
@@ -98,6 +100,7 @@
 </table>
 
 @* Tenant Information *@
+<h2>Tenant Information</h2>
 
 @if (Model.Tenant != null)
 {
@@ -115,7 +118,7 @@
 }
 
 
-</div>
+
 
 
 
