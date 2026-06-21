@@ -1,36 +1,123 @@
-﻿@model Billing.Models.Organization
+﻿@model Billing.ViewModels.OrganizationDetailsViewModel
 
 @{
     ViewData["Title"] = "Organization Details";
 }
 
+@* Organization Info *@
+
+
+
+
+
 <div class="container mt-4">
 
-    <h2>@Model.OrganizationName</h2>
+    <h2>@Model.Organization.OrganizationName</h2>  
+    <a class="btn btn-secondary" href="/Organizations">
+        Back
+    </a>
 
     <div class="card mt-3">
         <div class="card-body">
 
-            <p><strong>Organization:</strong> @Model.OrganizationName</p>
+            <p><strong>Organization:</strong> @Model.Organization.OrganizationName</p>
 
-            <p><strong>Contact:</strong> @Model.ContactName</p>
+            <p><strong>Contact:</strong> @Model.Organization.ContactName</p>
 
-            <p><strong>Email:</strong> @Model.ContactEmail</p>
+            <p><strong>Email:</strong> @Model.Organization.ContactEmail</p>
 
-            <p><strong>Phone:</strong> @Model.ContactPhone</p>
+            <p><strong>Phone:</strong> @Model.Organization.ContactPhone</p>
 
-            <p><strong>Current Plan:</strong> @Model.CurrentPlan?.PlanName</p>
+            <p><strong>Current Plan:</strong> @Model.Organization.CurrentPlan?.PlanName</p>
 
-            <p><strong>Active:</strong> @Model.IsActive</p>
+            <p><strong>Active:</strong> @Model.Organization.IsActive</p>
 
         </div>
     </div>
 
-    <div class="mt-3">
-        <a class="btn btn-secondary"
-           href="/Organizations">
-            Back
-        </a>
-    </div>
+
+
+
+
+
+
+<p>
+    Current Plan:
+    <strong>@Model.Organization.CurrentPlan?.PlanName</strong>
+</p>
+
+<p>
+    Total Revenue:
+    <strong>@Model.TotalRevenue.ToString("C")</strong>
+</p>
+
+@* Subscription History *@
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Plan</th>
+            <th>Status</th>
+            <th>Start</th>
+            <th>End</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var sub in Model.Subscriptions)
+        {
+            <tr>
+                <td>@sub.Plan?.PlanName</td>
+                <td>@sub.Status</td>
+                <td>@sub.StartDate</td>
+                <td>@sub.EndDate</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* Latest Invoices *@
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Invoice</th>
+            <th>Status</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var invoice in Model.Invoices.Take(10))
+        {
+            <tr>
+                <td>@invoice.InvoiceId</td>
+                <td>@invoice.InvoiceStatus</td>
+                <td>@invoice.TotalAmount.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* Tenant Information *@
+
+@if (Model.Tenant != null)
+{
+    <h4>Tenant Information</h4>
+
+    <p>
+        Database:
+        <strong>@Model.Tenant.DatabaseName</strong>
+    </p>
+
+    <p>
+        Subdomain:
+        <strong>@Model.Tenant.Subdomain</strong>
+    </p>
+}
+
 
 </div>
+
+
+
