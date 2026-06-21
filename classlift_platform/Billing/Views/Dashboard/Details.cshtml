@@ -1,0 +1,36 @@
+﻿@model Billing.Models.Organization
+
+@{
+    ViewData["Title"] = "Organization Details";
+}
+
+<div class="container mt-4">
+
+    <h2>@Model.OrganizationName</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+
+            <p><strong>Organization:</strong> @Model.OrganizationName</p>
+
+            <p><strong>Contact:</strong> @Model.ContactName</p>
+
+            <p><strong>Email:</strong> @Model.ContactEmail</p>
+
+            <p><strong>Phone:</strong> @Model.ContactPhone</p>
+
+            <p><strong>Current Plan:</strong> @Model.CurrentPlan?.PlanName</p>
+
+            <p><strong>Active:</strong> @Model.IsActive</p>
+
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-secondary"
+           href="/Organizations">
+            Back
+        </a>
+    </div>
+
+</div>

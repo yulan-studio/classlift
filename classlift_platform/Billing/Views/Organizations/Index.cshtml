@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Billing.Models.Organization>
+
+@{
+    ViewData["Title"] = "Organizations";
+}
+
+<div class="container mt-4">
+
+    <h2>Organizations</h2>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Current Plan</th>
+                <th>Active</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var org in Model)
+            {
+                <tr>
+                    <td>@org.OrganizationName</td>
+                    <td>@org.ContactName</td>
+                    <td>@org.ContactEmail</td>
+                    <td>@org.CurrentPlan?.PlanName</td>
+                    <td>@org.IsActive</td>
+
+                    <td>
+                        <a class="btn btn-sm btn-primary"
+                           href="/Organizations/Details/@org.OrganizationId">
+                            Details
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
