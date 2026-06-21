@@ -19,6 +19,8 @@ public partial class Invoice
 
     public DateOnly BillingPeriodEnd { get; set; }
 
+    public DateOnly DueDate { get; set; }
+
     public int CoachCount { get; set; }
 
     public decimal PricePerCoach { get; set; }

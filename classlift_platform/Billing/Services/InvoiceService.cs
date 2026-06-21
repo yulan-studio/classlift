@@ -49,6 +49,7 @@ namespace Billing.Services
 
                 BillingPeriodStart = billingPeriodStart,
                 BillingPeriodEnd = billingPeriodEnd,
+                DueDate = billingPeriodEnd.AddDays(15),
 
                 CoachCount = coachCount,
                 PricePerCoach = subscription.MonthlyPricePerCoach,

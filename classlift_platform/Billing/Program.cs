@@ -24,6 +24,8 @@ builder.Services.AddDbContext<BillingDbContext>(options =>
 builder.Services.AddScoped<InvoiceService>();
 builder.Services.AddScoped<MonthlyBillingJob>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<DunningService>();
+builder.Services.AddScoped<DunningJob>();
 
 
 
