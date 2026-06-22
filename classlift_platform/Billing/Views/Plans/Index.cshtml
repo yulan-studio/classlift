@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Billing.Models.Subscriptionplan>
+
+@{
+    ViewData["Title"] = "Plans";
+}
+
+<div class="container mt-4">
+
+    <h2>Subscription Plans</h2>
+
+    <a class="btn btn-success mb-3"
+       href="/Plans/Create">
+        Create Plan
+    </a>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Plan</th>
+                <th>Price Per Coach</th>
+                <th>Minimum Monthly Price</th>
+                <th>Active</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var plan in Model)
+            {
+                <tr>
+                    <td>@plan.PlanName</td>
+                    <td>@plan.PricePerCoach.ToString("C")</td>
+                    <td>@plan.MinimumMonthlyPrice.ToString("C")</td>
+                    <td>@plan.IsActive</td>
+
+                    <td>
+                        <a class="btn btn-primary btn-sm"
+                           href="/Plans/Details/@plan.PlanId">
+                            Details
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
