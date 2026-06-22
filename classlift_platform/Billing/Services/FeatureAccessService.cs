@@ -90,7 +90,7 @@ namespace Billing.Services
         }
 
 
-
+        //when plans change, clear cache for that organization.
         public void ClearFeatureCache(int organizationId)
         {
             var cacheKey = $"feature-context-{organizationId}";
