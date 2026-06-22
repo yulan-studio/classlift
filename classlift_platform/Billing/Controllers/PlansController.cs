@@ -102,7 +102,10 @@ namespace Billing.Controllers
                     FeatureId = f.FeatureId,
                     FeatureKey = f.FeatureKey,
                     FeatureName = f.FeatureName,
-                    IsSelected = selectedFeatureIds.Contains(f.FeatureId)
+                    IsSelected = selectedFeatureIds.Contains(f.FeatureId),
+                    IsLocked = plan.Planfeatures
+                                .FirstOrDefault(pf => pf.FeatureId == f.FeatureId)
+                                ?.IsLocked ?? false
                 }).ToList()
             };
 

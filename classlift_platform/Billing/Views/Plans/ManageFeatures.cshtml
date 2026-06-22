@@ -16,6 +16,7 @@
             <thead>
                 <tr>
                     <th>Enabled</th>
+                    <th>Required</th>
                     <th>Feature</th>
                     <th>Feature Key</th>
                 </tr>
@@ -29,9 +30,18 @@
                             <input type="hidden" asp-for="Features[i].FeatureId" />
                             <input type="hidden" asp-for="Features[i].FeatureKey" />
                             <input type="hidden" asp-for="Features[i].FeatureName" />
+                            <input type="hidden" asp-for="Features[i].IsLocked" />
 
                             <input asp-for="Features[i].IsSelected"
-                                   class="form-check-input" />
+                                   class="form-check-input"
+                                   disabled="@(Model.Features[i].IsLocked)" />
+                        </td>
+                        <td>
+                            @if (Model.Features[i].IsLocked)
+                            {
+                                @* <span class="badge bg-secondary">✓</span> *@
+                                <input asp-for="Features[i].IsLocked" class="form-check-input" disabled />
+                            }
                         </td>
 
                         <td>@Model.Features[i].FeatureName</td>

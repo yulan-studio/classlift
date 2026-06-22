@@ -11,6 +11,8 @@ public partial class Planfeature
 
     public int FeatureId { get; set; }
 
+    public bool IsLocked { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public virtual Feature Feature { get; set; } = null!;

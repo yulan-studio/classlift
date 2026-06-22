@@ -13,6 +13,8 @@
         public int FeatureId { get; set; }
         public string FeatureKey { get; set; } = "";
         public string FeatureName { get; set; } = "";
+
+        public bool IsLocked { get; set; }
         public bool IsSelected { get; set; }
     }
 }
