@@ -30,6 +30,22 @@
 
             <p><strong>Active:</strong> @Model.Organization.IsActive</p>
 
+
+        <p>
+            <strong>Current Plan:</strong> @Model.Organization.CurrentPlan?.PlanName
+
+            <a class="btn btn-warning"
+               href="/Subscriptions/ChangePlan/@Model.Organization.OrganizationId">
+                Change Plan
+            </a>
+
+        </p>
+
+       
+        <p>
+            <strong> Total Revenue:</strong> @Model.TotalRevenue.ToString("C")
+        </p>
+
         </div>
     </div>
 
@@ -39,20 +55,7 @@
 
 
 
-<p>
-    Current Plan:
-    <strong>@Model.Organization.CurrentPlan?.PlanName</strong>
-</p>
 
-<a class="btn btn-warning"
-   href="/Subscriptions/ChangePlan/@Model.Organization.OrganizationId">
-    Change Plan
-</a>
-
-<p>
-    Total Revenue:
-    <strong>@Model.TotalRevenue.ToString("C")</strong>
-</p>
 
 
 <h2>Subscription History</h2>
