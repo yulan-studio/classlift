@@ -1,4 +1,5 @@
-﻿using Billing.Services;
+﻿using Billing.Constants;
+using Billing.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Billing.Controllers
@@ -14,17 +15,19 @@ namespace Billing.Controllers
         }
 
         [HttpGet("Test")]
-        public async Task<IActionResult> Test(int organizationId, string featureKey)
+        public async Task<IActionResult> Test(int organizationId)
         {
-            var hasAccess = await _featureAccessService.HasFeatureAsync(
-                organizationId,
-                featureKey
-            );
+            var context = await _featureAccessService.GetFeatureContextAsync(organizationId);
+
+
+
+            bool hasAccess = context.Features.Contains(FeatureKeys.AiEnhancements);
+  
 
             return Content(
                 hasAccess
-                    ? $"Organization {organizationId} HAS access to {featureKey}"
-                    : $"Organization {organizationId} does NOT have access to {featureKey}"
+                    ? $"Organization {organizationId} HAS access to {FeatureKeys.AiEnhancements}"
+                    : $"Organization {organizationId} does NOT have access to {FeatureKeys.AiEnhancements}"
             );
         }
     }
