@@ -27,7 +27,11 @@ builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<DunningService>();
 builder.Services.AddScoped<DunningJob>();
 builder.Services.AddScoped<SubscriptionService>();
+//Register cache
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FeatureAccessService>();
+
+
 
 
 
