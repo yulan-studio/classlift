@@ -1,7 +1,7 @@
 ﻿using Billing.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Billing.Services.Jobs
+namespace Billing.Services.Billing
 {
     public class DunningService
     {
