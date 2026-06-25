@@ -4,7 +4,7 @@ using Billing.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-namespace Billing.Services
+namespace Billing.Services.Provisioning
 {
     public class TenantProvisioningService
     {

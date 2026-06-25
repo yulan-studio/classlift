@@ -2,7 +2,7 @@
 using Billing.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Billing.Services
+namespace Billing.Services.Billing
 {
     public class SubscriptionService
     {

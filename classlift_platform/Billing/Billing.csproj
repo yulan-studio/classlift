@@ -24,6 +24,8 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <Folder Include="Data\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Services\Reporting\" />
   </ItemGroup>
 
 </Project>

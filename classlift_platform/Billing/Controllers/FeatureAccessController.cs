@@ -1,5 +1,5 @@
 ﻿using Billing.Constants;
-using Billing.Services;
+using Billing.Services.Billing;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Billing.Controllers

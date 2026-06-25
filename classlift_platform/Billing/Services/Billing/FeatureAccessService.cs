@@ -5,7 +5,7 @@ using Billing.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Billing.Services
+namespace Billing.Services.Billing
 {
     /*
      未来主系统：
