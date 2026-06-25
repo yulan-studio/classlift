@@ -1,6 +1,8 @@
 ﻿using Billing.Data;
+using Billing.Services;
 using Billing.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Billing.Controllers
@@ -9,10 +11,13 @@ namespace Billing.Controllers
     public class OrganizationsController : Controller
     {
         private readonly BillingDbContext _context;
+        private readonly TenantProvisioningService _tenantProvisioningService;
 
-        public OrganizationsController(BillingDbContext context)
+        public OrganizationsController(BillingDbContext context,
+                                       TenantProvisioningService tenantProvisioningService)
         {
             _context = context;
+            _tenantProvisioningService = tenantProvisioningService;
         }
 
         [HttpGet("")]
@@ -73,5 +78,81 @@ namespace Billing.Controllers
 
             return View(model);
         }
+
+
+        [HttpGet("Create")]
+        public async Task<IActionResult> Create()
+        {
+            var plans = await _context.Subscriptionplans
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.PlanName)
+                .ToListAsync();
+
+            var model = new CreateOrganizationViewModel
+            {
+                Plans = plans.Select(p => new SelectListItem
+                {
+                    Value = p.PlanId.ToString(),
+                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach, min {p.MinimumMonthlyPrice:C}"
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(CreateOrganizationViewModel model)
+        {
+            if (model.PlanId <= 0)
+                ModelState.AddModelError(nameof(model.PlanId), "Please select a plan.");
+
+            if (!ModelState.IsValid)
+            {
+                var plans = await _context.Subscriptionplans
+                    .Where(p => p.IsActive)
+                    .OrderBy(p => p.PlanName)
+                    .ToListAsync();
+
+                model.Plans = plans.Select(p => new SelectListItem
+                {
+                    Value = p.PlanId.ToString(),
+                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach, min {p.MinimumMonthlyPrice:C}"
+                }).ToList();
+
+                return View(model);
+            }
+
+            try
+            {
+                var organization = await _tenantProvisioningService
+                    .CreateOrganizationAsync(model);
+
+                TempData["Success"] = "Organization created successfully.";
+
+                return RedirectToAction(nameof(Details), new { id = organization.OrganizationId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+
+                var plans = await _context.Subscriptionplans
+                    .Where(p => p.IsActive)
+                    .OrderBy(p => p.PlanName)
+                    .ToListAsync();
+
+                model.Plans = plans.Select(p => new SelectListItem
+                {
+                    Value = p.PlanId.ToString(),
+                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach, min {p.MinimumMonthlyPrice:C}"
+                }).ToList();
+
+                return View(model);
+            }
+        }
+
+
+
     }
 }

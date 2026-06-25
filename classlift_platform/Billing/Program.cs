@@ -30,6 +30,7 @@ builder.Services.AddScoped<SubscriptionService>();
 //Register cache
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FeatureAccessService>();
+builder.Services.AddScoped<TenantProvisioningService>();
 
 
 
