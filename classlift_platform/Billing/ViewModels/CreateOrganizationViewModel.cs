@@ -16,8 +16,8 @@ namespace Billing.ViewModels
         public int PlanId { get; set; }
         [Required(ErrorMessage = "Database Name is required.")]
         [MaxLength(20)]
-        public string DatabaseName { get; set; } = "";
-        [Required(ErrorMessage = "Subdomain is required.")]
+        //public string DatabaseName { get; set; } = "";
+        //[Required(ErrorMessage = "Subdomain is required.")]
         public string? Subdomain { get; set; }
 
         public List<SelectListItem> Plans { get; set; } = new();

@@ -2,6 +2,7 @@
 using Billing.Models;
 using Billing.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Billing.Services
 {
@@ -17,6 +18,24 @@ namespace Billing.Services
             _context = context;
             _configuration = configuration;
         }
+
+
+        //private async Task CreateTenantDatabaseAsync(string databaseName)
+        //{
+        //    var serverConnectionString =
+        //        _configuration.GetConnectionString("TenantServerConnection");
+
+        //    await using var connection = new MySqlConnector.MySqlConnection(serverConnectionString);
+        //    await connection.OpenAsync();
+
+        //    var safeDatabaseName = databaseName.Replace("`", "");
+
+        //    await using var command = connection.CreateCommand();
+        //    command.CommandText = $"CREATE DATABASE `{safeDatabaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;";
+        //    await command.ExecuteNonQueryAsync();
+        //}
+
+
 
         public async Task<Organization> CreateOrganizationAsync(
             CreateOrganizationViewModel model,
@@ -52,7 +71,7 @@ namespace Billing.Services
                 _context.Organizations.Add(organization);
                 await _context.SaveChangesAsync();
 
-                var databaseName = GenerateDatabaseName(model.OrganizationName);
+                var databaseName = GenerateDatabaseName(model.Subdomain);
 
                 var connectionString =
                     $"server=localhost;database={databaseName};user=root;password=YOUR_PASSWORD;";
@@ -113,14 +132,13 @@ namespace Billing.Services
             }
         }
 
-        private static string GenerateDatabaseName(string organizationName)
+        private static string GenerateDatabaseName(string subdomain)
         {
-            var safeName = organizationName
-                .ToLower()
-                .Replace(" ", "_")
-                .Replace("-", "_");
+            var safe = Regex.Replace(   subdomain.Trim().ToLower(),
+                                        @"[^a-z0-9_]",
+                                        "");
 
-            return $"classlift_{safeName}";
+            return $"classlift_{safe}";
         }
     }
 }
