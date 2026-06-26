@@ -1,6 +1,7 @@
 using Billing.Data;
 using Billing.Services.Jobs;
 using Billing.Services.Billing;
+using Billing.Interfaces;
 using Billing.Services.Provisioning;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,7 @@ builder.Services.AddScoped<SubscriptionService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FeatureAccessService>();
 builder.Services.AddScoped<TenantProvisioningService>();
+builder.Services.AddScoped<IDatabaseProvisioner, RailwayDatabaseService>();
 
 
 

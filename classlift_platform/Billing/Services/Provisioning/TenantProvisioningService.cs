@@ -1,4 +1,5 @@
 ﻿using Billing.Data;
+using Billing.Interfaces;
 using Billing.Models;
 using Billing.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +11,16 @@ namespace Billing.Services.Provisioning
     {
         private readonly BillingDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IDatabaseProvisioner _databaseProvisioner;
 
         public TenantProvisioningService(
             BillingDbContext context,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IDatabaseProvisioner databaseProvisioner)
         {
             _context = context;
             _configuration = configuration;
+            _databaseProvisioner = databaseProvisioner;
         }
 
 
@@ -72,6 +76,9 @@ namespace Billing.Services.Provisioning
                 await _context.SaveChangesAsync();
 
                 var databaseName = GenerateDatabaseName(model.Subdomain);
+
+                await _databaseProvisioner.CreateDatabaseAsync(databaseName);
+
 
                 var connectionString =
                     $"server=localhost;database={databaseName};user=root;password=YOUR_PASSWORD;";
