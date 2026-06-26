@@ -28,4 +28,10 @@
     <Folder Include="Services\Reporting\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TenantScripts\001_CreateTables.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

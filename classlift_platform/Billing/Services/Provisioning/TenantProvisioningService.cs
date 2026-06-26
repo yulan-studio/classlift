@@ -3,6 +3,7 @@ using Billing.Interfaces;
 using Billing.Models;
 using Billing.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 using System.Text.RegularExpressions;
 
 namespace Billing.Services.Provisioning
@@ -12,15 +13,21 @@ namespace Billing.Services.Provisioning
         private readonly BillingDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IDatabaseProvisioner _databaseProvisioner;
+        private readonly ITenantSchemaService _tenantSchemaService;
+        private readonly ITenantSeedService _tenantSeedService;
 
         public TenantProvisioningService(
             BillingDbContext context,
             IConfiguration configuration,
-            IDatabaseProvisioner databaseProvisioner)
+            IDatabaseProvisioner databaseProvisioner,
+            ITenantSchemaService tenantSchemaService,
+            ITenantSeedService tenantSeedService)
         {
             _context = context;
             _configuration = configuration;
             _databaseProvisioner = databaseProvisioner;
+            _tenantSchemaService = tenantSchemaService;
+            _tenantSeedService = tenantSeedService;
         }
 
 
@@ -39,12 +46,24 @@ namespace Billing.Services.Provisioning
         //    await command.ExecuteNonQueryAsync();
         //}
 
+        private string BuildServerConnectionString(string databaseName)
+        {
+            var host = _configuration["TenantDatabase:Host"];
+            var port = _configuration["TenantDatabase:Port"];
+
+            var user = _configuration["TenantDatabase:User"];
+            var password = _configuration["TenantDatabase:Password"];
+
+            return $"Server={host};Port={port};Database={databaseName};User={user};Password={password};";
+        }
 
 
         public async Task<Organization> CreateOrganizationAsync(
             CreateOrganizationViewModel model,
             string createdBy = "admin")
         {
+
+            // 1. Create Organization (billing database)
             var plan = await _context.Subscriptionplans
                 .FirstOrDefaultAsync(p => p.PlanId == model.PlanId && p.IsActive);
 
@@ -75,14 +94,23 @@ namespace Billing.Services.Provisioning
                 _context.Organizations.Add(organization);
                 await _context.SaveChangesAsync();
 
+                // 2. Generate database name
+
                 var databaseName = GenerateDatabaseName(model.Subdomain);
 
                 await _databaseProvisioner.CreateDatabaseAsync(databaseName);
 
+                // 3. Build tenant connection string
 
-                var connectionString =
-                    $"server=localhost;database={databaseName};user=root;password=YOUR_PASSWORD;";
+                var connectionString = BuildServerConnectionString(databaseName);
 
+
+                await _tenantSchemaService.InitializeSchemaAsync(connectionString);
+
+                await _tenantSeedService.SeedAsync(connectionString);
+
+
+                // 4. Save TenantRegistry
                 var tenant = new Tenantregistry
                 {
                     OrganizationId = organization.OrganizationId,
@@ -95,6 +123,7 @@ namespace Billing.Services.Provisioning
 
                 _context.Tenantregistries.Add(tenant);
 
+                // 5. Create Subscription
                 var subscription = new OrganizationSubscription
                 {
                     OrganizationId = organization.OrganizationId,
@@ -110,6 +139,7 @@ namespace Billing.Services.Provisioning
                 _context.OrganizationSubscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
 
+                // 6. Create SubscriptionEvent
                 var subscriptionEvent = new SubscriptionEvent
                 {
                     OrganizationId = organization.OrganizationId,
@@ -141,9 +171,12 @@ namespace Billing.Services.Provisioning
 
         private static string GenerateDatabaseName(string subdomain)
         {
-            var safe = Regex.Replace(   subdomain.Trim().ToLower(),
-                                        @"[^a-z0-9_]",
-                                        "");
+            
+            var safe = subdomain.Trim().ToLower();
+
+            safe = Regex.Replace(safe, @"[^a-z0-9]+", "_");
+            safe = Regex.Replace(safe, @"_+", "_");
+            safe = safe.Trim('_');
 
             return $"classlift_{safe}";
         }
