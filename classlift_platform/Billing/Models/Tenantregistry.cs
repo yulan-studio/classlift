@@ -15,7 +15,9 @@ public partial class Tenantregistry
 
     public string? Subdomain { get; set; }
 
-    public bool? IsActive { get; set; }
+    public string? CustomDomain { get; set; }
+
+    public bool IsActive { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

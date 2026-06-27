@@ -1,9 +1,11 @@
 using Billing.Data;
-using Billing.Services.Jobs;
-using Billing.Services.Billing;
 using Billing.Interfaces;
+using Billing.Middleware;
+using Billing.Services.Billing;
+using Billing.Services.Jobs;
 using Billing.Services.Provisioning;
 using Microsoft.EntityFrameworkCore;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +59,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
