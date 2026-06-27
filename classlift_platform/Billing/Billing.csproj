@@ -32,6 +32,9 @@
     <None Update="TenantScripts\001_CreateTables.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TenantScripts\classlift_empty_20260626.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
