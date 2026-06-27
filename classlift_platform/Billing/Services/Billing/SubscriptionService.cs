@@ -32,7 +32,7 @@ namespace Billing.Services.Billing
                 throw new Exception("Plan not found.");
 
             var oldSubscription = await _context.OrganizationSubscriptions
-                .Where(s => s.OrganizationId == organizationId && s.Status == "Active")
+                .Where(s => s.OrganizationId == organizationId && s.Status == "Active" && s.IsActive == 1)
                 .OrderByDescending(s => s.StartDate)
                 .FirstOrDefaultAsync();
 
@@ -50,7 +50,7 @@ namespace Billing.Services.Billing
                 {
                     oldPlanId = oldSubscription.PlanId;
                     oldStatus = oldSubscription.Status;
-
+                    oldSubscription.IsActive = 0;
                     oldSubscription.Status = "Cancelled";
                     oldSubscription.EndDate = DateTime.Now;
                 }
@@ -63,7 +63,8 @@ namespace Billing.Services.Billing
                     EndDate = null,
                     Status = "Active",
                     MonthlyPricePerCoach = newPlan.PricePerCoach,
-                    MinimumMonthlyPrice = newPlan.MinimumMonthlyPrice
+                    MinimumMonthlyPrice = newPlan.MinimumMonthlyPrice,
+                    IsActive = 1
                 };
 
                 _context.OrganizationSubscriptions.Add(newSubscription);
