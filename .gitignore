@@ -102,3 +102,5 @@
 /classlift_platform/Billing/obj/Billing.csproj.nuget.g.props
 /classlift_platform/Billing/obj/project.assets.json
 /classlift_platform/Billing/obj/project.nuget.cache
+/classlift_platform/Billing/bin/Debug/net8.0/TenantScripts/001_CreateTables.sql
+/classlift_platform/Billing/bin/Debug/net8.0/TenantScripts/classlift_empty_20260626.sql
