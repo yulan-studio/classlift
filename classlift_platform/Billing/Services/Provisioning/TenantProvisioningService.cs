@@ -134,7 +134,11 @@ namespace Billing.Services.Provisioning
                     PlanId = plan.PlanId,
                     StartDate = DateTime.UtcNow,
                     EndDate = null,
-                    Status = "Active",
+                    Status = "Trial",
+                    IsTrial = 1,
+                    TrialStartDate = DateTime.UtcNow,
+                    TrialEndDate = DateTime.UtcNow.AddDays(30),
+                    AutoRenew = 1,
                     MonthlyPricePerCoach = plan.PricePerCoach,
                     MinimumMonthlyPrice = plan.MinimumMonthlyPrice,
                     CreatedAt = DateTime.UtcNow

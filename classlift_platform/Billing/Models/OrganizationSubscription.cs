@@ -17,6 +17,18 @@ public partial class OrganizationSubscription
 
     public string Status { get; set; } = null!;
 
+    public sbyte IsTrial { get; set; }
+
+    public DateTime? TrialStartDate { get; set; }
+
+    public DateTime? TrialEndDate { get; set; }
+
+    public DateTime ActivatedAt { get; set; }
+
+    public DateTime? CancelledAt { get; set; }
+
+    public sbyte AutoRenew { get; set; }
+
     public decimal MonthlyPricePerCoach { get; set; }
 
     public decimal MinimumMonthlyPrice { get; set; }
@@ -24,8 +36,6 @@ public partial class OrganizationSubscription
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
-
-    public sbyte? IsActive { get; set; }
 
     public string? OrganizationSubscriptionscol { get; set; }
 

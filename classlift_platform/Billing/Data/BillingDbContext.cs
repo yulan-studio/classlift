@@ -160,14 +160,12 @@ public partial class BillingDbContext : DbContext
 
             entity.HasIndex(e => e.Status, "IDX_OrgSub_Status");
 
-            entity.HasIndex(e => new { e.OrganizationId, e.IsActive }, "UX_Org_Active_Subscription").IsUnique();
-
+            
             entity.Property(e => e.OrganizationSubscriptionId).HasColumnName("OrganizationSubscriptionID");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.IsActive).HasComputedColumnSql("case when (`Status` = _utf8mb4'Active') then 1 else 0 end", true);
             entity.Property(e => e.MinimumMonthlyPrice).HasPrecision(10, 2);
             entity.Property(e => e.MonthlyPricePerCoach).HasPrecision(10, 2);
             entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
