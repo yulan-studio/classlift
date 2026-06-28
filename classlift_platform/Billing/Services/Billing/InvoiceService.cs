@@ -1,4 +1,5 @@
-﻿using Billing.Data;
+﻿using Billing.Constants;
+using Billing.Data;
 using Billing.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,8 +28,10 @@ namespace Billing.Services.Billing
             if (subscription == null)
                 throw new Exception("Subscription not found.");
 
-            if (subscription.Status != "Active")
+            if (subscription.Status != SubscriptionStatus.Active)
                 throw new Exception("Subscription is not active.");
+
+
 
             var existingInvoice = await _context.Invoices.AnyAsync(i =>
                 i.OrganizationSubscriptionId == organizationSubscriptionId &&
@@ -38,8 +41,45 @@ namespace Billing.Services.Billing
             if (existingInvoice)
                 throw new Exception("Invoice already exists for this billing period.");
 
-            var subtotal = coachCount * subscription.MonthlyPricePerCoach;
-            var total = Math.Max(subtotal, subscription.MinimumMonthlyPrice);
+            //Count how many days in the month
+            var fullMonthStart = new DateOnly(
+                    billingPeriodStart.Year,
+                    billingPeriodStart.Month,
+                    1);
+
+            var fullMonthEnd = fullMonthStart
+                .AddMonths(1)
+                .AddDays(-1);
+
+            var daysInMonth = fullMonthEnd.Day;
+
+            var daysUsed =
+                   billingPeriodEnd.DayNumber -
+                   billingPeriodStart.DayNumber +
+                   1;
+
+            if (daysUsed <= 0)
+                throw new Exception("Invalid billing period.");
+
+            var monthlySubtotal =
+                coachCount * subscription.MonthlyPricePerCoach;
+
+            var monthlyTotal =
+                Math.Max(monthlySubtotal, subscription.MinimumMonthlyPrice);
+
+            var prorateRatio =
+                (decimal)daysUsed / daysInMonth;
+
+            var proratedSubtotal =
+                Math.Round(monthlySubtotal * prorateRatio, 2);
+
+            var proratedMinimum =
+                Math.Round(subscription.MinimumMonthlyPrice * prorateRatio, 2);
+
+            var total =
+                Math.Max(proratedSubtotal, proratedMinimum);
+
+
 
             var invoice = new Invoice
             {
@@ -53,11 +93,11 @@ namespace Billing.Services.Billing
 
                 CoachCount = coachCount,
                 PricePerCoach = subscription.MonthlyPricePerCoach,
-                Subtotal = subtotal,
+                Subtotal = proratedSubtotal,
                 DiscountAmount = 0,
                 TotalAmount = total,
 
-                InvoiceStatus = "Pending",
+                InvoiceStatus = InvoiceStatus.Pending,
                 GeneratedAt = DateTime.UtcNow
             };
 
