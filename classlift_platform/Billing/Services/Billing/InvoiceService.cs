@@ -58,7 +58,7 @@ namespace Billing.Services.Billing
                 TotalAmount = total,
 
                 InvoiceStatus = "Pending",
-                GeneratedAt = DateTime.Now
+                GeneratedAt = DateTime.UtcNow
             };
 
             _context.Invoices.Add(invoice);

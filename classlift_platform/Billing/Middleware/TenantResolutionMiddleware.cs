@@ -16,7 +16,7 @@ public class TenantResolutionMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         BillingDbContext billingDbContext,
-        ITenantConnectionFactory connectionFactory)
+        ITenantConnectionStringFactory connectionFactory)
     {
         var host = context.Request.Host.Host.ToLower();
 

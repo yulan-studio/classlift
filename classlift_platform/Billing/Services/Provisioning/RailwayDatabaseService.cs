@@ -7,9 +7,9 @@ namespace Billing.Services.Provisioning;
 
 public class RailwayDatabaseService : IDatabaseProvisioner
 {
-    private readonly ITenantConnectionFactory _connectionFactory;
+    private readonly ITenantConnectionStringFactory _connectionFactory;
 
-    public RailwayDatabaseService(ITenantConnectionFactory connectionFactory)
+    public RailwayDatabaseService(ITenantConnectionStringFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

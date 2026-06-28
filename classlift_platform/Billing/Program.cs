@@ -37,7 +37,7 @@ builder.Services.AddScoped<TenantProvisioningService>();
 builder.Services.AddScoped<IDatabaseProvisioner, RailwayDatabaseService>();
 builder.Services.AddScoped<ITenantSchemaService, TenantSchemaService>();
 builder.Services.AddScoped<ITenantSeedService, TenantSeedService>();
-builder.Services.AddScoped<ITenantConnectionFactory, TenantConnectionFactory>();
+builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFactory>();
 
 
 

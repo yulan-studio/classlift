@@ -45,14 +45,14 @@ namespace Billing.Services.Billing
                 Amount = amount,
                 Currency = currency,
                 PaymentStatus = "Succeeded",
-                PaymentDate = DateTime.Now,
+                PaymentDate = DateTime.UtcNow,
                 Notes = notes
             };
 
             _context.Payments.Add(payment);
 
             invoice.InvoiceStatus = "Paid";
-            invoice.PaidAt = DateTime.Now;
+            invoice.PaidAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 

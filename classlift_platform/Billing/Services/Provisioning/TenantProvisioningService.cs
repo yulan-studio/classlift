@@ -15,7 +15,7 @@ namespace Billing.Services.Provisioning
         private readonly IDatabaseProvisioner _databaseProvisioner;
         private readonly ITenantSchemaService _tenantSchemaService;
         private readonly ITenantSeedService _tenantSeedService;
-        private readonly ITenantConnectionFactory _tenantConnectionFactory;
+        private readonly ITenantConnectionStringFactory _tenantConnectionFactory;
 
         public TenantProvisioningService(
             BillingDbContext context,
@@ -23,7 +23,7 @@ namespace Billing.Services.Provisioning
             IDatabaseProvisioner databaseProvisioner,
             ITenantSchemaService tenantSchemaService,
             ITenantSeedService tenantSeedService,
-            ITenantConnectionFactory tenantConnectionFactory)
+            ITenantConnectionStringFactory tenantConnectionFactory)
         {
             _context = context;
             _configuration = configuration;
@@ -91,7 +91,7 @@ namespace Billing.Services.Provisioning
                     ContactPhone = model.ContactPhone,
                     CurrentPlanId = plan.PlanId,
                     IsActive = true,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _context.Organizations.Add(organization);
@@ -122,7 +122,7 @@ namespace Billing.Services.Provisioning
                     //ConnectionString = connectionString,
                     Subdomain = model.Subdomain,
                     IsActive = true,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _context.Tenantregistries.Add(tenant);
@@ -132,12 +132,12 @@ namespace Billing.Services.Provisioning
                 {
                     OrganizationId = organization.OrganizationId,
                     PlanId = plan.PlanId,
-                    StartDate = DateTime.Now,
+                    StartDate = DateTime.UtcNow,
                     EndDate = null,
                     Status = "Active",
                     MonthlyPricePerCoach = plan.PricePerCoach,
                     MinimumMonthlyPrice = plan.MinimumMonthlyPrice,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _context.OrganizationSubscriptions.Add(subscription);
@@ -153,8 +153,8 @@ namespace Billing.Services.Provisioning
                     NewPlanId = plan.PlanId,
                     OldStatus = null,
                     NewStatus = "Active",
-                    EffectiveAt = DateTime.Now,
-                    CreatedAt = DateTime.Now,
+                    EffectiveAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                     CreatedBy = createdBy,
                     Reason = "Organization provisioned from admin portal"
                 };

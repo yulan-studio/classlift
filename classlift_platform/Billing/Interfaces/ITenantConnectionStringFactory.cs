@@ -1,6 +1,6 @@
 ﻿namespace Billing.Interfaces;
 
-public interface ITenantConnectionFactory
+public interface ITenantConnectionStringFactory
 {
     string BuildConnectionString(string databaseName);
     string BuildServerConnectionString();

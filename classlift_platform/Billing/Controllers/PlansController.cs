@@ -149,7 +149,7 @@ namespace Billing.Controllers
                     {
                         PlanId = id,
                         FeatureId = featureId,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = DateTime.UtcNow
                     });
                 }
             }

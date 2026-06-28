@@ -52,14 +52,14 @@ namespace Billing.Services.Billing
                     oldStatus = oldSubscription.Status;
                     oldSubscription.IsActive = 0;
                     oldSubscription.Status = "Cancelled";
-                    oldSubscription.EndDate = DateTime.Now;
+                    oldSubscription.EndDate = DateTime.UtcNow;
                 }
 
                 var newSubscription = new OrganizationSubscription
                 {
                     OrganizationId = organizationId,
                     PlanId = newPlan.PlanId,
-                    StartDate = DateTime.Now,
+                    StartDate = DateTime.UtcNow,
                     EndDate = null,
                     Status = "Active",
                     MonthlyPricePerCoach = newPlan.PricePerCoach,
@@ -70,7 +70,7 @@ namespace Billing.Services.Billing
                 _context.OrganizationSubscriptions.Add(newSubscription);
 
                 organization.CurrentPlanId = newPlan.PlanId;
-                organization.UpdatedAt = DateTime.Now;
+                organization.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
 
@@ -83,8 +83,8 @@ namespace Billing.Services.Billing
                     NewPlanId = newPlan.PlanId,
                     OldStatus = oldStatus,
                     NewStatus = "Active",
-                    EffectiveAt = DateTime.Now,
-                    CreatedAt = DateTime.Now,
+                    EffectiveAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                     CreatedBy = changedBy,
                     Reason = reason ?? "Plan changed from admin portal"
                 };

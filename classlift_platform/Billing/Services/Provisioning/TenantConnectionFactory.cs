@@ -3,7 +3,7 @@ using MySqlConnector;
 
 namespace Billing.Services.Provisioning;
 
-public class TenantConnectionFactory : ITenantConnectionFactory
+public class TenantConnectionFactory : ITenantConnectionStringFactory
 {
     private readonly IConfiguration _configuration;
 

@@ -60,7 +60,7 @@ namespace Billing.Controllers
             await _paymentService.RecordPaymentAsync(
                 invoice.InvoiceId,
                 "Manual",
-                $"MANUAL-{DateTime.Now:yyyyMMddHHmmss}",
+                $"MANUAL-{DateTime.UtcNow:yyyyMMddHHmmss}",
                 invoice.TotalAmount,
                 "CAD",
                 "Manual admin payment"
