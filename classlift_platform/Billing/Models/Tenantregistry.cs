@@ -11,8 +11,6 @@ public partial class Tenantregistry
 
     public string DatabaseName { get; set; } = null!;
 
-    public string ConnectionString { get; set; } = null!;
-
     public string? Subdomain { get; set; }
 
     public string? CustomDomain { get; set; }

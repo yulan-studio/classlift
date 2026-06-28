@@ -362,7 +362,7 @@ public partial class BillingDbContext : DbContext
             entity.HasIndex(e => e.OrganizationId, "IDX_TenantRegistry_OrganizationID");
 
             entity.Property(e => e.TenantRegistryId).HasColumnName("TenantRegistryID");
-            entity.Property(e => e.ConnectionString).HasColumnType("text");
+            //entity.Property(e => e.ConnectionString).HasColumnType("text");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");

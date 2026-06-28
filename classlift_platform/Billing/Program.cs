@@ -37,6 +37,7 @@ builder.Services.AddScoped<TenantProvisioningService>();
 builder.Services.AddScoped<IDatabaseProvisioner, RailwayDatabaseService>();
 builder.Services.AddScoped<ITenantSchemaService, TenantSchemaService>();
 builder.Services.AddScoped<ITenantSeedService, TenantSeedService>();
+builder.Services.AddScoped<ITenantConnectionFactory, TenantConnectionFactory>();
 
 
 
@@ -60,6 +61,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+//Enable to find subdomain, customDomain, so we can find database associated with the tenant
 app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.MapControllerRoute(

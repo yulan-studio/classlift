@@ -15,19 +15,22 @@ namespace Billing.Services.Provisioning
         private readonly IDatabaseProvisioner _databaseProvisioner;
         private readonly ITenantSchemaService _tenantSchemaService;
         private readonly ITenantSeedService _tenantSeedService;
+        private readonly ITenantConnectionFactory _tenantConnectionFactory;
 
         public TenantProvisioningService(
             BillingDbContext context,
             IConfiguration configuration,
             IDatabaseProvisioner databaseProvisioner,
             ITenantSchemaService tenantSchemaService,
-            ITenantSeedService tenantSeedService)
+            ITenantSeedService tenantSeedService,
+            ITenantConnectionFactory tenantConnectionFactory)
         {
             _context = context;
             _configuration = configuration;
             _databaseProvisioner = databaseProvisioner;
             _tenantSchemaService = tenantSchemaService;
             _tenantSeedService = tenantSeedService;
+            _tenantConnectionFactory = tenantConnectionFactory;
         }
 
 
@@ -46,16 +49,16 @@ namespace Billing.Services.Provisioning
         //    await command.ExecuteNonQueryAsync();
         //}
 
-        private string BuildServerConnectionString(string databaseName)
-        {
-            var host = _configuration["TenantDatabase:Host"];
-            var port = _configuration["TenantDatabase:Port"];
+        //private string BuildServerConnectionString(string databaseName)
+        //{
+        //    var host = _configuration["TenantDatabase:Host"];
+        //    var port = _configuration["TenantDatabase:Port"];
 
-            var user = _configuration["TenantDatabase:User"];
-            var password = _configuration["TenantDatabase:Password"];
+        //    var user = _configuration["TenantDatabase:User"];
+        //    var password = _configuration["TenantDatabase:Password"];
 
-            return $"Server={host};Port={port};Database={databaseName};User={user};Password={password};";
-        }
+        //    return $"Server={host};Port={port};Database={databaseName};User={user};Password={password};";
+        //}
 
 
         public async Task<Organization> CreateOrganizationAsync(
@@ -102,7 +105,8 @@ namespace Billing.Services.Provisioning
 
                 // 3. Build tenant connection string
 
-                var connectionString = BuildServerConnectionString(databaseName);
+                //var connectionString = BuildServerConnectionString(databaseName);
+                var connectionString = _tenantConnectionFactory.BuildConnectionString(databaseName);
 
 
                 await _tenantSchemaService.InitializeSchemaAsync(connectionString);
@@ -115,7 +119,7 @@ namespace Billing.Services.Provisioning
                 {
                     OrganizationId = organization.OrganizationId,
                     DatabaseName = databaseName,
-                    ConnectionString = connectionString,
+                    //ConnectionString = connectionString,
                     Subdomain = model.Subdomain,
                     IsActive = true,
                     CreatedAt = DateTime.Now

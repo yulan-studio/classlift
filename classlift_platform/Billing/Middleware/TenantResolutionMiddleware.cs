@@ -1,4 +1,5 @@
 ﻿using Billing.Data;
+using Billing.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Billing.Middleware;
@@ -14,16 +15,26 @@ public class TenantResolutionMiddleware
 
     public async Task InvokeAsync(
         HttpContext context,
-        BillingDbContext billingDbContext)
+        BillingDbContext billingDbContext,
+        ITenantConnectionFactory connectionFactory)
     {
         var host = context.Request.Host.Host.ToLower();
 
+        // Ignore localhost during development
+        if (host.Contains("localhost"))
+        {
+            await _next(context);
+            return;
+        }
+
+        // 1. Try Custom Domain
         var tenant = await billingDbContext.Tenantregistries
             .FirstOrDefaultAsync(t =>
                 t.IsActive &&
                 t.CustomDomain != null &&
                 t.CustomDomain.ToLower() == host);
 
+        // 2. Try ClassLift Subdomain
         if (tenant == null)
         {
             var subdomain = GetSubdomain(host);
@@ -38,11 +49,17 @@ public class TenantResolutionMiddleware
             }
         }
 
+        // 3. Tenant found
         if (tenant != null)
         {
             context.Items["OrganizationId"] = tenant.OrganizationId;
-            context.Items["TenantDatabaseName"] = tenant.DatabaseName;
-            context.Items["TenantConnectionString"] = tenant.ConnectionString;
+            context.Items["DatabaseName"] = tenant.DatabaseName;
+
+            var connectionString =
+                connectionFactory.BuildConnectionString(
+                    tenant.DatabaseName);
+
+            context.Items["TenantConnectionString"] = connectionString;
         }
 
         await _next(context);
@@ -50,9 +67,6 @@ public class TenantResolutionMiddleware
 
     private static string? GetSubdomain(string host)
     {
-        if (host.Contains("localhost"))
-            return null;
-
         var parts = host.Split('.');
 
         if (parts.Length < 3)
