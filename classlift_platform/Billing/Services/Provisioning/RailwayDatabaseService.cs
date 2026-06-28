@@ -1,4 +1,5 @@
 ﻿using Billing.Interfaces;
+using Microsoft.AspNetCore.Connections;
 using MySqlConnector;
 using System.Text.RegularExpressions;
 
@@ -6,16 +7,17 @@ namespace Billing.Services.Provisioning;
 
 public class RailwayDatabaseService : IDatabaseProvisioner
 {
-    private readonly IConfiguration _configuration;
+    private readonly ITenantConnectionFactory _connectionFactory;
 
-    public RailwayDatabaseService(IConfiguration configuration)
+    public RailwayDatabaseService(ITenantConnectionFactory connectionFactory)
     {
-        _configuration = configuration;
+        _connectionFactory = connectionFactory;
     }
 
     public async Task CreateDatabaseAsync(string databaseName)
     {
-        var connectionString = BuildServerConnectionString();
+        var connectionString = _connectionFactory.BuildServerConnectionString();
+
 
         await using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
@@ -32,7 +34,7 @@ public class RailwayDatabaseService : IDatabaseProvisioner
 
     public async Task DeleteDatabaseAsync(string databaseName)
     {
-        var connectionString = BuildServerConnectionString();
+        var connectionString = _connectionFactory.BuildServerConnectionString();
 
         await using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
@@ -45,15 +47,15 @@ public class RailwayDatabaseService : IDatabaseProvisioner
         await command.ExecuteNonQueryAsync();
     }
 
-    private string BuildServerConnectionString()
-    {
-        var host = _configuration["TenantDatabase:Host"];
-        var port = _configuration["TenantDatabase:Port"];
-        var user = _configuration["TenantDatabase:User"];
-        var password = _configuration["TenantDatabase:Password"];
+    //private string BuildServerConnectionString()
+    //{
+    //    var host = _configuration["TenantDatabase:Host"];
+    //    var port = _configuration["TenantDatabase:Port"];
+    //    var user = _configuration["TenantDatabase:User"];
+    //    var password = _configuration["TenantDatabase:Password"];
 
-        return $"Server={host};Port={port};User={user};Password={password};";
-    }
+    //    return $"Server={host};Port={port};User={user};Password={password};";
+    //}
 
     private static string SanitizeDatabaseName(string databaseName)
     {
