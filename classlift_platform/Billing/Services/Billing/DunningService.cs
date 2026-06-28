@@ -1,5 +1,6 @@
 ﻿using Billing.Data;
 using Microsoft.EntityFrameworkCore;
+using Billing.Constants;
 
 namespace Billing.Services.Billing
 {
@@ -18,13 +19,13 @@ namespace Billing.Services.Billing
 
             var overdueInvoices = await _context.Invoices
                 .Where(i =>
-                    i.InvoiceStatus == "Pending" &&
+                    i.InvoiceStatus == InvoiceStatus.Pending &&
                     i.DueDate < today)
                 .ToListAsync();
 
             foreach (var invoice in overdueInvoices)
             {
-                invoice.InvoiceStatus = "Overdue";
+                invoice.InvoiceStatus = InvoiceStatus.Overdue;
             }
 
             await _context.SaveChangesAsync();

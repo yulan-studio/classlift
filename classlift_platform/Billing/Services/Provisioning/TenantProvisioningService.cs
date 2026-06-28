@@ -138,6 +138,8 @@ namespace Billing.Services.Provisioning
                     IsTrial = 1,
                     TrialStartDate = DateTime.UtcNow,
                     TrialEndDate = DateTime.UtcNow.AddDays(30),
+                    ActivatedAt = null,
+                    CancelledAt = null,
                     AutoRenew = 1,
                     MonthlyPricePerCoach = plan.PricePerCoach,
                     MinimumMonthlyPrice = plan.MinimumMonthlyPrice,
@@ -152,15 +154,15 @@ namespace Billing.Services.Provisioning
                 {
                     OrganizationId = organization.OrganizationId,
                     OrganizationSubscriptionId = subscription.OrganizationSubscriptionId,
-                    EventType = "Created",
+                    EventType = "TrialStarted",
                     OldPlanId = null,
                     NewPlanId = plan.PlanId,
                     OldStatus = null,
-                    NewStatus = "Active",
+                    NewStatus = "Trial",
                     EffectiveAt = DateTime.UtcNow,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = createdBy,
-                    Reason = "Organization provisioned from admin portal"
+                    Reason = "30-day free trial started"
                 };
 
                 _context.SubscriptionEvents.Add(subscriptionEvent);

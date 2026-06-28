@@ -4,6 +4,7 @@ using Billing.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Billing.Constants;
 
 namespace Billing.Controllers
 {
@@ -63,7 +64,7 @@ namespace Billing.Controllers
                 .FirstOrDefaultAsync(t => t.OrganizationId == id);
 
             var totalRevenue = payments
-                .Where(p => p.PaymentStatus == "Succeeded")
+                .Where(p => p.PaymentStatus == PaymentStatus.Succeeded)
                 .Sum(p => p.Amount);
 
             var model = new OrganizationDetailsViewModel

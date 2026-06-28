@@ -1,4 +1,5 @@
-﻿using Billing.Data;
+﻿using Billing.Constants;
+using Billing.Data;
 using Billing.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,7 +45,7 @@ namespace Billing.Services.Billing
                 ProviderTransactionId = providerTransactionId,
                 Amount = amount,
                 Currency = currency,
-                PaymentStatus = "Succeeded",
+                PaymentStatus = PaymentStatus.Succeeded,
                 PaymentDate = DateTime.UtcNow,
                 Notes = notes
             };

@@ -23,7 +23,7 @@ public partial class OrganizationSubscription
 
     public DateTime? TrialEndDate { get; set; }
 
-    public DateTime ActivatedAt { get; set; }
+    public DateTime? ActivatedAt { get; set; }
 
     public DateTime? CancelledAt { get; set; }
 
