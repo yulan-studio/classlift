@@ -27,6 +27,8 @@ public partial class OrganizationSubscription
 
     public DateTime? CancelledAt { get; set; }
 
+    public DateTime? LastBilledDate { get; set; }
+
     public sbyte AutoRenew { get; set; }
 
     public decimal MonthlyPricePerCoach { get; set; }
