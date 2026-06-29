@@ -17,6 +17,7 @@ public partial class BillingDbContext : DbContext
     {
     }
 
+    public virtual DbSet<BillingRun> BillingRuns { get; set; }
     public virtual DbSet<Feature> Features { get; set; }
 
     public virtual DbSet<Invoice> Invoices { get; set; }
@@ -46,6 +47,45 @@ public partial class BillingDbContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
+
+
+        modelBuilder.Entity<BillingRun>(entity =>
+        {
+            entity.HasKey(e => e.BillingRunId)
+                .HasName("PRIMARY");
+
+            entity.ToTable("billing_runs");
+
+            entity.Property(e => e.BillingRunId)
+                .HasColumnName("BillingRunID");
+
+            entity.Property(e => e.RunType)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.StartedAt)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.FinishedAt)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.Status)
+                .HasMaxLength(20);
+
+            entity.Property(e => e.DurationMilliseconds);
+
+            entity.Property(e => e.ErrorMessage)
+                .HasColumnType("text");
+
+            entity.Property(e => e.TrialActivated)
+                .HasDefaultValue(0);
+
+            entity.Property(e => e.InvoicesGenerated)
+                .HasDefaultValue(0);
+
+            entity.Property(e => e.InvoicesMarkedOverdue)
+                .HasDefaultValue(0);
+        });
+
 
         modelBuilder.Entity<Feature>(entity =>
         {
