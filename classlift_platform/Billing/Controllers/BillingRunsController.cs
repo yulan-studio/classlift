@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Billing.Controllers
 {
-    public class BillingrunsController : Controller
+    [Route("BillingRuns")]
+    public class BillingRunsController : Controller
     {
         private readonly BillingDbContext _context;
 
-        public BillingrunsController(BillingDbContext context)
+        
+        public BillingRunsController(BillingDbContext context)
         {
             _context = context;
         }
