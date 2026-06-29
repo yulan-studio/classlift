@@ -8,10 +8,12 @@ namespace Billing.Controllers
     public class BillingController : Controller
     {
         private readonly MonthlyBillingJob _monthlyBillingJob;
+        private readonly DailyBillingJob _dailyBillingJob;
 
-        public BillingController(MonthlyBillingJob monthlyBillingJob)
+        public BillingController(MonthlyBillingJob monthlyBillingJob, DailyBillingJob dailyBillingJob)
         {
             _monthlyBillingJob = monthlyBillingJob;
+            _dailyBillingJob = dailyBillingJob;
         }
 
         [HttpGet("")]
@@ -20,12 +22,23 @@ namespace Billing.Controllers
             return View();
         }
 
-        [HttpPost("GenerateInvoices")]
-        public async Task<IActionResult> GenerateInvoices()
+        [HttpPost("RunMonthlyJob")]
+        public async Task<IActionResult> RunMonthlyJob()
         {
             await _monthlyBillingJob.RunAsync();
 
             TempData["Success"] = "Monthly billing completed successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpPost("RunDailyJob")]
+        public async Task<IActionResult> RunDailyJob()
+        {
+            await _dailyBillingJob.RunAsync();
+
+            TempData["Success"] = "Daily billing completed successfully.";
 
             return RedirectToAction(nameof(Index));
         }

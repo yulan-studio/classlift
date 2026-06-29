@@ -1,30 +1,60 @@
 ﻿@{
-    ViewData["Title"] = "Billing";
+    ViewData["Title"] = "Billing Administration";
 }
 
-<div class="container mt-4">
+<div class="container py-4">
 
-    <h2>Billing Administration</h2>
+    <div class="mb-4">
+        <h2 class="fw-bold">Billing Administration</h2>
+        <p class="text-muted">
+            Run billing maintenance jobs manually when required.
+        </p>
+    </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["Success"]
+    <div class="row g-4">
+
+        <!-- Daily Job -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-calendar-day me-2"></i>
+                        Daily Billing Job
+                    </h5>
+
+                   
+
+                    <form asp-controller="Billing" asp-action="RunDailyJob" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-play-fill"></i>
+                            Run Daily Job
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-    }
 
-    <form action="/Billing/GenerateInvoices" method="post">
-        <button type="submit" class="btn btn-primary">
-            Generate Monthly Invoices
-        </button>
-    </form>
+        <!-- Monthly Job -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-calendar-month me-2"></i>
+                        Monthly Billing Job
+                    </h5>
 
-   @*  <form asp-controller="Billing" asp-action="GenerateInvoices" method="post">
-        <button type="submit" class="btn btn-primary">
-            Generate Monthly Invoices
-        </button>
-    </form>
- *@
-    
+                   
+
+                    <form asp-controller="Billing" asp-action="RunMonthlyJob" method="post">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-play-fill"></i>
+                            Run Monthly Job
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
 </div>
