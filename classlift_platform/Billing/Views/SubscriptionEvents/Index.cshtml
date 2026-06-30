@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Billing.Models.SubscriptionEvent>
+
+@{
+    ViewData["Title"] = "Subscription Events";
+}
+
+<div class="container mt-4">
+    <h2>Subscription Events</h2>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Organization</th>
+                <th>Event Type</th>
+                <th>Old Plan</th>
+                <th>New Plan</th>
+                <th>Old Status</th>
+                <th>New Status</th>
+                <th>Effective At</th>
+                <th>Created By</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.SubscriptionEventId</td>
+                    <td>@item.Organization?.OrganizationName</td>
+                    <td>@item.EventType</td>
+                    <td>@item.OldPlan?.PlanName</td>
+                    <td>@item.NewPlan?.PlanName</td>
+                    <td>@item.OldStatus</td>
+                    <td>@item.NewStatus</td>
+                    <td>@item.EffectiveAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@item.CreatedBy</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary"
+                           href="/SubscriptionEvents/Details/@item.SubscriptionEventId">
+                            Details
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

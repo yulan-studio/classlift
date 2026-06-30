@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Billing.Models.BillingRun>
+
+<h2>Billing Runs</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Started</th>
+            <th>Run Type</th>
+            <th>Status</th>
+            <th>Trial Activated</th>
+            <th>Invoices Generated</th>
+            <th>Invoices Overdue </th>
+            <th>Duration</th>
+            <th>Error</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var run in Model)
+        {
+            <tr>
+                <td>@run.StartedAt.ToLocalTime()</td>
+
+                <td>@run.RunType</td>
+
+                <td>@run.Status</td>
+
+                <td>@run.TrialActivated</td>
+                <td>@run.InvoicesGenerated</td>
+                <td>@run.InvoicesMarkedOverdue</td>
+
+                <td>@run.DurationMilliseconds ms</td>
+
+                <td>
+                   
+                    @if (!string.IsNullOrEmpty(run.ErrorMessage))
+                    {
+                        @run.ErrorMessage
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

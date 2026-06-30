@@ -1,0 +1,38 @@
+﻿@model Billing.Models.Payment
+
+@{
+    ViewData["Title"] = "Payment Details";
+}
+
+<div class="container mt-4">
+    <h2>Payment #@Model.PaymentId</h2>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            Payment Information
+        </div>
+
+        <div class="card-body">
+            <p><strong>Invoice:</strong> #@Model.InvoiceId</p>
+            <p><strong>Organization:</strong> @Model.Invoice?.Organization?.OrganizationName</p>
+            <p><strong>Plan:</strong> @Model.Invoice?.Plan?.PlanName</p>
+            <p><strong>Provider:</strong> @Model.PaymentProvider</p>
+            <p><strong>Transaction ID:</strong> @Model.ProviderTransactionId</p>
+            <p><strong>Amount:</strong> @Model.Amount.ToString("C")</p>
+            <p><strong>Currency:</strong> @Model.Currency</p>
+            <p><strong>Status:</strong> @Model.PaymentStatus</p>
+            <p><strong>Payment Date:</strong> @Model.PaymentDate.ToString("yyyy-MM-dd HH:mm")</p>
+            <p><strong>Notes:</strong> @Model.Notes</p>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-secondary" href="/Payments">
+            Back to Payments
+        </a>
+
+        <a class="btn btn-primary" href="/Invoices/Details/@Model.InvoiceId">
+            View Invoice
+        </a>
+    </div>
+</div>
