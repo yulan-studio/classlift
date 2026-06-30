@@ -1,7 +1,52 @@
+using Billing.Data;
+using Billing.Interfaces;
+using Billing.Middleware;
+using Billing.Services.Billing;
+using Billing.Services.Jobs;
+using Billing.Services.Provisioning;
+using Microsoft.EntityFrameworkCore;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllersWithViews();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<BillingDbContext>(options =>
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
+    ));
+
+
 // Add services to the container.
-builder.Services.AddRazorPages();
+//builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<BillingRunService>();
+builder.Services.AddScoped<MonthlyBillingJob>();
+builder.Services.AddScoped<DailyBillingJob>();
+builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<DunningService>();
+builder.Services.AddScoped<DunningJob>();
+builder.Services.AddScoped<SubscriptionService>();
+//Register cache
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<FeatureAccessService>();
+builder.Services.AddScoped<TenantProvisioningService>();
+builder.Services.AddScoped<IDatabaseProvisioner, RailwayDatabaseService>();
+builder.Services.AddScoped<ITenantSchemaService, TenantSchemaService>();
+builder.Services.AddScoped<ITenantSeedService, TenantSeedService>();
+builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFactory>();
+
+
+
+
+
+
+
 
 var app = builder.Build();
 
@@ -13,13 +58,20 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+//Enable to find subdomain, customDomain, so we can find database associated with the tenant
+app.UseMiddleware<TenantResolutionMiddleware>();
 
-app.MapRazorPages();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+//app.UseAuthorization();
+
+//app.MapRazorPages();
 
 app.Run();
