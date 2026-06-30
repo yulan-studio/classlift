@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Billing.Models.Invoice>
+
+@{
+    ViewData["Title"] = "Invoices";
+}
+
+<div class="container mt-4">
+    <h2>Invoices</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Invoice ID</th>
+                <th>Organization</th>
+                <th>Plan</th>
+                <th>Period</th>
+                <th>Coach Count</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Generated At</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var invoice in Model)
+            {
+                <tr>
+                    <td>@invoice.InvoiceId</td>
+                    <td>@invoice.Organization?.OrganizationName</td>
+                    <td>@invoice.Plan?.PlanName</td>
+                    <td>
+                        @invoice.BillingPeriodStart.ToString("yyyy-MM-dd")
+                        -
+                        @invoice.BillingPeriodEnd.ToString("yyyy-MM-dd")
+                    </td>
+                    <td>@invoice.CoachCount</td>
+                    <td>@invoice.TotalAmount.ToString("C")</td>
+                    <td>@invoice.InvoiceStatus</td>
+                    <td>@invoice.GeneratedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        @* <a class="btn btn-sm btn-primary"
+                           asp-controller="Invoices"
+                           asp-action="Details"
+                           asp-route-id="@invoice.InvoiceId">
+                            Details
+                        </a> *@
+                        <a class="btn btn-sm btn-primary"
+                           href="/Invoices/Details/@invoice.InvoiceId">
+                            Details
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,61 @@
+﻿@model Billing.Models.Subscriptionplan
+
+@{
+    ViewData["Title"] = "Plan Details";
+}
+
+<div class="container mt-4">
+    <h2>@Model.PlanName</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <p><strong>Description:</strong> @Model.Description</p>
+            <p><strong>Price Per Coach:</strong> @Model.PricePerCoach.ToString("C")</p>
+            <p><strong>Minimum Monthly Price:</strong> @Model.MinimumMonthlyPrice.ToString("C")</p>
+            <p><strong>Active:</strong> @Model.IsActive</p>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-primary" href="/Plans/Edit/@Model.PlanId">
+            Edit Plan
+        </a>
+
+        <a class="btn btn-warning" href="/Plans/ManageFeatures/@Model.PlanId">
+            Manage Features
+        </a>
+
+        <a class="btn btn-secondary" href="/Plans">
+            Back
+        </a>
+    </div>
+
+    <h4 class="mt-4">Included Features</h4>
+
+    @if (Model.Planfeatures != null && Model.Planfeatures.Any())
+    {
+        <table class="table table-bordered table-striped mt-2">
+            <thead>
+                <tr>
+                    <th>Feature Key</th>
+                    <th>Feature Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pf in Model.Planfeatures)
+                {
+                    <tr>
+                        <td>@pf.Feature?.FeatureKey</td>
+                        <td>@pf.Feature?.FeatureName</td>
+                        <td>@pf.Feature?.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No features assigned to this plan.</p>
+    }
+</div>

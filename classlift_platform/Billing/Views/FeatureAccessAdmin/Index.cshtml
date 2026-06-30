@@ -1,0 +1,76 @@
+﻿@model Billing.ViewModels.FeatureAccessAdminViewModel
+
+@{
+    ViewData["Title"] = "Feature Access Admin";
+}
+
+<div class="container mt-4">
+    <h2>Feature Access Admin</h2>
+
+    <form method="get" action="/FeatureAccessAdmin" class="mt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label">Organization</label>
+                <select name="organizationId" class="form-select">
+                    <option value="">-- Select Organization --</option>
+
+                    @foreach (var org in Model.Organizations)
+                    {
+                        <option value="@org.Value" selected="@org.Selected">
+                            @org.Text
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    View Features
+                </button>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.SelectedOrganizationId.HasValue)
+    {
+        <hr />
+
+        <h4>@Model.OrganizationName</h4>
+
+        <p>
+            <strong>Current Plan:</strong>
+            @Model.PlanName
+        </p>
+
+        <table class="table table-bordered table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Access</th>
+                    <th>Feature</th>
+                    <th>Feature Key</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var feature in Model.Features)
+                {
+                    <tr>
+                        <td>
+                            @if (feature.HasAccess)
+                            {
+                                <span class="badge bg-success">Enabled</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Disabled</span>
+                            }
+                        </td>
+
+                        <td>@feature.FeatureName</td>
+                        <td>@feature.FeatureKey</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

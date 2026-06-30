@@ -1,0 +1,45 @@
+﻿@model Billing.Models.SubscriptionEvent
+
+@{
+    ViewData["Title"] = "Subscription Event Details";
+}
+
+<div class="container mt-4">
+    <h2>Subscription Event #@Model.SubscriptionEventId</h2>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            Event Information
+        </div>
+
+        <div class="card-body">
+            <p><strong>Organization:</strong> @Model.Organization?.OrganizationName</p>
+            <p><strong>Subscription ID:</strong> @Model.OrganizationSubscriptionId</p>
+            <p><strong>Event Type:</strong> @Model.EventType</p>
+
+            <hr />
+
+            <p><strong>Old Plan:</strong> @(Model.OldPlan?.PlanName ?? "None")</p>
+            <p><strong>New Plan:</strong> @(Model.NewPlan?.PlanName ?? "None")</p>
+            <p><strong>Old Status:</strong> @(Model.OldStatus ?? "None")</p>
+            <p><strong>New Status:</strong> @(Model.NewStatus ?? "None")</p>
+
+            <hr />
+
+            <p><strong>Effective At:</strong> @Model.EffectiveAt.ToString("yyyy-MM-dd HH:mm")</p>
+            <p><strong>Created At:</strong> @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</p>
+            <p><strong>Created By:</strong> @Model.CreatedBy</p>
+            <p><strong>Reason:</strong> @Model.Reason</p>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-secondary" href="/SubscriptionEvents">
+            Back
+        </a>
+
+        <a class="btn btn-primary" href="/Organizations/Details/@Model.OrganizationId">
+            View Organization
+        </a>
+    </div>
+</div>

@@ -1,0 +1,64 @@
+﻿@model Billing.ViewModels.CreateOrganizationViewModel
+
+@{
+    ViewData["Title"] = "Create Organization";
+}
+
+<div class="container mt-4">
+    <h2>Create Organization</h2>
+
+    <form action="/Organizations/Create" method="post" class="mt-3">
+
+        <div class="mb-3">
+            <label asp-for="OrganizationName" class="form-label"></label>
+            <input asp-for="OrganizationName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ContactName" class="form-label"></label>
+            <input asp-for="ContactName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ContactEmail" class="form-label"></label>
+            <input asp-for="ContactEmail" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ContactPhone" class="form-label"></label>
+            <input asp-for="ContactPhone" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PlanId" class="form-label">Initial Plan</label>
+            <select asp-for="PlanId" asp-items="Model.Plans" class="form-select">
+                <option value="">-- Select Plan --</option>
+            </select>
+        </div>
+
+    @*     <div class="mb-3">
+            <label asp-for="DatabaseName" class="form-label"></label>
+            <input asp-for="DatabaseName" class="form-control" />
+
+        </div> *@
+
+        <div class="mb-3">
+            <label asp-for="Subdomain" class="form-label"></label>
+            <input asp-for="Subdomain" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Create Organization
+        </button>
+
+        <a class="btn btn-secondary" href="/Organizations">
+            Cancel
+        </a>
+
+    </form>
+</div>
+
+@* @section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+} *@

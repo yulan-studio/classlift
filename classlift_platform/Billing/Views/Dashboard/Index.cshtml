@@ -1,0 +1,82 @@
+﻿@model Billing.ViewModels.BillingDashboardViewModel
+
+@{
+    ViewData["Title"] = "Billing Dashboard";
+}
+
+<div class="container mt-4">
+    <h2>Billing Dashboard</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Total Revenue</h6>
+                    <h3>@Model.TotalRevenue.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Pending Amount</h6>
+                    <h3>@Model.PendingAmount.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Overdue Amount</h6>
+                    <h3>@Model.OverdueAmount.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card"><div class="card-body"><h6>Organizations</h6><h3>@Model.TotalOrganizations</h3></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card"><div class="card-body"><h6>Active Subscriptions</h6><h3>@Model.ActiveSubscriptions</h3></div></div>
+        </div>
+        <div class="col-md-2">
+            <div class="card"><div class="card-body"><h6>Pending</h6><h3>@Model.PendingInvoices</h3></div></div>
+        </div>
+        <div class="col-md-2">
+            <div class="card"><div class="card-body"><h6>Paid</h6><h3>@Model.PaidInvoices</h3></div></div>
+        </div>
+        <div class="col-md-2">
+            <div class="card"><div class="card-body"><h6>Overdue</h6><h3>@Model.OverdueInvoices</h3></div></div>
+        </div>
+    </div>
+
+    <h4 class="mt-5">Plan Distribution</h4>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Plan</th>
+                <th>Active Subscriptions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var plan in Model.PlanCounts)
+            {
+                <tr>
+                    <td>@plan.PlanName</td>
+                    <td>@plan.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-4">
+        <a class="btn btn-primary" href="/Invoices">View Invoices</a>
+        <a class="btn btn-secondary" href="/Payments">View Payments</a>
+        <a class="btn btn-warning" href="/Billing">Run Billing</a>
+    </div>
+</div>
