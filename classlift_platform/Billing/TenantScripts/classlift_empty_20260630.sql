@@ -16,6 +16,30 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `__efmigrationshistory`
+--
+
+DROP TABLE IF EXISTS `__efmigrationshistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `__efmigrationshistory` (
+  `MigrationId` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ProductVersion` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`MigrationId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `__efmigrationshistory`
+--
+
+LOCK TABLES `__efmigrationshistory` WRITE;
+/*!40000 ALTER TABLE `__efmigrationshistory` DISABLE KEYS */;
+INSERT INTO `__efmigrationshistory` VALUES ('20250309170601_RenameIdentityTables','8.0.2');
+/*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `activities`
 --
 
@@ -891,6 +915,45 @@ LOCK TABLES `staff` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `tenant_settings`
+--
+
+DROP TABLE IF EXISTS `tenant_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tenant_settings` (
+  `TenantSettingsID` int NOT NULL AUTO_INCREMENT,
+  `OrganizationId` int NOT NULL,
+  `OrganizationName` varchar(200) NOT NULL,
+  `ContactName` varchar(200) DEFAULT NULL,
+  `ContactEmail` varchar(255) DEFAULT NULL,
+  `ContactPhone` varchar(50) DEFAULT NULL,
+  `Website` varchar(255) DEFAULT NULL,
+  `Subdomain` varchar(100) DEFAULT NULL,
+  `CustomDomain` varchar(255) DEFAULT NULL,
+  `LogoUrl` varchar(500) DEFAULT NULL,
+  `ThemeColor` varchar(50) DEFAULT NULL,
+  `Language` varchar(20) NOT NULL DEFAULT 'en-CA',
+  `TimeZone` varchar(100) NOT NULL DEFAULT 'America/Toronto',
+  `Currency` varchar(20) NOT NULL DEFAULT 'CAD',
+  `EmailFromName` varchar(200) DEFAULT NULL,
+  `EmailFromAddress` varchar(255) DEFAULT NULL,
+  `CreatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`TenantSettingsID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tenant_settings`
+--
+
+LOCK TABLES `tenant_settings` WRITE;
+/*!40000 ALTER TABLE `tenant_settings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tenant_settings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `userclaims`
 --
 
@@ -1048,4 +1111,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-26 23:44:51
+-- Dump completed on 2026-06-30  8:19:51
