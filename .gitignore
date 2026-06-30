@@ -76,3 +76,6 @@
 /classlift_platform/Billing/bin/Debug/net8.0/MySqlConnector.dll
 /classlift_platform/Billing/obj/Debug/net8.0/ApiEndpoints.json
 /classlift_platform/Billing/obj/Debug/net8.0/Billing.csproj.BuildWithSkipAnalyzers
+/classlift_platform/Billing/obj/Debug/net8.0/Billing.AssemblyInfo.cs
+/classlift_platform/Billing/obj/Debug/net8.0/Billing.AssemblyInfoInputs.cache
+/classlift_platform/Billing/obj/Debug/net8.0/rpswa.dswa.cache.json
