@@ -25,6 +25,7 @@ builder.Services.AddDbContext<BillingDbContext>(options =>
 //builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<BillingRunService>();
 builder.Services.AddScoped<MonthlyBillingJob>();
 builder.Services.AddScoped<DailyBillingJob>();
 builder.Services.AddScoped<PaymentService>();

@@ -14,8 +14,10 @@ namespace Billing.Services.Billing
             _context = context;
         }
 
-        public async Task ActivateExpiredTrialsAsync()
+        public async Task<int> ActivateExpiredTrialsAsync()
         {
+            var processed = 0;
+
             var now = DateTime.UtcNow;
 
             var expiredTrials = await _context.OrganizationSubscriptions
@@ -51,13 +53,18 @@ namespace Billing.Services.Billing
                     CreatedBy = "System",
                     Reason = "30-day free trial completed."
                 });
+
+                processed++;
             }
 
             await _context.SaveChangesAsync();
+
+            return processed;
         }
 
-        public async Task GenerateRecurringInvoicesAsync()
+        public async Task<int> GenerateRecurringInvoicesAsync()
         {
+            var processed = 0;
             var today = DateTime.UtcNow.Date;
 
             var billingPeriodStart = new DateOnly(today.Year, today.Month, 1);
@@ -96,9 +103,11 @@ namespace Billing.Services.Billing
                     coachCount);
 
                 subscription.LastBilledDate = billingPeriodEndDateTime;
+                processed++;
             }
 
             await _context.SaveChangesAsync();
+            return processed;
         }
 
         public async Task<Invoice> GenerateMonthlyInvoiceAsync(

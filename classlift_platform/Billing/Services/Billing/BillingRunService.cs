@@ -4,11 +4,11 @@ using Billing.Models;
 
 namespace Billing.Services.Billing;
 
-public class BillingrunService
+public class BillingRunService
 {
     private readonly BillingDbContext _context;
 
-    public BillingrunService(BillingDbContext context)
+    public BillingRunService(BillingDbContext context)
     {
         _context = context;
     }
@@ -19,7 +19,7 @@ public class BillingrunService
         {
             RunType = runType,
             StartedAt = DateTime.UtcNow,
-            Status = BillingrunStatus.Running
+            Status = BillingRunStatus.Running
         };
 
         _context.BillingRuns.Add(run);
@@ -31,7 +31,7 @@ public class BillingrunService
 
     public async Task CompleteRunAsync(BillingRun run, int trialActivated = 0, int invoicesGenerated = 0, int invoicesMarkedOverdue = 0)
     {
-        run.Status = BillingrunStatus.Success;
+        run.Status = BillingRunStatus.Success;
         run.FinishedAt = DateTime.UtcNow;
         run.TrialActivated = trialActivated;
         run.InvoicesGenerated = invoicesGenerated;
@@ -46,7 +46,7 @@ public class BillingrunService
         BillingRun run,
         Exception ex)
     {
-        run.Status = BillingrunStatus.Failed;
+        run.Status = BillingRunStatus.Failed;
         run.FinishedAt = DateTime.UtcNow;
         run.ErrorMessage = ex.ToString();
         

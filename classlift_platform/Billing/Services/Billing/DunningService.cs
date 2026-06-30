@@ -13,8 +13,9 @@ namespace Billing.Services.Billing
             _context = context;
         }
 
-        public async Task MarkOverdueInvoicesAsync()
+        public async Task<int> MarkOverdueInvoicesAsync()
         {
+            var overDued = 0;
             var today = DateOnly.FromDateTime(DateTime.Today);
 
             var overdueInvoices = await _context.Invoices
@@ -26,9 +27,11 @@ namespace Billing.Services.Billing
             foreach (var invoice in overdueInvoices)
             {
                 invoice.InvoiceStatus = InvoiceStatus.Overdue;
+                overDued++;
             }
 
             await _context.SaveChangesAsync();
+            return overDued;
         }
     }
 }

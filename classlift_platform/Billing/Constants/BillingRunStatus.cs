@@ -1,6 +1,6 @@
 ﻿namespace Billing.Constants
 {
-    public class BillingrunStatus
+    public class BillingRunStatus
     {
         public const string Running = "Running";
 
