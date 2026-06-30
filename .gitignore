@@ -101,3 +101,6 @@
 /classlift_platform/Billing/obj/Billing.csproj.nuget.dgspec.json
 /classlift_platform/Billing/obj/Billing.csproj.nuget.g.props
 /classlift_platform/Billing/obj/project.assets.json
+/classlift_platform/Billing/bin/Debug/net8.0/appsettings.json
+/classlift_platform/Billing/bin/Debug/net8.0/Billing.deps.json
+/classlift_platform/Billing/obj/Debug/net8.0/Billing.csproj.FileListAbsolute.txt
