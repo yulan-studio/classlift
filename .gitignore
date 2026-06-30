@@ -70,3 +70,6 @@
 /classlift_platform/bin/
 /classlift_platform/obj/
 /classlift_platform/Billing/bin/Debug/net8.0
+/classlift_platform/Billing/obj/Debug/net8.0/Billing.AssemblyInfo.cs
+/classlift_platform/Billing/obj/Debug/net8.0/Billing.AssemblyInfoInputs.cache
+/classlift_platform/Billing/obj/Debug/net8.0/rpswa.dswa.cache.json
