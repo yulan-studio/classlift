@@ -26,7 +26,7 @@ var dbPassword = builder.Configuration["TenantDatabase:Password"];
 
 Console.WriteLine("DB HOST: " + builder.Configuration["TenantDatabase:Host"]);
 Console.WriteLine("DB PORT: " + builder.Configuration["TenantDatabase:Port"]);
-Console.WriteLine("DB NAME: " + builder.Configuration["TenantDatabase:Database"]);
+Console.WriteLine("DB PASSWORD: " + builder.Configuration["TenantDatabase:Password"]);
 Console.WriteLine("DB USER: " + builder.Configuration["TenantDatabase:User"]);
 
 string masterConnectionString =
