@@ -4,21 +4,52 @@ using Billing.Middleware;
 using Billing.Services.Billing;
 using Billing.Services.Jobs;
 using Billing.Services.Provisioning;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 builder.Services.AddControllersWithViews();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var dbHost = Environment.GetEnvironmentVariable("TenantDatabase__Host");
+
+string masterConnectionString;
+
+if (!string.IsNullOrWhiteSpace(dbHost))
+{
+    // Running on Railway
+    var dbPort = Environment.GetEnvironmentVariable("TenantDatabase__Port");
+    var dbUser = Environment.GetEnvironmentVariable("TenantDatabase__User");
+    var dbPassword = Environment.GetEnvironmentVariable("TenantDatabase__Password");
+
+    masterConnectionString =
+        $"Server={dbHost};" +
+        $"Port={dbPort};" +
+        $"Database=classlift_platform;" +
+        $"User={dbUser};" +
+        $"Password={dbPassword};";
+}
+else
+{
+    // Running locally
+    masterConnectionString =
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("DefaultConnection not found.");
+}
+;
 
 builder.Services.AddDbContext<BillingDbContext>(options =>
     options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString)
+        masterConnectionString,
+        ServerVersion.AutoDetect(masterConnectionString)
     ));
 
 
