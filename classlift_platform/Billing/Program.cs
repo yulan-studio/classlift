@@ -19,32 +19,19 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 builder.Services.AddControllersWithViews();
 
 
-var dbHost = Environment.GetEnvironmentVariable("TenantDatabase__Host");
+var dbHost = builder.Configuration["TenantDatabase:Host"];
+var dbPort = builder.Configuration["TenantDatabase:Port"];
+var dbUser = builder.Configuration["TenantDatabase:User"];
+var dbPassword = builder.Configuration["TenantDatabase:Password"];
 
-string masterConnectionString;
-
-if (!string.IsNullOrWhiteSpace(dbHost))
-{
-    // Running on Railway
-    var dbPort = Environment.GetEnvironmentVariable("TenantDatabase__Port");
-    var dbUser = Environment.GetEnvironmentVariable("TenantDatabase__User");
-    var dbPassword = Environment.GetEnvironmentVariable("TenantDatabase__Password");
-
-    masterConnectionString =
+string masterConnectionString =
         $"Server={dbHost};" +
         $"Port={dbPort};" +
         $"Database=classlift_platform;" +
         $"User={dbUser};" +
         $"Password={dbPassword};";
-}
-else
-{
-    // Running locally
-    masterConnectionString =
-        builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("DefaultConnection not found.");
-}
-;
+
+
 
 builder.Services.AddDbContext<BillingDbContext>(options =>
     options.UseMySql(
