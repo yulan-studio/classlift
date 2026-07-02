@@ -4,14 +4,39 @@ using Billing.Middleware;
 using Billing.Services.Billing;
 using Billing.Services.Jobs;
 using Billing.Services.Provisioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
+using Microsoft.AspNetCore.Identity;
+
 
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Require authentication globally
+builder.Services.AddControllersWithViews(options =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
+
+
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+    })
+    .AddEntityFrameworkStores<BillingDbContext>();
+
+builder.Services.AddAuthorization();
+
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -26,7 +51,6 @@ var dbPassword = builder.Configuration["TenantDatabase:Password"];
 
 Console.WriteLine("DB HOST: " + builder.Configuration["TenantDatabase:Host"]);
 Console.WriteLine("DB PORT: " + builder.Configuration["TenantDatabase:Port"]);
-Console.WriteLine("DB PASSWORD: " + builder.Configuration["TenantDatabase:Password"]);
 Console.WriteLine("DB USER: " + builder.Configuration["TenantDatabase:User"]);
 
 string masterConnectionString =
@@ -86,6 +110,9 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 //Enable to find subdomain, customDomain, so we can find database associated with the tenant
 app.UseMiddleware<TenantResolutionMiddleware>();
