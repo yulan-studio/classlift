@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using Billing.Models;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Billing.Data;
 
-public partial class BillingDbContext : DbContext
+//public partial class BillingDbContext : DbContext
+public partial class BillingDbContext : IdentityDbContext
 {
     public BillingDbContext()
     {
@@ -44,6 +46,8 @@ public partial class BillingDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
