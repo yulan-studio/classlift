@@ -4,18 +4,24 @@ using Billing.Middleware;
 using Billing.Services.Billing;
 using Billing.Services.Jobs;
 using Billing.Services.Provisioning;
+using Hangfire;
+using Hangfire.MySql;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
-using Microsoft.AspNetCore.Identity;
+using System.Globalization;
 
 
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 //Require authentication globally
 builder.Services.AddControllersWithViews(options =>
@@ -99,11 +105,51 @@ builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFacto
 
 
 
+builder.Services.AddHangfire(config =>
+    config.UseStorage(
+        new MySqlStorage(
+            masterConnectionString,
+            new MySqlStorageOptions()
+        )));
 
+builder.Services.AddHangfireServer();
 
 
 
 var app = builder.Build();
+
+RecurringJobOptions jobOptions = new RecurringJobOptions
+{
+    TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
+};
+
+RecurringJob.AddOrUpdate<DunningJob>(
+    "daily-dunning",
+    job => job.RunAsync(),
+    "0 2 * * *",
+    jobOptions);
+
+RecurringJob.AddOrUpdate<DailyBillingJob>(
+    "daily-billing",
+    job => job.RunAsync(),
+    "30 2 * * *",
+    jobOptions);
+
+RecurringJob.AddOrUpdate<MonthlyBillingJob>(
+    "monthly-billing",
+    job => job.RunAsync(),
+    "0 2 1 * *",
+    jobOptions);
+
+//Set Culture
+var culture = new CultureInfo("en-CA");
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(culture),
+    SupportedCultures = new[] { culture },
+    SupportedUICultures = new[] { culture }
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
