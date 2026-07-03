@@ -104,3 +104,4 @@
 /classlift_platform/Billing/obj/project.nuget.cache
 /classlift_platform/Billing/bin/Debug/net8.0/TenantScripts/001_CreateTables.sql
 /classlift_platform/Billing/bin/Debug/net8.0/TenantScripts/classlift_empty_20260626.sql
+/classlift_platform/Billing/obj/Debug/net8.0/Billing.MvcApplicationPartsAssemblyInfo.cs
