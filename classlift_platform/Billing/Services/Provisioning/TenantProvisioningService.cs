@@ -1,4 +1,5 @@
-﻿using Billing.Data;
+﻿using Billing.Constants;
+using Billing.Data;
 using Billing.Interfaces;
 using Billing.Models;
 using Billing.ViewModels;
@@ -134,7 +135,7 @@ namespace Billing.Services.Provisioning
                     PlanId = plan.PlanId,
                     StartDate = DateTime.UtcNow,
                     EndDate = null,
-                    Status = "Trial",
+                    Status = SubscriptionStatus.Trial,
                     IsTrial = 1,
                     TrialStartDate = DateTime.UtcNow,
                     TrialEndDate = DateTime.UtcNow.AddDays(30),
@@ -154,11 +155,11 @@ namespace Billing.Services.Provisioning
                 {
                     OrganizationId = organization.OrganizationId,
                     OrganizationSubscriptionId = subscription.OrganizationSubscriptionId,
-                    EventType = "TrialStarted",
+                    EventType = SubscriptionEventTypes.TrialStarted,
                     OldPlanId = null,
                     NewPlanId = plan.PlanId,
                     OldStatus = null,
-                    NewStatus = "Trial",
+                    NewStatus = SubscriptionStatus.Trial,
                     EffectiveAt = DateTime.UtcNow,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = createdBy,
