@@ -118,28 +118,34 @@ builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
-RecurringJobOptions jobOptions = new RecurringJobOptions
+var jobOptions = new RecurringJobOptions
 {
     TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
 };
 
-RecurringJob.AddOrUpdate<DunningJob>(
-    "daily-dunning",
-    job => job.RunAsync(),
-    "0 2 * * *",
-    jobOptions);
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager =
+        scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
-RecurringJob.AddOrUpdate<DailyBillingJob>(
-    "daily-billing",
-    job => job.RunAsync(),
-    "30 2 * * *",
-    jobOptions);
+    recurringJobManager.AddOrUpdate<DunningJob>(
+        "daily-dunning",
+        job => job.RunAsync(),
+        "0 2 * * *",
+        jobOptions);
 
-RecurringJob.AddOrUpdate<MonthlyBillingJob>(
-    "monthly-billing",
-    job => job.RunAsync(),
-    "0 2 1 * *",
-    jobOptions);
+    recurringJobManager.AddOrUpdate<DailyBillingJob>(
+        "daily-billing",
+        job => job.RunAsync(),
+        "30 2 * * *",
+        jobOptions);
+
+    recurringJobManager.AddOrUpdate<MonthlyBillingJob>(
+        "monthly-billing",
+        job => job.RunAsync(),
+        "0 2 1 * *",
+        jobOptions);
+}
 
 //Set Culture
 var culture = new CultureInfo("en-CA");
