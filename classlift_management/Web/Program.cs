@@ -184,6 +184,9 @@ builder.Services.AddScoped<ICoachSpecialtyService, CoachSpecialtyService>();
 
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
+
+builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFactory>();
+
 //var connectionString1 = Environment.GetEnvironmentVariable("DefaultConnection");
 
 
@@ -221,13 +224,23 @@ builder.Services.AddDbContext<BillingDbContext>(options =>
         builder.Configuration.GetConnectionString("PlatformConnection"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("PlatformConnection"))));
 
+
+//Get DefaultConnectionString in Debug mode when TenantConnectionString is not available
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
     var httpContextAccessor =
         serviceProvider.GetRequiredService<IHttpContextAccessor>();
 
+    var configuration =
+        serviceProvider.GetRequiredService<IConfiguration>();
+
     var connectionString = httpContextAccessor.HttpContext?
         .Items["TenantConnectionString"]?.ToString();
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        connectionString = configuration.GetConnectionString("DefaultConnection");
+    }
 
     if (string.IsNullOrWhiteSpace(connectionString))
         throw new InvalidOperationException("Tenant connection string not found.");
@@ -292,22 +305,20 @@ builder.Services.AddSingleton<Core.R2.R2StorageService>();
 
 var app = builder.Build();
 
-//Get Tenant ConnectionString
-app.UseMiddleware<TenantResolutionMiddleware>();
+
 
 
 //Add / health endpoint
 //app.MapGet("/health", () => "OK");
 app.MapGet("/health", () => Results.Ok("Healthy"));
 
-// ? Enable session middleware
-app.UseSession();
+
 
 // Automatically create roles and an admin user
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await SeedRolesAndAdmin(services);
+   // await SeedRolesAndAdmin(services);
 }
 
 
@@ -344,6 +355,11 @@ app.UseStaticFiles();
 //});
 
 app.UseRouting();
+
+//Get Tenant ConnectionString
+app.UseMiddleware<TenantResolutionMiddleware>();
+// ? Enable session middleware
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
