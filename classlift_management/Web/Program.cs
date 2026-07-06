@@ -5,6 +5,9 @@ using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
+using Core.Middleware;
+
+
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +37,7 @@ async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
     }
 
     // Create an admin user if none exists
-    var adminEmail = "admin@nsns.ca";
+    var adminEmail = "admin@classlift.ca";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
     if (adminUser == null)
@@ -62,6 +65,9 @@ async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -165,12 +171,7 @@ builder.Services.AddScoped<IFeeService, FeeService>();
 builder.Services.AddScoped<IChildCalendarRepository, ChildCalendarRepository>();
 builder.Services.AddScoped<IChildCalendarService, ChildCalendarService>();
 
-// Add UserService
 
-
-// Add password hasher
-//builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-//builder.Services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
 
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICityService, CityService>();
@@ -184,36 +185,7 @@ builder.Services.AddScoped<ICoachSpecialtyService, CoachSpecialtyService>();
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 //var connectionString1 = Environment.GetEnvironmentVariable("DefaultConnection");
-try
-{
-    //foreach (var c in builder.Configuration.AsEnumerable())
-    //{
-    //    Console.WriteLine($"{c.Key}: {c.Value}");
-    //}
 
-    var connectionString = Environment.GetEnvironmentVariable("DefaultConnection")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
-    Console.WriteLine("Database connection initialized.");
-    //builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 39))));
-    //builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(connectionString,ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Scoped);
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
-            mysqlOptions =>
-            {
-                mysqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorNumbersToAdd: null);
-            }
-        )
-    );
-
-}
-catch (Exception ex)
-{
-    Console.WriteLine("DB setup failed: " + ex.Message);
-    throw;
-}
 
 
 
@@ -241,6 +213,71 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
+// To get connectionstring
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddDbContext<BillingDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("PlatformConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("PlatformConnection"))));
+
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    var httpContextAccessor =
+        serviceProvider.GetRequiredService<IHttpContextAccessor>();
+
+    var connectionString = httpContextAccessor.HttpContext?
+        .Items["TenantConnectionString"]?.ToString();
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+        throw new InvalidOperationException("Tenant connection string not found.");
+
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString),
+        mysqlOptions =>
+        {
+            mysqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
+        });
+});
+
+
+
+//try
+//{
+
+
+//    //var connectionString = Environment.GetEnvironmentVariable("DefaultConnection")
+//    //?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+//    app.UseMiddleware<TenantResolutionMiddleware>();
+
+//    var connectionString = HttpContext.Items["TenantConnectionString"]?.ToString();
+
+//    Console.WriteLine("Database connection initialized.");
+//    builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+//        mysqlOptions =>
+//        {
+//            mysqlOptions.EnableRetryOnFailure(
+//                maxRetryCount: 5,
+//                maxRetryDelay: TimeSpan.FromSeconds(10),
+//                errorNumbersToAdd: null);
+//        }
+//    )
+//);
+
+//}
+//catch (Exception ex)
+//{
+//    Console.WriteLine("DB setup failed: " + ex.Message);
+//    throw;
+//}
+
+
 
 var cultureInfo = new System.Globalization.CultureInfo("en-CA");
 System.Globalization.CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -254,6 +291,10 @@ builder.Services.AddSingleton<Core.R2.R2StorageService>();
 
 
 var app = builder.Build();
+
+//Get Tenant ConnectionString
+app.UseMiddleware<TenantResolutionMiddleware>();
+
 
 //Add / health endpoint
 //app.MapGet("/health", () => "OK");
@@ -308,33 +349,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//app.UseAuthorization();
 
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=User}/{action=AddAdmin}/{id?}");
-
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Account}/{action=Login}/{id?}");
-
-//app.UseEndpoints(endpoints =>
-//{
-//    // Map controller routes
-//    endpoints.MapControllerRoute(
-//        name: "default",
-//        pattern: "{controller=Account}/{action=Login}/{id?}" // Default route points to User/AddAdmin
-//    );
-//});
-
-//app.UseEndpoints(endpoints =>
-//{
-//    // Map controller routes
-//    endpoints.MapControllerRoute(
-//        name: "admin_add",
-//        pattern: "{controller=User}/{action=AddAdmin}/{id?}" // Default route points to User/AddAdmin
-//    );
-//});
 
 app.UseEndpoints(endpoints =>
 {
