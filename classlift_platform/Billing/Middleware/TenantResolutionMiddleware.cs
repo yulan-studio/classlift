@@ -71,7 +71,11 @@ public class TenantResolutionMiddleware
 
         if (parts.Length < 3)
             return null;
-
-        return parts[0];
+        if(parts.Length == 3)
+            return parts[0];
+        if (parts.Length == 4)
+            return parts[0] + '.' + parts[1];
+        else
+            return null;
     }
 }

@@ -4,18 +4,24 @@ using Billing.Middleware;
 using Billing.Services.Billing;
 using Billing.Services.Jobs;
 using Billing.Services.Provisioning;
+using Hangfire;
+using Hangfire.MySql;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
-using Microsoft.AspNetCore.Identity;
+using System.Globalization;
 
 
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 //Require authentication globally
 builder.Services.AddControllersWithViews(options =>
@@ -46,7 +52,7 @@ builder.Services.AddAuthorization();
 
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddControllersWithViews();
 
@@ -99,11 +105,57 @@ builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFacto
 
 
 
+builder.Services.AddHangfire(config =>
+    config.UseStorage(
+        new MySqlStorage(
+            masterConnectionString,
+            new MySqlStorageOptions()
+        )));
 
+builder.Services.AddHangfireServer();
 
 
 
 var app = builder.Build();
+
+var jobOptions = new RecurringJobOptions
+{
+    TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
+};
+
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager =
+        scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+
+    recurringJobManager.AddOrUpdate<DunningJob>(
+        "daily-dunning",
+        job => job.RunAsync(),
+        "0 2 * * *",
+        jobOptions);
+
+    recurringJobManager.AddOrUpdate<DailyBillingJob>(
+        "daily-billing",
+        job => job.RunAsync(),
+        "30 2 * * *",
+        jobOptions);
+
+    recurringJobManager.AddOrUpdate<MonthlyBillingJob>(
+        "monthly-billing",
+        job => job.RunAsync(),
+        "0 2 1 * *",
+        jobOptions);
+}
+
+//Set Culture
+var culture = new CultureInfo("en-CA");
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(culture),
+    SupportedCultures = new[] { culture },
+    SupportedUICultures = new[] { culture }
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
