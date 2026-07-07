@@ -5,6 +5,9 @@ using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
+using Core.Middleware;
+
+
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,49 +20,52 @@ using Microsoft.EntityFrameworkCore;
 //using Microsoft.AspNetCore.Mvc;
 
 
-async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
-{
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-    var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+//async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
+//{
+//    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+//    var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
 
-    string[] roleNames = { "Admin", "Staff", "Coach", "Parent", "Child" };
+//    string[] roleNames = { "Admin", "Staff", "Coach", "Parent", "Child" };
 
-    // Create roles if they don't exist
-    foreach (var roleName in roleNames)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
-        }
-    }
+//    // Create roles if they don't exist
+//    foreach (var roleName in roleNames)
+//    {
+//        if (!await roleManager.RoleExistsAsync(roleName))
+//        {
+//            await roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
+//        }
+//    }
 
-    // Create an admin user if none exists
-    var adminEmail = "admin@nsns.ca";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+//    // Create an admin user if none exists
+//    var adminEmail = "admin@classlift.ca";
+//    var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
-    if (adminUser == null)
-    {
-        var newAdmin = new User
-        {
-            UserName = "admin",
-            Email = adminEmail,
-            EmailConfirmed = true,
-            Role = "Admin"
-        };
+//    if (adminUser == null)
+//    {
+//        var newAdmin = new User
+//        {
+//            UserName = "admin",
+//            Email = adminEmail,
+//            EmailConfirmed = true,
+//            Role = "Admin"
+//        };
 
-        var result = await userManager.CreateAsync(newAdmin, "Admin@123"); // Secure default password
+//        var result = await userManager.CreateAsync(newAdmin, "Admin@123"); // Secure default password
 
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(newAdmin, "Admin");
-        }
-    }
-}
+//        if (result.Succeeded)
+//        {
+//            await userManager.AddToRoleAsync(newAdmin, "Admin");
+//        }
+//    }
+//}
 
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -163,12 +169,7 @@ builder.Services.AddScoped<IFeeService, FeeService>();
 builder.Services.AddScoped<IChildCalendarRepository, ChildCalendarRepository>();
 builder.Services.AddScoped<IChildCalendarService, ChildCalendarService>();
 
-// Add UserService
 
-
-// Add password hasher
-//builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-//builder.Services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
 
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICityService, CityService>();
@@ -181,37 +182,11 @@ builder.Services.AddScoped<ICoachSpecialtyService, CoachSpecialtyService>();
 
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
+
+builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFactory>();
+
 //var connectionString1 = Environment.GetEnvironmentVariable("DefaultConnection");
-try
-{
-    //foreach (var c in builder.Configuration.AsEnumerable())
-    //{
-    //    Console.WriteLine($"{c.Key}: {c.Value}");
-    //}
 
-    var connectionString = Environment.GetEnvironmentVariable("DefaultConnection")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
-    Console.WriteLine("Database connection initialized.");
-    //builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 39))));
-    //builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(connectionString,ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Scoped);
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
-            mysqlOptions =>
-            {
-                mysqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorNumbersToAdd: null);
-            }
-        )
-    );
-
-}
-catch (Exception ex)
-{
-    Console.WriteLine("DB setup failed: " + ex.Message);
-    throw;
-}
 
 
 
@@ -239,6 +214,81 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
+// To get connectionstring
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddDbContext<BillingDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("PlatformConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("PlatformConnection"))));
+
+
+//Get DefaultConnectionString in Debug mode when TenantConnectionString is not available
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    var httpContextAccessor =
+        serviceProvider.GetRequiredService<IHttpContextAccessor>();
+
+    var configuration =
+        serviceProvider.GetRequiredService<IConfiguration>();
+
+    var connectionString = httpContextAccessor.HttpContext?
+        .Items["TenantConnectionString"]?.ToString();
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        connectionString = configuration.GetConnectionString("DefaultConnection");
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+        throw new InvalidOperationException("Tenant connection string not found.");
+
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString),
+        mysqlOptions =>
+        {
+            mysqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
+        });
+});
+
+
+
+//try
+//{
+
+
+//    //var connectionString = Environment.GetEnvironmentVariable("DefaultConnection")
+//    //?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+//    app.UseMiddleware<TenantResolutionMiddleware>();
+
+//    var connectionString = HttpContext.Items["TenantConnectionString"]?.ToString();
+
+//    Console.WriteLine("Database connection initialized.");
+//    builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+//        mysqlOptions =>
+//        {
+//            mysqlOptions.EnableRetryOnFailure(
+//                maxRetryCount: 5,
+//                maxRetryDelay: TimeSpan.FromSeconds(10),
+//                errorNumbersToAdd: null);
+//        }
+//    )
+//);
+
+//}
+//catch (Exception ex)
+//{
+//    Console.WriteLine("DB setup failed: " + ex.Message);
+//    throw;
+//}
+
+
 
 var cultureInfo = new System.Globalization.CultureInfo("en-CA");
 System.Globalization.CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -253,18 +303,20 @@ builder.Services.AddSingleton<Core.R2.R2StorageService>();
 
 var app = builder.Build();
 
+
+
+
 //Add / health endpoint
 //app.MapGet("/health", () => "OK");
 app.MapGet("/health", () => Results.Ok("Healthy"));
 
-// ? Enable session middleware
-app.UseSession();
+
 
 // Automatically create roles and an admin user
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await SeedRolesAndAdmin(services);
+   // await SeedRolesAndAdmin(services);
 }
 
 
@@ -301,38 +353,20 @@ app.UseStaticFiles();
 //});
 
 app.UseRouting();
+
+//Get Tenant ConnectionString
+app.UseMiddleware<TenantResolutionMiddleware>();
+// ? Enable session middleware
+app.UseSession();
+
+app.UseMiddleware<TenantSetupRedirectMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-//app.UseAuthorization();
 
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=User}/{action=AddAdmin}/{id?}");
-
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Account}/{action=Login}/{id?}");
-
-//app.UseEndpoints(endpoints =>
-//{
-//    // Map controller routes
-//    endpoints.MapControllerRoute(
-//        name: "default",
-//        pattern: "{controller=Account}/{action=Login}/{id?}" // Default route points to User/AddAdmin
-//    );
-//});
-
-//app.UseEndpoints(endpoints =>
-//{
-//    // Map controller routes
-//    endpoints.MapControllerRoute(
-//        name: "admin_add",
-//        pattern: "{controller=User}/{action=AddAdmin}/{id?}" // Default route points to User/AddAdmin
-//    );
-//});
 
 app.UseEndpoints(endpoints =>
 {
