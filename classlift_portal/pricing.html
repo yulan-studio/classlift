@@ -9,6 +9,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+<!-- If you want users to install it like an app -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
 <style>
 body { font-family: 'Inter', sans-serif; }
 </style>
@@ -21,7 +24,16 @@ body { font-family: 'Inter', sans-serif; }
     <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
 
         <!-- LOGO -->
-        <h1 class="text-xl font-bold text-indigo-600">ClassLift</h1>
+        <a href="./index.html" class="flex items-center gap-3">
+            <img
+                src="icons/classlift-logo.png"
+                alt="ClassLift"
+                class="w-10 h-10 rounded-xl"
+            >
+            <span class="text-xl font-bold text-indigo-600">
+                ClassLift
+            </span>
+        </a>
 
         <!-- DESKTOP MENU -->
         <div class="space-x-6 hidden md:flex items-center">
