@@ -20,44 +20,44 @@ using Microsoft.EntityFrameworkCore;
 //using Microsoft.AspNetCore.Mvc;
 
 
-async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
-{
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-    var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+//async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
+//{
+//    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+//    var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
 
-    string[] roleNames = { "Admin", "Staff", "Coach", "Parent", "Child" };
+//    string[] roleNames = { "Admin", "Staff", "Coach", "Parent", "Child" };
 
-    // Create roles if they don't exist
-    foreach (var roleName in roleNames)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
-        }
-    }
+//    // Create roles if they don't exist
+//    foreach (var roleName in roleNames)
+//    {
+//        if (!await roleManager.RoleExistsAsync(roleName))
+//        {
+//            await roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
+//        }
+//    }
 
-    // Create an admin user if none exists
-    var adminEmail = "admin@classlift.ca";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+//    // Create an admin user if none exists
+//    var adminEmail = "admin@classlift.ca";
+//    var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
-    if (adminUser == null)
-    {
-        var newAdmin = new User
-        {
-            UserName = "admin",
-            Email = adminEmail,
-            EmailConfirmed = true,
-            Role = "Admin"
-        };
+//    if (adminUser == null)
+//    {
+//        var newAdmin = new User
+//        {
+//            UserName = "admin",
+//            Email = adminEmail,
+//            EmailConfirmed = true,
+//            Role = "Admin"
+//        };
 
-        var result = await userManager.CreateAsync(newAdmin, "Admin@123"); // Secure default password
+//        var result = await userManager.CreateAsync(newAdmin, "Admin@123"); // Secure default password
 
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(newAdmin, "Admin");
-        }
-    }
-}
+//        if (result.Succeeded)
+//        {
+//            await userManager.AddToRoleAsync(newAdmin, "Admin");
+//        }
+//    }
+//}
 
 
 
@@ -360,6 +360,9 @@ app.UseRouting();
 app.UseMiddleware<TenantResolutionMiddleware>();
 // ? Enable session middleware
 app.UseSession();
+
+app.UseMiddleware<TenantSetupRedirectMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
