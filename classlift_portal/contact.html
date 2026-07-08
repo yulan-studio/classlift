@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Course Management Platform</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body { font-family: 'Inter', sans-serif; }
+</style>
+
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="icons/favicon-192.png">
+
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+
+<!-- NAVBAR -->
+<header class="bg-white/80 backdrop-blur sticky top-0 z-50 border-b">
+    <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
+
+        <!-- LOGO -->
+        <a href="./index.html" class="flex items-center gap-3">
+            <img
+                src="icons/classlift-logo2.png"
+                alt="ClassLift"
+                class="w-14 h-14 rounded-xl"
+            >
+            <span class="text-3xl font-bold text-indigo-600">
+                ClassLift
+            </span>
+        </a>
+
+        <!-- DESKTOP MENU -->
+        <div class="space-x-6 hidden md:flex items-center">
+            <a href="./index.html" class="hover:text-indigo-600">Features</a>
+            <a href="./pricing.html#pricing" class="hover:text-indigo-600">Pricing</a>
+            <a href="./contact.html" class="hover:text-indigo-600">Contact</a>
+
+            <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow hover:bg-indigo-700">
+                Book Demo
+            </a>
+        </div>
+
+        <!-- MOBILE BUTTON -->
+        <button id="menuBtn" class="md:hidden text-3xl">
+            ☰
+        </button>
+    </div>
+
+    <!-- MOBILE MENU -->
+    <div id="mobileMenu" class="hidden md:hidden px-6 pt-4 pb-4 space-y-4 bg-white border-t">
+
+        <a href="./index.html" class="block hover:text-indigo-600">
+            Features
+        </a>
+
+        <a href="./pricing.html#pricing" class="block hover:text-indigo-600">
+            Pricing
+        </a>
+
+        <a href="./contact.html" class="block hover:text-indigo-600">Contact</a>
+
+        <a href="#" class="block bg-indigo-600 text-white px-4 py-2 rounded-xl text-center">
+            Book Demo
+        </a>
+    </div>
+</header>
+
+<!-- SCRIPT -->
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+
+menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+});
+</script>
+
+<!-- HERO -->
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-500 opacity-90"></div>
+
+    <div class="relative max-w-5xl mx-auto text-center py-24 px-6 text-white">
+
+        <h1 class="text-4xl md:text-5xl font-bold">
+            Contact ClassLift
+        </h1>
+
+        <p class="mt-6 text-lg text-white/90 max-w-3xl mx-auto">
+            We'd love to hear from you. Whether you're interested in a demo,
+            have questions about pricing, or need technical support, we're here
+            to help.
+        </p>
+
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section class="py-20 bg-white">
+<div class="max-w-5xl mx-auto px-6">
+
+    <div class="grid md:grid-cols-2 gap-8">
+
+        <!-- SALES -->
+        <div class="bg-gray-50 rounded-2xl shadow-lg p-8">
+
+            <div class="text-5xl mb-4">💼</div>
+
+            <h2 class="text-2xl font-bold mb-4">
+                Sales & General Inquiries
+            </h2>
+
+            <p class="text-gray-600 mb-6">
+                Questions about ClassLift, pricing, features, partnerships,
+                or booking a personalized demo.
+            </p>
+
+            <a
+                href="mailto:info@classlift.ca"
+                class="text-indigo-600 font-semibold hover:underline"
+            >
+                info@classlift.ca
+            </a>
+
+        </div>
+
+        <!-- SUPPORT -->
+        <div class="bg-gray-50 rounded-2xl shadow-lg p-8">
+
+            <div class="text-5xl mb-4">🛠️</div>
+
+            <h2 class="text-2xl font-bold mb-4">
+                Customer Support
+            </h2>
+
+            <p class="text-gray-600 mb-6">
+                Existing customer? Need help with your account or have a
+                technical question? Our support team is ready to assist.
+            </p>
+
+            <a
+                href="mailto:support@classlift.ca"
+                class="text-indigo-600 font-semibold hover:underline"
+            >
+                support@classlift.ca
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+</section>
+
+<!-- CTA -->
+<section class="bg-indigo-600 text-white text-center py-20">
+
+    <h3 class="text-3xl font-bold mb-4">
+        Want to See ClassLift in Action?
+    </h3>
+
+    <p class="mb-8 text-white/90">
+        Schedule a personalized demo and discover how ClassLift can simplify
+        your program management.
+    </p>
+
+    <a
+        href="./pricing.html"
+        class="inline-block bg-white text-indigo-600 px-8 py-4 rounded-xl font-semibold shadow hover:scale-105 transition"
+    >
+        Book a Demo
+    </a>
+
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-white text-center p-8">
+    <p class="text-lg">Less admin. More impact.</p>
+    <p class="mt-2 text-sm opacity-70">© 2026 ClassLift</p>
+</footer>
+
+</body>
+</html>
