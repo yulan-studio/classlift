@@ -1,17 +1,187 @@
-<form id="signupForm">
-  <input name="organizationName" placeholder="Organization name" required />
-  <input name="subdomain" placeholder="Subdomain" required />
-  <input name="adminName" placeholder="Admin name" required />
-  <input name="adminEmail" type="email" placeholder="Admin email" required />
-  <input name="adminPassword" type="password" placeholder="Password" required />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <button type="submit">Create Organization</button>
-</form>
+<title>ClassLift | Create Organization</title>
 
-<div id="message"></div>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="icons/favicon-192.png">
+
+<style>
+body { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+<!-- NAVBAR -->
+<header class="bg-white/80 backdrop-blur sticky top-0 z-50 border-b">
+    <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
+
+        <a href="./index.html" class="flex items-center gap-3">
+            <img
+                src="icons/classlift-logo2.png"
+                alt="ClassLift"
+                class="w-14 h-14 rounded-xl"
+            >
+            <span class="text-3xl font-bold text-indigo-600">
+                ClassLift
+            </span>
+        </a>
+
+        <div class="space-x-6 hidden md:flex items-center">
+            <a href="./index.html" class="hover:text-indigo-600">Features</a>
+            <a href="./pricing.html#pricing" class="hover:text-indigo-600">Pricing</a>
+            <a href="./pricing.html" class="hover:text-indigo-600">Demo</a>
+
+            <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow hover:bg-indigo-700">
+                Book Demo
+            </a>
+        </div>
+
+        <button id="menuBtn" class="md:hidden text-3xl">
+            ☰
+        </button>
+    </div>
+
+    <div id="mobileMenu" class="hidden md:hidden px-6 pt-4 pb-4 space-y-4 bg-white border-t">
+        <a href="./index.html" class="block hover:text-indigo-600">Features</a>
+        <a href="./pricing.html#pricing" class="block hover:text-indigo-600">Pricing</a>
+        <a href="./pricing.html" class="block hover:text-indigo-600">Demo</a>
+
+        <a href="#" class="block bg-indigo-600 text-white px-4 py-2 rounded-xl text-center">
+            Book Demo
+        </a>
+    </div>
+</header>
+
+<!-- HERO / SIGNUP -->
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-500 opacity-90"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 py-20">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+            <div class="text-white text-center lg:text-left">
+                <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+                    Create Your ClassLift Organization
+                </h1>
+
+                <p class="mt-6 text-lg text-white/90">
+                    Set up your Starter version workspace and start managing programs,
+                    scheduling, attendance, billing, and reporting in one place.
+                </p>
+
+                <p class="mt-4 text-lg text-white/90">
+                    <b>Less admin. More impact.</b>
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800">
+                        Create Organization
+                    </h2>
+
+                    <p class="mt-3 text-gray-500">
+                        Enter your organization and admin details below.
+                    </p>
+                </div>
+
+                <form id="signupForm" class="space-y-4">
+
+                    <input
+                        name="organizationName"
+                        placeholder="Organization name"
+                        required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+
+                    <input
+                        name="subdomain"
+                        placeholder="Subdomain"
+                        required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+
+                    <input
+                        name="adminName"
+                        placeholder="Admin name"
+                        required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+
+                    <input
+                        name="adminEmail"
+                        type="email"
+                        placeholder="Admin email"
+                        required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+
+                    <input
+                        name="adminPassword"
+                        type="password"
+                        placeholder="Password"
+                        required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+
+                    <button
+                        id="submitBtn"
+                        type="submit"
+                        class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold shadow hover:bg-indigo-700 transition"
+                    >
+                        Create Organization
+                    </button>
+                </form>
+
+                <div id="message" class="mt-5 text-center text-sm"></div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="bg-white py-20">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+        <h3 class="text-3xl font-bold mb-4">
+            Ready to Simplify Your Program Management?
+        </h3>
+
+        <p class="mb-8 text-gray-600">
+            Save time, reduce stress, and focus on what matters most.
+        </p>
+
+        <a href="./pricing.html" class="inline-block bg-indigo-600 text-white px-8 py-4 rounded-xl font-semibold shadow hover:bg-indigo-700 transition">
+            Book Your Demo
+        </a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-white text-center p-8">
+    <p class="text-lg">Less admin. More impact.</p>
+    <p class="mt-2 text-sm opacity-70">© 2026 ClassLift</p>
+</footer>
 
 <script>
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
 
+menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+});
 
 function getPlatformApiBaseUrl() {
     const host = window.location.hostname.toLowerCase();
@@ -33,40 +203,59 @@ function getPlatformApiBaseUrl() {
     }
 }
 
-
-
 document.getElementById("signupForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  const form = e.target;
+    const form = e.target;
+    const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
 
-  const data = {
-    organizationName: form.organizationName.value,
-    subdomain: form.subdomain.value.toLowerCase(),
-    adminName: form.adminName.value,
-    adminEmail: form.adminEmail.value,
-    adminPassword: form.adminPassword.value
-  };
+    message.innerText = "";
+    message.className = "mt-5 text-center text-sm";
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Creating...";
 
-  const apiUrl = `${getPlatformApiBaseUrl()}/api/public/signup`;
+    const data = {
+        organizationName: form.organizationName.value.trim(),
+        subdomain: form.subdomain.value.trim().toLowerCase(),
+        adminName: form.adminName.value.trim(),
+        adminEmail: form.adminEmail.value.trim(),
+        adminPassword: form.adminPassword.value
+    };
 
-   const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    });
+    try {
+        const apiUrl = `${getPlatformApiBaseUrl()}/api/public/signup`;
 
- 
-  const result = await response.json();
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
 
-  if (!response.ok) {
-    document.getElementById("message").innerText =
-      result.message || "Signup failed.";
-    return;
-  }
+        const result = await response.json();
 
-  window.location.href = result.tenantUrl;
+        if (!response.ok) {
+            message.innerText = result.message || "Signup failed.";
+            message.className = "mt-5 text-center text-sm text-red-600";
+            return;
+        }
+
+        message.innerText = "Organization created. Redirecting...";
+        message.className = "mt-5 text-center text-sm text-indigo-600";
+
+        window.location.href = result.tenantUrl;
+
+    } catch (error) {
+        message.innerText = "Something went wrong. Please try again.";
+        message.className = "mt-5 text-center text-sm text-red-600";
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Create Organization";
+    }
 });
 </script>
+
+</body>
+</html>
