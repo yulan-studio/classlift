@@ -12,6 +12,11 @@
 <style>
 body { font-family: 'Inter', sans-serif; }
 </style>
+
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="icons/favicon-192.png">
+
 </head>
 
 <body class="bg-gray-50 text-gray-800">
@@ -22,7 +27,16 @@ body { font-family: 'Inter', sans-serif; }
     <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
 
         <!-- LOGO -->
-        <h1 class="text-xl font-bold text-indigo-600">ClassLift</h1>
+        <a href="./index.html" class="flex items-center gap-3">
+            <img
+                src="icons/classlift-logo2.png"
+                alt="ClassLift"
+                class="w-14 h-14 rounded-xl"
+            >
+            <span class="text-3xl font-bold text-indigo-600">
+                ClassLift
+            </span>
+        </a>
 
         <!-- DESKTOP MENU -->
         <div class="space-x-6 hidden md:flex items-center">
@@ -97,7 +111,7 @@ menuBtn.addEventListener('click', () => {
                 <button class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-semibold shadow hover:scale-105 transition">
                     Book a Demo
                 </button>
-                <button class="border border-white px-6 py-3 rounded-xl hover:bg-white hover:text-indigo-600 transition">
+                <button onclick="window.location.href='./signup.html'" class="border border-white px-6 py-3 rounded-xl hover:bg-white hover:text-indigo-600 transition">
                     Start Free Trial
                 </button>
             </div>

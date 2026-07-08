@@ -9,6 +9,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+<!-- If you want users to install it like an app -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
 <style>
 body { font-family: 'Inter', sans-serif; }
 </style>
@@ -21,7 +24,16 @@ body { font-family: 'Inter', sans-serif; }
     <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
 
         <!-- LOGO -->
-        <h1 class="text-xl font-bold text-indigo-600">ClassLift</h1>
+        <a href="./index.html" class="flex items-center gap-3">
+            <img
+                src="icons/classlift-logo2.png"
+                alt="ClassLift"
+                class="w-14 h-14 rounded-xl"
+            >
+            <span class="text-3xl font-bold text-indigo-600">
+                ClassLift
+            </span>
+        </a>
 
         <!-- DESKTOP MENU -->
         <div class="space-x-6 hidden md:flex items-center">
@@ -94,7 +106,7 @@ menuBtn.addEventListener('click', () => {
             <button class="bg-white text-indigo-600 px-8 py-4 rounded-xl font-semibold shadow hover:scale-105 transition">
                 Book a Demo
             </button>
-            <button class="border border-white px-8 py-4 rounded-xl hover:bg-white hover:text-indigo-600 transition">
+            <button onclick="window.location.href='./signup.html'" class="border border-white px-8 py-4 rounded-xl hover:bg-white hover:text-indigo-600 transition">
                 Start Free Trial
             </button>
         </div>
@@ -178,14 +190,14 @@ menuBtn.addEventListener('click', () => {
             <p class="text-gray-500 mb-6">For small programs</p>
 
             <p class="text-4xl font-bold mb-6 line-through">$49</p>
-            <p class="text-gray-500 mb-6">minimum / month</p>
+            <p class="text-gray-500 mb-6">/ month</p>
 
 
           
 
 
             <ul class="text-left space-y-2 text-gray-600 mb-6">
-                <li>✔ Up to 4 teachers</li>            
+                <li>✔ Up to 3 teachers</li>            
                 <li>✔ Course & student management</li>
                 <li>✔ Group & 1-on-1 scheduling</li>
  		<li>✔ Attendance Tracking</li>
@@ -196,7 +208,7 @@ menuBtn.addEventListener('click', () => {
 
             </ul>
 
-            <button class="w-full bg-indigo-600 text-white py-3 rounded-xl">
+            <button onclick="window.location.href='./signup.html'" class="w-full bg-indigo-600 text-white py-3 rounded-xl">
                 Start Free Trial
             </button>
         </div>

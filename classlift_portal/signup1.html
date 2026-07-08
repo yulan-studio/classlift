@@ -1,0 +1,72 @@
+<form id="signupForm">
+  <input name="organizationName" placeholder="Organization name" required />
+  <input name="subdomain" placeholder="Subdomain" required />
+  <input name="adminName" placeholder="Admin name" required />
+  <input name="adminEmail" type="email" placeholder="Admin email" required />
+  <input name="adminPassword" type="password" placeholder="Password" required />
+
+  <button type="submit">Create Organization</button>
+</form>
+
+<div id="message"></div>
+
+<script>
+
+
+function getPlatformApiBaseUrl() {
+    const host = window.location.hostname.toLowerCase();
+
+    switch (host) {
+        case "dev.classlift.ca":
+            return "https://dev.platform.classlift.ca";
+
+        case "staging.classlift.ca":
+            return "https://staging.platform.classlift.ca";
+
+        case "www.classlift.ca":
+        case "classlift.ca":
+            return "https://platform.classlift.ca";
+
+        default:
+            console.warn(`Unknown environment: ${host}`);
+            return "https://dev.platform.classlift.ca";
+    }
+}
+
+
+
+document.getElementById("signupForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const form = e.target;
+
+  const data = {
+    organizationName: form.organizationName.value,
+    subdomain: form.subdomain.value.toLowerCase(),
+    adminName: form.adminName.value,
+    adminEmail: form.adminEmail.value,
+    adminPassword: form.adminPassword.value
+  };
+
+  const apiUrl = `${getPlatformApiBaseUrl()}/api/public/signup`;
+
+   const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+ 
+  const result = await response.json();
+
+  if (!response.ok) {
+    document.getElementById("message").innerText =
+      result.message || "Signup failed.";
+    return;
+  }
+
+  window.location.href = result.tenantUrl;
+});
+</script>
