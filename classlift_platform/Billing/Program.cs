@@ -1,8 +1,10 @@
+using Billing.Configuration;
 using Billing.Data;
 using Billing.Interfaces;
 using Billing.Middleware;
 using Billing.Services.Billing;
 using Billing.Services.Jobs;
+using Billing.Services.Notifications;
 using Billing.Services.Provisioning;
 using Hangfire;
 using Hangfire.MySql;
@@ -101,7 +103,12 @@ builder.Services.AddScoped<IDatabaseProvisioner, RailwayDatabaseService>();
 builder.Services.AddScoped<ITenantSchemaService, TenantSchemaService>();
 builder.Services.AddScoped<ITenantSeedService, TenantSeedService>();
 builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFactory>();
+builder.Services.AddScoped<IOrganizationSignupService, OrganizationSignupService>();
+builder.Services.AddScoped<ITenantIdentitySeeder, TenantIdentitySeeder>();
 
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
+builder.Services.AddTransient<EmailService>();
 
 
 
