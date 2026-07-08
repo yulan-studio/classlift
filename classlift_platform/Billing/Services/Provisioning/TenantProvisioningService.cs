@@ -35,31 +35,7 @@ namespace Billing.Services.Provisioning
         }
 
 
-        //private async Task CreateTenantDatabaseAsync(string databaseName)
-        //{
-        //    var serverConnectionString =
-        //        _configuration.GetConnectionString("TenantServerConnection");
-
-        //    await using var connection = new MySqlConnector.MySqlConnection(serverConnectionString);
-        //    await connection.OpenAsync();
-
-        //    var safeDatabaseName = databaseName.Replace("`", "");
-
-        //    await using var command = connection.CreateCommand();
-        //    command.CommandText = $"CREATE DATABASE `{safeDatabaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;";
-        //    await command.ExecuteNonQueryAsync();
-        //}
-
-        //private string BuildServerConnectionString(string databaseName)
-        //{
-        //    var host = _configuration["TenantDatabase:Host"];
-        //    var port = _configuration["TenantDatabase:Port"];
-
-        //    var user = _configuration["TenantDatabase:User"];
-        //    var password = _configuration["TenantDatabase:Password"];
-
-        //    return $"Server={host};Port={port};Database={databaseName};User={user};Password={password};";
-        //}
+       
 
 
         public async Task<Organization> CreateOrganizationAsync(
@@ -112,7 +88,7 @@ namespace Billing.Services.Provisioning
 
                 await _tenantSchemaService.InitializeSchemaAsync(connectionString);
 
-                await _tenantSeedService.SeedAsync(connectionString);
+                //await _tenantSeedService.SeedAsync(connectionString);
 
 
                 // 4. Save TenantRegistry
