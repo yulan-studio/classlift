@@ -121,6 +121,18 @@ builder.Services.AddHangfire(config =>
 
 builder.Services.AddHangfireServer();
 
+//Allow CORS from your marketing site only
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Classlift", policy =>
+    {
+        policy.WithOrigins("https://classlift.ca")
+              .SetIsOriginAllowedToAllowWildcardSubdomains()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 
 
 var app = builder.Build();
@@ -176,6 +188,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseCors("MarketingSite");
 
 app.UseAuthentication();
 app.UseAuthorization();
