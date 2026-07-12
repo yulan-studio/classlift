@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Billing.Interfaces;
+﻿using Billing.Interfaces;
 using Billing.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Billing.Controllers.Public
 {
     [ApiController]
+    [AllowAnonymous]
     [Route("api/public/signup")]
 
     
