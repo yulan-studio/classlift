@@ -13,29 +13,52 @@ namespace Billing.Controllers.Public
     public class PublicSignupController : ControllerBase
     {
         private readonly IOrganizationSignupService _signupService;
+        private readonly ILogger<PublicSignupController> _logger;
 
-        public PublicSignupController(IOrganizationSignupService signupService)
+        public PublicSignupController(IOrganizationSignupService signupService, ILogger<PublicSignupController> logger)
         {
             _signupService = signupService;
+            _logger = logger;
         }
 
         [HttpPost]
         public async Task<IActionResult> Signup([FromBody] PublicSignupRequest request)
         {
-            var result = await _signupService.CreateOrganizationAsync(request);
+            _logger.LogInformation("Received signup request for organization: {OrganizationName}", request.OrganizationName);
 
-            if (!result.Success)
+            try
             {
-                return BadRequest(new
+                var result = await _signupService.CreateOrganizationAsync(request);
+
+                if (!result.Success)
                 {
-                    message = result.Message
+                    _logger.LogWarning(
+                       "Signup failed for organization: {OrganizationName}. Reason: {Message}",
+                       request.OrganizationName,
+                       result.Message);
+
+                    return BadRequest(new
+                    {
+                        message = result.Message
+                    });
+                }
+
+                return Ok(new
+                {
+                    tenantUrl = result.TenantUrl
                 });
             }
-
-            return Ok(new
+            catch(Exception ex)
             {
-                tenantUrl = result.TenantUrl
-            });
+                _logger.LogError(ex,
+                   "Unexpected error occurred while processing signup for organization: {OrganizationName}",
+                   request.OrganizationName);
+
+                return StatusCode(500, new
+                {
+                    message = "An unexpected error occurred."
+                });
+            }
         }
     }
 }
