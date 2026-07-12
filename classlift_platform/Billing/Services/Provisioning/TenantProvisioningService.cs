@@ -68,7 +68,9 @@ namespace Billing.Services.Provisioning
                     ContactPhone = model.ContactPhone,
                     CurrentPlanId = plan.PlanId,
                     IsActive = true,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = createdBy
+                    
                 };
 
                 _context.Organizations.Add(organization);

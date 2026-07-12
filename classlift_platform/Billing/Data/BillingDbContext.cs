@@ -175,6 +175,7 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.ContactEmail).HasMaxLength(200);
             entity.Property(e => e.ContactName).HasMaxLength(200);
             entity.Property(e => e.ContactPhone).HasMaxLength(50);
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
