@@ -115,13 +115,15 @@ body { font-family: 'Inter', sans-serif; }
                             Subdomain
                         </label>
                         <input
+                            id="subdomainInput"
                             name="subdomain"
                             placeholder="e.g. mapleleaf"
                             required
                             class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                         <p class="mt-1 text-xs text-gray-500">
-                            Your site will be: <strong>mapleleaf.classlift.ca</strong>
+                            Your site will be: <strong id="organizationUrl">mapleleaf.classlift.ca</strong>
+                            
                         </p>
                     </div>
 
@@ -206,6 +208,25 @@ body { font-family: 'Inter', sans-serif; }
 </footer>
 
 <script>
+
+
+const subdomainInput = document.getElementById("subdomainInput");
+const organizationUrl = document.getElementById("organizationUrl");
+
+subdomainInput.addEventListener("input", function () {
+    const subdomain = this.value
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+    organizationUrl.textContent = subdomain
+        ? `${subdomain}.classlift.ca`
+        : "yourorganization.classlift.ca";
+});
+
+
+
 const menuBtn = document.getElementById('menuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 
