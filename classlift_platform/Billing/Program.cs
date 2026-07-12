@@ -126,8 +126,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Classlift", policy =>
     {
-        policy.WithOrigins("https://classlift.ca")
-              .SetIsOriginAllowedToAllowWildcardSubdomains()
+        policy.WithOrigins("https://dev.classlift.ca", "https://staging.classlift.ca", "https://classlift.ca")
+              //.SetIsOriginAllowedToAllowWildcardSubdomains()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -189,7 +189,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseCors("MarketingSite");
+app.UseCors("Classlift");
 
 app.UseAuthentication();
 app.UseAuthorization();
