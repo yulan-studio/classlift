@@ -74,7 +74,7 @@ namespace Billing.Services.Provisioning
 
             var adminUser = new User
             {
-                UserName = adminEmail,
+                UserName = adminName,
                 Email = adminEmail,
                 EmailConfirmed = true,
                 Role = "Admin"

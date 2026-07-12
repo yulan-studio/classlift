@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Billing.Models;
+﻿using Billing.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace Billing.Data;
 
 //public partial class BillingDbContext : DbContext
-public partial class BillingDbContext : IdentityDbContext
+public partial class BillingDbContext : IdentityDbContext<User, IdentityRole<int>, int>//IdentityDbContext
 {
     public BillingDbContext()
     {
