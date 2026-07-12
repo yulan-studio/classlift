@@ -1,46 +1,71 @@
-﻿
-using Billing.Data;
+﻿using Billing.Data;
 using Billing.Interfaces;
 using Billing.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
+using Microsoft.Extensions.Logging;
 
 namespace Billing.Services.Provisioning
 {
     public class TenantIdentitySeeder : ITenantIdentitySeeder
     {
         public async Task SeedAdminAsync(
-        string connectionString,
-        string adminName,
-        string adminEmail,
-        string adminPassword)
+            string connectionString,
+            string adminName,
+            string adminEmail,
+            string adminPassword)
         {
             var services = new ServiceCollection();
 
-            services.AddLogging();
+            services.AddLogging(logging =>
+            {
+                logging.AddConsole();
+                logging.SetMinimumLevel(LogLevel.Information);
+            });
 
             services.AddDbContext<BillingDbContext>(options =>
+            {
                 options.UseMySql(
                     connectionString,
-                    ServerVersion.AutoDetect(connectionString)));
+                    ServerVersion.AutoDetect(connectionString));
+            });
 
-            services.AddIdentity<User, IdentityRole<int>>(options =>
-            {
-                options.Password.RequiredLength = 6;
-                options.Password.RequireDigit = true;
-                options.Password.RequireUppercase = false;
-            })
-            .AddEntityFrameworkStores<BillingDbContext>()
-            .AddDefaultTokenProviders();
+            services
+                .AddIdentityCore<User>(options =>
+                {
+                    options.Password.RequiredLength = 6;
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireNonAlphanumeric = false;
 
-            using var provider = services.BuildServiceProvider();
-            using var scope = provider.CreateScope();
+                    options.User.RequireUniqueEmail = true;
+                })
+                .AddRoles<IdentityRole<int>>()
+                .AddEntityFrameworkStores<BillingDbContext>()
+                .AddDefaultTokenProviders();
 
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+            await using var provider = services.BuildServiceProvider();
 
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            await using var scope = provider.CreateAsyncScope();
+
+            var logger = scope.ServiceProvider
+                .GetRequiredService<ILogger<TenantIdentitySeeder>>();
+
+            logger.LogInformation(
+                "Identity user type: {UserType}",
+                typeof(User).AssemblyQualifiedName);
+
+            logger.LogInformation(
+                "DbContext base type: {BaseType}",
+                typeof(BillingDbContext).BaseType);
+
+            var roleManager = scope.ServiceProvider
+                .GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+            var userManager = scope.ServiceProvider
+                .GetRequiredService<UserManager<User>>();
 
             string[] roles =
             {
@@ -51,24 +76,38 @@ namespace Billing.Services.Provisioning
                 "Child"
             };
 
-            foreach (var role in roles)
+            foreach (var roleName in roles)
             {
-                if (!await roleManager.RoleExistsAsync(role))
+                if (await roleManager.RoleExistsAsync(roleName))
                 {
-                    var roleResult = await roleManager.CreateAsync(new IdentityRole<int> { Name = role });
+                    continue;
+                }
 
-                    if (!roleResult.Succeeded)
+                var roleResult = await roleManager.CreateAsync(
+                    new IdentityRole<int>
                     {
-                        throw new InvalidOperationException(
-                            string.Join(", ", roleResult.Errors.Select(e => e.Description)));
-                    }
+                        Name = roleName
+                    });
+
+                if (!roleResult.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        $"Failed to create role '{roleName}': " +
+                        string.Join(
+                            ", ",
+                            roleResult.Errors.Select(e => e.Description)));
                 }
             }
 
-            var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+            var existingAdmin =
+                await userManager.FindByEmailAsync(adminEmail);
 
-            if (existingAdmin != null)
+            if (existingAdmin is not null)
             {
+                logger.LogInformation(
+                    "Admin account already exists for {AdminEmail}",
+                    adminEmail);
+
                 return;
             }
 
@@ -80,21 +119,36 @@ namespace Billing.Services.Provisioning
                 Role = "Admin"
             };
 
-            var createResult = await userManager.CreateAsync(adminUser, adminPassword);
+            var createResult =
+                await userManager.CreateAsync(adminUser, adminPassword);
 
             if (!createResult.Succeeded)
             {
                 throw new InvalidOperationException(
-                    string.Join(", ", createResult.Errors.Select(e => e.Description)));
+                    "Failed to create admin account: " +
+                    string.Join(
+                        ", ",
+                        createResult.Errors.Select(e => e.Description)));
             }
 
-            var addRoleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
+            var addRoleResult =
+                await userManager.AddToRoleAsync(adminUser, "Admin");
 
             if (!addRoleResult.Succeeded)
             {
+                // Avoid leaving a user without the expected role.
+                await userManager.DeleteAsync(adminUser);
+
                 throw new InvalidOperationException(
-                    string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
+                    "Failed to assign the Admin role: " +
+                    string.Join(
+                        ", ",
+                        addRoleResult.Errors.Select(e => e.Description)));
             }
+
+            logger.LogInformation(
+                "Created tenant admin {AdminEmail}",
+                adminEmail);
         }
     }
 }
