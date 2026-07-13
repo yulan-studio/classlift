@@ -2,7 +2,6 @@ using Billing.Configuration;
 using Billing.Data;
 using Billing.Interfaces;
 using Billing.Middleware;
-using Billing.Models;
 using Billing.Services.Billing;
 using Billing.Services.Jobs;
 using Billing.Services.Notifications;
@@ -38,24 +37,11 @@ builder.Services.AddControllersWithViews(options =>
 
 
 
-//builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-//{
-//    options.SignIn.RequireConfirmedAccount = false;
-//})
-//.AddEntityFrameworkStores<BillingDbContext>();
-
-builder.Services
-    .AddIdentity<User, IdentityRole<int>>(options =>
-    {
-        options.SignIn.RequireConfirmedAccount = false;
-
-        options.Password.RequiredLength = 6;
-        options.Password.RequireDigit = true;
-        options.Password.RequireUppercase = false;
-    })
-    .AddEntityFrameworkStores<BillingDbContext>()
-    .AddDefaultTokenProviders();
-
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<BillingDbContext>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -70,7 +56,7 @@ builder.Services.AddAuthorization();
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 //builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-
+builder.Services.AddControllersWithViews();
 
 
 var dbHost = builder.Configuration["TenantDatabase:Host"];
@@ -210,45 +196,18 @@ app.UseAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {
-    var userManager =
-        scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-    var roleManager =
-        scope.ServiceProvider
-            .GetRequiredService<RoleManager<IdentityRole<int>>>();
+    var email = "info@classlift.ca";
+    var password = "Class123!";
 
-    const string email = "info@classlift.ca";
-    const string password = "Class123!";
-    const string adminRole = "Admin";
-
-    if (!await roleManager.RoleExistsAsync(adminRole))
+    if (await userManager.FindByEmailAsync(email) == null)
     {
-        var roleResult = await roleManager.CreateAsync(
-            new IdentityRole<int>
-            {
-                Name = adminRole
-            });
-
-        if (!roleResult.Succeeded)
-        {
-            foreach (var error in roleResult.Errors)
-            {
-                Console.WriteLine(
-                    $"ROLE CREATE ERROR: {error.Code} - {error.Description}");
-            }
-        }
-    }
-
-    var existingUser = await userManager.FindByEmailAsync(email);
-
-    if (existingUser is null)
-    {
-        var user = new User
+        var user = new IdentityUser
         {
             UserName = email,
             Email = email,
-            EmailConfirmed = true,
-            Role = adminRole
+            EmailConfirmed = true
         };
 
         var result = await userManager.CreateAsync(user, password);
@@ -257,23 +216,12 @@ using (var scope = app.Services.CreateScope())
         {
             foreach (var error in result.Errors)
             {
-                Console.WriteLine(
-                    $"USER CREATE ERROR: {error.Code} - {error.Description}");
+                Console.WriteLine($"USER CREATE ERROR: {error.Code} - {error.Description}");
             }
         }
         else
         {
-            var roleResult =
-                await userManager.AddToRoleAsync(user, adminRole);
-
-            if (!roleResult.Succeeded)
-            {
-                foreach (var error in roleResult.Errors)
-                {
-                    Console.WriteLine(
-                        $"ROLE ASSIGN ERROR: {error.Code} - {error.Description}");
-                }
-            }
+            Console.WriteLine("Admin user created successfully.");
         }
     }
 }

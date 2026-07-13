@@ -1,15 +1,14 @@
-﻿using Billing.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Billing.Models;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
-using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Billing.Data;
 
 //public partial class BillingDbContext : DbContext
-public partial class BillingDbContext : IdentityDbContext<User, IdentityRole<int>, int>//IdentityDbContext
+public partial class BillingDbContext : IdentityDbContext
 {
     public BillingDbContext()
     {
@@ -41,9 +40,9 @@ public partial class BillingDbContext : IdentityDbContext<User, IdentityRole<int
 
     public virtual DbSet<Tenantregistry> Tenantregistries { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseMySql("server=localhost;port=3306;database=classlift_platform;user=root;password=Mlanlan78123!", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.4.8-mysql"));
+    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+    //        => optionsBuilder.UseMySql("server=localhost;port=3306;database=classlift_platform;user=root;password=Mlanlan78123!", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.4.8-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -206,7 +205,7 @@ public partial class BillingDbContext : IdentityDbContext<User, IdentityRole<int
 
             entity.HasIndex(e => e.Status, "IDX_OrgSub_Status");
 
-            
+
             entity.Property(e => e.OrganizationSubscriptionId).HasColumnName("OrganizationSubscriptionID");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
