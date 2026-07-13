@@ -34,8 +34,8 @@ namespace Billing.Services.Provisioning
                     options.Password.RequireUppercase = false;
                 })
                 .AddRoles<IdentityRole<int>>()
-                .AddEntityFrameworkStores<ManagementDBContext>()
-                .AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<ManagementDBContext>();
+                //.AddDefaultTokenProviders();
 
             using var provider = services.BuildServiceProvider();
             using var scope = provider.CreateScope();
