@@ -1,4 +1,5 @@
-﻿using Billing.Data;
+﻿using Billing.Controllers.Public;
+using Billing.Data;
 using Billing.Interfaces;
 using Billing.Models;
 using Billing.Services.Notifications;
@@ -14,20 +15,22 @@ namespace Billing.Services.Provisioning
         private readonly ITenantConnectionStringFactory _connectionFactory;
         private readonly ITenantIdentitySeeder _tenantIdentitySeeder;
         private readonly EmailService _emailService;
-
+        private readonly ILogger<OrganizationSignupService> _logger;
 
         public OrganizationSignupService(
         TenantProvisioningService tenantProvisioningService,
         ITenantConnectionStringFactory connectionFactory,
         BillingDbContext context,
         ITenantIdentitySeeder tenantIdentitySeeder,
-        EmailService emailService)
+        EmailService emailService,
+        ILogger<OrganizationSignupService> logger)
         {
             _tenantProvisioningService = tenantProvisioningService;
             _connectionFactory = connectionFactory;
             _context = context;
             _tenantIdentitySeeder = tenantIdentitySeeder;
             _emailService = emailService;
+            _logger = logger;
         }
 
 
@@ -65,12 +68,20 @@ namespace Billing.Services.Provisioning
             // 7. Return tenant URL
             var tenantUrl = $"https://{request.Subdomain}.classlift.ca/Account/Login";
 
-            await _emailService.SendWelcomeEmailAsync(
-                request.AdminName,
-                request.AdminEmail,
-                request.OrganizationName,
-                tenantUrl);
+            
 
+            //try
+            //{
+            //    await _emailService.SendWelcomeEmailAsync(
+            //    request.AdminName,
+            //    request.AdminEmail,
+            //    request.OrganizationName,
+            //    tenantUrl);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "Failed to send welcome email.");
+            //}
             return new OrganizationSignupResult
             {
                 Success = true,
