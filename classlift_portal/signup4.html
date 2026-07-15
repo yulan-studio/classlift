@@ -166,14 +166,9 @@ body { font-family: 'Inter', sans-serif; }
                             aria-describedby="passwordHelp passwordError"
                             class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
-                        <p class="mt-2 text-xs text-gray-600">Password must contain:</p>
-
-                        <ul id="passwordChecklist" class="mt-1 text-xs space-y-1">
-                            <li id="lengthRule" class="text-red-600">✗ At least 8 characters</li>
-                            <li id="letterRule" class="text-red-600">✗ A letter</li>
-                            <li id="numberRule" class="text-red-600">✗ A number</li>
-                            <li id="specialRule" class="text-red-600">✗ A special character</li>
-                        </ul>
+                        <p id="passwordHelp" class="mt-1 text-xs text-gray-500">
+                            Use at least 8 characters with letters, numbers, and special characters.
+                        </p>
                         <p id="passwordError" class="mt-1 text-xs text-red-600 hidden" role="alert"></p>
                     </div>
                     <div>
@@ -237,34 +232,53 @@ subdomainInput.addEventListener("input", function () {
 
 
 const passwordInput = document.getElementById("adminPassword");
+const passwordError = document.getElementById("passwordError");
 
+function validatePassword(password) {
+    const errors = [];
 
-const rules = {
-    length: document.getElementById("lengthRule"),
-    letter: document.getElementById("letterRule"),
-    number: document.getElementById("numberRule"),
-    special: document.getElementById("specialRule")
-};
+     if (password.length < 8) {
+        errors.push("at least 8 characters");
+    }
 
+    if (!/[A-Za-z]/.test(password)) {
+        errors.push("a letter");
+    }
 
+    if (!/\d/.test(password)) {
+        errors.push("a number");
+    }
 
-passwordInput.addEventListener("input", () => {
-    const password = passwordInput.value;
+    if (!/[^A-Za-z0-9]/.test(password)) {
+        errors.push("a special character");
+    }
 
-    updateRule(rules.length, password.length >= 8);
-    updateRule(rules.letter, /[A-Za-z]/.test(password));
-    updateRule(rules.number, /\d/.test(password));
-    updateRule(rules.special, /[^A-Za-z0-9]/.test(password));
-});
-
-function updateRule(element, valid) {
-    element.textContent =
-        (valid ? "✓ " : "✗ ") +
-        element.textContent.substring(2);
-
-    element.classList.toggle("text-green-600", valid);
-    element.classList.toggle("text-red-600", !valid);
+    return errors;
 }
+
+function showPasswordValidation() {
+    const errors = validatePassword(passwordInput.value);
+    const isValid = errors.length === 0;
+
+    passwordInput.setCustomValidity(
+        isValid ? "" : `Password must include ${errors.join(", ")}.`
+    );
+
+    if (!passwordInput.value || isValid) {
+        passwordError.textContent = "";
+        passwordError.classList.add("hidden");
+        passwordInput.classList.remove("border-red-500", "focus:ring-red-500");
+        return isValid;
+    }
+
+    passwordError.textContent = `Password must include ${errors.join(", ")}.`;
+    passwordError.classList.remove("hidden");
+    passwordInput.classList.add("border-red-500", "focus:ring-red-500");
+    return false;
+}
+
+passwordInput.addEventListener("input", showPasswordValidation);
+passwordInput.addEventListener("blur", showPasswordValidation);
 
 
 const menuBtn = document.getElementById('menuBtn');
