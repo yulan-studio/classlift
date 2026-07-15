@@ -266,7 +266,6 @@ function updateRule(element, valid) {
     element.classList.toggle("text-red-600", !valid);
 }
 
-
 const menuBtn = document.getElementById('menuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 
@@ -292,6 +291,28 @@ function getPlatformApiBaseUrl() {
             console.warn(`Unknown environment: ${host}`);
             return "https://dev.platform.classlift.ca";
     }
+}
+
+function showPasswordValidation() {
+    const password = passwordInput.value;
+    const passwordError = document.getElementById("passwordError");
+
+    const isValid =
+        password.length >= 8 &&
+        /[A-Za-z]/.test(password) &&
+        /\d/.test(password) &&
+        /[^A-Za-z0-9]/.test(password);
+
+    if (!isValid) {
+        passwordError.textContent =
+            "Password must meet all of the requirements above.";
+        passwordError.classList.remove("hidden");
+    } else {
+        passwordError.textContent = "";
+        passwordError.classList.add("hidden");
+    }
+
+    return isValid;
 }
 
 document.getElementById("signupForm").addEventListener("submit", async function (e) {
@@ -331,7 +352,16 @@ document.getElementById("signupForm").addEventListener("submit", async function 
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
+        const responseText = await response.text();
+
+        let result = {};
+
+        try {
+            result = responseText ? JSON.parse(responseText) : {};
+        } 
+        catch {
+            result = { message: responseText };
+        }
 
         if (!response.ok) {
             message.innerText = result.message || "Signup failed.";
