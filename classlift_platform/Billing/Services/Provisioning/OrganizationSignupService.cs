@@ -5,6 +5,7 @@ using Billing.Models;
 using Billing.Services.Notifications;
 using Billing.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace Billing.Services.Provisioning
 {
@@ -16,6 +17,7 @@ namespace Billing.Services.Provisioning
         private readonly ITenantIdentitySeeder _tenantIdentitySeeder;
         private readonly EmailService _emailService;
         private readonly ILogger<OrganizationSignupService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public OrganizationSignupService(
         TenantProvisioningService tenantProvisioningService,
@@ -23,7 +25,8 @@ namespace Billing.Services.Provisioning
         BillingDbContext context,
         ITenantIdentitySeeder tenantIdentitySeeder,
         EmailService emailService,
-        ILogger<OrganizationSignupService> logger)
+        ILogger<OrganizationSignupService> logger,
+        IHttpContextAccessor httpContextAccessor)
         {
             _tenantProvisioningService = tenantProvisioningService;
             _connectionFactory = connectionFactory;
@@ -31,6 +34,7 @@ namespace Billing.Services.Provisioning
             _tenantIdentitySeeder = tenantIdentitySeeder;
             _emailService = emailService;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
@@ -66,9 +70,24 @@ namespace Billing.Services.Provisioning
                 request.AdminPassword);
 
             // 7. Return tenant URL
-            var tenantUrl = $"https://{request.Subdomain}.classlift.ca/Account/Login";
 
-            
+            //make TenantUrl to differenciate between dev, staging and production environment
+            //If current domain is dev.classlift.ca, then TenantUrl is "https://{request.Subdomain}.dev.classlift.ca/Account/Login"
+            //If current domain is staging.classlift.ca, then TenantUrl is "https://{request.Subdomain}.staging.classlift.ca/Account/Login"
+            //If current domain is classlift.ca, then TenantUrl is "https://{request.Subdomain}.classlift.ca/Account/Login"
+            var host = _httpContextAccessor.HttpContext?.Request.Host.Host?.ToLower() ?? "";
+
+            string suffix = host switch
+            {
+                var h when h.StartsWith("dev.") => ".dev",
+                var h when h.StartsWith("staging.") => ".staging",
+                _ => ""
+            };
+
+            var tenantUrl =
+                $"https://{request.Subdomain}{suffix}.classlift.ca/Account/Login";
+
+
 
             //try
             //{

@@ -20,10 +20,11 @@ using System.Globalization;
 
 
 
-
+//For api call, determine the environment from the request's host
 var builder = WebApplication.CreateBuilder(args);
 
 
+builder.Services.AddHttpContextAccessor();
 
 //Require authentication globally
 builder.Services.AddControllersWithViews(options =>
