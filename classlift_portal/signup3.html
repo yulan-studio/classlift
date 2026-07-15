@@ -157,19 +157,15 @@ body { font-family: 'Inter', sans-serif; }
                             Password
                         </label>
                         <input
-                            id="adminPassword"
                             name="adminPassword"
                             type="password"
-                            placeholder="Use at least 8 characters with letters, numbers, and special characters."
+                            placeholder="At least 8 characters"
                             required
-                            minlength="8"
-                            aria-describedby="passwordHelp passwordError"
                             class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
-                        <p id="passwordHelp" class="mt-1 text-xs text-gray-500">
-                            Use at least 8 characters with letters, numbers, and special characters.
+                        <p class="mt-1 text-xs text-gray-500">
+                            Use at least 8 characters with letters, numbers and special characters.
                         </p>
-                        <p id="passwordError" class="mt-1 text-xs text-red-600 hidden" role="alert"></p>
                     </div>
                     <div>
                         <button
@@ -231,56 +227,6 @@ subdomainInput.addEventListener("input", function () {
 
 
 
-const passwordInput = document.getElementById("adminPassword");
-const passwordError = document.getElementById("passwordError");
-
-function validatePassword(password) {
-    const errors = [];
-
-     if (password.length < 8) {
-        errors.push("at least 8 characters");
-    }
-
-    if (!/[A-Za-z]/.test(password)) {
-        errors.push("a letter");
-    }
-
-    if (!/\d/.test(password)) {
-        errors.push("a number");
-    }
-
-    if (!/[^A-Za-z0-9]/.test(password)) {
-        errors.push("a special character");
-    }
-
-    return errors;
-}
-
-function showPasswordValidation() {
-    const errors = validatePassword(passwordInput.value);
-    const isValid = errors.length === 0;
-
-    passwordInput.setCustomValidity(
-        isValid ? "" : `Password must include ${errors.join(", ")}.`
-    );
-
-    if (!passwordInput.value || isValid) {
-        passwordError.textContent = "";
-        passwordError.classList.add("hidden");
-        passwordInput.classList.remove("border-red-500", "focus:ring-red-500");
-        return isValid;
-    }
-
-    passwordError.textContent = `Password must include ${errors.join(", ")}.`;
-    passwordError.classList.remove("hidden");
-    passwordInput.classList.add("border-red-500", "focus:ring-red-500");
-    return false;
-}
-
-passwordInput.addEventListener("input", showPasswordValidation);
-passwordInput.addEventListener("blur", showPasswordValidation);
-
-
 const menuBtn = document.getElementById('menuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 
@@ -314,12 +260,6 @@ document.getElementById("signupForm").addEventListener("submit", async function 
     const form = e.target;
     const message = document.getElementById("message");
     const submitBtn = document.getElementById("submitBtn");
-
-    const isPasswordValid = showPasswordValidation();
-    if (!form.checkValidity() || !isPasswordValid) {
-        form.reportValidity();
-        return;
-    }
 
     message.innerText = "";
     message.className = "mt-5 text-center text-sm";
