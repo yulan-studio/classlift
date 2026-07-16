@@ -208,6 +208,22 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 
 
+//builder.Services.AddHostedService<ActivityStatusUpdater>();
+
+//builder.Services.AddHostedService<GroupCourseStatusUpdater>();
+
+//builder.Services.AddHostedService<RootCourseStatusUpdater>(); //Set Course to completed if completed number == session Count
+
+
+// Add Identity
+//builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+//{
+//    options.Password.RequiredLength = 6;
+//    options.Password.RequireDigit = true;
+//    options.Password.RequireUppercase = false;
+//})
+//.AddEntityFrameworkStores<AppDbContext>()
+//.AddDefaultTokenProviders();
 
 
 
@@ -349,22 +365,6 @@ app.UseMiddleware<TenantResolutionMiddleware>();
 app.UseSession();
 
 
-//builder.Services.AddHostedService<ActivityStatusUpdater>();
-
-//builder.Services.AddHostedService<GroupCourseStatusUpdater>();
-
-//builder.Services.AddHostedService<RootCourseStatusUpdater>(); //Set Course to completed if completed number == session Count
-
-
-// Add Identity
-builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
-{
-    options.Password.RequiredLength = 6;
-    options.Password.RequireDigit = true;
-    options.Password.RequireUppercase = false;
-})
-.AddEntityFrameworkStores<AppDbContext>()
-.AddDefaultTokenProviders();
 
 app.UseAuthentication();
 app.UseAuthorization();
