@@ -216,14 +216,14 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 
 // Add Identity
-//builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
-//{
-//    options.Password.RequiredLength = 6;
-//    options.Password.RequireDigit = true;
-//    options.Password.RequireUppercase = false;
-//})
-//.AddEntityFrameworkStores<AppDbContext>()
-//.AddDefaultTokenProviders();
+builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+{
+    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = false;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
 
 
 
