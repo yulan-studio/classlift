@@ -82,9 +82,7 @@ namespace Core.Middleware
                 return;
             }
 
-            var tenantConnectionString =
-                connectionFactory.BuildConnectionString(
-                    tenant.DatabaseName);
+            var tenantConnectionString = connectionFactory.BuildConnectionString(tenant.DatabaseName);
 
             currentTenant.OrganizationId = tenant.OrganizationId;
             currentTenant.Subdomain = tenant.Subdomain;

@@ -53,15 +53,16 @@ builder.Services.AddDbContext<BillingDbContext>(options =>
         ServerVersion.AutoDetect(platformConnectionString));
 });
 
-builder.Services.AddScoped<CurrentTenant>();
+builder.Services.AddScoped<Core.Models.CurrentTenant>();
 
-builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionStringFactory>();
+//builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionStringFactory>();
+builder.Services.AddSingleton<ITenantConnectionStringFactory,TenantConnectionStringFactory>();
 
 builder.Services.AddDbContext<AppDbContext>(
     (serviceProvider, options) =>
     {
         var currentTenant =
-            serviceProvider.GetRequiredService<CurrentTenant>();
+            serviceProvider.GetRequiredService<Core.Models.CurrentTenant>();
 
        
 

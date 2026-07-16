@@ -39,6 +39,8 @@ namespace Core.Interfaces
 
         Task UpdateActivityStatusToCompletedAsync();
 
+        Task UpdateActivityStatusToCompletedAsync(AppDbContext dbContext, CancellationToken cancellationToken);
+
         //Task UpdateActivityStatusToCanceledAsync();
 
     }

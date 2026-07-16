@@ -91,7 +91,28 @@ namespace Core.Repositories
             
         }
 
-      
+
+
+        public async Task UpdateActivityStatusToCompletedAsync(AppDbContext dbContext,CancellationToken cancellationToken)
+        {
+
+            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+
+            var activities = await dbContext.Activities
+                .Where(a => ((DateTime)a.ScheduledAt).AddDays(1) <= torontoNow /*&& a.IsActive == true*/)
+                .ToListAsync(cancellationToken);
+
+            foreach (var activity in activities)
+            {
+                //activity.IsActive = false;
+                activity.Status = "Completed";
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+           
+
+        }
+
 
         // Find a activity by its email asynchronously
         //public async Task<ActivityViewModel> Get2Async(int activityId)
