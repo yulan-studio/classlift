@@ -2,15 +2,14 @@
 using Core.BackendService;
 using Core.Contexts;
 using Core.Interfaces;
+using Core.Middleware;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
-using Core.Middleware;
-
-
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 //using System.IdentityModel.Tokens.Jwt;
 //using Microsoft.AspNetCore.Authentication.JwtBearer;
 //using Microsoft.IdentityModel.Tokens;
@@ -31,6 +30,49 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
+var baseConnectionString =
+    builder.Configuration.GetConnectionString("ServerConnection")
+    ?? throw new InvalidOperationException(
+        "ConnectionStrings:ServerConnection is missing.");
+
+var platformConnectionBuilder =
+    new MySqlConnectionStringBuilder(baseConnectionString)
+    {
+        Database = "classlift_platform"
+    };
+
+
+var platformConnectionString =
+    platformConnectionBuilder.ConnectionString;
+
+//Register the fixed platform BillingDbContext
+builder.Services.AddDbContext<BillingDbContext>(options =>
+{
+    options.UseMySql(
+        platformConnectionString,
+        ServerVersion.AutoDetect(platformConnectionString));
+});
+
+builder.Services.AddScoped<CurrentTenant>();
+
+builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionStringFactory>();
+
+builder.Services.AddDbContext<AppDbContext>(
+    (serviceProvider, options) =>
+    {
+        var currentTenant =
+            serviceProvider.GetRequiredService<CurrentTenant>();
+
+        if (!currentTenant.IsResolved)
+        {
+            throw new InvalidOperationException(
+                "Tenant has not been resolved.");
+        }
+
+        options.UseMySql(
+            currentTenant.ConnectionString!,
+            ServerVersion.AutoDetect(currentTenant.ConnectionString));
+    });
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -66,6 +108,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true; // Security: Prevents client-side script from accessing cookies
     options.Cookie.IsEssential = true; // Required for session to work
 });
+
+
+
 
 // ? Add distributed memory cache (required for session to work)
 builder.Services.AddDistributedMemoryCache();
@@ -148,7 +193,7 @@ builder.Services.AddScoped<ICoachSpecialtyService, CoachSpecialtyService>();
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 
-builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFactory>();
+
 
 //var connectionString1 = Environment.GetEnvironmentVariable("DefaultConnection");
 
@@ -180,46 +225,74 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 
 // To get connectionstring
-builder.Services.AddHttpContextAccessor();
+//try
+//{
+//    var connectionString = Environment.GetEnvironmentVariable("PlatformConnection")
+//   ?? builder.Configuration.GetConnectionString("PlatformConnection");
 
-builder.Services.AddDbContext<BillingDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("PlatformConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("PlatformConnection"))));
+//    builder.Services.AddDbContext<AppDbContext>(options =>
+//            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+//                mysqlOptions =>
+//                {
+//                    mysqlOptions.EnableRetryOnFailure(
+//                        maxRetryCount: 5,
+//                        maxRetryDelay: TimeSpan.FromSeconds(10),
+//                        errorNumbersToAdd: null);
+//                }
+//            )
+//    );
+//}
+
+//catch (Exception ex)
+//{
+//    Console.WriteLine("DB setup failed: " + ex.Message);
+//    throw;
+//}
 
 
-//Get DefaultConnectionString in Debug mode when TenantConnectionString is not available
-builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
-{
-    var httpContextAccessor =
-        serviceProvider.GetRequiredService<IHttpContextAccessor>();
 
-    var configuration =
-        serviceProvider.GetRequiredService<IConfiguration>();
 
-    var connectionString = httpContextAccessor.HttpContext?
-        .Items["TenantConnectionString"]?.ToString();
 
-    if (string.IsNullOrWhiteSpace(connectionString))
-    {
-        connectionString = configuration.GetConnectionString("DefaultConnection");
-    }
 
-    if (string.IsNullOrWhiteSpace(connectionString))
-        throw new InvalidOperationException("Tenant connection string not found.");
+//builder.Services.AddHttpContextAccessor();
 
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString),
-        mysqlOptions =>
-        {
-            mysqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(10),
-                errorNumbersToAdd: null);
-        });
-});
+//builder.Services.AddDbContext<BillingDbContext>(options =>
+//    options.UseMySql(
+//        builder.Configuration.GetConnectionString("PlatformConnection"),
+//        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("PlatformConnection"))));
 
+
+////Get DefaultConnectionString in Debug mode when TenantConnectionString is not available
+//builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+//{
+//    var httpContextAccessor =
+//        serviceProvider.GetRequiredService<IHttpContextAccessor>();
+
+//    var configuration =
+//        serviceProvider.GetRequiredService<IConfiguration>();
+
+//    var connectionString = httpContextAccessor.HttpContext?
+//        .Items["TenantConnectionString"]?.ToString();
+
+//    if (string.IsNullOrWhiteSpace(connectionString))
+//    {
+//        connectionString = configuration.GetConnectionString("DefaultConnection");
+//    }
+
+//    if (string.IsNullOrWhiteSpace(connectionString))
+//        throw new InvalidOperationException("Tenant connection string not found.");
+
+//    options.UseMySql(
+//        connectionString,
+//        ServerVersion.AutoDetect(connectionString),
+//        mysqlOptions =>
+//        {
+//            mysqlOptions.EnableRetryOnFailure(
+//                maxRetryCount: 5,
+//                maxRetryDelay: TimeSpan.FromSeconds(10),
+//                errorNumbersToAdd: null);
+//        });
+//});
 
 
 

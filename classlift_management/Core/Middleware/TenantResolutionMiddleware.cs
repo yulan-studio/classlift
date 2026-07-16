@@ -1,54 +1,65 @@
-﻿using Core.Interfaces;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Contexts;
+using Core.Interfaces;
 using Core.Models;
-using Core.Contexts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Core.Middleware
 {
-    public class TenantResolutionMiddleware
+    public sealed class TenantResolutionMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<TenantResolutionMiddleware> _logger;
 
-        public TenantResolutionMiddleware(RequestDelegate next)
+        public TenantResolutionMiddleware(
+            RequestDelegate next,
+            ILogger<TenantResolutionMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(
             HttpContext context,
             BillingDbContext billingDbContext,
-            ITenantConnectionStringFactory connectionFactory)
+            ITenantConnectionStringFactory connectionFactory,
+            CurrentTenant currentTenant)
         {
-            var host = context.Request.Host.Host.ToLower();
+            var host = context.Request.Host.Host
+                .Trim()
+                .ToLowerInvariant();
 
-            // Ignore localhost during development
-            if (host.Contains("localhost"))
+            // Ignore localhost
+            if (host is "localhost" or "127.0.0.1")
             {
                 await _next(context);
                 return;
             }
 
-            // 1. Try Custom Domain
-            var tenant = await billingDbContext.TenantRegistries   
+            // Platform hosts are not tenant hosts.
+            if (IsPlatformHost(host))
+            {
+                await _next(context);
+                return;
+            }
+
+            // 1. Try exact custom-domain match.
+            var tenant = await billingDbContext.TenantRegistries
                 .FirstOrDefaultAsync(t =>
                     t.IsActive &&
                     t.CustomDomain != null &&
                     t.CustomDomain.ToLower() == host);
 
-            // 2. Try ClassLift Subdomain
-            if (tenant == null)
+            // 2. Try ClassLift-managed tenant subdomain.
+            if (tenant is null)
             {
-                var subdomain = GetSubdomain(host);
+                var subdomain = GetTenantSubdomain(host);
 
                 if (!string.IsNullOrWhiteSpace(subdomain))
                 {
                     tenant = await billingDbContext.TenantRegistries
+                        .AsNoTracking()
                         .FirstOrDefaultAsync(t =>
                             t.IsActive &&
                             t.Subdomain != null &&
@@ -56,34 +67,82 @@ namespace Core.Middleware
                 }
             }
 
-            // 3. Tenant found
-            if (tenant != null)
+            // You may choose to return 404 here for tenant-only applications.
+            if (tenant is null)
             {
-                context.Items["OrganizationId"] = tenant.OrganizationId;
-                context.Items["DatabaseName"] = tenant.DatabaseName;
+                _logger.LogWarning(
+                    "No active tenant was found for host {Host}",
+                    host);
 
-                var connectionString =
-                    connectionFactory.BuildConnectionString(
-                        tenant.DatabaseName);
-
-                context.Items["TenantConnectionString"] = connectionString;
+                await _next(context);
+                return;
             }
+
+            var tenantConnectionString =
+                connectionFactory.BuildConnectionString(
+                    tenant.DatabaseName);
+
+            currentTenant.OrganizationId = tenant.OrganizationId;
+            currentTenant.Subdomain = tenant.Subdomain;
+            currentTenant.DatabaseName = tenant.DatabaseName;
+            currentTenant.ConnectionString = tenantConnectionString;
+
+            // Optional backward compatibility for existing code.
+            context.Items["CurrentTenant"] = currentTenant;
+
+            _logger.LogInformation(
+                "Resolved host {Host} to tenant {Subdomain} using database {DatabaseName}",
+                host,
+                tenant.Subdomain,
+                tenant.DatabaseName);
 
             await _next(context);
         }
 
-        private static string? GetSubdomain(string host)
+        private static bool IsPlatformHost(string host)
         {
-            var parts = host.Split('.');
+            return host is
+                "classlift.ca" or
+                "www.classlift.ca" or
+                "dev.classlift.ca" or
+                "staging.classlift.ca" or
+                "platform.classlift.ca" or
+                "dev.platform.classlift.ca" or
+                "staging.platform.classlift.ca";
+        }
 
-            if (parts.Length < 3)
-                return null;
-            if (parts.Length == 3)
-                return parts[0];
-            if (parts.Length == 4)
-                return parts[0] + '.' + parts[1];
-            else
-                return null;
+        private static string? GetTenantSubdomain(string host)
+        {
+            string[] suffixes =
+            {
+                ".dev.classlift.ca",
+                ".staging.classlift.ca",
+                ".classlift.ca"
+            };
+
+            foreach (var suffix in suffixes)
+            {
+                if (!host.EndsWith(
+                        suffix,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var subdomain = host[..^suffix.Length];
+
+                // Reject malformed values such as:
+                // school.region.dev.classlift.ca
+                if (string.IsNullOrWhiteSpace(subdomain) ||
+                    subdomain.Contains('.'))
+                {
+                    return null;
+                }
+
+                return subdomain;
+            }
+
+            return null;
         }
     }
 }
