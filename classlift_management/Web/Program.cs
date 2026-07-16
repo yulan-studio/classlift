@@ -349,11 +349,11 @@ app.UseMiddleware<TenantResolutionMiddleware>();
 app.UseSession();
 
 
-builder.Services.AddHostedService<ActivityStatusUpdater>();
+//builder.Services.AddHostedService<ActivityStatusUpdater>();
 
-builder.Services.AddHostedService<GroupCourseStatusUpdater>();
+//builder.Services.AddHostedService<GroupCourseStatusUpdater>();
 
-builder.Services.AddHostedService<RootCourseStatusUpdater>(); //Set Course to completed if completed number == session Count
+//builder.Services.AddHostedService<RootCourseStatusUpdater>(); //Set Course to completed if completed number == session Count
 
 
 // Add Identity
