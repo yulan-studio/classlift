@@ -90,7 +90,7 @@ namespace Core.Middleware
             currentTenant.Subdomain = tenant.Subdomain;
             currentTenant.DatabaseName = tenant.DatabaseName;
             currentTenant.ConnectionString = tenantConnectionString;
-
+            _logger.LogInformation("tenant was found for host {Host}", host);
             // Optional backward compatibility for existing code.
             context.Items["CurrentTenant"] = currentTenant;
 
