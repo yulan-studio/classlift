@@ -30,6 +30,9 @@ namespace Core.Middleware
                 .Trim()
                 .ToLowerInvariant();
 
+            _logger.LogInformation("Middleware run");
+                  
+
             // Ignore localhost
             if (host is "localhost" or "127.0.0.1")
             {
@@ -46,6 +49,7 @@ namespace Core.Middleware
 
             // 1. Try exact custom-domain match.
             var tenant = await billingDbContext.TenantRegistries
+                .AsNoTracking()
                 .FirstOrDefaultAsync(t =>
                     t.IsActive &&
                     t.CustomDomain != null &&
@@ -91,10 +95,12 @@ namespace Core.Middleware
             context.Items["CurrentTenant"] = currentTenant;
 
             _logger.LogInformation(
-                "Resolved host {Host} to tenant {Subdomain} using database {DatabaseName}",
+                "Tenant resolved. Host={Host}, Subdomain={Subdomain}, Database={Database}",
                 host,
                 tenant.Subdomain,
                 tenant.DatabaseName);
+
+           
 
             await _next(context);
         }

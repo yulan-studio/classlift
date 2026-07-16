@@ -63,15 +63,24 @@ builder.Services.AddDbContext<AppDbContext>(
         var currentTenant =
             serviceProvider.GetRequiredService<CurrentTenant>();
 
-        if (!currentTenant.IsResolved)
+        var connectionFactory =
+            serviceProvider.GetRequiredService<
+                ITenantConnectionStringFactory>();
+
+        if (!currentTenant.IsResolved ||
+            string.IsNullOrWhiteSpace(currentTenant.DatabaseName))
         {
             throw new InvalidOperationException(
-                "Tenant has not been resolved.");
+                "AppDbContext was requested before the tenant was resolved.");
         }
 
+        var connectionString =
+            connectionFactory.BuildConnectionString(
+                currentTenant.DatabaseName);
+
         options.UseMySql(
-            currentTenant.ConnectionString!,
-            ServerVersion.AutoDetect(currentTenant.ConnectionString));
+            connectionString,
+            ServerVersion.AutoDetect(connectionString));
     });
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
@@ -340,26 +349,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseForwardedHeaders(new ForwardedHeadersOptions
-//{
-//    ForwardedHeaders = ForwardedHeaders.XForwardedProto
-//});
 
-//app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
-//This will ensure any request to the root URL redirects to /User/AddAdmin.
-//app.Use(async (context, next) =>
-//{
-//    if (context.Request.Path == "/")
-//    {
-//        context.Response.Redirect("/Account/Login");
-//        //context.Response.Redirect("/Staff/List");
-//        return;
-//    }
-//    await next();
-//});
+app.UseCors("Classlift");
+
 
 app.UseRouting();
 
