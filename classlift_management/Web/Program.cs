@@ -63,9 +63,9 @@ builder.Services.AddDbContext<AppDbContext>(
         var currentTenant =
             serviceProvider.GetRequiredService<CurrentTenant>();
 
-        var connectionFactory =
-            serviceProvider.GetRequiredService<
-                ITenantConnectionStringFactory>();
+        //var connectionFactory =
+        //    serviceProvider.GetRequiredService<
+        //        ITenantConnectionStringFactory>();
 
         if (!currentTenant.IsResolved ||
             string.IsNullOrWhiteSpace(currentTenant.DatabaseName))
@@ -74,13 +74,13 @@ builder.Services.AddDbContext<AppDbContext>(
                 "AppDbContext was requested before the tenant was resolved.");
         }
 
-        var connectionString =
-            connectionFactory.BuildConnectionString(
-                currentTenant.DatabaseName);
+        //var connectionString =
+        //    connectionFactory.BuildConnectionString(
+        //        currentTenant.DatabaseName);
 
         options.UseMySql(
-            connectionString,
-            ServerVersion.AutoDetect(connectionString));
+            currentTenant.ConnectionString,
+            ServerVersion.AutoDetect(currentTenant.ConnectionString));
     });
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
