@@ -27,6 +27,13 @@ public class TenantResolutionMiddleware
             return;
         }
 
+        // Platform hosts are not tenant hosts.
+        if (IsPlatformHost(host))
+        {
+            await _next(context);
+            return;
+        }
+
         // 1. Try Custom Domain
         var tenant = await billingDbContext.Tenantregistries
             .FirstOrDefaultAsync(t =>
@@ -65,6 +72,19 @@ public class TenantResolutionMiddleware
         await _next(context);
     }
 
+
+    private static bool IsPlatformHost(string host)
+    {
+        return host is
+            "classlift.ca" or
+            "www.classlift.ca" or
+            "dev.classlift.ca" or
+            "staging.classlift.ca" or
+            "platform.classlift.ca" or
+            "dev.platform.classlift.ca" or
+            "staging.platform.classlift.ca";
+    }
+
     private static string? GetSubdomain(string host)
     {
         var parts = host.Split('.');
@@ -74,7 +94,7 @@ public class TenantResolutionMiddleware
         if(parts.Length == 3)
             return parts[0];
         if (parts.Length == 4)
-            return parts[0] + '.' + parts[1];
+            return parts[0];
         else
             return null;
     }

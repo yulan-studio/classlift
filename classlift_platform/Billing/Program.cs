@@ -55,7 +55,7 @@ builder.Services.AddAuthorization();
 
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddControllersWithViews();
 
@@ -231,7 +231,7 @@ using (var scope = app.Services.CreateScope())
 //Need to create database, create tables
 //from posted data in portal website -> platform website /api/public/signup (wrong)
 //I can't remember why we need this
-//app.UseMiddleware<TenantResolutionMiddleware>();
+app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
