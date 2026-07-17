@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
     <Folder Include="Helpers\" />
     <Folder Include="API\" />
     <Folder Include="Services\Reporting\" />

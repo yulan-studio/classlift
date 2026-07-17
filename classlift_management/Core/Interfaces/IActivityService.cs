@@ -1,4 +1,5 @@
-﻿using Core.Models;
+﻿using Core.Contexts;
+using Core.Models;
 using Core.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -25,6 +26,8 @@ namespace Core.Interfaces
         Task<IEnumerable<Activity>> GetAllActiveOpenAsync();
 
         Task UpdateActivityStatusToCompletedAsync();
+
+        Task UpdateActivityStatusToCompletedAsync(AppDbContext dbContext,CancellationToken cancellationToken);
 
         //Task UpdateActivityStatusToCanceledAsync();
 

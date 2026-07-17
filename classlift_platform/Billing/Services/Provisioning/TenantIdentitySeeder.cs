@@ -21,19 +21,21 @@ namespace Billing.Services.Provisioning
 
             services.AddLogging();
 
-            services.AddDbContext<BillingDbContext>(options =>
+            services.AddDbContext<ManagementDBContext>(options =>
                 options.UseMySql(
-                    connectionString,
-                    ServerVersion.AutoDetect(connectionString)));
+                connectionString,
+                ServerVersion.AutoDetect(connectionString)));
 
-            services.AddIdentity<User, IdentityRole<int>>(options =>
-            {
-                options.Password.RequiredLength = 6;
-                options.Password.RequireDigit = true;
-                options.Password.RequireUppercase = false;
-            })
-            .AddEntityFrameworkStores<BillingDbContext>()
-            .AddDefaultTokenProviders();
+            services
+                .AddIdentityCore<User>(options =>
+                {
+                    options.Password.RequiredLength = 6;
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireUppercase = false;
+                })
+                .AddRoles<IdentityRole<int>>()
+                .AddEntityFrameworkStores<ManagementDBContext>();
+                //.AddDefaultTokenProviders();
 
             using var provider = services.BuildServiceProvider();
             using var scope = provider.CreateScope();

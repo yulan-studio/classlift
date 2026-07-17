@@ -1,4 +1,5 @@
-﻿using Core.Interfaces;
+﻿using Core.Contexts;
+using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
 using Core.ViewModels;
@@ -132,6 +133,13 @@ namespace Core.Services
         {
             return await _enrollmentRepository.UpdateActivityStatusToCompletedAsync();
            
+        }
+
+
+        public  Task<IEnumerable<ActivityEnrollment>> UpdateActivityStatusToCompletedAsync(AppDbContext dbContext,CancellationToken cancellationToken)
+        {
+            return  _enrollmentRepository.UpdateActivityStatusToCompletedAsync(dbContext, cancellationToken);
+
         }
 
         //public async Task<IEnumerable<ActivityEnrollment>> UpdateActivityStatusToScheduledAsync()

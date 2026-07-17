@@ -20,10 +20,11 @@ using System.Globalization;
 
 
 
-
+//For api call, determine the environment from the request's host
 var builder = WebApplication.CreateBuilder(args);
 
 
+builder.Services.AddHttpContextAccessor();
 
 //Require authentication globally
 builder.Services.AddControllersWithViews(options =>
@@ -54,7 +55,7 @@ builder.Services.AddAuthorization();
 
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddControllersWithViews();
 
@@ -126,8 +127,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Classlift", policy =>
     {
-        policy.WithOrigins("https://classlift.ca")
-              .SetIsOriginAllowedToAllowWildcardSubdomains()
+        policy.WithOrigins("https://dev.classlift.ca", "https://staging.classlift.ca", "https://classlift.ca")
+              //.SetIsOriginAllowedToAllowWildcardSubdomains()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -189,7 +190,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseCors("MarketingSite");
+app.UseCors("Classlift");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -227,7 +228,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 //Enable to find subdomain, customDomain, so we can find database associated with the tenant
-app.UseMiddleware<TenantResolutionMiddleware>();
+//Need to create database, create tables
+//from posted data in portal website -> platform website /api/public/signup (wrong)
+//I can't remember why we need this
+//app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

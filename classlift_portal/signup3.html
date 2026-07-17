@@ -70,17 +70,17 @@ body { font-family: 'Inter', sans-serif; }
 
     <div class="relative max-w-7xl mx-auto px-6 py-20">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
-            <div class="text-white text-center lg:text-left lg:mt-[-150px]">
-            <!-- <div class="text-white text-center lg:text-left"> -->
+
+            <div class="text-white text-center lg:text-left">
                 <h1 class="text-4xl md:text-5xl font-bold leading-tight">
                     Create Your ClassLift Organization
                 </h1>
 
-                <p class="mt-8 text-lg text-white/90 leading-relaxed"">
+                <p class="mt-6 text-lg text-white/90">
                     Set up your <b>Starter workspace</b> and start managing programs, scheduling, attendance, billing, and reporting—all in one place.
                 </p>
 
-                <p class="mt-8 text-lg text-white/90">
+                <p class="mt-4 text-lg text-white/90">
                     <b>Less admin. More impact.</b>
                 </p>
             </div>
@@ -98,24 +98,23 @@ body { font-family: 'Inter', sans-serif; }
 
                 <form id="signupForm" class="space-y-4">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Organization name
-                            </label>
-                            <input
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Organization name
+                        </label>
+                        <input
                             name="organizationName"
                             placeholder="e.g. Maple Leaf Academy"
                             required
                             class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                             />
-                        </div>
+                        />
+                    </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Subdomain
-                            </label>
-                            <input
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Subdomain
+                        </label>
+                        <input
                             id="subdomainInput"
                             name="subdomain"
                             placeholder="e.g. mapleleaf"
@@ -126,79 +125,47 @@ body { font-family: 'Inter', sans-serif; }
                             Your site will be: <strong id="organizationUrl">mapleleaf.classlift.ca</strong>
                             
                         </p>
-                        </div>
-                    </div>   
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Admin name
-                            </label>
-                            <input
-                                name="adminName"
-                                placeholder="e.g. Sarah Lee"
-                                required
-                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Admin email
-                            </label>
-                            <input
-                                name="adminEmail"
-                                type="email"
-                                placeholder="e.g. admin@mapleleaf.edu"
-                                required
-                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Password
-                            </label>
-                            <input
-                                id="adminPassword"
-                                name="adminPassword"
-                                type="password"
-                                required
-                                minlength="8"
-                                aria-describedby="passwordHelp passwordError"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Repeat password
-                            </label>
-                            <input
-                                id="repeatPassword"
-                                name="repeatPassword"
-                                type="password"
-                                required
-                                minlength="8"
-                                aria-describedby="repeatPasswordError"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                            <p id="repeatPasswordError" class="mt-1 text-xs text-red-600 hidden" role="alert"></p>
-                        </div>
                     </div>
 
                     <div>
-                        <p class="text-xs text-gray-600">Password must contain:</p>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Admin name
+                        </label>
+                        <input
+                            name="adminName"
+                            placeholder="e.g. Sarah Lee"
+                            required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
 
-                        <ul id="passwordChecklist" class="mt-1 text-xs space-y-1">
-                            <li id="lengthRule" class="text-gray-600">○ At least 8 characters</li>
-                            <li id="letterRule" class="text-gray-600">○ A letter</li>
-                            <li id="numberRule" class="text-gray-600">○ A number</li>
-                            <li id="specialRule" class="text-gray-600">○ A special character</li>
-                        </ul>
-                        <p id="passwordError" class="mt-1 text-xs text-red-600 hidden" role="alert"></p>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Admin email
+                        </label>
+                        <input
+                            name="adminEmail"
+                            type="email"
+                            placeholder="e.g. admin@mapleleaf.edu"
+                            required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
+                        <input
+                            name="adminPassword"
+                            type="password"
+                            placeholder="At least 8 characters"
+                            required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <p class="mt-1 text-xs text-gray-500">
+                            Use at least 8 characters with letters, numbers and special characters.
+                        </p>
                     </div>
                     <div>
                         <button
@@ -260,69 +227,6 @@ subdomainInput.addEventListener("input", function () {
 
 
 
-const passwordInput = document.getElementById("adminPassword");
-const repeatPasswordInput = document.getElementById("repeatPassword");
-const repeatPasswordError = document.getElementById("repeatPasswordError");
-
-
-const rules = {
-    length: {
-        element: document.getElementById("lengthRule"),
-        label: "At least 8 characters"
-    },
-    letter: {
-        element: document.getElementById("letterRule"),
-        label: "A letter"
-    },
-    number: {
-        element: document.getElementById("numberRule"),
-        label: "A number"
-    },
-    special: {
-        element: document.getElementById("specialRule"),
-        label: "A special character"
-    }
-};
-
-
-
-passwordInput.addEventListener("input", () => {
-    const password = passwordInput.value;
-
-    updateRule(rules.length, password.length >= 8);
-    updateRule(rules.letter, /[A-Za-z]/.test(password));
-    updateRule(rules.number, /\d/.test(password));
-    updateRule(rules.special, /[^A-Za-z0-9]/.test(password));
-});
-
-
-function validatePasswordMatch() {
-    const passwordsMatch = passwordInput.value === repeatPasswordInput.value;
-
-    repeatPasswordInput.setCustomValidity(
-        passwordsMatch ? "" : "Passwords do not match."
-    );
-
-    if (!passwordsMatch && repeatPasswordInput.value) {
-        repeatPasswordError.textContent = "Passwords do not match.";
-        repeatPasswordError.classList.remove("hidden");
-    } else {
-        repeatPasswordError.textContent = "";
-        repeatPasswordError.classList.add("hidden");
-    }
-
-    return passwordsMatch;
-}
-
-passwordInput.addEventListener("input", validatePasswordMatch);
-repeatPasswordInput.addEventListener("input", validatePasswordMatch);
-
-function updateRule(rule, valid) {
-    rule.element.textContent = `${valid ? "✓" : "○"} ${rule.label}`;
-    rule.element.classList.toggle("text-green-600", valid);
-    rule.element.classList.toggle("text-gray-600", !valid);
-}
-
 const menuBtn = document.getElementById('menuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 
@@ -350,28 +254,6 @@ function getPlatformApiBaseUrl() {
     }
 }
 
-function showPasswordValidation() {
-    const password = passwordInput.value;
-    const passwordError = document.getElementById("passwordError");
-
-    const isValid =
-        password.length >= 8 &&
-        /[A-Za-z]/.test(password) &&
-        /\d/.test(password) &&
-        /[^A-Za-z0-9]/.test(password);
-
-    if (!isValid) {
-        passwordError.textContent =
-            "Password must meet all of the requirements above.";
-        passwordError.classList.remove("hidden");
-    } else {
-        passwordError.textContent = "";
-        passwordError.classList.add("hidden");
-    }
-
-    return isValid;
-}
-
 document.getElementById("signupForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -379,23 +261,8 @@ document.getElementById("signupForm").addEventListener("submit", async function 
     const message = document.getElementById("message");
     const submitBtn = document.getElementById("submitBtn");
 
-    const isPasswordValid = showPasswordValidation();
-    const doPasswordsMatch = validatePasswordMatch();
-
-    if (!form.checkValidity() || !isPasswordValid || !doPasswordsMatch) {
-        form.reportValidity();
-        return;
-    }
-
-    message.innerHTML = `
-    <div class="rounded-lg bg-blue-50 border border-blue-200 p-4 text-blue-700">
-        <strong>Creating your organization...</strong><br>
-        Please wait 1-2 minutes while we set up your organization and workspace.
-        Do not close or refresh this page.
-    </div>
-`;
-
-    message.className = "mt-5";
+    message.innerText = "";
+    message.className = "mt-5 text-center text-sm";
     submitBtn.disabled = true;
     submitBtn.innerText = "Creating...";
 
@@ -418,16 +285,7 @@ document.getElementById("signupForm").addEventListener("submit", async function 
             body: JSON.stringify(data)
         });
 
-        const responseText = await response.text();
-
-        let result = {};
-
-        try {
-            result = responseText ? JSON.parse(responseText) : {};
-        } 
-        catch {
-            result = { message: responseText };
-        }
+        const result = await response.json();
 
         if (!response.ok) {
             message.innerText = result.message || "Signup failed.";
