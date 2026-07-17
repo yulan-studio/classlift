@@ -167,17 +167,17 @@ namespace Core.BackendService
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
 
+            //automatically set activity session for a child to be completed when time passed
             var activityEnrollmentService = scope.ServiceProvider
                 .GetRequiredService<IActivityEnrollmentService>();
-
-            var activityService = scope.ServiceProvider
-                .GetRequiredService<IActivityService>();
-
             await activityEnrollmentService
                 .UpdateActivityStatusToCompletedAsync(
                     dbContext,
                     cancellationToken);
 
+            //automatically set activity session to be completed when time passed
+            var activityService = scope.ServiceProvider
+                .GetRequiredService<IActivityService>();
             await activityService
                 .UpdateActivityStatusToCompletedAsync(
                     dbContext,

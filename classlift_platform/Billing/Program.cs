@@ -229,7 +229,8 @@ using (var scope = app.Services.CreateScope())
 
 //Enable to find subdomain, customDomain, so we can find database associated with the tenant
 //Need to create database, create tables
-//from posted data in portal website -> platform website
+//from posted data in portal website -> platform website /api/public/signup (wrong)
+//I can't remember why we need this
 //app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.MapControllerRoute(
