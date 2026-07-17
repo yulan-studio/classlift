@@ -21,7 +21,7 @@ public class TenantResolutionMiddleware
         var host = context.Request.Host.Host.ToLower();
 
         // Ignore localhost during development
-        if (host.Contains("localhost"))
+        if (host.Contains("localhost") || host.Contains("platform.classlift.ca"))
         {
             await _next(context);
             return;
