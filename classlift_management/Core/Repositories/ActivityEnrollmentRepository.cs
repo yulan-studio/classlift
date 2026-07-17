@@ -276,6 +276,29 @@ namespace Core.Repositories
         }
 
 
+        //For backend service to call
+        public async Task<IEnumerable<ActivityEnrollment>> UpdateActivityStatusToCompletedAsync(AppDbContext dbContext,CancellationToken cancellationToken)
+        {
+            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+
+
+            var enrollments = await dbContext.ActivityEnrollments
+                .Include(e => e.Activity)
+                .Where(e => ((DateTime)e.Activity.ScheduledAt).AddDays(1) <= torontoNow && e.Status == "Confirmed")
+                .ToListAsync(cancellationToken);
+
+            foreach (var enrollment in enrollments)
+            {
+                enrollment.Status = "Completed";
+            }
+
+            var changes = await _context.SaveChangesAsync(cancellationToken);
+            return enrollments;
+        }
+
+
+
+
         public async Task<bool> UpdateActivityStatusToCanceledAsync(int activityId)
         {
 

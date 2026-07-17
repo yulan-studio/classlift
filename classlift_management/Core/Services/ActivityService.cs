@@ -1,20 +1,21 @@
-﻿using System;
+﻿using Core.Contexts;
+using Core.Interfaces;
+using Core.Models;
+using Core.Repositories;
+using Core.ViewModels;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using Core.Models;
-using Core.ViewModels;
-using Core.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using Microsoft.Extensions.Options;
-using Core.Repositories;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Net;
 
 namespace Core.Services
 {
@@ -152,6 +153,22 @@ namespace Core.Services
             {
                 await _activityRepository.UpdateActivityStatusToCompletedAsync();
                 
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions as needed (e.g., logging)
+                throw new Exception("An error occurred while updating activities to complete.", ex);
+            }
+
+        }
+
+
+        public Task UpdateActivityStatusToCompletedAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return _activityRepository.UpdateActivityStatusToCompletedAsync(dbContext, cancellationToken);
+
             }
             catch (Exception ex)
             {
