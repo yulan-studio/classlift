@@ -228,7 +228,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 //Enable to find subdomain, customDomain, so we can find database associated with the tenant
-app.UseMiddleware<TenantResolutionMiddleware>();
+//Need to create database, create tables
+//from posted data in portal website -> platform website
+//app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
