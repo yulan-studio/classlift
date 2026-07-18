@@ -19,7 +19,7 @@
                 <th>Contact</th>
                 <th>Email</th>
                 <th>Current Plan</th>
-                <th>Active</th>
+                <th>Status</th>
                 <th></th>
             </tr>
         </thead>
@@ -32,7 +32,7 @@
                     <td>@org.ContactName</td>
                     <td>@org.ContactEmail</td>
                     <td>@org.CurrentPlan?.PlanName</td>
-                    <td>@org.IsActive</td>
+                    <td>@org.OrganizationSubscriptions.FirstOrDefault()?.Status</td>
 
                     <td>
                         <a class="btn btn-sm btn-primary"
