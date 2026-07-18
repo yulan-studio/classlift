@@ -1,7 +1,6 @@
 using Billing.Configuration;
 using Billing.Data;
 using Billing.Interfaces;
-using Billing.Middleware;
 using Billing.Services.Billing;
 using Billing.Services.Jobs;
 using Billing.Services.Notifications;

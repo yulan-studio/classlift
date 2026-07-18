@@ -45,7 +45,7 @@ namespace Billing.Services.Billing
                     .Include(s => s.Plan)
                     .FirstOrDefaultAsync(s =>
                         s.OrganizationId == organizationId &&
-                        s.Status == "Active");
+                        (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial));
 
             if (subscription == null)
                 return null;

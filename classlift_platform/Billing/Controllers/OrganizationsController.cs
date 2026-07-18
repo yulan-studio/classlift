@@ -26,6 +26,9 @@ namespace Billing.Controllers
         {
             var organizations = await _context.Organizations
                 .Include(o => o.CurrentPlan)
+                .Include(o => o.OrganizationSubscriptions
+                                .OrderByDescending(s => s.CreatedAt)
+                                .Take(1))
                 .OrderBy(o => o.OrganizationName)
                 .ToListAsync();
 
