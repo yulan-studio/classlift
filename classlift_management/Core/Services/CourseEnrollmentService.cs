@@ -1,4 +1,5 @@
-﻿using Core.DTOs;
+﻿using Core.Contexts;
+using Core.DTOs;
 using Core.DTOs.Report;
 using Core.Interfaces;
 using Core.Models;
@@ -437,11 +438,25 @@ namespace Core.Services
             await _enrollmentRepository.UpdateChildCompletedSessionsAsync(courseId);
         }
 
+
+        public async Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken)
+        {
+            await _enrollmentRepository.UpdateChildCompletedSessionsAsync(dbContext, courseId, cancellationToken);
+        }
+
+
         //Set Session status to be completed after the session past the scheduled time for group course
         public async Task UpdateCompletedSessionsAsync(int courseId)
         {
             await _enrollmentRepository.UpdateCompletedSessionsAsync(courseId);
         }
+
+        //Set Session status to be completed after the session past the scheduled time for group course
+        public async Task UpdateCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken)
+        {
+            await _enrollmentRepository.UpdateCompletedSessionsAsync(dbContext, courseId, cancellationToken);
+        }
+
 
         //Set Session status of children registration to be canceled 
         public async Task UpdateChildCanceledSessionsAsync(int enrollmentId, string staffNote)
@@ -645,14 +660,21 @@ namespace Core.Services
         }
 
 
-        //Update course to be completed for private course
+        //Update course to be completed for private and group course
         public async Task<bool> UpdateCompletedCoursesAsync()
         {
             return await _enrollmentRepository.UpdateCompletedCoursesAsync();
         }
 
 
-        
+        //Update course to be completed for private and group course
+        public async Task<bool> UpdateCompletedCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            return await _enrollmentRepository.UpdateCompletedCoursesAsync(dbContext, cancellationToken);
+        }
+
+
+
         public async Task<List<int?>> GetChildrenWithRequestsOrConcernsAsync()
         {
             return await _enrollmentRepository.GetChildrenWithRequestsOrConcernsAsync();

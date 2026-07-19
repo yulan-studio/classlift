@@ -201,6 +201,7 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 
 //var connectionString1 = Environment.GetEnvironmentVariable("DefaultConnection");
+builder.Services.AddHostedService<TenantStatusUpdater>();
 
 
 
