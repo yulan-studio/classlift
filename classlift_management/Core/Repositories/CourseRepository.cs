@@ -180,7 +180,16 @@ namespace Core.Repositories
         }
 
 
-        
+        public async Task<IEnumerable<Course>> GetActiveGroupCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            return await dbContext.Courses
+                .Where(c => c.IsActive == true && c.CourseType == "Group")
+                .Include(c => c.Coach)
+                .ToListAsync(cancellationToken);
+        }
+
+
+
 
         public async Task<IEnumerable<Course>> GetActiveCoursesBySpecialtyAsync(int specialtyId)
         {

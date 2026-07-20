@@ -41,6 +41,9 @@ namespace Core.Interfaces
         Task<IEnumerable<Course>> GetActiveGroupCoursesAsync();
 
 
+        Task<IEnumerable<Course>> GetActiveGroupCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken);
+
+
         // Get courses by coach ID
         //Task<IEnumerable<Course>> GetCoursesByCoachIdAsync(int coachId);
 

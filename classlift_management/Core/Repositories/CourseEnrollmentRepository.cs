@@ -464,6 +464,36 @@ namespace Core.Repositories
 
 
 
+        //For Group Courses Set children's sessions to be completed when it's finished
+        public async Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken)
+        {
+
+            DateTime now = DateTimeHelper.GetTorontoTime();
+
+            //Get all sessions of the course, which Status is 'Scheduled'
+            var sessionsToUpdate = await dbContext.CourseEnrollments
+                .Include(e => e.Course)
+                .Where(e => e.CourseID == courseId
+                            && e.Course.CourseType == "Group"
+                            && e.Status == "Scheduled"
+                            && e.ScheduledAt != null
+                            && e.ScheduledHours != null
+                            && ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) <= now)
+                .ToListAsync(cancellationToken);
+
+            // Update Status
+            foreach (var session in sessionsToUpdate)
+            {
+                session.Status = "Completed";
+                session.ActualHours = session.ScheduledHours; // Assuming actual hours are the same as scheduled hours when completed
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+
+
+
         public async Task<bool> UpdateCourseEnrollmentStatusToConfirmedAsync(int enrollmentID)
         {
 
@@ -535,6 +565,51 @@ namespace Core.Repositories
             }
 
             await _context.SaveChangesAsync();
+        }
+
+
+
+        //For Group Courses, Set sessions to be completed when it's finished
+        public async Task UpdateCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken)
+        {
+
+            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+
+            //Get all sessions of the group course, which Status is 'Scheduled'
+            var sessionsToUpdate = await dbContext.CourseEnrollments
+                .Include(e => e.Course)
+                //.ThenInclude(c => c.Coach)
+                .Where(e => e.CourseID == courseId
+                            && (e.Course.CourseType == "Group")
+                            && (e.Status == "Open" || e.Status == "Closed")
+                            && e.ScheduledAt != null
+                            && e.ScheduledHours != null
+                            && ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) <= torontoNow)
+                .ToListAsync(cancellationToken);
+
+            // Update Status
+            foreach (var session in sessionsToUpdate)
+            {
+                session.Status = "Completed";
+                session.ActualHours = session.ScheduledHours; // Assuming actual hours are the same as scheduled hours when completed
+
+                //Add coach hours for this session to CoachIncome table
+                var incomeEntry = new CoachIncome
+                {
+                    CoachID = (int)session.Course.CoachID,
+                    CourseID = session.CourseID,
+                    EnrollmentID = session.EnrollmentID,
+                    //IncomeChange = incomeForThisSession,
+                    //Income = newIncome,
+                    CreatedDate = DateTimeHelper.GetTorontoTime(),
+                    CreatedBy = 0
+                };
+
+                dbContext.CoachIncomes.Add(incomeEntry);
+                //await _context.SaveChangesAsync();
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
 
@@ -623,6 +698,66 @@ namespace Core.Repositories
 
 
 
+
+        public async Task<bool> UpdateCompletedCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            var updated = false;
+
+            // Step 1: Get all root course enrollments for private and group courses (not per-session enrollments)
+            var rootEnrollments = await dbContext.CourseEnrollments
+                .Include(e => e.Course)
+                .Where(e =>
+                    e.Status == "Confirmed" &&
+                    e.EnrollmentID_Ref == null &&
+                    e.ScheduledAt == null &&
+                    e.Course.SessionCount != null)
+                .ToListAsync(cancellationToken);
+            //Step 2: Get all Completed sessions for all root course, check completed count
+            foreach (var root in rootEnrollments)
+            {
+                int completedSessions = await dbContext.CourseEnrollments
+                    .Where(c =>
+                        c.ChildID == root.ChildID &&
+                        c.CourseID == root.CourseID &&
+                        c.EnrollmentID_Ref != null &&
+                        c.Status == "Completed") // We only want to change "registered" sessions to "Completed"
+                    .CountAsync(cancellationToken);
+
+                //if completed count equal to session count
+                if (completedSessions == root.Course.SessionCount)
+                {
+                    //Step 3: Fetch those registered sessions to update them
+
+                    //var registrationToUpdate = await _context.CourseEnrollments
+                    //    .Where(c =>
+                    //        c.ChildID == root.ChildID &&
+                    //        c.CourseID == root.CourseID &&
+                    //        c.EnrollmentID_Ref == null &&
+                    //        c.ScheduledAt == null &&
+                    //        c.Status == "Registered")
+                    //    .ToListAsync();
+
+                    //foreach (var registration in registrationToUpdate)
+                    //{
+                    //    registration.Status = "Completed";
+                    //}
+
+                    root.Status = "Completed";
+
+                    updated = true;
+                }
+            }
+
+            if (updated)
+            {
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return updated;
+        }
+
+
+
         //public async Task<bool> UpdateCourseStatusToConfirmedAsync(int enrollmentID)
         //{
 
@@ -649,7 +784,7 @@ namespace Core.Repositories
         //}
 
 
-       
+
         public async Task<IEnumerable<PrivateCourseEnrollmentViewModel>> GetPrivateEnrollmentsViewByChildAsync(int childId, String status)
         {
 
