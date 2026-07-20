@@ -1,20 +1,21 @@
-﻿using System;
+﻿using Core.Contexts;
+using Core.Interfaces;
+using Core.Models;
+using Core.Repositories;
+using Core.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using Core.Models;
-using Core.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using Microsoft.Extensions.Options;
-using Core.Repositories;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
-using Core.ViewModels;
 
 namespace Core.Services
 {
@@ -220,6 +221,12 @@ namespace Core.Services
         {
             return await _courseRepository.GetActiveGroupCoursesAsync();
         }
+
+        public async Task<IEnumerable<Course>> GetActiveGroupCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            return await _courseRepository.GetActiveGroupCoursesAsync(dbContext, cancellationToken);
+        }
+
 
         public async Task<IEnumerable<Course>> GetActiveCoursesBySpecialtyAsync(int specialtyId)
         {

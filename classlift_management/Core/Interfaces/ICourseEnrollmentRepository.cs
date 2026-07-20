@@ -1,4 +1,5 @@
-﻿using Core.DTOs;
+﻿using Core.Contexts;
+using Core.DTOs;
 using Core.DTOs.Report;
 using Core.Models;
 using Core.ViewModels;
@@ -59,12 +60,19 @@ namespace Core.Interfaces
         Task<List<int?>> GetRegisteredUpcomingSessionsByCourseAsync(int courseId);
 
         Task UpdateChildCompletedSessionsAsync(int courseId);
-        
+
+        Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
+
+
         Task UpdateCompletedSessionsAsync(int courseId);
+
+        Task UpdateCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
 
         Task UpdateChildCanceledSessionsAsync(int courseId, string staffNote);
 
         Task<bool> UpdateCompletedCoursesAsync();
+
+        Task<bool> UpdateCompletedCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken);
 
         Task<bool> UpdateCourseEnrollmentStatusToConfirmedAsync(int enrollmentID);
 
