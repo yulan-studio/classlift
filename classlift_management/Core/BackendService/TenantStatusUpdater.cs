@@ -108,7 +108,7 @@ namespace Core.BackendService
             {
                 _logger.LogError(
                     exception,
-                    "The activity status update cycle failed.");
+                    "The tenant status update cycle failed.");
             }
         }
 
@@ -122,26 +122,28 @@ namespace Core.BackendService
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var connectionString = _connectionFactory.BuildConnectionString(tenant.DatabaseName);
+                //var connectionString = _connectionFactory.BuildConnectionString(tenant.DatabaseName);
 
-                var options = new DbContextOptionsBuilder<AppDbContext>()
-                                .UseMySql(
-                                    connectionString,
-                                    ServerVersion.AutoDetect(connectionString))
-                                .Options;
+                //var options = new DbContextOptionsBuilder<AppDbContext>()
+                //                .UseMySql(
+                //                    connectionString,
+                //                    ServerVersion.AutoDetect(connectionString))
+                //                .Options;
 
-                await using var dbContext = new AppDbContext(options);
+                //await using var dbContext = new AppDbContext(options);
 
                 try
                 {
-                    await ProcessTenantAsync(dbContext, cancellationToken);
+                    await ProcessTenantAsync(tenant, cancellationToken);
                     _logger.LogInformation("Status updates completed for tenant {TenantId}. ", tenant.OrganizationId);
                 }
-                catch (Exception ex)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) 
+                { 
+                    throw; 
+                }
+                catch (Exception exception) 
                 {
-                    _logger.LogError(ex,
-                        "Activity status update failed for tenant {TenantId}",
-                        tenant.OrganizationId);
+                    _logger.LogError(exception, "Status update failed for tenant {TenantId}, database {DatabaseName}.", tenant.OrganizationId, tenant.DatabaseName); 
                 }
             }
         }
@@ -163,11 +165,42 @@ namespace Core.BackendService
 
 
 
-        private async Task ProcessTenantAsync(  AppDbContext dbContext,
+        private async Task ProcessTenantAsync(  TenantRegistry tenant,
                                                 CancellationToken cancellationToken)
         {
+            /* * Create a separate scope for this tenant. 
+            * * CurrentTenant, AppDbContext and scoped services created 
+            * from this scope belong only to this tenant. 
+            */
             await using var scope = _scopeFactory.CreateAsyncScope();
 
+            var connectionString = _connectionFactory.BuildConnectionString(tenant.DatabaseName);
+
+            
+            /* * IMPORTANT: 
+             * * Use Core.Models.CurrentTenant because this is the exact 
+             * * type used by the AddDbContext registration in Program.cs. */
+
+            // This must happen before resolving services that inject AppDbContext.
+            var currentTenant = scope.ServiceProvider.GetRequiredService<CurrentTenant>();
+
+            /* 
+            * Resolve the tenant BEFORE requesting AppDbContext or any 
+            * service whose constructor depends on AppDbContext. 
+            * 
+            * Adjust this call to match the SetTenant method in your 
+            * Core.Models.CurrentTenant class. */
+
+            
+            currentTenant.OrganizationId = tenant.OrganizationId;
+            currentTenant.DatabaseName = tenant.DatabaseName;
+            currentTenant.ConnectionString = connectionString;
+
+            /* * AppDbContext can now be resolved successfully because 
+             * * CurrentTenant.IsResolved is true and the connection 
+             * * information is available. */
+            
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             /*
              * Activity status updates
@@ -194,8 +227,8 @@ namespace Core.BackendService
 
 
             /*
-  * Group-course status updates
-  */
+            * Group-course status updates
+            */
 
             var courseService = scope.ServiceProvider
                 .GetRequiredService<ICourseService>();
@@ -204,8 +237,8 @@ namespace Core.BackendService
                 .GetRequiredService<ICourseEnrollmentService>();
 
             var courses = await courseService.GetActiveGroupCoursesAsync(
-                dbContext,
-                cancellationToken);
+                                                dbContext,
+                                                cancellationToken);
 
             foreach (var course in courses)
             {
@@ -230,10 +263,13 @@ namespace Core.BackendService
 
 
 
-            /* * Root course status updates * * Applies to both group courses and private courses. * A course is completed when its completed-session count * reaches its required session count. */
-            await courseEnrollmentService.UpdateCompletedCoursesAsync(dbContext, cancellationToken); 
+            /* * Root course status updates 
+             * * * Applies to both group courses and private courses. 
+             * * A course is completed when its completed-session count 
+             * * reaches its required session count. */
+            await courseEnrollmentService.UpdateCompletedCoursesAsync(dbContext, cancellationToken);
 
-            
+            //_logger.LogInformation("Status updates completed for tenant {TenantId}, database {DatabaseName}.", tenant.OrganizationId, tenant.DatabaseName);
 
 
 
