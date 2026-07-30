@@ -1,7 +1,6 @@
 ﻿using Core.Interfaces;
 using Core.Repositories;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +19,7 @@ namespace Core.Services
         public string SenderEmail { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public bool EnableSsl { get; set; } = true;
     }
 
     public class EmailService
@@ -62,11 +62,13 @@ namespace Core.Services
             using var smtpClient = new SmtpClient(_smtpSettings.Server)
             {
                 Port = _smtpSettings.Port,
-                Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password.Substring(0, _smtpSettings.Password.Length -2) ),
-                EnableSsl = true
+                Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password),
+                EnableSsl = _smtpSettings.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false
             };
 
-            var mailMessage = new MailMessage
+            using var mailMessage = new MailMessage
             {
                 From = new MailAddress(_smtpSettings.SenderEmail, _smtpSettings.SenderName),
                 Subject = subject,
