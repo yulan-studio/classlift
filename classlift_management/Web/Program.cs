@@ -29,11 +29,13 @@ using MySqlConnector;
 var builder = WebApplication.CreateBuilder(args);
 
 
-
 var baseConnectionString =
-    builder.Configuration.GetConnectionString("ServerConnection")
+    builder.Configuration["ServerConnection"]
+    ?? builder.Configuration.GetConnectionString("ServerConnection")
     ?? throw new InvalidOperationException(
-        "ConnectionStrings:ServerConnection is missing.");
+        "ServerConnection is missing. Configure the Railway environment variable "
+        + "'ServerConnection' or the configuration key "
+        + "'ConnectionStrings:ServerConnection'.");
 
 var platformConnectionBuilder =
     new MySqlConnectionStringBuilder(baseConnectionString)
@@ -218,16 +220,20 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 
 
-//var connectionString1 = Environment.GetEnvironmentVariable("DefaultConnection");
-builder.Services.AddHostedService<TenantStatusUpdater>();
+// Local development uses the single "classlift" database and has no
+// platform TenantRegistry to enumerate.
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHostedService<TenantStatusUpdater>();
+}
 
 
 
-//builder.Services.AddHostedService<ActivityStatusUpdater>();
+    //builder.Services.AddHostedService<ActivityStatusUpdater>();
 
-//builder.Services.AddHostedService<GroupCourseStatusUpdater>();
+    //builder.Services.AddHostedService<GroupCourseStatusUpdater>();
 
-//builder.Services.AddHostedService<RootCourseStatusUpdater>(); //Set Course to completed if completed number == session Count
+    //builder.Services.AddHostedService<RootCourseStatusUpdater>(); //Set Course to completed if completed number == session Count
 
 
 // Add Identity

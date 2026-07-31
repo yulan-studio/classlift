@@ -38,20 +38,24 @@ namespace Core.BackendService
 
     public class TenantStatusUpdater : BackgroundService
     {
+        private const string LocalDatabaseName = "classlift";
         private static readonly TimeSpan Interval = TimeSpan.FromMinutes(10);
 
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<TenantStatusUpdater> _logger;
         private readonly ITenantConnectionStringFactory _connectionFactory;
+        private readonly IHostEnvironment _hostEnvironment;
 
 
         public TenantStatusUpdater(IServiceScopeFactory scopeFactory,
                                    ITenantConnectionStringFactory connectionFactory,
-                                    ILogger<TenantStatusUpdater> logger)
+                                    ILogger<TenantStatusUpdater> logger,
+                                    IHostEnvironment hostEnvironment)
         {
             _scopeFactory = scopeFactory;
             _connectionFactory = connectionFactory;
             _logger = logger;
+            _hostEnvironment = hostEnvironment;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -116,6 +120,32 @@ namespace Core.BackendService
 
         private async Task ProcessAllTenantsAsync(CancellationToken cancellationToken)
         {
+            //if running in localhost
+            if (_hostEnvironment.IsDevelopment())
+            {
+                //await ProcessTenantAsync(
+                //    organizationId: null,
+                //    databaseName: LocalDatabaseName,
+                //    cancellationToken);
+
+                var localTenant = new TenantRegistry
+                {
+                    OrganizationId = 0,
+                    DatabaseName = "classlift",
+                    Subdomain = "localhost",
+                    IsActive = true
+                };
+
+                await ProcessTenantAsync(localTenant, cancellationToken);
+
+                _logger.LogInformation(
+                    "Local status updates completed for database {DatabaseName}.",
+                    LocalDatabaseName);
+                return;
+            }
+
+            //if runing on railway
+
             var tenants = await LoadActiveTenantsAsync(cancellationToken);
 
             foreach (var tenant in tenants)

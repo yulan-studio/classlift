@@ -17,7 +17,6 @@ namespace Core.Models
         public string? ConnectionString { get; set; }
 
         public bool IsResolved =>
-            OrganizationId.HasValue &&
             !string.IsNullOrWhiteSpace(DatabaseName) &&
             !string.IsNullOrWhiteSpace(ConnectionString);
     }

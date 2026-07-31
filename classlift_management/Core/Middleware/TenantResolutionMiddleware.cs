@@ -4,11 +4,13 @@ using Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.Middleware
 {
     public sealed class TenantResolutionMiddleware
     {
+        private const string LocalDatabaseName = "classlift";
         private readonly RequestDelegate _next;
         private readonly ILogger<TenantResolutionMiddleware> _logger;
 
@@ -36,6 +38,18 @@ namespace Core.Middleware
             // Ignore localhost
             if (host is "localhost" or "127.0.0.1")
             {
+                currentTenant.Subdomain = "classlift";
+                currentTenant.DatabaseName = LocalDatabaseName;
+                currentTenant.ConnectionString =
+                    connectionFactory.BuildConnectionString(LocalDatabaseName);
+
+                context.Items["CurrentTenant"] = currentTenant;
+
+                _logger.LogInformation(
+                    "Local tenant resolved. Host={Host}, Database={Database}",
+                    host,
+                    LocalDatabaseName);
+
                 await _next(context);
                 return;
             }
