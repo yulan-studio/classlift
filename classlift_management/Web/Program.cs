@@ -55,8 +55,9 @@ builder.Services.AddDbContext<BillingDbContext>(options =>
 
 builder.Services.AddScoped<Core.Models.CurrentTenant>();
 
-//builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionStringFactory>();
-builder.Services.AddSingleton<ITenantConnectionStringFactory,TenantConnectionStringFactory>();
+//It preserves the server, username, password, and other settings while replacing the database name
+//AddSingleton creates one instance for the entire application lifetime.
+builder.Services.AddSingleton<ITenantConnectionStringFactory, TenantConnectionStringFactory>();
 
 builder.Services.AddDbContext<AppDbContext>(
     (serviceProvider, options) =>

@@ -24,7 +24,6 @@ namespace Core.Middleware
 
         public async Task InvokeAsync(
             HttpContext context,
-            BillingDbContext billingDbContext,
             ITenantConnectionStringFactory connectionFactory,
             CurrentTenant currentTenant)
         {
@@ -60,6 +59,12 @@ namespace Core.Middleware
                 await _next(context);
                 return;
             }
+
+            // Resolve the platform context only when a tenant host actually
+            // needs a registry lookup. Local and platform requests never
+            // construct BillingDbContext.
+            var billingDbContext = context.RequestServices
+                .GetRequiredService<BillingDbContext>();
 
             // 1. Try exact custom-domain match.
             var tenant = await billingDbContext.TenantRegistries
