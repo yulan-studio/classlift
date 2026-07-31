@@ -29,9 +29,12 @@ namespace Core.Services
             IConfiguration configuration)
         {
             _baseConnectionString =
-                configuration.GetConnectionString("ServerConnection")
+                configuration["ServerConnection"]
+                ?? configuration.GetConnectionString("ServerConnection")
                 ?? throw new InvalidOperationException(
-                    "ConnectionStrings:ServerConnection is missing.");
+                    "ServerConnection is missing. Configure the Railway environment "
+                    + "variable 'ServerConnection' or the configuration key "
+                    + "'ConnectionStrings:ServerConnection'.");
         }
 
         public string BuildConnectionString(string databaseName)
