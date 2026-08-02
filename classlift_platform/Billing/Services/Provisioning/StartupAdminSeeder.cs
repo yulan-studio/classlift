@@ -42,7 +42,7 @@ public sealed class StartupAdminSeeder
     public async Task SeedAsync()
     {
         await SeedPlatformAdminAsync();
-        await SeedTenantAdminsAsync();
+        //await SeedTenantAdminsAsync();
     }
 
     private async Task SeedPlatformAdminAsync()

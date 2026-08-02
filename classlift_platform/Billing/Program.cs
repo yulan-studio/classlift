@@ -57,9 +57,6 @@ builder.Services.AddAuthorization();
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-builder.Services.AddControllersWithViews();
-
-
 var dbHost = builder.Configuration["TenantDatabase:Host"];
 var dbPort = builder.Configuration["TenantDatabase:Port"];
 var dbUser = builder.Configuration["TenantDatabase:User"];
