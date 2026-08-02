@@ -108,8 +108,8 @@ builder.Services.AddScoped<IOrganizationSignupService, OrganizationSignupService
 builder.Services.AddScoped<ITenantIdentitySeeder, TenantIdentitySeeder>();
 builder.Services.AddScoped<StartupAdminSeeder>();
 
-builder.Services.Configure<StartupAdminOptions>(
-    builder.Configuration.GetSection("StartupAdmin"));
+builder.Services.Configure<PlatformAdminOptions>(
+    builder.Configuration.GetSection("PlatformAdmin"));
 
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 

@@ -1,6 +1,6 @@
 namespace Billing.Configuration;
 
-public sealed class StartupAdminOptions
+public sealed class PlatformAdminOptions
 {
     public bool Enabled { get; set; }
     public string Email { get; set; } = string.Empty;

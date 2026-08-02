@@ -15,7 +15,7 @@ public sealed class StartupAdminSeeder
     private readonly BillingDbContext _billingDbContext;
     private readonly ITenantConnectionStringFactory _connectionStringFactory;
     private readonly ITenantIdentitySeeder _tenantIdentitySeeder;
-    private readonly StartupAdminOptions _localAdminOptions;
+    private readonly PlatformAdminOptions _platformAdminOptions;
     private readonly ILogger<StartupAdminSeeder> _logger;
 
     public StartupAdminSeeder(
@@ -24,7 +24,7 @@ public sealed class StartupAdminSeeder
         BillingDbContext billingDbContext,
         ITenantConnectionStringFactory connectionStringFactory,
         ITenantIdentitySeeder tenantIdentitySeeder,
-        IOptions<StartupAdminOptions> localAdminOptions,
+        IOptions<PlatformAdminOptions> platformAdminOptions,
         ILogger<StartupAdminSeeder> logger)
     {
         _localUserManager = localUserManager;
@@ -32,45 +32,45 @@ public sealed class StartupAdminSeeder
         _billingDbContext = billingDbContext;
         _connectionStringFactory = connectionStringFactory;
         _tenantIdentitySeeder = tenantIdentitySeeder;
-        _localAdminOptions = localAdminOptions.Value;
+        _platformAdminOptions = platformAdminOptions.Value;
         _logger = logger;
     }
 
     public async Task SeedAsync()
     {
-        await SeedLocalAdminAsync();
+        await SeedPlatformAdminAsync();
         //await SeedTenantAdminsAsync();
     }
 
-    private async Task SeedLocalAdminAsync()
+    private async Task SeedPlatformAdminAsync()
     {
-        if (!_localAdminOptions.Enabled)
+        if (!_platformAdminOptions.Enabled)
         {
             _logger.LogInformation("Local startup admin seeding is disabled.");
             return;
         }
 
         EnsureComplete(
-            "StartupAdmin configuration",
-            _localAdminOptions.Email,
-            _localAdminOptions.Password);
+            "Platform Admin configuration",
+            _platformAdminOptions.Email,
+            _platformAdminOptions.Password);
 
         if (!await _localRoleManager.RoleExistsAsync(AdminRole))
         {
             EnsureSucceeded(await _localRoleManager.CreateAsync(new IdentityRole(AdminRole)));
         }
 
-        var user = await _localUserManager.FindByEmailAsync(_localAdminOptions.Email);
+        var user = await _localUserManager.FindByEmailAsync(_platformAdminOptions.Email);
         if (user == null)
         {
             user = new IdentityUser
             {
-                UserName = _localAdminOptions.Email,
-                Email = _localAdminOptions.Email,
+                UserName = _platformAdminOptions.Email,
+                Email = _platformAdminOptions.Email,
                 EmailConfirmed = true
             };
 
-            EnsureSucceeded(await _localUserManager.CreateAsync(user, _localAdminOptions.Password));
+            EnsureSucceeded(await _localUserManager.CreateAsync(user, _platformAdminOptions.Password));
         }
 
         if (!await _localUserManager.IsInRoleAsync(user, AdminRole))
@@ -78,7 +78,7 @@ public sealed class StartupAdminSeeder
             EnsureSucceeded(await _localUserManager.AddToRoleAsync(user, AdminRole));
         }
 
-        _logger.LogInformation("Local startup admin {Email} is ready.", _localAdminOptions.Email);
+        _logger.LogInformation("Local startup admin {Email} is ready.", _platformAdminOptions.Email);
     }
 
     private async Task SeedTenantAdminsAsync()
