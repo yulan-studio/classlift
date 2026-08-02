@@ -16,6 +16,7 @@ public sealed class StartupAdminSeeder
     private readonly ITenantConnectionStringFactory _connectionStringFactory;
     private readonly ITenantIdentitySeeder _tenantIdentitySeeder;
     private readonly PlatformAdminOptions _platformAdminOptions;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<StartupAdminSeeder> _logger;
 
     public StartupAdminSeeder(
@@ -25,6 +26,7 @@ public sealed class StartupAdminSeeder
         ITenantConnectionStringFactory connectionStringFactory,
         ITenantIdentitySeeder tenantIdentitySeeder,
         IOptions<PlatformAdminOptions> platformAdminOptions,
+        IConfiguration configuration,
         ILogger<StartupAdminSeeder> logger)
     {
         _localUserManager = localUserManager;
@@ -33,22 +35,19 @@ public sealed class StartupAdminSeeder
         _connectionStringFactory = connectionStringFactory;
         _tenantIdentitySeeder = tenantIdentitySeeder;
         _platformAdminOptions = platformAdminOptions.Value;
+        _configuration = configuration;
         _logger = logger;
     }
 
     public async Task SeedAsync()
     {
         await SeedPlatformAdminAsync();
-        //await SeedTenantAdminsAsync();
+        await SeedTenantAdminsAsync();
     }
 
     private async Task SeedPlatformAdminAsync()
     {
-        if (!_platformAdminOptions.Enabled)
-        {
-            _logger.LogInformation("Local startup admin seeding is disabled.");
-            return;
-        }
+        
 
         EnsureComplete(
             "Platform Admin configuration",
@@ -83,17 +82,25 @@ public sealed class StartupAdminSeeder
 
     private async Task SeedTenantAdminsAsync()
     {
-        var email = Environment.GetEnvironmentVariable("TENANT_ADMIN_EMAIL");
-        var password = Environment.GetEnvironmentVariable("TENANT_ADMIN_PASSWORD");
+
+        //var email = builder.Configuration["TenantAdmin:Email"];
+        var email = _configuration["TenantAdmin:Email"];
+        var password = _configuration["TenantAdmin:Password"];
+
+        //var password = _configuration["TenantAdmin:Password"];
+        //if (string.IsNullOrWhiteSpace(password))
+        //{
+        //    password = Environment.GetEnvironmentVariable("TENANT_ADMIN_PASSWORD");
+        //}
 
         if (string.IsNullOrWhiteSpace(email) &&
             string.IsNullOrWhiteSpace(password))
         {
-            _logger.LogInformation("Tenant startup admin environment variables are not set; tenant seeding is skipped.");
+            _logger.LogInformation("Tenant startup admin configuration is not set; tenant seeding is skipped.");
             return;
         }
 
-        EnsureComplete("tenant startup admin environment variables", email, password);
+        EnsureComplete("tenant startup admin configuration", email, password);
 
         var databaseNames = await _billingDbContext.Tenantregistries
             .AsNoTracking()
