@@ -13,7 +13,6 @@ namespace Billing.Services.Provisioning
     {
         public async Task SeedAdminAsync(
         string connectionString,
-        string adminName,
         string adminEmail,
         string adminPassword)
         {
@@ -71,6 +70,16 @@ namespace Billing.Services.Provisioning
 
             if (existingAdmin != null)
             {
+                if (!await userManager.IsInRoleAsync(existingAdmin, "Admin"))
+                {
+                    var existingUserRoleResult = await userManager.AddToRoleAsync(existingAdmin, "Admin");
+                    if (!existingUserRoleResult.Succeeded)
+                    {
+                        throw new InvalidOperationException(
+                            string.Join(", ", existingUserRoleResult.Errors.Select(e => e.Description)));
+                    }
+                }
+
                 return;
             }
 

@@ -3,9 +3,8 @@
     public interface ITenantIdentitySeeder
     {
         Task SeedAdminAsync(
-        string connectionString,
-        string adminName,
-        string adminEmail,
-        string adminPassword);
+            string connectionString,
+            string adminEmail,
+            string adminPassword);
     }
 }

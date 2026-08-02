@@ -65,7 +65,6 @@ namespace Billing.Services.Provisioning
 
             await _tenantIdentitySeeder.SeedAdminAsync(
                 tenantConnectionString,
-                request.AdminName,
                 request.AdminEmail,
                 request.AdminPassword);
 
