@@ -86,6 +86,12 @@ Optional email settings use the `SmtpSettings` section:
 }
 ```
 
+Optional startup-administrator configuration uses `StartupAdmin:Enabled`,
+`StartupAdmin:Email`, and `StartupAdmin:Password`. Tenant-wide startup seeding
+uses the `TENANT_ADMIN_EMAIL` and `TENANT_ADMIN_PASSWORD` environment variables.
+Keep these features disabled unless intentionally bootstrapping accounts, and
+provide their credentials through a secret store.
+
 For local development, user secrets are convenient:
 
 ```powershell
@@ -172,4 +178,6 @@ control is a high-priority roadmap item.
 ## Further documentation
 
 See [PROJECT.md](PROJECT.md) for the system context, architecture, domain model,
-known limitations, and recommended implementation roadmap.
+known limitations, and recommended implementation roadmap. See
+[DESIGN.md](DESIGN.md) for the codebase design at structure, class, and function
+level.

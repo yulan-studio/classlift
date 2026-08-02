@@ -229,9 +229,10 @@ deployment is affected.
 
 ### Critical before production
 
-1. **Remove predictable administrator bootstrapping.** Startup currently creates
-   a fixed management user with a hard-coded password. Replace it with an
-   explicit, one-time, secret-driven bootstrap process.
+1. **Control startup administrator bootstrapping.** The current seeder is opt-in
+   and configuration-driven. Keep it disabled by default in deployed
+   environments, provide credentials only through a secret store, and define a
+   one-time bootstrap/rotation procedure.
 2. **Rotate and externalize secrets.** Treat any credentials previously committed
    in `appsettings*.json` as exposed. Store production secrets in the deployment
    platform's secret manager.
@@ -276,7 +277,8 @@ deployment is affected.
 ### Phase 1: secure and stabilize
 
 - Rotate credentials and move secrets out of tracked configuration.
-- Replace startup admin creation with controlled bootstrap tooling.
+- Formalize the existing configuration-driven startup seeder as a controlled,
+  auditable bootstrap and rotation procedure.
 - Fix subscription and event schema mismatches.
 - Add platform administrator authorization and antiforgery enforcement.
 - Validate and rate-limit public signup.
