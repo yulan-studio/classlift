@@ -4,6 +4,8 @@ using Billing.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MySqlConnector;
+using System.Data.SqlClient;
 
 namespace Billing.Services.Provisioning;
 
@@ -42,7 +44,7 @@ public sealed class StartupAdminSeeder
     public async Task SeedAsync()
     {
         await SeedPlatformAdminAsync();
-        //await SeedTenantAdminsAsync();
+        await SeedTenantAdminsAsync();
     }
 
     private async Task SeedPlatformAdminAsync()
@@ -111,8 +113,29 @@ public sealed class StartupAdminSeeder
         foreach (var databaseName in databaseNames)
         {
             var connectionString = _connectionStringFactory.BuildConnectionString(databaseName);
-            await _tenantIdentitySeeder.SeedAdminAsync(connectionString, email!, password!);
-            _logger.LogInformation("Tenant startup admin {Email} is ready in {DatabaseName}.", email, databaseName);
+
+
+
+            try
+            {
+                await _tenantIdentitySeeder.SeedAdminAsync(
+                    connectionString,
+                    email!,
+                    password!);
+
+                _logger.LogInformation(
+                    "Tenant startup admin {Email} is ready in {DatabaseName}.",
+                    email,
+                    databaseName);
+            }
+            
+
+            catch (MySqlException ex) when (ex.ErrorCode == MySqlErrorCode.UnknownDatabase)
+            {
+                _logger.LogWarning(
+                    "Tenant database {DatabaseName} does not exist; admin seeding is skipped.",
+                    databaseName);
+            }
         }
     }
 
