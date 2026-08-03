@@ -118,3 +118,8 @@
 /classlift_management/Web/appsettings.json
 /classlift_management/Web/obj/Debug/net8.0/Web.MvcApplicationPartsAssemblyInfo.cs
 /classlift_management/Web/obj/Debug/net8.0/staticwebassets.upToDateCheck.txt
+/classlift_platform/Billing.Tests/bin/Debug/net8.0
+/classlift_platform/Billing.Tests/obj/Debug/net8.0
+/classlift_platform/Billing.Tests/obj
+/classlift_courses/2025课程列表.xlsx
+/classlift_courses/~$2025课程列表.xlsx
