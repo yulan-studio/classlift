@@ -12,6 +12,7 @@ namespace Billing.Services.Provisioning;
 public sealed class StartupAdminSeeder
 {
     private const string AdminRole = "Admin";
+    private const string LocalDatabaseName = "classlift";
     private readonly UserManager<IdentityUser> _localUserManager;
     private readonly RoleManager<IdentityRole> _localRoleManager;
     private readonly BillingDbContext _billingDbContext;
@@ -44,6 +45,7 @@ public sealed class StartupAdminSeeder
     public async Task SeedAsync()
     {
         await SeedPlatformAdminAsync();
+        await SeedLocalAdminStaffAsync();
         await SeedTenantAdminStaffAsync();
     }
 
@@ -80,6 +82,47 @@ public sealed class StartupAdminSeeder
         }
 
         _logger.LogInformation("Local startup admin {Email} is ready.", _platformAdminOptions.Email);
+    }
+
+    private async Task SeedLocalAdminStaffAsync()
+    {
+        var adminEmail = _configuration["TenantAdmin:Email"];
+        var adminPassword = _configuration["TenantAdmin:Password"];
+        var staffEmail = _configuration["TenantStaff:Email"];
+        var staffPassword = _configuration["TenantStaff:Password"];
+
+        EnsureComplete("local database admin configuration", adminEmail, adminPassword);
+        EnsureComplete("local database staff configuration", staffEmail, staffPassword);
+
+        var connectionString =
+            _connectionStringFactory.BuildConnectionString(LocalDatabaseName);
+
+        try
+        {
+            await _tenantIdentitySeeder.SeedUserAsync(
+                connectionString,
+                adminEmail!,
+                adminPassword!,
+                "Admin");
+
+            await _tenantIdentitySeeder.SeedUserAsync(
+                connectionString,
+                staffEmail!,
+                staffPassword!,
+                "Staff");
+
+            _logger.LogInformation(
+                "Local database {DatabaseName} admin {AdminEmail} and staff {StaffEmail} are ready.",
+                LocalDatabaseName,
+                adminEmail,
+                staffEmail);
+        }
+        catch (MySqlException ex) when (ex.ErrorCode == MySqlErrorCode.UnknownDatabase)
+        {
+            _logger.LogWarning(
+                "Local database {DatabaseName} does not exist; account seeding is skipped.",
+                LocalDatabaseName);
+        }
     }
 
     private async Task SeedTenantAdminStaffAsync()
