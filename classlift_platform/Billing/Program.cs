@@ -28,11 +28,8 @@ builder.Services.AddHttpContextAccessor();
 //Require authentication globally
 builder.Services.AddControllersWithViews(options =>
 {
-    var policy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-
-    options.Filters.Add(new AuthorizeFilter(policy));
+    options.Filters.Add(new AuthorizeFilter(
+        ManagementAuthorization.AuthenticatedUserPolicy));
 });
 
 
