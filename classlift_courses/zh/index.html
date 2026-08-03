@@ -517,8 +517,10 @@
 
     // Handle initial load and hash change
     function handleHashChange() {
-      const tabId = location.hash.substring(1) || 'sports';
-      activateTab(tabId);
+      const requestedTab = location.hash.substring(1);
+      const requestedButton = document.querySelector(`.tab-btn[data-tab="${requestedTab}"]`);
+      const firstTabId = tabButtons[0]?.dataset.tab;
+      activateTab(requestedButton ? requestedTab : firstTabId);
     }
 
     window.addEventListener('hashchange', handleHashChange);
