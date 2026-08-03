@@ -44,7 +44,7 @@ public sealed class StartupAdminSeeder
     public async Task SeedAsync()
     {
         await SeedPlatformAdminAsync();
-        await SeedTenantAdminsAsync();
+        await SeedTenantAdminStaffAsync();
     }
 
     private async Task SeedPlatformAdminAsync()
@@ -82,27 +82,24 @@ public sealed class StartupAdminSeeder
         _logger.LogInformation("Local startup admin {Email} is ready.", _platformAdminOptions.Email);
     }
 
-    private async Task SeedTenantAdminsAsync()
+    private async Task SeedTenantAdminStaffAsync()
     {
+        var adminEmail = _configuration["TenantAdmin:Email"];
+        var adminPassword = _configuration["TenantAdmin:Password"];
+        var staffEmail = _configuration["TenantStaff:Email"];
+        var staffPassword = _configuration["TenantStaff:Password"];
 
-        //var email = builder.Configuration["TenantAdmin:Email"];
-        var email = _configuration["TenantAdmin:Email"];
-        var password = _configuration["TenantAdmin:Password"];
-
-        //var password = _configuration["TenantAdmin:Password"];
-        //if (string.IsNullOrWhiteSpace(password))
-        //{
-        //    password = Environment.GetEnvironmentVariable("TENANT_ADMIN_PASSWORD");
-        //}
-
-        if (string.IsNullOrWhiteSpace(email) &&
-            string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(adminEmail) &&
+            string.IsNullOrWhiteSpace(adminPassword) &&
+            string.IsNullOrWhiteSpace(staffEmail) &&
+            string.IsNullOrWhiteSpace(staffPassword))
         {
-            _logger.LogInformation("Tenant startup admin configuration is not set; tenant seeding is skipped.");
+            _logger.LogInformation("Tenant startup account configuration is not set; tenant seeding is skipped.");
             return;
         }
 
-        EnsureComplete("tenant startup admin configuration", email, password);
+        EnsureComplete("tenant startup admin configuration", adminEmail, adminPassword);
+        EnsureComplete("tenant startup staff configuration", staffEmail, staffPassword);
 
         var databaseNames = await _billingDbContext.Tenantregistries
             .AsNoTracking()
@@ -118,14 +115,22 @@ public sealed class StartupAdminSeeder
 
             try
             {
-                await _tenantIdentitySeeder.SeedAdminAsync(
+                await _tenantIdentitySeeder.SeedUserAsync(
                     connectionString,
-                    email!,
-                    password!);
+                    adminEmail!,
+                    adminPassword!,
+                    "Admin");
+
+                await _tenantIdentitySeeder.SeedUserAsync(
+                    connectionString,
+                    staffEmail!,
+                    staffPassword!,
+                    "Staff");
 
                 _logger.LogInformation(
-                    "Tenant startup admin {Email} is ready in {DatabaseName}.",
-                    email,
+                    "Tenant startup admin {AdminEmail} and staff {StaffEmail} are ready in {DatabaseName}.",
+                    adminEmail,
+                    staffEmail,
                     databaseName);
             }
             
@@ -133,7 +138,7 @@ public sealed class StartupAdminSeeder
             catch (MySqlException ex) when (ex.ErrorCode == MySqlErrorCode.UnknownDatabase)
             {
                 _logger.LogWarning(
-                    "Tenant database {DatabaseName} does not exist; admin seeding is skipped.",
+                    "Tenant database {DatabaseName} does not exist; account seeding is skipped.",
                     databaseName);
             }
         }

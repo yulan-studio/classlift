@@ -2,9 +2,10 @@
 {
     public interface ITenantIdentitySeeder
     {
-        Task SeedAdminAsync(
+        Task SeedUserAsync(
             string connectionString,
-            string adminEmail,
-            string adminPassword);
+            string email,
+            string password,
+            string role);
     }
 }
