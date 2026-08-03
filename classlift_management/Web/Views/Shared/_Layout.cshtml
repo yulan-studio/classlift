@@ -134,14 +134,14 @@
 
                     @if (User.IsInRole("Admin"))
                     {
-                        <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li>
+                        @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Admin/List">Admins</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Staff/List">Staff</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Report/Index">Reports</a></li>
                     }
-                    else if (User.IsInRole("Staff"))
+                    @if (User.IsInRole("Staff"))
                     {
-                        <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li>
+                        @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Specialty/List">Specialties</a></li>
                         <li class="nav-item"><a class="nav-link" href="/City/List">Cities</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Coach/List">Coaches</a></li>
@@ -150,16 +150,16 @@
                         <li class="nav-item"><a class="nav-link" href="/Activity/List">Activities</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/List">Children</a></li>
                     }
-                    else if (User.IsInRole("Coach"))
+                    @if (User.IsInRole("Coach"))
                     {
-                        <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li>
+                        @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Coach/ManageCourse">Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Coach/MyCalendar">Calendar</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Coach/MyHours">Hours</a></li>
                     }
-                    else if (User.IsInRole("Child"))
+                    @if (User.IsInRole("Child"))
                     {
-                        <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li>
+                        @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Child/MyRegistrations">Registrations</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyConfirmations">Confirmations</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MySchedules">Schedules</a></li>
