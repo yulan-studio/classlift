@@ -20,6 +20,7 @@ public sealed class StartupAdminSeeder
     private readonly ITenantIdentitySeeder _tenantIdentitySeeder;
     private readonly PlatformAdminOptions _platformAdminOptions;
     private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _environment;
     private readonly ILogger<StartupAdminSeeder> _logger;
 
     public StartupAdminSeeder(
@@ -30,6 +31,7 @@ public sealed class StartupAdminSeeder
         ITenantIdentitySeeder tenantIdentitySeeder,
         IOptions<PlatformAdminOptions> platformAdminOptions,
         IConfiguration configuration,
+        IWebHostEnvironment environment,
         ILogger<StartupAdminSeeder> logger)
     {
         _localUserManager = localUserManager;
@@ -39,13 +41,19 @@ public sealed class StartupAdminSeeder
         _tenantIdentitySeeder = tenantIdentitySeeder;
         _platformAdminOptions = platformAdminOptions.Value;
         _configuration = configuration;
+        _environment = environment;
         _logger = logger;
     }
 
     public async Task SeedAsync()
     {
         await SeedPlatformAdminAsync();
-        await SeedLocalAdminStaffAsync();
+
+        if (_environment.IsDevelopment())
+        {
+            await SeedLocalAdminStaffAsync();
+        }
+
         await SeedTenantAdminStaffAsync();
     }
 
