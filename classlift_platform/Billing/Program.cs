@@ -28,11 +28,8 @@ builder.Services.AddHttpContextAccessor();
 //Require authentication globally
 builder.Services.AddControllersWithViews(options =>
 {
-    var policy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-
-    options.Filters.Add(new AuthorizeFilter(policy));
+    options.Filters.Add(new AuthorizeFilter(
+        ManagementAuthorization.AuthenticatedUserPolicy));
 });
 
 
@@ -41,6 +38,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
 })
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<BillingDbContext>();
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -55,9 +53,6 @@ builder.Services.AddAuthorization();
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
-builder.Services.AddControllersWithViews();
-
 
 var dbHost = builder.Configuration["TenantDatabase:Host"];
 var dbPort = builder.Configuration["TenantDatabase:Port"];
@@ -105,6 +100,10 @@ builder.Services.AddScoped<ITenantSeedService, TenantSeedService>();
 builder.Services.AddScoped<ITenantConnectionStringFactory, TenantConnectionFactory>();
 builder.Services.AddScoped<IOrganizationSignupService, OrganizationSignupService>();
 builder.Services.AddScoped<ITenantIdentitySeeder, TenantIdentitySeeder>();
+builder.Services.AddScoped<StartupAdminSeeder>();
+
+builder.Services.Configure<PlatformAdminOptions>(
+    builder.Configuration.GetSection("PlatformAdmin"));
 
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
@@ -196,34 +195,8 @@ app.UseAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-    var email = "info@classlift.ca";
-    var password = "Class123!";
-
-    if (await userManager.FindByEmailAsync(email) == null)
-    {
-        var user = new IdentityUser
-        {
-            UserName = email,
-            Email = email,
-            EmailConfirmed = true
-        };
-
-        var result = await userManager.CreateAsync(user, password);
-
-        if (!result.Succeeded)
-        {
-            foreach (var error in result.Errors)
-            {
-                Console.WriteLine($"USER CREATE ERROR: {error.Code} - {error.Description}");
-            }
-        }
-        else
-        {
-            Console.WriteLine("Admin user created successfully.");
-        }
-    }
+    var startupAdminSeeder = scope.ServiceProvider.GetRequiredService<StartupAdminSeeder>();
+    await startupAdminSeeder.SeedAsync();
 }
 
 //Enable to find subdomain, customDomain, so we can find database associated with the tenant
