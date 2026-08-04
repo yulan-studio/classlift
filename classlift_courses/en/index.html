@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Programs</title>
+  <style>
+    html {
+      font-size: 16px;
+    }
+
+    @media (max-width: 600px) {
+      html {
+        font-size: 10px;
+      }
+
+      th,
+      td {
+        padding: 1rem 1rem;
+
+      }
+
+    }
+
+    @media (max-width: 480px) {
+      html {
+        font-size: 9px;
+      }
+
+      th,
+      td {
+        padding: 1rem 0.5rem;
+
+      }
+
+      .tabs button {
+
+        font-size: 10px;
+
+      }
+    }
+
+    @media (max-width: 400px) {
+      html {
+        font-size: 8px;
+      }
+
+      th,
+      td {
+        padding: 1rem 0.5rem;
+
+      }
+
+      .tabs button {
+
+        font-size: 10px;
+
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      margin: 0 auto;
+      max-width: 1200px;
+      background: #f9f9f9;
+      color: #1d1d1d;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin: 1rem 0;
+    }
+
+    .language {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .tabs button {
+      flex: 1 1 22%;
+      padding: 13px 15px;
+      border: none;
+      background-color: #e0e0e0;
+      cursor: pointer;
+      /* border-radius: 5px; */
+      font-weight: bold;
+      font-size: medium;
+      transition: background-color 0.3s;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .tabs button:hover {
+      background-color: #cccccc;
+    }
+
+    .tabs button.active {
+      background-color: #316386;
+      /* background-color: #474748; */
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+
+
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+
+
+    /* Responsive layout */
+    @media (max-width: 800px) {
+      .tabs button {
+        flex: 1 1 45%;
+        /* 2 per row */
+      }
+    }
+
+    @media (max-width: 600px) {
+      .tabs button {
+        font-size: 1.3rem;
+        padding: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tabs button {
+        flex: 1 1 100%;
+        /* 1 per row */
+      }
+    }
+
+    .responsive-table {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      /* padding: 10px; */
+      padding: 1rem 0.5rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      /* background-color: #474748; */
+      /* background-color: #316386; */
+      background-color: #7bb4dc;
+      /* color: white; */
+      color: #0b0b0b;
+      font-weight: normal;
+
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #eef7fb;
+    }
+
+    a {
+      color: #156082;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .highlight {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Course & Event Schedule</h1>
+  <div class="language"><a href="/zh/" target="_self">中文</a> | <a href="/en/" target="_self">English</a></div>
+  <div class="tabs">
+    <button class="tab-btn" data-tab="academic">Academic Program</button>
+    <button class="tab-btn" data-tab="stem">STEM Program</button>
+    <button class="tab-btn" data-tab="arts">Arts Program</button>
+    <button class="tab-btn" data-tab="events">Events</button>  </div>
+  </div>
+
+
+  <div id="academic" class="tab-content responsive-table">
+
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">Course</th>
+
+          <!-- <th style="width:10%">Schedule</th> -->
+          <th style="width:19%">Class Type</th>
+          <th style="width:12%">Class Duration</th>
+          <th style="width:13%">Class Schedule</th>
+          <th style="width:30%">Location</th>
+        </tr>
+      </thead>
+      <tbody>
+
+
+
+        <!-- <tr>
+      <td>Basketball Class1</td><td>Group Class (Tuesday)</td><td>60 minutes</td><td>Starting in Fall</td><td>Richmond Hill</td></tr>
+      <tr><td>Basketball Class2</td><td>Group Class (Friday)</td><td>60 minutes</td><td>Starting in Fall</td><td>Richmond Hill</td></tr>
+
+       <tr><td>Basketball Class3</td><td>1 on 1 (20 sessions)</td><td>60 minutes</td><td></td><td></td></tr> -->
+
+        <tr>
+          <td>Science Experiments</td>
+
+          <td>Group Class (Tuesday)</td>
+          <td>60 minutes</td>
+          <td>Jan 6, 2026 - Jun 9, 2026, every Tuesday</td>
+          <td>Richmond Hill</td>
+        </tr>
+        <tr>
+          <td>Science Experiments</td>
+
+          <td>Group Class (Friday)</td>
+          <td>60 minutes</td>
+          <td>Jan 9, 2026 - Jun 12, 2026, every Friday</td>
+          <td>Richmond Hill</td>
+        </tr>
+
+        
+
+         <tr>
+          <td>English</td>
+
+          <td>Private Class (10 sessions)</td>
+          <td>60 minutes</td>
+          <td>Schedule arranged between the student and teacher</td>
+          <td>Online</td>
+        </tr>
+
+         <tr>
+          <td>Chinese</td>
+
+          <td>Private Class (10 sessions)</td>
+          <td>60 minutes</td>
+          <td>Schedule arranged between the student and teacher</td>
+          <td>Online</td>
+        </tr>
+
+        <tr>
+          <td>Writing</td>
+
+          <td>Private Class (10 sessions)</td>
+          <td>60 minutes</td>
+          <td>Schedule arranged between the student and teacher</td>
+          <td>Online</td>
+        </tr>
+
+
+
+        <!-- <tr><td>Table Tennis Class</td><td>1 on 1 (20 sessions)</td><td>60 minutes</td><td></td><td>Markham</td></tr> -->
+        <tr>
+          <td>Math Enrichment</td>
+
+          <td>Private Class (10 sessions)</td>
+          <td>60 minutes</td>
+          <td>Schedule arranged between the student and teacher</td>
+          <td>Online</td>
+        </tr>
+
+        <tr>
+          <td>Homework Help</td>
+
+          <td>Private Class (Unlimited sessions)</td>
+          <td>60 minutes</td>
+          <td>Schedule arranged between the student and teacher</td>
+          <td>Near Student's Location</td>
+        </tr>
+
+       
+
+
+      </tbody>
+    </table>
+
+  </div>
+
+  <div id="stem" class="tab-content">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">Course</th>
+
+          <!-- <th style="width:10%">Schedule</th> -->
+          <th style="width:19%">Class Type</th>
+          <th style="width:12%">Class Duration</th>
+          <th style="width:13%">Class Schedule</th>
+          <th style="width:30%">Location</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>Robotics & Coding</td>
+
+          <td>Group Class</td>
+          <td>60 minutes</td>
+          <td></td>
+          <td>Mississauga</td>
+        </tr>
+
+        <tr>
+          <td>Robotics & Coding</td>
+
+          <td>Private Class</td>
+          <td>60 minutes</td>
+          <td>Schedule arranged between the student and teacher</td>
+          <td>Online</td>
+        </tr>
+        
+
+        <tr>
+          <td>Game Development</td>
+
+          <td>Group Class</td>
+          <td>60 minutes</td>
+          <td></td>
+          <td>Mississauga</td>
+        </tr>
+
+        <tr>
+          <td>Game Development</td>
+
+          <td>Group Class</td>
+          <td>60 minutes</td>
+          <td></td>
+          <td>Oakville</td>
+        </tr>
+
+        <tr>
+          <td>Chess</td>
+
+          <td>Group Class</td>
+          <td>60 minutes</td>
+          <td></td>
+          <td>Online</td>
+        </tr>
+
+       
+      
+
+
+       
+
+
+        
+
+      </tbody>
+    </table>
+  </div>
+
+
+  <div id="arts" class="tab-content">
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">Course</th>
+
+          <!-- <th style="width:10%">Schedule</th> -->
+          <th style="width:19%">Class Type</th>
+          <th style="width:12%">Class Duration</th>
+          <th style="width:13%">Class Schedule</th>
+          <th style="width:30%">Location</th>
+        </tr>
+      </thead>
+      <tbody>
+
+
+        <tr>
+          <td>Art Class</td>
+
+          <td>Group Class (10 sessions)</td>
+          <td>90 minutes</td>
+          <td>Sept 9, 2025 - Dec 16, 2025, Every Saturday</td>
+          <td>Markham</td>
+        </tr>
+        <tr>
+          <td>Art Class</td>
+
+          <td>Group Class (10 sessions)</td>
+          <td>90 minutes</td>
+          <td>Sept 3, 2025 - Dec 17, 2025, Every Sunday</td>
+          <td>Ottawa</td>
+        </tr>
+
+        <tr>
+          <td>Art Class</td>
+
+          <td>Private Class (Unlimited sessions)</td>
+          <td>60 minutes</td>
+          <td>Schedule arranged between the student and teacher</td>
+          <td>Near Student's Location</td>
+        </tr>
+
+       
+      </tbody>
+    </table>
+
+
+  </div>
+
+  <div id="events" class="tab-content">
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50%">Activity</th>
+
+          <th style="width:25%">Location</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>2025.10.10 Opening Art Class</td>
+
+          <td>Markham</td>
+        </tr>
+
+        <tr>
+          <td>2025.10.19 Robotics Show & Tell</td>
+
+          <td>Markham</td>
+        </tr>
+    
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <script>
+  function showTabById(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    const content = document.getElementById(tabId);
+    const button = document.querySelector(`.tab-btn[onclick*="${tabId}"]`);
+
+    if (content && button) {
+      content.classList.add('active');
+      button.classList.add('active');
+    }
+  }
+
+  function showTab(event, tabId) {
+    event.preventDefault();
+    history.replaceState(null, '', `#${tabId}`);
+    showTabById(tabId);
+  }
+
+  // Load tab from URL hash
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      showTabById(hash);
+    }
+  });
+</script> -->
+
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function activateTab(tabId) {
+      // Hide all
+      tabContents.forEach(tab => tab.classList.remove('active'));
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+
+      // Show selected
+      const content = document.getElementById(tabId);
+      const button = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+      if (content && button) {
+        content.classList.add('active');
+        button.classList.add('active');
+      }
+    }
+
+    // On click, update URL hash and show tab
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const tabId = btn.dataset.tab;
+        location.hash = tabId;
+      });
+    });
+
+    // Handle initial load and hash change
+    function handleHashChange() {
+      const requestedTab = location.hash.substring(1);
+      const requestedButton = document.querySelector(`.tab-btn[data-tab="${requestedTab}"]`);
+      const firstTabId = tabButtons[0]?.dataset.tab;
+      activateTab(requestedButton ? requestedTab : firstTabId);
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('DOMContentLoaded', handleHashChange);
+  </script>
+
+</body>
+
+</html>

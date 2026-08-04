@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>课程与活动安排</title>
+  <style>
+    html {
+      font-size: 16px;
+    }
+
+    @media (max-width: 600px) {
+      html {
+        font-size: 10px;
+      }
+
+      th,
+      td {
+        padding: 1rem 1rem;
+
+      }
+
+    }
+
+    @media (max-width: 480px) {
+      html {
+        font-size: 9px;
+      }
+
+      th,
+      td {
+        padding: 1rem 0.5rem;
+
+      }
+
+      .tabs button {
+
+        font-size: 10px;
+
+      }
+    }
+
+    @media (max-width: 400px) {
+      html {
+        font-size: 8px;
+      }
+
+      th,
+      td {
+        padding: 1rem 0.5rem;
+
+      }
+
+      .tabs button {
+
+        font-size: 10px;
+
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      margin: 0 auto;
+      max-width: 1200px;
+      background: #f9f9f9;
+      color: #1d1d1d;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin: 1rem 0;
+    }
+
+    .language {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .tabs button {
+      flex: 1 1 22%;
+      padding: 13px 15px;
+      border: none;
+      background-color: #e0e0e0;
+      cursor: pointer;
+      /* border-radius: 5px; */
+      font-weight: bold;
+      font-size: medium;
+      transition: background-color 0.3s;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .tabs button:hover {
+      background-color: #cccccc;
+    }
+
+    .tabs button.active {
+      background-color: #316386;
+      /* background-color: #474748; */
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+
+
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+
+
+    /* Responsive layout */
+    @media (max-width: 800px) {
+      .tabs button {
+        flex: 1 1 45%;
+        /* 2 per row */
+      }
+    }
+
+    @media (max-width: 600px) {
+      .tabs button {
+        font-size: 1.3rem;
+        padding: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tabs button {
+        flex: 1 1 100%;
+        /* 1 per row */
+      }
+    }
+
+    .responsive-table {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      /* padding: 10px; */
+      padding: 1rem 0.5rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      /* background-color: #474748; */
+      /* background-color: #316386; */
+      background-color: #7bb4dc;
+      /* color: white; */
+      color: #0b0b0b;
+      font-weight: normal;
+
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #eef7fb;
+    }
+
+    a {
+      color: #156082;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .highlight {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>课程与活动安排</h1>
+  <div class="language"><a href="/zh/" target="_self">中文</a> | <a href="/en/" target="_self">英文</a></div>
+  <div class="tabs">
+    <button class="tab-btn" data-tab="academic">学术课程</button>
+    <button class="tab-btn" data-tab="stem">STEM课程</button>
+    <button class="tab-btn" data-tab="arts">艺术课程</button>
+    <button class="tab-btn" data-tab="events">活动</button>  </div>
+  </div>
+
+
+  <div id="academic" class="tab-content responsive-table">
+
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">课程</th>
+
+          <!-- <th style="width:10%">Schedule</th> -->
+          <th style="width:19%">课程类型</th>
+          <th style="width:12%">每节时长</th>
+          <th style="width:13%">上课时间</th>
+          <th style="width:30%">地点</th>
+        </tr>
+      </thead>
+      <tbody>
+
+
+
+        <!-- <tr>
+      <td>Basketball Class1</td><td>周二团体课</td><td>60分钟</td><td>Starting in Fall</td><td>列治文山</td></tr>
+      <tr><td>Basketball Class2</td><td>周五团体课</td><td>60分钟</td><td>Starting in Fall</td><td>列治文山</td></tr>
+
+       <tr><td>Basketball Class3</td><td>1 on 1 (20 sessions)</td><td>60分钟</td><td></td><td></td></tr> -->
+
+        <tr>
+          <td>科学实验课</td>
+
+          <td>周二团体课</td>
+          <td>60分钟</td>
+          <td>2026年1月6日至6月9日，每周二</td>
+          <td>列治文山</td>
+        </tr>
+        <tr>
+          <td>科学实验课</td>
+
+          <td>周五团体课</td>
+          <td>60分钟</td>
+          <td>2026年1月9日至6月12日，每周五</td>
+          <td>列治文山</td>
+        </tr>
+
+
+
+         <tr>
+          <td>英语课</td>
+
+          <td>私教课（10节）</td>
+          <td>60分钟</td>
+          <td>师生协商安排</td>
+          <td>在线课程</td>
+        </tr>
+
+         <tr>
+          <td>中文课</td>
+
+          <td>私教课（10节）</td>
+          <td>60分钟</td>
+          <td>根据学生时间安排</td>
+          <td>在线课程</td>
+        </tr>
+
+        <tr>
+          <td>写作课</td>
+
+          <td>私教课（10节）</td>
+          <td>60分钟</td>
+          <td>师生协商安排</td>
+          <td>在线课程</td>
+        </tr>
+
+
+
+        <!-- <tr><td>Table Tennis Class</td><td>1 on 1 (20 sessions)</td><td>60分钟</td><td></td><td>万锦</td></tr> -->
+        <tr>
+          <td>数学提高课</td>
+
+          <td>私教课（10节）</td>
+          <td>60分钟</td>
+          <td>师生协商安排</td>
+          <td>在线课程</td>
+        </tr>
+
+        <tr>
+          <td>作业辅导课</td>
+
+          <td>私教课（不固定次数）</td>
+          <td>60分钟</td>
+          <td>师生协商安排</td>
+          <td>学生住址附近</td>
+        </tr>
+
+
+
+
+      </tbody>
+    </table>
+
+  </div>
+
+  <div id="stem" class="tab-content">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">课程</th>
+
+          <!-- <th style="width:10%">Schedule</th> -->
+          <th style="width:19%">课程类型</th>
+          <th style="width:12%">每节时长</th>
+          <th style="width:13%">上课时间</th>
+          <th style="width:30%">地点</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>机器人与编程课</td>
+
+          <td>团体课</td>
+          <td>60分钟</td>
+          <td></td>
+          <td>密西沙加</td>
+        </tr>
+
+        <tr>
+          <td>机器人与编程课</td>
+
+          <td>私教课</td>
+          <td>60分钟</td>
+          <td>师生协商安排</td>
+          <td>在线</td>
+        </tr>
+
+
+        <tr>
+          <td>游戏开发课</td>
+
+          <td>团体课</td>
+          <td>60分钟</td>
+          <td></td>
+          <td>密西沙加</td>
+        </tr>
+
+        <tr>
+          <td>游戏开发课</td>
+
+          <td>团体课</td>
+          <td>60分钟</td>
+          <td></td>
+          <td>奥克维尔</td>
+        </tr>
+
+        <tr>
+          <td>国际象棋</td>
+
+          <td>团体课</td>
+          <td>60分钟</td>
+          <td></td>
+          <td>在线</td>
+        </tr>
+
+        
+
+       
+
+
+       
+
+
+
+      </tbody>
+    </table>
+  </div>
+
+
+  <div id="arts" class="tab-content">
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">课程</th>
+          <th style="width:22%">课程类型</th>
+          <th style="width:14%">每节时长</th>
+          <th style="width:25%">上课时间</th>
+          <th style="width:17%">地点</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        
+        <tr>
+          <td>美术课</td>
+
+          <td>团体课（10节）</td>
+          <td>90分钟</td>
+          <td>2025年9月9日至12月16日，每周六</td>
+          <td>万锦</td>
+        </tr>
+        <tr>
+          <td>美术课</td>
+
+          <td>团体课（10节）</td>
+          <td>90分钟</td>
+          <td>2025年9月3日至12月17日，每周日</td>
+          <td>渥太华</td>
+        </tr>
+
+        <tr>
+          <td>美术课</td>
+
+          <td>私教课（不固定次数）</td>
+          <td>60分钟</td>
+          <td>师生协商安排</td>
+          <td>学生住址附近</td>
+        </tr>
+
+
+      </tbody>
+    </table>
+
+
+  </div>
+
+  <div id="events" class="tab-content">
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50%">活动</th>
+
+          <th style="width:25%">地点</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>2025.10.10 美术公开课</td>
+
+          <td>万锦</td>
+        </tr>
+
+        <tr>
+          <td>2025.10.19 机器人展示与分享活动</td>
+
+          <td>万锦</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <script>
+  function showTabById(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    const content = document.getElementById(tabId);
+    const button = document.querySelector(`.tab-btn[onclick*="${tabId}"]`);
+
+    if (content && button) {
+      content.classList.add('active');
+      button.classList.add('active');
+    }
+  }
+
+  function showTab(event, tabId) {
+    event.preventDefault();
+    history.replaceState(null, '', `#${tabId}`);
+    showTabById(tabId);
+  }
+
+  // Load tab from URL hash
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      showTabById(hash);
+    }
+  });
+</script> -->
+
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function activateTab(tabId) {
+      // Hide all
+      tabContents.forEach(tab => tab.classList.remove('active'));
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+
+      // Show selected
+      const content = document.getElementById(tabId);
+      const button = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+      if (content && button) {
+        content.classList.add('active');
+        button.classList.add('active');
+      }
+    }
+
+    // On click, update URL hash and show tab
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const tabId = btn.dataset.tab;
+        location.hash = tabId;
+      });
+    });
+
+    // Handle initial load and hash change
+    function handleHashChange() {
+      const requestedTab = location.hash.substring(1);
+      const requestedButton = document.querySelector(`.tab-btn[data-tab="${requestedTab}"]`);
+      const firstTabId = tabButtons[0]?.dataset.tab;
+      activateTab(requestedButton ? requestedTab : firstTabId);
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('DOMContentLoaded', handleHashChange);
+  </script>
+
+</body>
+
+</html>
