@@ -63,11 +63,11 @@ namespace Billing.Services.Provisioning
             var tenantConnectionString =
                 _connectionFactory.BuildConnectionString(tenant.DatabaseName);
 
-            await _tenantIdentitySeeder.SeedAdminAsync(
+            await _tenantIdentitySeeder.SeedUserAsync(
                 tenantConnectionString,
-                request.AdminName,
                 request.AdminEmail,
-                request.AdminPassword);
+                request.AdminPassword,
+                "Admin");
 
             // 7. Return tenant URL
 

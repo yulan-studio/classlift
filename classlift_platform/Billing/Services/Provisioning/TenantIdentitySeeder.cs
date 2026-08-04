@@ -11,11 +11,11 @@ namespace Billing.Services.Provisioning
 {
     public class TenantIdentitySeeder : ITenantIdentitySeeder
     {
-        public async Task SeedAdminAsync(
+        public async Task SeedUserAsync(
         string connectionString,
-        string adminName,
-        string adminEmail,
-        string adminPassword)
+        string email,
+        string password,
+        string role)
         {
             var services = new ServiceCollection();
 
@@ -53,11 +53,16 @@ namespace Billing.Services.Provisioning
                 "Child"
             };
 
-            foreach (var role in roles)
+            if (!roles.Contains(role, StringComparer.OrdinalIgnoreCase))
             {
-                if (!await roleManager.RoleExistsAsync(role))
+                throw new ArgumentException($"Unsupported tenant role '{role}'.", nameof(role));
+            }
+
+            foreach (var roleName in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
                 {
-                    var roleResult = await roleManager.CreateAsync(new IdentityRole<int> { Name = role });
+                    var roleResult = await roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
 
                     if (!roleResult.Succeeded)
                     {
@@ -67,35 +72,38 @@ namespace Billing.Services.Provisioning
                 }
             }
 
-            var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+            var user = await userManager.FindByEmailAsync(email);
 
-            if (existingAdmin != null)
+            if (user == null)
             {
-                return;
+                user = new User
+                {
+                    UserName = email,
+                    Email = email,
+                    EmailConfirmed = true,
+                    Role = role
+                };
+
+                EnsureSucceeded(await userManager.CreateAsync(user, password));
+            }
+            else if (!string.Equals(user.Role, role, StringComparison.OrdinalIgnoreCase))
+            {
+                user.Role = role;
+                EnsureSucceeded(await userManager.UpdateAsync(user));
             }
 
-            var adminUser = new User
+            if (!await userManager.IsInRoleAsync(user, role))
             {
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true,
-                Role = "Admin"
-            };
-
-            var createResult = await userManager.CreateAsync(adminUser, adminPassword);
-
-            if (!createResult.Succeeded)
-            {
-                throw new InvalidOperationException(
-                    string.Join(", ", createResult.Errors.Select(e => e.Description)));
+                EnsureSucceeded(await userManager.AddToRoleAsync(user, role));
             }
+        }
 
-            var addRoleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
-
-            if (!addRoleResult.Succeeded)
+        private static void EnsureSucceeded(IdentityResult result)
+        {
+            if (!result.Succeeded)
             {
                 throw new InvalidOperationException(
-                    string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
+                    string.Join(", ", result.Errors.Select(error => error.Description)));
             }
         }
     }
