@@ -44,14 +44,24 @@ namespace Core.Services
 
         public async Task<bool> AddAsync(string name, string email, string password, string phone, string wechat, User user)
         {
-            // Check if a user with the same username or email already exists
-            var existingUser = await _staffRepository.GetByEmailAsync(email);
+            // Staff accounts share the Identity user store with every other role, so
+            // check the complete user table rather than only the staff table.
+            var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null)
             {
-                throw new Exception("A staff with the same username or email already exists.");
+                throw new InvalidOperationException(
+                    $"A user with the email '{email}' already exists in the system and cannot be added as staff.");
             }
 
             var result = await _userRegistrationService.RegisterUserAsync(email, password, "Staff", user);
+
+            // The account could have been created after the initial check but before
+            // registration. Return the same precise reason in that case.
+            if (!result && await _userManager.FindByEmailAsync(email) != null)
+            {
+                throw new InvalidOperationException(
+                    $"A user with the email '{email}' already exists in the system and cannot be added as staff.");
+            }
 
             if (result == true)
             {
