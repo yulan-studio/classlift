@@ -89,7 +89,7 @@ public sealed class StartupAdminSeeder
             EnsureSucceeded(await _localUserManager.AddToRoleAsync(user, AdminRole));
         }
 
-        _logger.LogInformation("Local startup admin {Email} is ready.", _platformAdminOptions.Email);
+        _logger.LogInformation("Platform startup admin {Email} is ready.", _platformAdminOptions.Email);
     }
 
     private async Task SeedLocalAdminStaffAsync()
