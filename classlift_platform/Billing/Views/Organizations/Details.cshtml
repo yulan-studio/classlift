@@ -28,13 +28,20 @@
         </form>
     }
 
-    <form asp-controller="Organizations" asp-action="Delete"
-          asp-route-id="@Model.Organization.OrganizationId" method="post" class="d-inline">
-        <button type="submit" class="btn btn-danger"
-                onclick="return confirm('Permanently delete this organization, its billing records, and its tenant database? This cannot be undone.');">
-            Delete Organization
-        </button>
-    </form>
+    @if (Model.Organization.IsActive == false)
+    {
+        <form asp-controller="Organizations" asp-action="Delete"
+              asp-route-id="@Model.Organization.OrganizationId" method="post" class="d-inline">
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Permanently delete this organization, its billing records, and its tenant database? This cannot be undone.');">
+                Delete Organization
+            </button>
+        </form>
+    }
+    else
+    {
+        <span class="text-muted ms-2">Cancel the organization before deleting it.</span>
+    }
 
     <div class="card mt-3">
         <div class="card-body">

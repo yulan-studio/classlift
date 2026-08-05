@@ -94,6 +94,10 @@ public class OrganizationService
         if (organization == null)
             throw new InvalidOperationException("Organization not found.");
 
+        if (organization.IsActive != false)
+            throw new InvalidOperationException(
+                "Organization must be cancelled before it can be deleted.");
+
         var tenantDatabaseNames = organization.Tenantregistries
             .Select(t => t.DatabaseName)
             .Where(name => !string.IsNullOrWhiteSpace(name))

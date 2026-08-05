@@ -103,6 +103,7 @@ public class OrganizationServiceTests
         var provisioner = new FakeDatabaseProvisioner();
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var service = new OrganizationService(db, provisioner, cache);
+        await service.CancelOrganizationAsync(organization.OrganizationId);
         await service.DeleteOrganizationAsync(organization.OrganizationId);
 
         Assert.Empty(await db.Organizations.ToListAsync());
@@ -111,6 +112,31 @@ public class OrganizationServiceTests
         Assert.Empty(await db.Payments.ToListAsync());
         Assert.Empty(await db.Tenantregistries.ToListAsync());
         Assert.Equal(new[] { "classlift_org" }, provisioner.DeletedDatabases);
+    }
+
+    [Fact]
+    public async Task Delete_rejects_organization_that_has_not_been_cancelled()
+    {
+        await using var db = TestDb.Create();
+        var organization = new Organization
+        {
+            OrganizationName = "Active Org",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        db.Organizations.Add(organization);
+        await db.SaveChangesAsync();
+
+        var provisioner = new FakeDatabaseProvisioner();
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var service = new OrganizationService(db, provisioner, cache);
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.DeleteOrganizationAsync(organization.OrganizationId));
+
+        Assert.Contains("cancelled", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotNull(await db.Organizations.FindAsync(organization.OrganizationId));
+        Assert.Empty(provisioner.DeletedDatabases);
     }
 
     [Fact]
