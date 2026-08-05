@@ -90,6 +90,7 @@ builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<DunningService>();
 builder.Services.AddScoped<DunningJob>();
 builder.Services.AddScoped<SubscriptionService>();
+builder.Services.AddScoped<OrganizationService>();
 //Register cache
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FeatureAccessService>();
