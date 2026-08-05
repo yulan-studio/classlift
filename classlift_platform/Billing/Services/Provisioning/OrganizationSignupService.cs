@@ -51,12 +51,12 @@ namespace Billing.Services.Provisioning
                 PlanId = request.PlanId
             };
 
-            // 1. Validate subdomain  2. Create Organization 3. Create TenantRegistry 4. Create tenant database  5. Run migrations
+            // 1. Validate subdomain  2. Create Organization 3. Create TenantRegistry 4. Create tenant database  5. Run migrations  6. Create Subscription   7. Create SubscriptionEvent  
             var organization = await _tenantProvisioningService.CreateOrganizationAsync(
                 model,
                 createdBy: "public-signup");
 
-            // 6. Create Admin user
+            // 8. Create Admin user
             var tenant = await _context.Tenantregistries
                 .FirstAsync(t => t.OrganizationId == organization.OrganizationId);
 
@@ -69,7 +69,7 @@ namespace Billing.Services.Provisioning
                 request.AdminPassword,
                 "Admin");
 
-            // 7. Return tenant URL
+            // 9. Return tenant URL
 
             //make TenantUrl to differenciate between dev, staging and production environment
             //If current domain is dev.classlift.ca, then TenantUrl is "https://{request.Subdomain}.dev.classlift.ca/Account/Login"
