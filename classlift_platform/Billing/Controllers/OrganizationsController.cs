@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Billing.Constants;
+using Billing.Services.Billing;
 
 namespace Billing.Controllers
 {
@@ -13,12 +14,49 @@ namespace Billing.Controllers
     {
         private readonly BillingDbContext _context;
         private readonly TenantProvisioningService _tenantProvisioningService;
+        private readonly OrganizationService _organizationService;
 
         public OrganizationsController(BillingDbContext context,
-                                       TenantProvisioningService tenantProvisioningService)
+                                       TenantProvisioningService tenantProvisioningService,
+                                       OrganizationService organizationService)
         {
             _context = context;
             _tenantProvisioningService = tenantProvisioningService;
+            _organizationService = organizationService;
+        }
+
+        [HttpPost("Cancel/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            try
+            {
+                await _organizationService.CancelOrganizationAsync(id);
+                TempData["Success"] = "Organization cancelled successfully.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost("Delete/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _organizationService.DeleteOrganizationAsync(id);
+                TempData["Success"] = "Organization deleted successfully.";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet("")]

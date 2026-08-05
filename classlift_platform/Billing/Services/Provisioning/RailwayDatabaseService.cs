@@ -34,6 +34,9 @@ public class RailwayDatabaseService : IDatabaseProvisioner
 
     public async Task DeleteDatabaseAsync(string databaseName)
     {
+        if (!Regex.IsMatch(databaseName, @"^[a-zA-Z0-9_]+$"))
+            throw new ArgumentException("Invalid tenant database name.", nameof(databaseName));
+
         var connectionString = _connectionFactory.BuildServerConnectionString();
 
         await using var connection = new MySqlConnection(connectionString);
@@ -57,14 +60,4 @@ public class RailwayDatabaseService : IDatabaseProvisioner
     //    return $"Server={host};Port={port};User={user};Password={password};";
     //}
 
-    private static string SanitizeDatabaseName(string databaseName)
-    {
-        var safe = databaseName.Trim().ToLower();
-
-        safe = Regex.Replace(safe, @"[^a-z0-9]+", "_");
-        safe = Regex.Replace(safe, @"_+", "_");
-        safe = safe.Trim('_');
-
-        return $"{safe}";
-    }
 }
