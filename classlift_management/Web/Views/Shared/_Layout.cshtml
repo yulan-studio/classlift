@@ -43,6 +43,32 @@
             box-shadow: none !important;
         }
 
+        /*
+         * Legacy views set action-button colors inline with #ff4d4d. Keep
+         * button colors centralized here so those actions match btn-primary.
+         */
+        button[style*="#ff4d4d"],
+        input[type="button"][style*="#ff4d4d"],
+        input[type="submit"][style*="#ff4d4d"],
+        .btn-danger {
+            background-color: #1B7BAB !important;
+            border-color: #1B7BAB !important;
+            color: white !important;
+        }
+
+        button[style*="#ff4d4d"]:hover,
+        button[style*="#ff4d4d"]:focus,
+        input[type="button"][style*="#ff4d4d"]:hover,
+        input[type="button"][style*="#ff4d4d"]:focus,
+        input[type="submit"][style*="#ff4d4d"]:hover,
+        input[type="submit"][style*="#ff4d4d"]:focus,
+        .btn-danger:hover,
+        .btn-danger:focus {
+            background-color: #23A1E0 !important;
+            border-color: #23A1E0 !important;
+            box-shadow: none !important;
+        }
+
         .btn-grey {
             background-color: #7bb4dc;
             color: white;
