@@ -151,7 +151,7 @@ namespace Core.Services
            
             child.CityID = cityId;
             child.HasOAP = hasOAP;
-            child.User.UpdatedDate = DateTimeHelper.GetTorontoTime();
+            child.User.UpdatedDate = DateTime.UtcNow;
 
             // Update the password if provided
             //if (!string.IsNullOrWhiteSpace(password))

@@ -32,13 +32,13 @@ namespace Core.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal? Balance { get; set; } // Current Balance
 
-        public DateTime CreatedDate { get; set; } = DateTimeHelper.GetTorontoTime(); // Default Current Timestamp on Creation
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow; // Default UTC timestamp on creation
 
         public int? CreatedBy { get; set; } // Created By User
 
         public int? UpdatedBy { get; set; } // Updated By User
 
-        public DateTime UpdatedDate { get; set; } = DateTimeHelper.GetTorontoTime(); // Default Current Timestamp on Update
+        public DateTime UpdatedDate { get; set; } = DateTime.UtcNow; // Default UTC timestamp on update
 
         // Foreign Key relationships
         [ForeignKey("ChildID")]

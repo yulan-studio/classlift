@@ -44,7 +44,7 @@ namespace Core.Services
                 TotalCost = totalCost,
                 Description = description,
                 CreatedBy = user.Id,
-                CreatedAt = DateTimeHelper.GetTorontoTime(),
+                CreatedAt = DateTime.UtcNow,
                //IsPaid = false
             };
 
@@ -68,7 +68,7 @@ namespace Core.Services
                 TotalCost = totalCost,
                 Description = description,
                 CreatedBy = user.Id,
-                CreatedAt = DateTimeHelper.GetTorontoTime(),
+                CreatedAt = DateTime.UtcNow,
                 //IsPaid = false
             };
             return await _feeRepository.AddAsync(fee);
@@ -135,7 +135,7 @@ namespace Core.Services
 
             fee.Description = description;
             fee.TotalCost = totalCost;
-            fee.UpdatedAt = DateTimeHelper.GetTorontoTime();
+            fee.UpdatedAt = DateTime.UtcNow;
             fee.UpdatedBy = userId;
 
             await _feeRepository.UpdateAsync(fee);

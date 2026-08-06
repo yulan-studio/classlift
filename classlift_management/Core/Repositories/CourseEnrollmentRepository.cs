@@ -556,7 +556,7 @@ namespace Core.Repositories
                     EnrollmentID = session.EnrollmentID,
                     //IncomeChange = incomeForThisSession,
                     //Income = newIncome,
-                    CreatedDate = DateTimeHelper.GetTorontoTime(),
+                    CreatedDate = DateTime.UtcNow,
                     CreatedBy = 0
                 };
 
@@ -601,7 +601,7 @@ namespace Core.Repositories
                     EnrollmentID = session.EnrollmentID,
                     //IncomeChange = incomeForThisSession,
                     //Income = newIncome,
-                    CreatedDate = DateTimeHelper.GetTorontoTime(),
+                    CreatedDate = DateTime.UtcNow,
                     CreatedBy = 0
                 };
 

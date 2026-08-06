@@ -44,7 +44,7 @@ namespace Core.Services
                 BalanceChange = balanceChange,
                 Balance = newBalance,
                 Calculation = calculationPath,
-                CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.UtcNow,
                 CreatedBy = createdBy
             };
 

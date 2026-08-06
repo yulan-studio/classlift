@@ -109,7 +109,7 @@ namespace Core.Services
             admin.User.Email = email;
             admin.Phone = phone;
             admin.Wechat = wechat;
-            admin.User.UpdatedDate = DateTimeHelper.GetTorontoTime();
+            admin.User.UpdatedDate = DateTime.UtcNow;
             admin.User.UpdatedBy = user.Id; 
 
            

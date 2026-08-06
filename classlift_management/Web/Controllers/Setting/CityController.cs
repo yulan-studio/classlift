@@ -102,13 +102,13 @@ namespace Web.Controllers.Setting
                 {
                     isNewCity = true;
                     city.CreatedBy = user.Id;
-                    city.CreatedDate = DateTimeHelper.GetTorontoTime();
+                    city.CreatedDate = DateTime.UtcNow;
                     result = await _cityService.AddAsync(city);
                 }
                 else
                 {
                     city.UpdatedBy = user.Id;
-                    city.UpdatedDate = DateTimeHelper.GetTorontoTime();
+                    city.UpdatedDate = DateTime.UtcNow;
                     result = await _cityService.UpdateAsync(city);
                 }
 

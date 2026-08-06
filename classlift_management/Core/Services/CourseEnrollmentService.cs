@@ -119,7 +119,7 @@ namespace Core.Services
                     Child = child,
                     Course = course,
                     CreatedBy = user.Id,
-                    CreatedDate = DateTimeHelper.GetTorontoTime(),
+                    CreatedDate = DateTime.UtcNow,
                     Status = status
                 };
 
@@ -193,7 +193,7 @@ namespace Core.Services
                     Location = location,
                     EnrollmentID_Ref = enrollmentId_Ref,
                     CreatedBy = user.Id,
-                    CreatedDate = DateTimeHelper.GetTorontoTime(),
+                    CreatedDate = DateTime.UtcNow,
                     Status = status
                 };
 
@@ -368,7 +368,7 @@ namespace Core.Services
                 ScheduledHours = scheduledHours,
                 Location = location,
                 CreatedBy = coach.UserID,
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 Status = "Scheduled",
                 EnrollmentID_Ref = enrollmentId_Ref
             };
@@ -400,7 +400,7 @@ namespace Core.Services
                 Location = location,
                 StaffNote = staffNote,
                 CreatedBy = user.Id,
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 Status = "Open"
             };
 
@@ -646,7 +646,7 @@ namespace Core.Services
             {
                 throw new Exception("You’ll be able to complete the session only after the scheduled date has passed.");
             }
-            enrollment.UpdatedDate = DateTimeHelper.GetTorontoTime();
+            enrollment.UpdatedDate = DateTime.UtcNow;
 
             try
             {

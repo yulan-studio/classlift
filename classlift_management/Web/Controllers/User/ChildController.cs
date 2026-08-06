@@ -544,7 +544,7 @@ namespace Web.Controllers.User
                     Email = Email,
                     Wechat = Wechat,
                     CreatedBy = user.Id, // Assume the user ID of admin/creator
-                    CreatedDate = DateTimeHelper.GetTorontoTime()
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 // ✅ 2. Save the parent in the database
