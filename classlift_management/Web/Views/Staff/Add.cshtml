@@ -35,7 +35,17 @@
     </tr>
     <tr>
             <td style="padding: 8px; vertical-align:top"><label for="password">Password:</label></td>
-        <td style="padding: 8px;"><input type="text" name="password" placeholder="Password" value="hello123!" style="width: 100%;" required/>
+        <td style="padding: 8px;"><input type="text"
+                                         id="password"
+                                         name="password"
+                                         placeholder="Password"
+                                         value="hello123!"
+                                         pattern="(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}"
+                                         title="Password must be at least 6 characters long and include a lowercase letter, a digit, and a special character."
+                                         oninvalid="this.setCustomValidity('Password must be at least 6 characters long and include a lowercase letter, a digit, and a special character.')"
+                                         oninput="this.setCustomValidity('')"
+                                         style="width: 100%;"
+                                         required />
                 <small style="color:darkslategray">Password must be at least 6 characters long and include a lowercase letter, a digit, and a special character.</small>
          </td>
     </tr>
