@@ -194,7 +194,7 @@ body { font-family: 'Inter', sans-serif; }
 
                         <ul id="passwordChecklist" class="mt-1 text-xs space-y-1">
                             <li id="lengthRule" class="text-gray-600">○ At least 8 characters</li>
-                            <li id="letterRule" class="text-gray-600">○ A letter</li>
+                            <li id="lowercaseRule" class="text-gray-600">○ A lowercase letter</li>
                             <li id="numberRule" class="text-gray-600">○ A number</li>
                             <li id="specialRule" class="text-gray-600">○ A special character</li>
                         </ul>
@@ -270,9 +270,9 @@ const rules = {
         element: document.getElementById("lengthRule"),
         label: "At least 8 characters"
     },
-    letter: {
-        element: document.getElementById("letterRule"),
-        label: "A letter"
+    lowercase: {
+        element: document.getElementById("lowercaseRule"),
+        label: "A lowercase letter"
     },
     number: {
         element: document.getElementById("numberRule"),
@@ -290,7 +290,7 @@ passwordInput.addEventListener("input", () => {
     const password = passwordInput.value;
 
     updateRule(rules.length, password.length >= 8);
-    updateRule(rules.letter, /[A-Za-z]/.test(password));
+    updateRule(rules.lowercase, /[a-z]/.test(password));
     updateRule(rules.number, /\d/.test(password));
     updateRule(rules.special, /[^A-Za-z0-9]/.test(password));
 });
@@ -356,7 +356,7 @@ function showPasswordValidation() {
 
     const isValid =
         password.length >= 8 &&
-        /[A-Za-z]/.test(password) &&
+        /[a-z]/.test(password) &&
         /\d/.test(password) &&
         /[^A-Za-z0-9]/.test(password);
 

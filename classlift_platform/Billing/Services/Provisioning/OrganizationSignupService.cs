@@ -40,7 +40,29 @@ namespace Billing.Services.Provisioning
 
         public async Task<OrganizationSignupResult> CreateOrganizationAsync(PublicSignupRequest request)
         {
+            var organizationNameExists = await _context.Organizations
+                .AnyAsync(o => o.OrganizationName == request.OrganizationName);
 
+            if (organizationNameExists)
+            {
+                return new OrganizationSignupResult
+                {
+                    Success = false,
+                    Message = "Organization name already exists."
+                };
+            }
+
+            var subdomainExists = await _context.Tenantregistries
+                .AnyAsync(t => t.Subdomain == request.Subdomain);
+
+            if (subdomainExists)
+            {
+                return new OrganizationSignupResult
+                {
+                    Success = false,
+                    Message = "Subdomain already exists."
+                };
+            }
 
             var model = new CreateOrganizationViewModel
             {
