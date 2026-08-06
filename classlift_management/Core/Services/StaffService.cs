@@ -42,7 +42,7 @@ namespace Core.Services
 
         }
 
-        public async Task<bool> AddAsync(string name, string email, string password, string phone, string wechat, User user)
+        public async Task<bool> AddAsync(string name, string email, string password, string? phone, string? wechat, User user)
         {
             // Staff accounts share the Identity user store with every other role, so
             // check the complete user table rather than only the staff table.
