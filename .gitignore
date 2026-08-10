@@ -127,3 +127,4 @@
 /classlift_management/Web/bin/Debug/net8.0/Web.deps.json
 /classlift_management/Web/obj/Debug/net8.0/staticwebassets.removed.txt
 /classlift_management/Web/obj/Web.csproj.EntityFrameworkCore.targets
+/classlift_management/Test/bin/Debug/net8.0

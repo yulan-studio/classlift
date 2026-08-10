@@ -982,7 +982,7 @@ namespace Web.Controllers.User
                 if (packageId != null)
                 { 
                     var paymentId = await _paymentService.AddTokenPaymentAsync(childId, parentId, packageId, amount, paymentDate, fileUrl, user);
-                    result = await _balanceService.AddPaymentToBalanceAsync(childId, paymentId, amount, user.Id);
+                    result = await _balanceService.AddPaymentToBalanceAsync(childId, paymentId, amount, fileUrl, user.Id);
                 }
 
                 if (feeId != null)

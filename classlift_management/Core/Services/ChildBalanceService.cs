@@ -52,11 +52,11 @@ namespace Core.Services
         }
 
         //When a parent buys a payment package
-        public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, int createdBy)
+        public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, string fileUrl, int createdBy)
         {
             try
             {
-                bool result = await _balanceRepository.AddPaymentToBalanceAsync(childId, paymentId, amount, createdBy);
+                bool result = await _balanceRepository.AddPaymentToBalanceAsync(childId, paymentId, amount, fileUrl, createdBy);
                 return result;
             }
             catch (Exception ex)

@@ -33,7 +33,7 @@ namespace Core.Repositories
         }
 
 
-        public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, int createdBy)
+        public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, string fileUrl, int createdBy)
         {
             decimal latestBalance = await GetFinalBalanceAsync(childId);
 
@@ -44,6 +44,7 @@ namespace Core.Repositories
                 BalanceChange = amount,
                 Balance = latestBalance + amount,
                 TransactionType = "Payment",
+                Calculation = fileUrl,
                 CreatedDate = DateTime.UtcNow,
                 CreatedBy = createdBy,
                 UpdatedBy = createdBy,

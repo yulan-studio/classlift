@@ -508,10 +508,10 @@
         if (paymentModel === "Token" && totalCost && totalCost !== "0") {
             descriptionInput.value = `Use Token - $${totalCost} will be deducted from your balance once confirmed.`;
         } else if (paymentModel === "Direct" && totalCost && totalCost !== "0") {
-            descriptionInput.value = `Please email transfer $${totalCost} to accounting@ncoatoronto.ca, and send screenshot to customer service.`;
+            descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
         } 
         else if (paymentModel === "OAP" && totalCost && totalCost !== "0") {
-            descriptionInput.value = `Please email transfer $${totalCost} to info@nutcrackertherapy.ca, and send screenshot to customer service.`;
+            descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
         }
         // else if (paymentModel === "Token" && totalCost === null) {
         //     descriptionInput.value = "To be charged in sessions";
