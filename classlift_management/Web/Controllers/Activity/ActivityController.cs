@@ -1,5 +1,6 @@
 ﻿using Core.Interfaces;
 using Core.Models;
+using Core.Services;
 using Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,15 +23,16 @@ namespace Web.Controllers.Activity
         private readonly IActivityService _activityService;
         private readonly IActivityEnrollmentService _activityEnrollmentService;
         private readonly UserManager<Core.Models.User> _userManager;
+        private readonly ITimeZoneService _timeZoneService;
 
 
 
-        public ActivityController(IActivityService activityService, IActivityEnrollmentService activityEnrollmentService, UserManager<Core.Models.User> userManager)
+        public ActivityController(IActivityService activityService, IActivityEnrollmentService activityEnrollmentService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
         {
             _activityService = activityService;
             _activityEnrollmentService = activityEnrollmentService;
             _userManager = userManager;
-            _userManager = userManager;
+            _timeZoneService = timeZoneService;
         }
 
 
@@ -143,25 +145,31 @@ namespace Web.Controllers.Activity
         [HttpGet("Add")]
         public async Task<IActionResult> Add()
         {
+            var user = await _userManager.GetUserAsync(User);
+            SetTimeZoneOptions(user?.TimeZoneId);
             return View();
         }
 
         [Authorize(Roles = "Staff")]
         [HttpPost("Add")]
-        public async Task<IActionResult> Add(string title, string description, string address, int maxCapacity, DateTime scheduledAt, /*Decimal cost,*/ /*bool isActive,*/ string status)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Add(string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, /*Decimal cost,*/ /*bool isActive,*/ string status)
         {
             //createdBy = 1; //temparary set
 
             if (!ModelState.IsValid)
             {
-               
+                SetTimeZoneOptions(scheduledTimeZoneId);
                 return View();
             }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var result = await _activityService.AddAsync( title,  description,  address,  maxCapacity,  scheduledAt,  /*cost,*/  status, user);
+                var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
+                if (timing.ScheduledAtUtc <= DateTime.UtcNow)
+                    throw new ArgumentException("Scheduled time must be in the future.");
+                var result = await _activityService.AddAsync( title,  description,  address,  maxCapacity, timing,  /*cost,*/  status, user!);
 
                 if (!result)
                 {
@@ -177,7 +185,7 @@ namespace Web.Controllers.Activity
             {
 
                 ModelState.AddModelError(string.Empty, $"{ex.Message}");
-               
+                SetTimeZoneOptions(scheduledTimeZoneId);
                 return View();
             }
 
@@ -203,6 +211,11 @@ namespace Web.Controllers.Activity
             }
 
             // Pass the staff details to the Delete.cshtml view
+            var user = await _userManager.GetUserAsync(User);
+            var zoneId = activity.ScheduledTimeZoneId ?? user?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
+            SetTimeZoneOptions(zoneId);
+            ViewBag.ScheduledLocalTime = activity.ScheduledLocalTime
+                ?? _timeZoneService.ConvertUtcToLocal(activity.ScheduledAt, zoneId);
             return View(activity);
 
         }
@@ -210,17 +223,20 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Edit/{activityId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, int maxCapacity, DateTime scheduledAt, /*decimal cost,*/ /*bool isActive,*/ string status)
+        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, /*decimal cost,*/ /*bool isActive,*/ string status)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var result = await _activityService.UpdateAsync(activityId,  title,  description,  address,  maxCapacity,  scheduledAt, /* cost,*/ /*isActive, */status, user);
+                var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
+                var result = await _activityService.UpdateAsync(activityId,  title,  description,  address,  maxCapacity, timing, /* cost,*/ /*isActive, */status, user!);
 
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, "Failed to update activity information.");
                     var activity = await _activityService.GetAsync(activityId);
+                    SetTimeZoneOptions(scheduledTimeZoneId);
+                    ViewBag.ScheduledLocalTime = scheduledAt;
                     return View(activity);
                 }
 
@@ -234,10 +250,32 @@ namespace Web.Controllers.Activity
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"{ex.Message}";
+                ModelState.AddModelError(string.Empty, ex.Message);
                 var activity = await _activityService.GetAsync(activityId);
+                SetTimeZoneOptions(scheduledTimeZoneId);
+                ViewBag.ScheduledLocalTime = scheduledAt;
                 return View(activity);
             }
+        }
+
+        private ScheduleTiming CreateTiming(DateTime localTime, string timeZoneId)
+        {
+            if (!_timeZoneService.IsValidTimeZone(timeZoneId))
+                throw new ArgumentException("Please select a valid event time zone.");
+
+            var unspecified = DateTime.SpecifyKind(localTime, DateTimeKind.Unspecified);
+            return new ScheduleTiming
+            {
+                ScheduledAtUtc = _timeZoneService.ConvertLocalToUtc(unspecified, timeZoneId),
+                ScheduledLocalTime = unspecified,
+                TimeZoneId = timeZoneId
+            };
+        }
+
+        private void SetTimeZoneOptions(string? selectedTimeZoneId)
+        {
+            ViewBag.TimeZones = _timeZoneService.GetTimeZones();
+            ViewBag.SelectedTimeZoneId = selectedTimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
         }
     }
 }

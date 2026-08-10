@@ -30,7 +30,7 @@ namespace Core.Services
             _activityRepository = activityRepository;
         }
 
-        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, DateTime scheduledAt, /*Decimal Cost,*/ string status, User user)
+        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, /*Decimal Cost,*/ string status, User user)
         {
 
 
@@ -41,7 +41,9 @@ namespace Core.Services
                 Description = description,
                 Address = address,
                 MaxCapacity = maxCapacity,
-                ScheduledAt = scheduledAt,
+                ScheduledAt = timing.ScheduledAtUtc,
+                ScheduledLocalTime = timing.ScheduledLocalTime,
+                ScheduledTimeZoneId = timing.TimeZoneId,
                 //Cost = Cost,
                 //IsActive = isActive,
                 Status = status,
@@ -73,7 +75,7 @@ namespace Core.Services
         }
 
 
-        public async Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, DateTime scheduledAt, /*Decimal cost,*/ /*bool isActive, */string status, User user)
+        public async Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing, /*Decimal cost,*/ /*bool isActive, */string status, User user)
         //public async Task<bool> UpdateAsync(Activity activity)
         {
             //Find the staff by ID
@@ -88,7 +90,9 @@ namespace Core.Services
             activity.Description = description;
             activity.Address = address;
             activity.MaxCapacity = maxCapacity;
-            activity.ScheduledAt = scheduledAt;
+            activity.ScheduledAt = timing.ScheduledAtUtc;
+            activity.ScheduledLocalTime = timing.ScheduledLocalTime;
+            activity.ScheduledTimeZoneId = timing.TimeZoneId;
             //activity.Cost = cost;
             //activity.IsActive = isActive;
             activity.Status = status;

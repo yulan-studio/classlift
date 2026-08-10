@@ -53,7 +53,7 @@
                             <span>-</span>
                         }
                     </td>
-                    <td style="padding: 10px; border: 1px solid #ddd;">@item.ScheduledAt</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@(item.ScheduledAt.ToUserTime(User, AppTimeZoneService)?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">@item.ActualHours</td>
                     <td style="padding: 10px; border: 1px solid #ddd; color: @(item.BalanceChange < 0 ? "red" : "green");">
                 

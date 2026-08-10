@@ -133,7 +133,7 @@
                     <td class="desktop-only" @* data-label="Location" *@>@enrollment.Location</td>
                     <td @* data-label="Scheduled At" *@>
                         @(enrollment.ScheduledAt.HasValue
-                                        ? enrollment.ScheduledAt.Value.ToString("yyyy-MM-dd HH:mm")
+                                        ? enrollment.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
                                         : "")
             </td>
             <td class="desktop-only" @* data-label="Scheduled Hours" *@>@enrollment.ScheduledHours</td>
@@ -184,7 +184,7 @@
                     <td @* data-label="Activity" *@>@enrollment.Activity.Title</td>
                   @*   <td data-label="Description">@enrollment.Activity.Description</td> *@
                     <td @* data-label="Scheduled At" *@>
-                        @enrollment.Activity.ScheduledAt.ToString("yyyy-MM-dd HH:mm")
+                        @enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
                     </td>
                     <td class="desktop-only" @* data-label="Address" *@>@enrollment.Activity.Address</td>
                     

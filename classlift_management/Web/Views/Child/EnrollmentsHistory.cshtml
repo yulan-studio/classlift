@@ -39,7 +39,7 @@
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Course.Title</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.Course.Coach?.Name ?? "N/A")</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService)?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledHours</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ActualHours</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.Child.HasOAP? enrollment.Course.HourlyCost : enrollment.Course.HourlyCost2)</td>
@@ -81,7 +81,7 @@
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.Title</td>
                
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.ScheduledAt</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@* @enrollment.Activity.Cost *@</td>
                 </tr>
             }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Core.Services;
 
 
 
@@ -31,6 +32,9 @@ namespace Core.Models
         //public int Id { get; set; }
 
         public required string Role { get; set; } // User Role (Admin, Staff, Coach, Child)
+
+        [StringLength(100)]
+        public string TimeZoneId { get; set; } = TimeZoneService.DefaultTimeZoneId;
 
         public int? CreatedBy { get; set; } // Created By User ID (nullable)
 

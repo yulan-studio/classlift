@@ -27,6 +27,11 @@ namespace Core.Models
 
         public DateTime? ScheduledAt { get; set; }
 
+        public DateTime? ScheduledLocalTime { get; set; }
+
+        [MaxLength(100)]
+        public string? ScheduledTimeZoneId { get; set; }
+
         public decimal? ScheduledHours { get; set; }
 
         public decimal? ActualHours { get; set; }

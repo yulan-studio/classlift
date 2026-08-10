@@ -84,7 +84,7 @@
                                 <input type="hidden" asp-for="AvailableSessions[i].ScheduledHours" />
                                 
                             </td>
-                            <td>@Model.AvailableSessions[i].ScheduledAt.ToString("g")</td>
+                            <td>@Model.AvailableSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
                             <td>@Model.AvailableSessions[i].ScheduledHours</td>
                         </tr>
                     }
@@ -136,7 +136,7 @@
                 @for (int i = 0; i < Model.AllSessions.Count; i++)
                 {
                     <tr>
-                        <td>@Model.AllSessions[i].ScheduledAt.ToString("g")</td>
+                        <td>@Model.AllSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
                         <td>@Model.AllSessions[i].ScheduledHours</td>
                         <td style="@(Model.AllSessions[i].Status == "RequestToLeave" ? "background-color: #F8C3DF;" : "")">
                             <select name="AllSessions[@i].Status" class="form-select">
@@ -253,7 +253,7 @@
                 @for (int i = 0; i < Model.ScheduledSessions.Count; i++)
                 {
                     <tr>
-                        <td>@Model.ScheduledSessions[i].ScheduledAt.ToString("g")</td>
+                        <td>@Model.ScheduledSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
                         <td>@Model.ScheduledSessions[i].ScheduledHours</td>
                         <td>
                             <select name="ScheduledSessions[@i].Status" class="form-select">

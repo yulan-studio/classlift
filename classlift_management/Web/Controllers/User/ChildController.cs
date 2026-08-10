@@ -54,10 +54,11 @@ namespace Web.Controllers.User
         private readonly EmailService _emailService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly Core.R2.R2StorageService _r2UploadService;
+        private readonly ITimeZoneService _timeZoneService;
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -76,6 +77,7 @@ namespace Web.Controllers.User
             _emergencyContactService = emergencyContactService;
             _emailService = emailService;
             _calendarService = calendarService;
+            _timeZoneService = timeZoneService;
 
             //_context = context;   // For transaction
         }
@@ -1896,6 +1898,12 @@ namespace Web.Controllers.User
             var user = await _userManager.GetUserAsync(User);
             var child = await _childService.GetByIdAsync(user.Id);
             var schedules = await _calendarService.GetChildCalendar(child.ChildID);
+
+            foreach (var schedule in schedules)
+            {
+                schedule.Start = _timeZoneService.ConvertUtcToLocal(schedule.Start, user.TimeZoneId);
+                schedule.End = _timeZoneService.ConvertUtcToLocal(schedule.End, user.TimeZoneId);
+            }
            
             return Json(schedules);
         }

@@ -97,7 +97,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<CourseEnrollment>> GetFinishedEnrollmentsByChildAsync(int childId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             return await _context.CourseEnrollments
                 .Include(e => e.Course)
@@ -151,7 +151,7 @@ namespace Core.Repositories
         //Include /Scheduled/RequestToReschedule/RequestToCancel/Canceled (not include Registered, Completed, Deleted ) for group courses
         public async Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByChildAsync(int childId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
             return await _context.CourseEnrollments
                 .Include(e => e.Course)
                 .Include(e => e.Course.Coach)
@@ -252,7 +252,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<CourseEnrollment>> GetOverduedEnrollmentsByCourseChildAsync(int courseId, int childId, string status)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             return await _context.CourseEnrollments
                 .Include(e => e.Child)
@@ -294,7 +294,7 @@ namespace Core.Repositories
         //Include /Scheduled/RequestToReschedule/RequestToCancel/Canceled/Deleted (not include Registered, Completed )
         public async Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByCourseChildAsync(int courseId, int childId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
             return await _context.CourseEnrollments
                 .Include(e => e.Child)
                 .Include(e => e.Course)
@@ -342,7 +342,7 @@ namespace Core.Repositories
         //Only return upcoming sessions to delete or edit 
         public async Task<IEnumerable<CourseEnrollment>> GetAllUpcomingSessionsByCourseAsync(int courseId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
             return await _context.CourseEnrollments
                 
                 .Where(e => e.CourseID == courseId && e.Child==null && e.ScheduledAt >= torontoNow)
@@ -352,7 +352,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<CourseEnrollment>> GetAllPastSessionsByCourseAsync(int courseId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
             return await _context.CourseEnrollments
 
                 .Where(e => e.CourseID == courseId && e.Child == null && e.ScheduledAt < torontoNow)
@@ -364,7 +364,7 @@ namespace Core.Repositories
         //Only return List of Upcoming Session IDs in a course that are registered 
         public async Task<List<int?>> GetRegisteredUpcomingSessionsByCourseAsync(int courseId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
             return await _context.CourseEnrollments
                 .Where(e => e.CourseID == courseId && e.ChildID != null && e.ScheduledAt >= torontoNow)
                 .OrderBy(e => e.ScheduledAt) // Sort by ScheduledAt ascending
@@ -439,7 +439,7 @@ namespace Core.Repositories
         public async Task UpdateChildCompletedSessionsAsync(int courseId)
         {
            
-            DateTime now = DateTimeHelper.GetTorontoTime();
+            DateTime now = DateTime.UtcNow;
 
            //Get all sessions of the course, which Status is 'Scheduled'
             var sessionsToUpdate = await _context.CourseEnrollments
@@ -468,7 +468,7 @@ namespace Core.Repositories
         public async Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken)
         {
 
-            DateTime now = DateTimeHelper.GetTorontoTime();
+            DateTime now = DateTime.UtcNow;
 
             //Get all sessions of the course, which Status is 'Scheduled'
             var sessionsToUpdate = await dbContext.CourseEnrollments
@@ -528,7 +528,7 @@ namespace Core.Repositories
         public async Task UpdateCompletedSessionsAsync(int courseId)
         {
 
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             //Get all sessions of the group course, which Status is 'Scheduled'
             var sessionsToUpdate = await _context.CourseEnrollments
@@ -573,7 +573,7 @@ namespace Core.Repositories
         public async Task UpdateCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken)
         {
 
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             //Get all sessions of the group course, which Status is 'Scheduled'
             var sessionsToUpdate = await dbContext.CourseEnrollments

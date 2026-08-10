@@ -27,7 +27,7 @@ namespace Core.Repositories
         {
 
 
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             return await _context.ActivityEnrollments
                 .Include(e => e.Activity)
@@ -44,7 +44,7 @@ namespace Core.Repositories
         public async Task<IEnumerable<ActivityEnrollment>> GetPastEnrollmentsByChildAsync(int childId)
         {
             
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             return await _context.ActivityEnrollments
                 .Include(e => e.Activity)
@@ -157,7 +157,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<ActivityEnrollment>> GetFinishedEnrollmentsByChildAsync(int childId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             return await _context.ActivityEnrollments
            .Include(e => e.Activity)
@@ -175,7 +175,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<ActivityEnrollmentViewModel>> GetUpcomingEnrollmentsViewByChildAsync(int childId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             return await _context.ActivityEnrollments
            .Include(e => e.Activity)
@@ -219,7 +219,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<ActivityEnrollment>> GetRegisteredEnrollmentsByChildAsync(int childId)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             return await _context.ActivityEnrollments
                 .Include(e => e.Activity)
@@ -258,7 +258,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<ActivityEnrollment>> UpdateActivityStatusToCompletedAsync()
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             
             var enrollments = await _context.ActivityEnrollments
@@ -279,7 +279,7 @@ namespace Core.Repositories
         //For backend service to call
         public async Task<IEnumerable<ActivityEnrollment>> UpdateActivityStatusToCompletedAsync(AppDbContext dbContext,CancellationToken cancellationToken)
         {
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
 
             var enrollments = await dbContext.ActivityEnrollments

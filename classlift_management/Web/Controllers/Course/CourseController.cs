@@ -33,15 +33,17 @@ namespace Web.Controllers.Courses
         private readonly ISpecialtyService _specialtyService;
         private readonly ICourseEnrollmentService _courseEnrollmentService;
         private readonly UserManager<Core.Models.User> _userManager;
+        private readonly ITimeZoneService _timeZoneService;
 
 
-        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager)
+        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
         {
             _courseService = courseService;
             _coachService = coachService;
             _specialtyService = specialtyService;
             _userManager = userManager;
             _courseEnrollmentService = courseEnrollmentService;
+            _timeZoneService = timeZoneService;
         }
 
 
@@ -338,6 +340,9 @@ namespace Web.Controllers.Courses
             var allRegisteredUpcomingSessionIds = await _courseEnrollmentService.GetRegisteredUpcomingSessionsByCourseAsync(courseId);
 
             ViewBag.CourseID = courseId;
+            var currentUser = await _userManager.GetUserAsync(User);
+            ViewBag.UserTimeZoneId = currentUser?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
+            ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
            
 
@@ -358,8 +363,10 @@ namespace Web.Controllers.Courses
 
 
 
+        [Authorize(Roles = "Staff")]
         [HttpPost]
-        public async Task<IActionResult> AddSession(int courseId, DateTime scheduledAt, decimal scheduledHours, string location, string staffNote, string repeatType, int repeatCount)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddSession(int courseId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, string staffNote, string repeatType, int repeatCount)
         {
 
 
@@ -377,30 +384,33 @@ namespace Web.Controllers.Courses
 
             try
             {
-                var result = false;
-                if (repeatType == "None" || repeatCount <= 1)
-                {
-                    result = await _courseEnrollmentService.AddSessionToGroupCourseAsync(courseId, scheduledAt, scheduledHours, location, staffNote, user);
-                }
-                else
-                {
-                    DateTime currentDate = scheduledAt;
+                if (!_timeZoneService.IsValidTimeZone(scheduledTimeZoneId))
+                    throw new ArgumentException("Please select a valid event time zone.");
+                if (repeatType is not ("None" or "Daily" or "Weekly"))
+                    throw new ArgumentException("Please select a valid repeat type.");
 
-                    for (int i = 0; i < repeatCount; i++)
+                var totalOccurrences = repeatType == "None" ? 1 : Math.Clamp(repeatCount, 1, 365);
+                var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
+                var timings = new List<ScheduleTiming>();
+
+                for (var i = 0; i < totalOccurrences; i++)
+                {
+                    var utc = _timeZoneService.ConvertLocalToUtc(localTime, scheduledTimeZoneId);
+                    if (utc <= DateTime.UtcNow)
+                        throw new ArgumentException("Scheduled time must be in the future.");
+
+                    timings.Add(new ScheduleTiming
                     {
-                        result = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
-                            courseId, currentDate, scheduledHours, location, staffNote, user);
-
-                        if (repeatType == "Daily")
-                        {
-                            currentDate = currentDate.AddDays(1);
-                        }
-                        else if (repeatType == "Weekly")
-                        {
-                            currentDate = currentDate.AddDays(7);
-                        }
-                    }
+                        ScheduledAtUtc = utc,
+                        ScheduledLocalTime = localTime,
+                        TimeZoneId = scheduledTimeZoneId
+                    });
+                    localTime = repeatType == "Daily" ? localTime.AddDays(1) : localTime.AddDays(7);
                 }
+
+                var result = true;
+                foreach (var timing in timings)
+                    result &= await _courseEnrollmentService.AddSessionToGroupCourseAsync(courseId, timing, scheduledHours, location, staffNote, user!);
                 if (result)
                 {
                     TempData["SuccessMessage"] = "Session(s) added successfully.";
