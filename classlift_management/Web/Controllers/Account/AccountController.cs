@@ -116,13 +116,25 @@ namespace Web.Controllers.Account
         }
 
         [Authorize]
+        [HttpGet("Settings")]
+        public IActionResult Settings(string tab = "TimeZone")
+        {
+            ViewBag.ActiveTab = tab;
+            return View();
+        }
+
+        [Authorize]
         [HttpGet("TimeZone")]
         public async Task<IActionResult> TimeZone(string? returnUrl = null)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
             ViewBag.TimeZones = _timeZoneService.GetTimeZones();
-            return View(new TimeZonePreferenceViewModel { TimeZoneId = user.TimeZoneId, ReturnUrl = returnUrl });
+            return PartialView("_TimeZone", new TimeZonePreferenceViewModel
+            {
+                TimeZoneId = user.TimeZoneId,
+                ReturnUrl = returnUrl
+            });
         }
 
         [Authorize]
@@ -133,7 +145,7 @@ namespace Web.Controllers.Account
             if (!_timeZoneService.IsValidTimeZone(model.TimeZoneId))
                 ModelState.AddModelError(nameof(model.TimeZoneId), "Please select a valid time zone.");
             ViewBag.TimeZones = _timeZoneService.GetTimeZones();
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid) return PartialView("_TimeZone", model);
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
@@ -143,13 +155,12 @@ namespace Web.Controllers.Account
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-                return View(model);
+                return PartialView("_TimeZone", model);
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-                return LocalRedirect(model.ReturnUrl);
-            return RedirectToAction("Index", "Home");
+            ViewBag.SuccessMessage = "Your time zone has been updated.";
+            return PartialView("_TimeZone", model);
         }
         
     }

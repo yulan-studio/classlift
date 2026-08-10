@@ -1,0 +1,52 @@
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<h2>Settings</h2>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
+           href="#"
+           data-url="/Account/TimeZone">Time Zone</a>
+    </li>
+</ul>
+
+<div id="contentArea" class="border p-3">
+    <div class="text-muted">Loading settings...</div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function loadTab(link) {
+                $("ul.nav-tabs a").removeClass("active");
+                link.addClass("active");
+                $("#contentArea").load(link.data("url"));
+            }
+
+            var activeLink = $("ul.nav-tabs a.active");
+            loadTab(activeLink.length ? activeLink : $("ul.nav-tabs a").first());
+
+            $("ul.nav-tabs a").on("click", function (event) {
+                event.preventDefault();
+                loadTab($(this));
+            });
+
+            $(document).on("submit", "#timeZoneSettingsForm", function (event) {
+                event.preventDefault();
+                var form = $(this);
+
+                $.ajax({
+                    url: form.attr("action"),
+                    method: "POST",
+                    data: form.serialize(),
+                    success: function (html) {
+                        $("#contentArea").html(html);
+                    }
+                });
+            });
+        });
+    </script>
+}

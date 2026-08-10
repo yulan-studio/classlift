@@ -2,16 +2,21 @@
 @using Core.Models
 
 @{
-    ViewData["Title"] = "Time zone";
     var timeZones = (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones;
 }
 
-<h2>Time zone</h2>
-<p>This is your default zone for displaying schedules and creating new events.</p>
+<h4>Time Zone</h4>
+<p class="text-muted">This is your default zone for displaying schedules and creating new events.</p>
 
-<form asp-action="TimeZone" method="post" style="max-width: 560px;">
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+}
+
+<form id="timeZoneSettingsForm" asp-controller="Account" asp-action="TimeZone" method="post" style="max-width: 560px;">
     <input asp-for="ReturnUrl" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
     <label asp-for="TimeZoneId" class="form-label">Default time zone</label>
     <select asp-for="TimeZoneId" class="form-select" required>
         @foreach (var zone in timeZones)
@@ -20,5 +25,6 @@
         }
     </select>
     <span asp-validation-for="TimeZoneId" class="text-danger"></span>
-    <button type="submit" class="btn btn-primary mt-3">Save time zone</button>
+
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
 </form>
