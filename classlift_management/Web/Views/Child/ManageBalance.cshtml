@@ -37,7 +37,7 @@
             foreach (var item in Model.BalanceHistory)
             {
                 <tr>
-                    <td style="padding: 10px; border: 1px solid #ddd;">@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@item.CreatedDate.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">@item.Type</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">
                         @if (!string.IsNullOrEmpty(item.CourseName))
