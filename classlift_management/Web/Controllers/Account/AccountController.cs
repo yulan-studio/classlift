@@ -162,6 +162,42 @@ namespace Web.Controllers.Account
             ViewBag.SuccessMessage = "Your time zone has been updated.";
             return PartialView("_TimeZone", model);
         }
+
+        [Authorize(Roles = "Child,Coach,Staff")]
+        [HttpGet("ChangePassword")]
+        public IActionResult ChangePassword()
+        {
+            return PartialView("_ChangePassword", new ChangePasswordViewModel());
+        }
+
+        [Authorize(Roles = "Child,Coach,Staff")]
+        [HttpPost("ChangePassword")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return PartialView("_ChangePassword", model);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var result = await _userManager.ChangePasswordAsync(
+                user,
+                model.CurrentPassword,
+                model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return PartialView("_ChangePassword", model);
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+            ModelState.Clear();
+            ViewBag.SuccessMessage = "Your password has been changed.";
+            return PartialView("_ChangePassword", new ChangePasswordViewModel());
+        }
         
     }
 }

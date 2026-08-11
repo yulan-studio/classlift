@@ -13,7 +13,7 @@
     <div class="alert alert-success">@ViewBag.SuccessMessage</div>
 }
 
-<form id="timeZoneSettingsForm" asp-controller="Account" asp-action="TimeZone" method="post" style="max-width: 560px;">
+<form id="timeZoneSettingsForm" class="settings-form" asp-controller="Account" asp-action="TimeZone" method="post" style="max-width: 560px;">
     <input asp-for="ReturnUrl" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 

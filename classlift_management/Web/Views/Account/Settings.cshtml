@@ -10,6 +10,14 @@
            href="#"
            data-url="/Account/TimeZone">Time Zone</a>
     </li>
+    @if (User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
+    {
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "ChangePassword" ? "active" : "")"
+               href="#"
+               data-url="/Account/ChangePassword">Change Password</a>
+        </li>
+    }
 </ul>
 
 <div id="contentArea" class="border p-3">
@@ -34,7 +42,7 @@
                 loadTab($(this));
             });
 
-            $(document).on("submit", "#timeZoneSettingsForm", function (event) {
+            $(document).on("submit", ".settings-form", function (event) {
                 event.preventDefault();
                 var form = $(this);
 
