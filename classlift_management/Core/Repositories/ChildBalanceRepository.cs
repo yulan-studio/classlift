@@ -33,7 +33,7 @@ namespace Core.Repositories
         }
 
 
-        public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, int createdBy)
+        public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, string fileUrl, int createdBy)
         {
             decimal latestBalance = await GetFinalBalanceAsync(childId);
 
@@ -44,10 +44,11 @@ namespace Core.Repositories
                 BalanceChange = amount,
                 Balance = latestBalance + amount,
                 TransactionType = "Payment",
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                Calculation = fileUrl,
+                CreatedDate = DateTime.UtcNow,
                 CreatedBy = createdBy,
                 UpdatedBy = createdBy,
-                UpdatedDate = DateTimeHelper.GetTorontoTime()
+                UpdatedDate = DateTime.UtcNow
             };
 
             _context.ChildBalances.Add(newEntry);
@@ -97,10 +98,10 @@ namespace Core.Repositories
                 BalanceChange = costForThisSession*(-1),
                 Balance = latestBalance - costForThisSession,
                 TransactionType = "Course Session",
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 CreatedBy = createdBy,
                 UpdatedBy = createdBy,
-                UpdatedDate = DateTimeHelper.GetTorontoTime()
+                UpdatedDate = DateTime.UtcNow
             };
 
             _context.ChildBalances.Add(newEntry);
@@ -119,10 +120,10 @@ namespace Core.Repositories
                 BalanceChange = -cost,
                 Balance = latestBalance - cost,
                 TransactionType = "Course",
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 //CreatedBy = createdBy,
                 //UpdatedBy = createdBy,
-                UpdatedDate = DateTimeHelper.GetTorontoTime()
+                UpdatedDate = DateTime.UtcNow
             };
 
             _context.ChildBalances.Add(newEntry);
@@ -142,10 +143,10 @@ namespace Core.Repositories
                 BalanceChange = -cost,
                 Balance = latestBalance - cost,
                 TransactionType = "Activity",
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 //CreatedBy = createdBy,
                 //UpdatedBy = createdBy,
-                UpdatedDate = DateTimeHelper.GetTorontoTime()
+                UpdatedDate = DateTime.UtcNow
             };
 
             _context.ChildBalances.Add(newEntry);
@@ -163,11 +164,11 @@ namespace Core.Repositories
                 CourseID = courseId,
                 BalanceChange = -cost,
                 Balance = latestBalance - cost,
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 TransactionType = "Course",
                 //CreatedBy = createdBy,
                 //UpdatedBy = createdBy,
-                UpdatedDate = DateTimeHelper.GetTorontoTime()
+                UpdatedDate = DateTime.UtcNow
             };
 
             _context.ChildBalances.Add(newEntry);

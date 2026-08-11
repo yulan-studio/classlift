@@ -29,15 +29,6 @@ CREATE TABLE `__efmigrationshistory` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `__efmigrationshistory`
---
-
-LOCK TABLES `__efmigrationshistory` WRITE;
-/*!40000 ALTER TABLE `__efmigrationshistory` DISABLE KEYS */;
-INSERT INTO `__efmigrationshistory` VALUES ('20250309170601_RenameIdentityTables','8.0.2');
-/*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `activities`
@@ -61,6 +52,8 @@ CREATE TABLE `activities` (
   `UpdatedBy` int DEFAULT NULL,
   `CreatedDate` datetime(6) NOT NULL,
   `UpdatedDate` datetime(6) NOT NULL,
+  `ScheduledLocalTime` datetime(6) DEFAULT NULL,
+  `ScheduledTimeZoneId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`ActivityID`),
   KEY `IX_activities_ContactID` (`ContactID`),
   KEY `IX_activities_CreatedBy` (`CreatedBy`),
@@ -71,14 +64,6 @@ CREATE TABLE `activities` (
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `activities`
---
-
-LOCK TABLES `activities` WRITE;
-/*!40000 ALTER TABLE `activities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `activities` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `activity_enrollments`
@@ -108,14 +93,6 @@ CREATE TABLE `activity_enrollments` (
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `activity_enrollments`
---
-
-LOCK TABLES `activity_enrollments` WRITE;
-/*!40000 ALTER TABLE `activity_enrollments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `activity_enrollments` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `activity_feedback`
@@ -145,14 +122,6 @@ CREATE TABLE `activity_feedback` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `activity_feedback`
---
-
-LOCK TABLES `activity_feedback` WRITE;
-/*!40000 ALTER TABLE `activity_feedback` DISABLE KEYS */;
-/*!40000 ALTER TABLE `activity_feedback` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `activity_notifications`
@@ -183,14 +152,6 @@ CREATE TABLE `activity_notifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `activity_notifications`
---
-
-LOCK TABLES `activity_notifications` WRITE;
-/*!40000 ALTER TABLE `activity_notifications` DISABLE KEYS */;
-/*!40000 ALTER TABLE `activity_notifications` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `admins`
@@ -211,14 +172,6 @@ CREATE TABLE `admins` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `admins`
---
-
-LOCK TABLES `admins` WRITE;
-/*!40000 ALTER TABLE `admins` DISABLE KEYS */;
-/*!40000 ALTER TABLE `admins` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `child_balance`
@@ -254,17 +207,9 @@ CREATE TABLE `child_balance` (
   CONSTRAINT `FK_child_balance_course_enrollments_EnrollmentID` FOREIGN KEY (`EnrollmentID`) REFERENCES `course_enrollments` (`EnrollmentID`),
   CONSTRAINT `FK_child_balance_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`),
   CONSTRAINT `FK_child_balance_payments_PaymentID` FOREIGN KEY (`PaymentID`) REFERENCES `payments` (`PaymentID`)
-) ENGINE=InnoDB AUTO_INCREMENT=326 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=332 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `child_balance`
---
-
-LOCK TABLES `child_balance` WRITE;
-/*!40000 ALTER TABLE `child_balance` DISABLE KEYS */;
-/*!40000 ALTER TABLE `child_balance` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `children`
@@ -301,17 +246,9 @@ CREATE TABLE `children` (
   CONSTRAINT `FK_children_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_children_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_children_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=172 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=174 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `children`
---
-
-LOCK TABLES `children` WRITE;
-/*!40000 ALTER TABLE `children` DISABLE KEYS */;
-/*!40000 ALTER TABLE `children` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `cities`
@@ -332,17 +269,9 @@ CREATE TABLE `cities` (
   KEY `IX_cities_UpdatedBy` (`UpdatedBy`),
   CONSTRAINT `FK_cities_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_cities_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `cities`
---
-
-LOCK TABLES `cities` WRITE;
-/*!40000 ALTER TABLE `cities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cities` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `coach_income`
@@ -372,14 +301,6 @@ CREATE TABLE `coach_income` (
 ) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `coach_income`
---
-
-LOCK TABLES `coach_income` WRITE;
-/*!40000 ALTER TABLE `coach_income` DISABLE KEYS */;
-/*!40000 ALTER TABLE `coach_income` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `coach_specialty`
@@ -398,14 +319,6 @@ CREATE TABLE `coach_specialty` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `coach_specialty`
---
-
-LOCK TABLES `coach_specialty` WRITE;
-/*!40000 ALTER TABLE `coach_specialty` DISABLE KEYS */;
-/*!40000 ALTER TABLE `coach_specialty` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `coaches`
@@ -442,17 +355,9 @@ CREATE TABLE `coaches` (
   KEY `IX_coaches_CityID` (`CityID`),
   CONSTRAINT `FK_coaches_cities_CityID` FOREIGN KEY (`CityID`) REFERENCES `cities` (`CityID`) ON DELETE CASCADE,
   CONSTRAINT `FK_coaches_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=143 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `coaches`
---
-
-LOCK TABLES `coaches` WRITE;
-/*!40000 ALTER TABLE `coaches` DISABLE KEYS */;
-/*!40000 ALTER TABLE `coaches` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `course_enrollments`
@@ -478,6 +383,8 @@ CREATE TABLE `course_enrollments` (
   `CoachNote` text,
   `Location` varchar(100) DEFAULT NULL,
   `EnrollmentID_Ref` int DEFAULT NULL,
+  `ScheduledLocalTime` datetime(6) DEFAULT NULL,
+  `ScheduledTimeZoneId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`EnrollmentID`),
   KEY `IX_course_enrollments_ChildID` (`ChildID`),
   KEY `IX_course_enrollments_CourseID` (`CourseID`),
@@ -487,17 +394,9 @@ CREATE TABLE `course_enrollments` (
   CONSTRAINT `FK_course_enrollments_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`) ON DELETE CASCADE,
   CONSTRAINT `FK_course_enrollments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_course_enrollments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1128 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `course_enrollments`
---
-
-LOCK TABLES `course_enrollments` WRITE;
-/*!40000 ALTER TABLE `course_enrollments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_enrollments` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `course_notifications`
@@ -529,14 +428,6 @@ CREATE TABLE `course_notifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `course_notifications`
---
-
-LOCK TABLES `course_notifications` WRITE;
-/*!40000 ALTER TABLE `course_notifications` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_notifications` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `courses`
@@ -570,17 +461,9 @@ CREATE TABLE `courses` (
   CONSTRAINT `FK_courses_specialties_SpecialtyID` FOREIGN KEY (`SpecialtyID`) REFERENCES `specialties` (`SpecialtyID`),
   CONSTRAINT `FK_courses_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_courses_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `courses`
---
-
-LOCK TABLES `courses` WRITE;
-/*!40000 ALTER TABLE `courses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `courses` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `emergency_contacts`
@@ -609,14 +492,6 @@ CREATE TABLE `emergency_contacts` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `emergency_contacts`
---
-
-LOCK TABLES `emergency_contacts` WRITE;
-/*!40000 ALTER TABLE `emergency_contacts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `emergency_contacts` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `fees`
@@ -648,17 +523,9 @@ CREATE TABLE `fees` (
   CONSTRAINT `FK_fee_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_fee_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `chk_only_one` CHECK ((((`CourseEnrollmentID` is not null) and (`ActivityEnrollmentID` is null)) or ((`CourseEnrollmentID` is null) and (`ActivityEnrollmentID` is not null))))
-) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `fees`
---
-
-LOCK TABLES `fees` WRITE;
-/*!40000 ALTER TABLE `fees` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fees` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `parent_child`
@@ -681,17 +548,9 @@ CREATE TABLE `parent_child` (
   KEY `IX_parent_child_ParentID` (`ParentID`),
   CONSTRAINT `FK_parent_child_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
   CONSTRAINT `FK_parent_child_parents_ParentID` FOREIGN KEY (`ParentID`) REFERENCES `parents` (`ParentID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `parent_child`
---
-
-LOCK TABLES `parent_child` WRITE;
-/*!40000 ALTER TABLE `parent_child` DISABLE KEYS */;
-/*!40000 ALTER TABLE `parent_child` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `parents`
@@ -715,17 +574,9 @@ CREATE TABLE `parents` (
   KEY `IX_parents_UpdatedBy` (`UpdatedBy`),
   CONSTRAINT `FK_parents_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_parents_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `parents`
---
-
-LOCK TABLES `parents` WRITE;
-/*!40000 ALTER TABLE `parents` DISABLE KEYS */;
-/*!40000 ALTER TABLE `parents` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `payment_package`
@@ -745,17 +596,9 @@ CREATE TABLE `payment_package` (
   `CreatedDate` datetime(6) NOT NULL,
   `UpdatedDate` datetime(6) NOT NULL,
   PRIMARY KEY (`PackageID`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `payment_package`
---
-
-LOCK TABLES `payment_package` WRITE;
-/*!40000 ALTER TABLE `payment_package` DISABLE KEYS */;
-/*!40000 ALTER TABLE `payment_package` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `payments`
@@ -789,17 +632,9 @@ CREATE TABLE `payments` (
   CONSTRAINT `FK_payments_payment_package_PaymentPackageID` FOREIGN KEY (`PaymentPackageID`) REFERENCES `payment_package` (`PackageID`),
   CONSTRAINT `FK_payments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_payments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `payments`
---
-
-LOCK TABLES `payments` WRITE;
-/*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `payments` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `roleclaims`
@@ -819,14 +654,6 @@ CREATE TABLE `roleclaims` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `roleclaims`
---
-
-LOCK TABLES `roleclaims` WRITE;
-/*!40000 ALTER TABLE `roleclaims` DISABLE KEYS */;
-/*!40000 ALTER TABLE `roleclaims` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `roles`
@@ -842,17 +669,9 @@ CREATE TABLE `roles` (
   `ConcurrencyStamp` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `RoleNameIndex` (`NormalizedName`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `roles`
---
-
-LOCK TABLES `roles` WRITE;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `specialties`
@@ -874,17 +693,9 @@ CREATE TABLE `specialties` (
   KEY `IX_specialties_UpdatedBy` (`UpdatedBy`),
   CONSTRAINT `FK_specialties_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_specialties_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `specialties`
---
-
-LOCK TABLES `specialties` WRITE;
-/*!40000 ALTER TABLE `specialties` DISABLE KEYS */;
-/*!40000 ALTER TABLE `specialties` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `staff`
@@ -902,17 +713,9 @@ CREATE TABLE `staff` (
   PRIMARY KEY (`StaffID`),
   UNIQUE KEY `IX_staff_UserID` (`UserID`),
   CONSTRAINT `FK_staff_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `staff`
---
-
-LOCK TABLES `staff` WRITE;
-/*!40000 ALTER TABLE `staff` DISABLE KEYS */;
-/*!40000 ALTER TABLE `staff` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `tenant_settings`
@@ -944,14 +747,6 @@ CREATE TABLE `tenant_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `tenant_settings`
---
-
-LOCK TABLES `tenant_settings` WRITE;
-/*!40000 ALTER TABLE `tenant_settings` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tenant_settings` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `userclaims`
@@ -971,14 +766,6 @@ CREATE TABLE `userclaims` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `userclaims`
---
-
-LOCK TABLES `userclaims` WRITE;
-/*!40000 ALTER TABLE `userclaims` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userclaims` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `userlogins`
@@ -998,14 +785,6 @@ CREATE TABLE `userlogins` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `userlogins`
---
-
-LOCK TABLES `userlogins` WRITE;
-/*!40000 ALTER TABLE `userlogins` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogins` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `userroles`
@@ -1024,14 +803,6 @@ CREATE TABLE `userroles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `userroles`
---
-
-LOCK TABLES `userroles` WRITE;
-/*!40000 ALTER TABLE `userroles` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userroles` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users`
@@ -1061,20 +832,13 @@ CREATE TABLE `users` (
   `LockoutEnd` datetime(6) DEFAULT NULL,
   `LockoutEnabled` tinyint(1) NOT NULL,
   `AccessFailedCount` int NOT NULL,
+  `TimeZoneId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'America/Toronto',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UserNameIndex` (`NormalizedUserName`),
   KEY `EmailIndex` (`NormalizedEmail`)
-) ENGINE=InnoDB AUTO_INCREMENT=339 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=345 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `usertokens`
@@ -1093,14 +857,6 @@ CREATE TABLE `usertokens` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `usertokens`
---
-
-LOCK TABLES `usertokens` WRITE;
-/*!40000 ALTER TABLE `usertokens` DISABLE KEYS */;
-/*!40000 ALTER TABLE `usertokens` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1111,4 +867,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-30  8:19:51
+-- Dump completed on 2026-08-11 18:20:39

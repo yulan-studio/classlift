@@ -36,7 +36,7 @@ namespace Web.Controllers.User
         // POST: Add Staff Action
         [HttpPost("Add")]
         //[HttpPost]
-        public async Task<IActionResult> Add(string name, string email, string password, string phone, string wechat)
+        public async Task<IActionResult> Add(string name, string email, string password, string? phone, string? wechat)
         {
 
             if (!ModelState.IsValid)
@@ -156,7 +156,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Admin")]
         [HttpPost("Edit/{staffId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int staffId, string name, string email, /*string password,*/ string phone, string wechat)
+        public async Task<IActionResult> Edit(int staffId, string name, string email, /*string password,*/ string? phone, string? wechat)
         {
             
 

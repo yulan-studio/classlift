@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Core.Interfaces;
+using Core;
 
 namespace Web.Controllers.Report
 {
@@ -14,10 +15,12 @@ namespace Web.Controllers.Report
     {
         //private readonly ICourseEnrollmentService _courseEnrollmentService;
         private readonly IReportService _reportService;
+        private readonly ITimeZoneService _timeZoneService;
 
-        public ReportController(IReportService reportervice)
+        public ReportController(IReportService reportervice, ITimeZoneService timeZoneService)
         {
             _reportService = reportervice;
+            _timeZoneService = timeZoneService;
         }
 
 
@@ -52,22 +55,33 @@ namespace Web.Controllers.Report
         [HttpGet("GetChildDetails")]
         public IActionResult GetChildDetails(DateTime? from, DateTime? to)
         {
-            var data = _reportService.GetChildDetails(from, to);
+            var (fromUtc, toUtc) = ConvertRangeToUtc(from, to);
+            var data = _reportService.GetChildDetails(fromUtc, toUtc);
             return Json(data);
         }
 
         [HttpGet("GetCoachDetails")]
         public IActionResult GetCoachDetails(DateTime? from, DateTime? to)
         {
-            var data = _reportService.GetCoachDetails(from, to);
+            var (fromUtc, toUtc) = ConvertRangeToUtc(from, to);
+            var data = _reportService.GetCoachDetails(fromUtc, toUtc);
             return Json(data);
         }
 
         [HttpGet("GetCourseDetails")]
         public IActionResult GetCourseDetails(DateTime? from, DateTime? to)
         {
-            var data = _reportService.GetCourseDetails(from, to);
+            var (fromUtc, toUtc) = ConvertRangeToUtc(from, to);
+            var data = _reportService.GetCourseDetails(fromUtc, toUtc);
             return Json(data);
+        }
+
+        private (DateTime? FromUtc, DateTime? ToUtc) ConvertRangeToUtc(DateTime? from, DateTime? to)
+        {
+            var zoneId = User.GetTimeZoneId();
+            return (
+                from.HasValue ? _timeZoneService.ConvertLocalToUtc(from.Value, zoneId) : null,
+                to.HasValue ? _timeZoneService.ConvertLocalToUtc(to.Value, zoneId) : null);
         }
 
 

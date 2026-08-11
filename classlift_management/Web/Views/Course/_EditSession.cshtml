@@ -12,7 +12,7 @@
 
     <div style="margin-bottom: 10px;">
         <strong>Scheduled At:</strong><br />
-        <input type="text" name="scheduledAt" value="@(Model.ScheduledAt?.ToString("yyyy-MM-dd HH:mm"))" disabled style="width: 50%; padding: 5px;" />
+        <input type="text" name="scheduledAt" value="@(Model.ScheduledAt.ToUserTime(User, AppTimeZoneService)?.ToString("yyyy-MM-dd HH:mm"))" disabled style="width: 50%; padding: 5px;" />
     </div> 
 
    <div style="margin-bottom: 10px;">

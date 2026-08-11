@@ -84,7 +84,7 @@
                                     @for (int i = 0; i < courseSchedulesToConfirm.Schedules.Count; i++)
                                     {
                                         var schedule = courseSchedulesToConfirm.Schedules[i];
-                                        var scheduledAt = schedule.ScheduledAt;
+                                        var scheduledAt = schedule.ScheduledAt.ToUserTime(User, AppTimeZoneService);
                                         var scheduledHours = schedule.ScheduledHours.HasValue ? (double)schedule.ScheduledHours.Value : 0;
                                         DateTime? endTime = scheduledAt?.AddHours(scheduledHours);
 
@@ -281,7 +281,7 @@
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Description</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Address</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                         @*  <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.TotalCost</td> *@
                         <td style="padding: 8px; border: 1px solid #ddd;@(enrollment.Status == "Canceled" ? "color: red" : "")">@enrollment.Status</td>
 

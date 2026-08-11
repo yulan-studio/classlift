@@ -12,11 +12,11 @@ namespace Core.Interfaces
     {
 
                
-        Task<bool> AddAsync(string name, string email, string password, string phone, string wechat, User user);
+        Task<bool> AddAsync(string name, string email, string password, string? phone, string? wechat, User user);
 
         Task<bool> RemoveAsync(int staffId);
 
-        Task<bool> UpdateAsync(int staffId, string name, string email, /*string password, */  string phone, string wechat, User user);
+        Task<bool> UpdateAsync(int staffId, string name, string email, /*string password, */  string? phone, string? wechat, User user);
 
         Task<Staff> GetAsync(int staffId);
 

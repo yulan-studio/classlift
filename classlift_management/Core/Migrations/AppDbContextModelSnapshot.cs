@@ -58,6 +58,13 @@ namespace Core.Migrations
                     b.Property<DateTime?>("ScheduledAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime?>("ScheduledLocalTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ScheduledTimeZoneId")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -537,6 +544,13 @@ namespace Core.Migrations
                     b.Property<DateTime?>("ScheduledAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime?>("ScheduledLocalTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ScheduledTimeZoneId")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<decimal?>("ScheduledHours")
                         .HasColumnType("decimal(65,30)");
 
@@ -922,6 +936,11 @@ namespace Core.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");

@@ -248,7 +248,7 @@
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Address</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToString("yyyy-MM-dd")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd")</td>
                    @*  <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.Cost</td> *@
                     <td style="padding: 8px; border: 1px solid #ddd;">
 
@@ -508,10 +508,10 @@
         if (paymentModel === "Token" && totalCost && totalCost !== "0") {
             descriptionInput.value = `Use Token - $${totalCost} will be deducted from your balance once confirmed.`;
         } else if (paymentModel === "Direct" && totalCost && totalCost !== "0") {
-            descriptionInput.value = `Please email transfer $${totalCost} to accounting@ncoatoronto.ca, and send screenshot to customer service.`;
+            descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
         } 
         else if (paymentModel === "OAP" && totalCost && totalCost !== "0") {
-            descriptionInput.value = `Please email transfer $${totalCost} to info@nutcrackertherapy.ca, and send screenshot to customer service.`;
+            descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
         }
         // else if (paymentModel === "Token" && totalCost === null) {
         //     descriptionInput.value = "To be charged in sessions";

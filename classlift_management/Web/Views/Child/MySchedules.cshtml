@@ -163,7 +163,7 @@
                             {
                                 var schedule = courseSchedules.Schedules[i];
                                 //var isWithin24Hours = schedule.ScheduledAt.HasValue && (schedule.ScheduledAt.Value - now).TotalHours < 24;
-                                var now = Core.DateTimeHelper.GetTorontoTime();
+                                var now = DateTime.UtcNow;
                                 //var scheduledUtc = TimeZoneInfo.ConvertTimeToUtc(schedule.ScheduledAt.Value, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
                                 var isWithin24Hours = (schedule.ScheduledAt.Value - now).TotalHours < 24;
 
@@ -171,7 +171,7 @@
                                 <tr>
                            
                                     @{
-                                        var scheduledAt = courseSchedules.Schedules[i].ScheduledAt;
+                                        var scheduledAt = courseSchedules.Schedules[i].ScheduledAt.ToUserTime(User, AppTimeZoneService);
                                         var scheduledHours = courseSchedules.Schedules[i].ScheduledHours.HasValue ? (double)courseSchedules.Schedules[i].ScheduledHours.Value : 0;
                                         DateTime? endTime = scheduledAt?.AddHours(scheduledHours);
                                     }
@@ -331,7 +331,7 @@ else
                     <td data-label="Activity">@enrollment.Activity.Title</td>
                     <td data-label="Description">@enrollment.Activity.Description</td>
                     <td data-label="Address">@enrollment.Activity.Address</td>
-                    <td data-label="Scheduled At">@enrollment.Activity.ScheduledAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td data-label="Scheduled At">@enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                     <td data-label="Status">@enrollment.Status</td>
                 </tr>
             }

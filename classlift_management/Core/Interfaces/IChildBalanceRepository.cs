@@ -12,7 +12,7 @@ namespace Core.Interfaces
     public interface IChildBalanceRepository 
     {
         Task<bool> AddBalanceAsync(Core.Models.ChildBalance balance);
-        Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, int createdBy);
+        Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, string fileUrl, int createdBy);
 
         Task<bool> RemovePaymentToBalanceAsync(int childId, int paymentId, int createdBy);
 

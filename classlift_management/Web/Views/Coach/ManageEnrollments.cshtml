@@ -162,7 +162,7 @@
                 {
                     <tr>
 
-                        <td>@((schedule.ScheduledAt.HasValue) ? schedule.ScheduledAt.Value.ToString("yyyy-MM-dd HH:mm") : "")</td>
+                        <td>@((schedule.ScheduledAt.HasValue) ? schedule.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
                         <td>@schedule.ScheduledHours</td>
                         <td>
 
@@ -282,7 +282,7 @@
             {
                 <tr>
 
-                    <td>@((complete.ScheduledAt.HasValue) ? complete.ScheduledAt.Value.ToString("yyyy-MM-dd") : "")</td>
+                    <td>@((complete.ScheduledAt.HasValue) ? complete.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
                     <td>@complete.ScheduledHours</td>
                     <td>@complete.ActualHours</td>
                     <td class="desktop-only">@complete.ParentNote</td>
@@ -329,7 +329,7 @@
             {
                 <tr>
 
-                    <td>@((deleted.ScheduledAt.HasValue) ? deleted.ScheduledAt.Value.ToString("yyyy-MM-dd HH:mm") : "")</td>
+                    <td>@((deleted.ScheduledAt.HasValue) ? deleted.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
                     <td>@deleted.ScheduledHours</td>
                     <td class="desktop-only">@deleted.ActualHours</td>
                     <td>@deleted.ParentNote</td>

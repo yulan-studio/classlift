@@ -44,13 +44,19 @@ var platformConnectionBuilder =
 
 var platformConnectionString =
     platformConnectionBuilder.ConnectionString;
+var localAppConnectionBuilder = new MySqlConnectionStringBuilder(baseConnectionString)
+{
+    Database = "classlift"
+};
+var localAppConnectionString = localAppConnectionBuilder.ConnectionString;
+var mySqlServerVersion = new MySqlServerVersion(new Version(8, 0, 0));
 
 //Register the fixed platform BillingDbContext
 builder.Services.AddDbContext<BillingDbContext>(options =>
 {
     options.UseMySql(
         platformConnectionString,
-        ServerVersion.AutoDetect(platformConnectionString));
+        mySqlServerVersion);
 });
 
 builder.Services.AddScoped<Core.Models.CurrentTenant>();
@@ -70,14 +76,20 @@ builder.Services.AddDbContext<AppDbContext>(
         if (!currentTenant.IsResolved ||
             string.IsNullOrWhiteSpace(currentTenant.DatabaseName))
         {
-            throw new InvalidOperationException(
-                "AppDbContext was requested before the tenant was resolved.");
+            if (!builder.Environment.IsDevelopment())
+            {
+                throw new InvalidOperationException(
+                    "AppDbContext was requested before the tenant was resolved.");
+            }
+
+            options.UseMySql(localAppConnectionString, mySqlServerVersion);
+            return;
         }
 
 
         options.UseMySql(
             currentTenant.ConnectionString,
-            ServerVersion.AutoDetect(currentTenant.ConnectionString));
+            mySqlServerVersion);
     });
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
@@ -146,6 +158,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddScoped<IUserRepository<User>, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<ITimeZoneService, TimeZoneService>();
 
 // Add UserService
 builder.Services.AddScoped<IStaffRepository, StaffRepository>();
@@ -244,6 +257,8 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, TimeZoneClaimsPrincipalFactory>();
 
 
 

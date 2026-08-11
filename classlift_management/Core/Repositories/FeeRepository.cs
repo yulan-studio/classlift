@@ -199,7 +199,7 @@ namespace Core.Repositories
 
                 // Optional tracking fields (only include if your table has these)
                 fee.UpdatedBy = userId;
-                fee.UpdatedAt = DateTimeHelper.GetTorontoTime();
+                fee.UpdatedAt = DateTime.UtcNow;
 
                 _context.Fees.Update(fee);
                 await _context.SaveChangesAsync();
@@ -228,7 +228,7 @@ namespace Core.Repositories
 
                 // Optional tracking fields (only include if your table has these)
                 fee.UpdatedBy = userId;
-                fee.UpdatedAt = DateTimeHelper.GetTorontoTime();
+                fee.UpdatedAt = DateTime.UtcNow;
 
                 _context.Fees.Update(fee);
                 await _context.SaveChangesAsync();

@@ -112,7 +112,7 @@ namespace Core.Services
         }
 
 
-        public async Task<bool> UpdateAsync(int staffId, string name,string email, /*string password,*/ string phone, string wechat, User user)
+        public async Task<bool> UpdateAsync(int staffId, string name,string email, /*string password,*/ string? phone, string? wechat, User user)
         {
             // Find the staff by ID
             var staff = await _staffRepository.GetAsync(staffId);

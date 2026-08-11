@@ -140,13 +140,14 @@
             
             foreach (var s in Model.Schedules)
             {
-                var start = s.ScheduledAt.HasValue ? s.ScheduledAt.Value :Core.DateTimeHelper.GetTorontoTime();
+                var startUtc = s.ScheduledAt.HasValue ? s.ScheduledAt.Value : DateTime.UtcNow;
+                var start = startUtc.ToUserTime(User, AppTimeZoneService);
                 var hours = s.ScheduledHours ?? 0;
                 var end = start.AddHours((double)hours);
-                var now = Core.DateTimeHelper.GetTorontoTime();
+                var now = DateTime.UtcNow;
                 //var now = DateTime.UtcNow;
                 //var scheduledUtc = start.HasValue ? TimeZoneInfo.ConvertTimeToUtc(start.Value, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")) : now;
-                var isWithin24Hours = (start - now).TotalHours < 24;
+                var isWithin24Hours = (startUtc - now).TotalHours < 24;
 
                 <tr id="row-@s.EnrollmentID">
                     <td data-label="Date">@start.ToString("yyyy-MM-dd")</td>
@@ -224,6 +225,14 @@
         <div class="mb-2">
             <strong>Scheduled Date</strong>
             <input type="datetime-local" id="scheduledAt" name="scheduledAt" class="form-control" required />
+
+            <label for="scheduledTimeZoneId" class="form-label mt-2">Event Time Zone</label>
+            <select id="scheduledTimeZoneId" name="scheduledTimeZoneId" class="form-select" required>
+                @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
+                {
+                    <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.UserTimeZoneId)">@zone.DisplayName (@zone.Id)</option>
+                }
+            </select>
             <span id="scheduledAtError" class="text-danger"></span>
         </div>
 

@@ -139,6 +139,12 @@ namespace Core.Contexts
             modelBuilder.Entity<Core.Models.Activity>()
             .ToTable("activities"); // Explicitly map to the table name
 
+            modelBuilder.Entity<Core.Models.Activity>()
+                .Property(a => a.ScheduledAt)
+                .HasConversion(
+                    value => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+                    value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
+
             modelBuilder.Entity<ActivityEnrollment>()
                 .ToTable("activity_enrollments"); // Explicitly map to the table name
 
@@ -173,6 +179,12 @@ namespace Core.Contexts
 
             modelBuilder.Entity<CourseEnrollment>()
           .ToTable("course_enrollments"); // Explicitly map to the table name
+
+            modelBuilder.Entity<CourseEnrollment>()
+                .Property(e => e.ScheduledAt)
+                .HasConversion(
+                    value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value,
+                    value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value);
 
             modelBuilder.Entity<CourseNotification>()
           .ToTable("course_notifications"); // Explicitly map to the table name
