@@ -20,6 +20,24 @@
             flex: 1;
         }
 
+        /* Keep every full-page title the same size as the Settings h2.
+           Section headings inside cards, tabs, and page content retain their hierarchy. */
+        main > h1,
+        main > h2,
+        main > h3 {
+            font-size: calc(1.325rem + 0.9vw);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        @@media (min-width: 1200px) {
+            main > h1,
+            main > h2,
+            main > h3 {
+                font-size: 2rem;
+            }
+        }
+
         .navbar-brand img {
             max-height: 50px;
         }
