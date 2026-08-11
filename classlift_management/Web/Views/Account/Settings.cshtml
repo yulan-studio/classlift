@@ -18,6 +18,14 @@
                data-url="/Account/ChangePassword">Change Password</a>
         </li>
     }
+    @if (User.IsInRole("Staff"))
+    {
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "ResetPassword" ? "active" : "")"
+               href="#"
+               data-url="/Account/ResetPassword">Reset Password</a>
+        </li>
+    }
 </ul>
 
 <div id="contentArea" class="border p-3">
