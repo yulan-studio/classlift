@@ -214,7 +214,7 @@
                     <td data-label="Activity">@enrollment.Title</td>
                     <td data-label="Description">@enrollment.Description</td>
                     <td data-label="Address">@enrollment.Address</td>
-                    <td data-label="Scheduled At">@enrollment.ScheduledAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td data-label="Scheduled At">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                     <td data-label="Status">@enrollment.Status</td>
                     <td data-label="Is Paid">
                         @if (!enrollment.IsPaid)

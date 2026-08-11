@@ -118,7 +118,7 @@
                     </td>
 
                     <td @* data-label="Scheduled At" *@>
-                        @item.ScheduledAt
+                        @(item.ScheduledAt.ToUserTime(User, AppTimeZoneService)?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")
                     </td>
 
                         <td class="desktop-only" @* data-label="Actual Hours" *@>

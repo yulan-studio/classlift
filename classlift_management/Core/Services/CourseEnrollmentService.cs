@@ -119,7 +119,7 @@ namespace Core.Services
                     Child = child,
                     Course = course,
                     CreatedBy = user.Id,
-                    CreatedDate = DateTimeHelper.GetTorontoTime(),
+                    CreatedDate = DateTime.UtcNow,
                     Status = status
                 };
 
@@ -171,6 +171,7 @@ namespace Core.Services
             // ✅ Retrieve Course and Child from the database
             var child = await _childRepository.GetAsync(childId);
             var course = await _courseRepository.GetAsync(courseId);
+            var sourceSession = await _enrollmentRepository.GetAsync(enrollmentId_Ref);
 
             if (child == null || course == null)
                 throw new ArgumentException("Invalid child or course.");
@@ -190,10 +191,12 @@ namespace Core.Services
                     Child = child,
                     Course = course,
                     ScheduledAt = scheduledAt,
+                    ScheduledLocalTime = sourceSession?.ScheduledLocalTime,
+                    ScheduledTimeZoneId = sourceSession?.ScheduledTimeZoneId,
                     Location = location,
                     EnrollmentID_Ref = enrollmentId_Ref,
                     CreatedBy = user.Id,
-                    CreatedDate = DateTimeHelper.GetTorontoTime(),
+                    CreatedDate = DateTime.UtcNow,
                     Status = status
                 };
 
@@ -350,7 +353,7 @@ namespace Core.Services
         }
 
         //Schedule Private Course for a child
-        public async Task<bool> ScheduleCourseAsync(int childId, int courseId, DateTime scheduledAt, decimal scheduledHours, string location, int coachId, int enrollmentId_Ref)
+        public async Task<bool> ScheduleCourseAsync(int childId, int courseId, ScheduleTiming timing, decimal scheduledHours, string location, int coachId, int enrollmentId_Ref)
         {
             Child? child = await _childRepository.GetAsync(childId);
             if (child == null)
@@ -364,11 +367,13 @@ namespace Core.Services
                 //UserID = userId,
                 Child = child,  
                 Course = course,
-                ScheduledAt = scheduledAt,
+                ScheduledAt = timing.ScheduledAtUtc,
+                ScheduledLocalTime = timing.ScheduledLocalTime,
+                ScheduledTimeZoneId = timing.TimeZoneId,
                 ScheduledHours = scheduledHours,
                 Location = location,
                 CreatedBy = coach.UserID,
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 Status = "Scheduled",
                 EnrollmentID_Ref = enrollmentId_Ref
             };
@@ -386,7 +391,7 @@ namespace Core.Services
 
 
         //Add new session to Group Course
-        public async Task<bool> AddSessionToGroupCourseAsync(int courseId, DateTime scheduledAt, decimal scheduledHours, string location, string staffNote, User user)
+        public async Task<bool> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
         {
           
             Course course = await _courseRepository.GetAsync(courseId);
@@ -395,12 +400,14 @@ namespace Core.Services
                 
                 ChildID = null,
                 Course = course,
-                ScheduledAt = scheduledAt,
+                ScheduledAt = timing.ScheduledAtUtc,
+                ScheduledLocalTime = timing.ScheduledLocalTime,
+                ScheduledTimeZoneId = timing.TimeZoneId,
                 ScheduledHours = scheduledHours,
                 Location = location,
                 StaffNote = staffNote,
                 CreatedBy = user.Id,
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 Status = "Open"
             };
 
@@ -646,7 +653,7 @@ namespace Core.Services
             {
                 throw new Exception("You’ll be able to complete the session only after the scheduled date has passed.");
             }
-            enrollment.UpdatedDate = DateTimeHelper.GetTorontoTime();
+            enrollment.UpdatedDate = DateTime.UtcNow;
 
             try
             {

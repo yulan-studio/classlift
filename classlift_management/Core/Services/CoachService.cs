@@ -177,7 +177,7 @@ namespace Core.Services
             coach.Phone = phone;
             coach.Wechat = wechat;
             coach.CityID = cityId;
-            coach.User.UpdatedDate = DateTimeHelper.GetTorontoTime();
+            coach.User.UpdatedDate = DateTime.UtcNow;
             coach.User.UpdatedBy = user.Id;
             coach.CoachSpecialties = specialtyIds.Select(specialtyId => new CoachSpecialty
             {

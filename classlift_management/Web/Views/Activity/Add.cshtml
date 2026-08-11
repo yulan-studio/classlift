@@ -43,6 +43,17 @@
             <td style="padding: 8px;"><label for="ScheduledAt">Scheduled Date:</label></td>
             <td style="padding: 8px;"><input type="datetime-local" name="ScheduledAt" style="width: 25%;" /></td>
         </tr>
+        <tr>
+            <td style="padding: 8px;"><label for="scheduledTimeZoneId">Event Time Zone:</label></td>
+            <td style="padding: 8px;">
+                <select id="scheduledTimeZoneId" name="scheduledTimeZoneId" required style="width: 45%;">
+                    @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
+                    {
+                        <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.SelectedTimeZoneId)">@zone.DisplayName (@zone.Id)</option>
+                    }
+                </select>
+            </td>
+        </tr>
 
         @* <tr>
             <td style="padding: 8px;"><label for="Cost">Cost:</label></td>

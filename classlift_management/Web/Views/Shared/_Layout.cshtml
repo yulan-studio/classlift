@@ -20,6 +20,24 @@
             flex: 1;
         }
 
+        /* Keep every full-page title the same size as the Settings h2.
+           Section headings inside cards, tabs, and page content retain their hierarchy. */
+        main > h1,
+        main > h2,
+        main > h3 {
+            font-size: calc(1.325rem + 0.9vw);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        @@media (min-width: 1200px) {
+            main > h1,
+            main > h2,
+            main > h3 {
+                font-size: 2rem;
+            }
+        }
+
         .navbar-brand img {
             max-height: 50px;
         }
@@ -38,6 +56,32 @@
         .btn-primary:focus,
         .btn-primary:active,
         .btn-primary.active {
+            background-color: #23A1E0 !important;
+            border-color: #23A1E0 !important;
+            box-shadow: none !important;
+        }
+
+        /*
+         * Legacy views set action-button colors inline with #ff4d4d. Keep
+         * button colors centralized here so those actions match btn-primary.
+         */
+        button[style*="#ff4d4d"],
+        input[type="button"][style*="#ff4d4d"],
+        input[type="submit"][style*="#ff4d4d"],
+        .btn-danger {
+            background-color: #1B7BAB !important;
+            border-color: #1B7BAB !important;
+            color: white !important;
+        }
+
+        button[style*="#ff4d4d"]:hover,
+        button[style*="#ff4d4d"]:focus,
+        input[type="button"][style*="#ff4d4d"]:hover,
+        input[type="button"][style*="#ff4d4d"]:focus,
+        input[type="submit"][style*="#ff4d4d"]:hover,
+        input[type="submit"][style*="#ff4d4d"]:focus,
+        .btn-danger:hover,
+        .btn-danger:focus {
             background-color: #23A1E0 !important;
             border-color: #23A1E0 !important;
             box-shadow: none !important;
@@ -115,7 +159,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
-            <a class="navbar-brand" href="https://classlift.ca" target="_blank">
+            <a class="navbar-brand" href="/">
                 <img src="/images/classlift_logo.png" alt="NSNS Logo" />
             </a>
 
@@ -171,6 +215,7 @@
 
                     @if (User.Identity.IsAuthenticated)
                     {
+                        <li class="nav-item"><a class="nav-link" href="/Account/Settings">Settings</a></li>
                         <li class="nav-item">
                             <a class="nav-link text-danger"
                                href="#"

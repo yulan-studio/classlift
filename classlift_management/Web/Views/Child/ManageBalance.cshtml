@@ -37,7 +37,7 @@
             foreach (var item in Model.BalanceHistory)
             {
                 <tr>
-                    <td style="padding: 10px; border: 1px solid #ddd;">@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@item.CreatedDate.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">@item.Type</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">
                         @if (!string.IsNullOrEmpty(item.CourseName))
@@ -53,7 +53,7 @@
                             <span>-</span>
                         }
                     </td>
-                    <td style="padding: 10px; border: 1px solid #ddd;">@item.ScheduledAt</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@(item.ScheduledAt.ToUserTime(User, AppTimeZoneService)?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">@item.ActualHours</td>
                     <td style="padding: 10px; border: 1px solid #ddd; color: @(item.BalanceChange < 0 ? "red" : "green");">
                 
@@ -149,7 +149,7 @@
                 <label for="refundBalance">Refund</label>
                 <br/>
 
-                    <label style="font-size:0.9em; color:darkslategray">"Adjust Balance" is used for system errors, human errors, or a participant's first time on leave. <br/>"Refund" is used when a participant quits the course. </label>
+                    <label style="font-size:0.9em; color:darkslategray">"Adjust Balance" is used for system errors, human errors, or a participant's first time on leave <br />   - Positive adds to the balance; negative subtracts from it. <br />"Refund" is used when a participant quits the course. </label>
             </td>
         </tr>
 

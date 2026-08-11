@@ -9,7 +9,7 @@
     <p><strong>Description：</strong> @Model.Description</p>
     <p><strong>Address：</strong> @Model.Address</p>
     <p><strong>Max Capacity：</strong> @Model.MaxCapacity</p>
-    <p><strong>Scheduled Date：</strong> @(Model.ScheduledAt.ToString("yyyy-MM-dd HH:mm") )</p>
+    <p><strong>Scheduled Date：</strong> @Model.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</p>
 @*     <p><strong>Cost：</strong> @(Model.Cost.ToString("C"))</p> *@
     <p><strong>Address：</strong> @Model.Address</p>
   @*   <p><strong>Is Active：</strong> @Model.IsActive</p> *@

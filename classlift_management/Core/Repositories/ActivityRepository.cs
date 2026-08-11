@@ -75,7 +75,7 @@ namespace Core.Repositories
         public async Task UpdateActivityStatusToCompletedAsync()
         {
 
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             var activities = await _context.Activities
                 .Where(a => ((DateTime)a.ScheduledAt).AddDays(1) <= torontoNow /*&& a.IsActive == true*/)
@@ -96,7 +96,7 @@ namespace Core.Repositories
         public async Task UpdateActivityStatusToCompletedAsync(AppDbContext dbContext,CancellationToken cancellationToken)
         {
 
-            var torontoNow = Core.DateTimeHelper.GetTorontoTime();
+            var torontoNow = DateTime.UtcNow;
 
             var activities = await dbContext.Activities
                 .Where(a => ((DateTime)a.ScheduledAt).AddDays(1) <= torontoNow /*&& a.IsActive == true*/)

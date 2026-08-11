@@ -50,7 +50,7 @@
         @foreach (var session in Model.Sessions)
         {
             <tr>
-                <td>@session.ScheduledAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@session.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                 @foreach (var child in Model.ChildrenList)
                 {
                     <td>

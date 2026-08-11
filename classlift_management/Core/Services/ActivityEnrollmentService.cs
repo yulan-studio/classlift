@@ -60,7 +60,7 @@ namespace Core.Services
                     Child = child,
                     Status = status,
                     CreatedBy = user.Id, // Temporary user ID
-                    CreatedDate = DateTimeHelper.GetTorontoTime()
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 await _enrollmentRepository.AddAsync(enrollment);

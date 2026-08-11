@@ -57,7 +57,7 @@ namespace Core.Repositories
                 EnrollmentID = enrollmentId,
                 //IncomeChange = incomeForThisSession,
                 //Income = newIncome,
-                CreatedDate = DateTimeHelper.GetTorontoTime(),
+                CreatedDate = DateTime.UtcNow,
                 CreatedBy = updatedBy
             };
 

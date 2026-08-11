@@ -47,8 +47,9 @@ namespace Web.Controllers.User
 
         private readonly EmailService _emailService;
         private readonly UserManager<Core.Models.User> _userManager;
+        private readonly ITimeZoneService _timeZoneService;
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
         {
             _coachService = coachService;
             _incomeService = incomeService;
@@ -65,6 +66,7 @@ namespace Web.Controllers.User
             _feeService = feeService;
             _emailService = emailService;
             _userManager = userManager;
+            _timeZoneService = timeZoneService;
             
         }
 
@@ -679,6 +681,8 @@ namespace Web.Controllers.User
                 List<CourseEnrollment> completed = (List<CourseEnrollment>)await _courseEnrollmentService.GetCompletesByCourseChildAsync(courseId, childId);
 
                 List<CourseEnrollment> scheduled = (List<CourseEnrollment>)await _courseEnrollmentService.GetSchedulesByCourseChildAsync(courseId, childId);
+                ViewBag.UserTimeZoneId = user.TimeZoneId;
+                ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
                var model = new ManageSchedulesViewModel
                 {
@@ -703,7 +707,7 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Coach")]
         [HttpPost("ScheduleCourse")]
-        public async Task<IActionResult> ScheduleCourse(int childId, int courseId, DateTime scheduledAt, decimal scheduledHours, string location, int enrollmentId_Ref, bool isRecurring = false, string recurrenceType = "Weekly",  int recurrenceCount = 1 )
+        public async Task<IActionResult> ScheduleCourse(int childId, int courseId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, int enrollmentId_Ref, bool isRecurring = false, string recurrenceType = "Weekly",  int recurrenceCount = 1 )
         {
             var user = await _userManager.GetUserAsync(User);
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
@@ -716,11 +720,9 @@ namespace Web.Controllers.User
                 throw new ArgumentException("Child not found");
             }
             
-            var nowToronto = DateTimeHelper.GetTorontoTime();
-
-            if (scheduledAt < nowToronto)
+            if (!_timeZoneService.IsValidTimeZone(scheduledTimeZoneId))
             {
-                TempData["ErrorMessage"] = "Please choose a future time.";
+                TempData["ErrorMessage"] = "Please select a valid event time zone.";
                 return RedirectToAction("ManageSchedules", new { childId, courseId = courseId, enrollmentId = enrollmentId_Ref });
             }
 
@@ -743,6 +745,12 @@ namespace Web.Controllers.User
                     return RedirectToAction("ManageSchedules", new { childId, courseId = courseId, enrollmentId = enrollmentId_Ref });
                 }
 
+                if (isRecurring && (recurrenceCount > 365 || recurrenceType is not ("Daily" or "Weekly")))
+                {
+                    TempData["ErrorMessage"] = "Please select a valid recurrence type and a count no greater than 365.";
+                    return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
+                }
+
                 int totalToSchedule = isRecurring ? recurrenceCount : 1;
 
                 if (course.SessionCount != null)
@@ -759,12 +767,37 @@ namespace Web.Controllers.User
 
 
 
-                DateTime currentDate = scheduledAt;
+                DateTime currentDate = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
+                var timings = new List<ScheduleTiming>();
 
-                for (int i = 0; i < totalToSchedule; i++)
+                try
+                {
+                    for (var i = 0; i < totalToSchedule; i++)
+                    {
+                        var utc = _timeZoneService.ConvertLocalToUtc(currentDate, scheduledTimeZoneId);
+                        if (utc <= DateTime.UtcNow)
+                            throw new ArgumentException("Please choose a future time.");
+                        timings.Add(new ScheduleTiming
+                        {
+                            ScheduledAtUtc = utc,
+                            ScheduledLocalTime = currentDate,
+                            TimeZoneId = scheduledTimeZoneId
+                        });
+                        currentDate = recurrenceType.Equals("Daily", StringComparison.OrdinalIgnoreCase)
+                            ? currentDate.AddDays(1)
+                            : currentDate.AddDays(7);
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    TempData["ErrorMessage"] = ex.Message;
+                    return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
+                }
+
+                foreach (var timing in timings)
                 {
                     bool result = await _courseEnrollmentService.ScheduleCourseAsync(
-                        childId, courseId, currentDate, scheduledHours, location, coachId, enrollmentId_Ref);
+                        childId, courseId, timing, scheduledHours, location, coachId, enrollmentId_Ref);
 
                     if (!result)
                     {
@@ -772,15 +805,6 @@ namespace Web.Controllers.User
                         break;
                     }
 
-                    if (isRecurring)
-                    {
-                        if (recurrenceType.Equals("Weekly", StringComparison.OrdinalIgnoreCase))
-                            currentDate = currentDate.AddDays(7);
-                        else if (recurrenceType.Equals("Daily", StringComparison.OrdinalIgnoreCase))
-                            currentDate = currentDate.AddDays(1);
-                        else
-                            break;
-                    }
                 }
 
                 if (allSuccess)
@@ -1020,6 +1044,12 @@ namespace Web.Controllers.User
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
 
             var schedules = await _courseEnrollmentService.GetCoachSchedulesAsync(coach.CoachID);
+
+            foreach (var schedule in schedules)
+            {
+                schedule.Start = _timeZoneService.ConvertUtcToLocal(schedule.Start, user.TimeZoneId);
+                schedule.End = _timeZoneService.ConvertUtcToLocal(schedule.End, user.TimeZoneId);
+            }
 
             return Json(schedules);
 

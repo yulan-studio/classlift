@@ -92,7 +92,7 @@
                     @foreach (var d in month.Details)
                     {
                         <tr>
-                            <td>@d.ScheduledAt.ToShortDateString()</td>
+                            <td>@d.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToShortDateString()</td>
                             <td>@d.ChildName</td>
                             <td>@d.CourseName</td>
                             <td>@d.Hours</td>

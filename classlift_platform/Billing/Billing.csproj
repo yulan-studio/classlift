@@ -32,10 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TenantScripts\001_CreateTables.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TenantScripts\classlift_empty_20260630.sql">
+  
+    <None Update="TenantScripts\classlift_empty_20260811.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
