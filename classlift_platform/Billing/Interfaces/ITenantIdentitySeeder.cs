@@ -6,6 +6,7 @@
             string connectionString,
             string email,
             string password,
-            string role);
+            string role,
+            string? name = null);
     }
 }
