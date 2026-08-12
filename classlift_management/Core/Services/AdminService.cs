@@ -79,11 +79,18 @@ namespace Core.Services
 
         public async Task<bool> RemoveAsync(int adminId)
         {
-            // Find the staff by ID
+            // Keep at least one admin account so the application cannot be left
+            // without an administrator.
+            if (await _adminRepository.CountAsync() <= 1)
+            {
+                throw new InvalidOperationException("The only admin member cannot be deleted. Add another admin before deleting this one.");
+            }
+
+            // Find the admin by ID
             var admin = await _adminRepository.GetAsync(adminId);
             if (admin == null)
             {
-                throw new Exception("Staff not found.");
+                throw new Exception("Admin not found.");
             }
 
             // Remove the admin

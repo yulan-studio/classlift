@@ -98,6 +98,11 @@ namespace Core.Repositories
                 .FirstOrDefaultAsync(u=> u.AdminID == adminId);  // Finds by ID asynchronously
         }
 
+        public Task<int> CountAsync()
+        {
+            return _context.Admins.CountAsync();
+        }
+
         // Get all Users from the database asynchronously
         public async Task<IEnumerable<Admin>> GetAllAsync()
         {
