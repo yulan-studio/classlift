@@ -1,4 +1,13 @@
 ﻿<!DOCTYPE html>
+@{
+    var defaultLogoUrl = "/images/classlift_logo.png";
+    var currentTenant = Context.Items["CurrentTenant"] as Core.Models.CurrentTenant;
+    var logoStorage = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions
+        .GetRequiredService<Core.R2.R2StorageService>(Context.RequestServices);
+    var navigationLogoUrl = string.IsNullOrWhiteSpace(currentTenant?.DatabaseName)
+        ? defaultLogoUrl
+        : $"{logoStorage.GetPublicUrl($"branding/{currentTenant.DatabaseName}/logo")}?v={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+}
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -160,7 +169,10 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
             <a class="navbar-brand" href="/">
-                <img src="/images/classlift_logo.png" alt="NSNS Logo" />
+                <img src="@navigationLogoUrl"
+                     data-fallback-url="@defaultLogoUrl"
+                     onerror="this.onerror=null;this.src=this.dataset.fallbackUrl;"
+                     alt="Organization logo" />
             </a>
 
             <button class="navbar-toggler"

@@ -5,6 +5,14 @@
 <h2 class="mb-4">Settings</h2>
 
 <ul class="nav nav-tabs mb-3">
+    @if (User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "Branding" ? "active" : "")"
+               href="#"
+               data-url="/Account/Branding">Branding</a>
+        </li>
+    }
     <li class="nav-item">
         <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
            href="#"
@@ -53,15 +61,30 @@
             $(document).on("submit", ".settings-form", function (event) {
                 event.preventDefault();
                 var form = $(this);
+                var formData = new FormData(form[0]);
 
                 $.ajax({
                     url: form.attr("action"),
                     method: "POST",
-                    data: form.serialize(),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function (html) {
                         $("#contentArea").html(html);
+                        var updatedLogo = $("#contentArea [data-updated-logo-url]").data("updated-logo-url");
+                        if (updatedLogo) {
+                            $(".navbar-brand img")
+                                .attr("onerror", "this.onerror=null;this.src=this.dataset.fallbackUrl;")
+                                .attr("src", updatedLogo);
+                        }
                     }
                 });
+            });
+
+            $(document).on("change", "#Logo", function () {
+                if (this.files && this.files[0]) {
+                    $("#logoPreview").attr("src", URL.createObjectURL(this.files[0]));
+                }
             });
         });
     </script>

@@ -8,6 +8,8 @@ using Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Core.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Core.Models;
+using Core.R2;
 
 namespace Web.Controllers.Account
 {
@@ -19,15 +21,20 @@ namespace Web.Controllers.Account
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
         private readonly AppDbContext _dbContext;
+        private readonly R2StorageService _storageService;
+        private readonly CurrentTenant _currentTenant;
         private const string StaffResetPassword = "hello123!";
+        private const long MaxLogoSize = 2 * 1024 * 1024;
 
-        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext)
+        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant)
         {
             _userRegistrationService = userRegistrationService;
             _signInManager = signInManager;
             _userManager = userManager;
             _timeZoneService = timeZoneService;
             _dbContext = dbContext;
+            _storageService = storageService;
+            _currentTenant = currentTenant;
         }
 
         // Show Registration Form (GET)
@@ -126,6 +133,92 @@ namespace Web.Controllers.Account
         {
             ViewBag.ActiveTab = tab;
             return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("Branding")]
+        public IActionResult Branding()
+        {
+            return PartialView("_Branding", new BrandingSettingsViewModel
+            {
+                CurrentLogoUrl = GetTenantLogoUrl()
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("Branding")]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(MaxLogoSize + 64 * 1024)]
+        public async Task<IActionResult> Branding(BrandingSettingsViewModel model)
+        {
+            model.CurrentLogoUrl = GetTenantLogoUrl();
+
+            if (model.Logo == null || model.Logo.Length == 0)
+            {
+                ModelState.AddModelError(nameof(model.Logo), "Please choose a logo image.");
+                return PartialView("_Branding", model);
+            }
+
+            if (model.Logo.Length > MaxLogoSize)
+                ModelState.AddModelError(nameof(model.Logo), "The logo must be 2 MB or smaller.");
+
+            var contentType = await DetectImageContentTypeAsync(model.Logo);
+            if (contentType == null)
+                ModelState.AddModelError(nameof(model.Logo), "Choose a valid PNG, JPEG, or WebP image.");
+
+            if (!ModelState.IsValid)
+                return PartialView("_Branding", model);
+
+            try
+            {
+                var logoUrl = await _storageService.UploadToKeyAsync(
+                    model.Logo,
+                    GetTenantLogoKey(),
+                    contentType!);
+
+                model.CurrentLogoUrl = $"{logoUrl}?v={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+                model.Logo = null;
+                ModelState.Clear();
+                ViewBag.SuccessMessage = "Your logo has been updated.";
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "The logo could not be uploaded. Please try again.");
+            }
+
+            return PartialView("_Branding", model);
+        }
+
+        private string GetTenantLogoUrl() =>
+            _storageService.GetPublicUrl(GetTenantLogoKey());
+
+        private string GetTenantLogoKey()
+        {
+            if (string.IsNullOrWhiteSpace(_currentTenant.DatabaseName))
+                throw new InvalidOperationException("A tenant must be resolved before its branding can be changed.");
+
+            return $"branding/{_currentTenant.DatabaseName}/logo";
+        }
+
+        private static async Task<string?> DetectImageContentTypeAsync(IFormFile file)
+        {
+            var header = new byte[12];
+            await using var stream = file.OpenReadStream();
+            var bytesRead = await stream.ReadAsync(header.AsMemory(0, header.Length));
+
+            if (bytesRead >= 8 && header.AsSpan(0, 8).SequenceEqual(
+                    new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }))
+                return "image/png";
+
+            if (bytesRead >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF)
+                return "image/jpeg";
+
+            if (bytesRead >= 12
+                && header.AsSpan(0, 4).SequenceEqual("RIFF"u8)
+                && header.AsSpan(8, 4).SequenceEqual("WEBP"u8))
+                return "image/webp";
+
+            return null;
         }
 
         [Authorize]

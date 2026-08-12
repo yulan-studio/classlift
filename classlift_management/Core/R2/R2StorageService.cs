@@ -62,5 +62,33 @@ namespace Core.R2
             // Return public URL or save Key to DB
             return $"{_options.PublicUrl}/{folder}/{fileName}";
         }
+
+        public async Task<string> UploadToKeyAsync(
+            IFormFile file,
+            string objectKey,
+            string contentType)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("The uploaded file is empty.", nameof(file));
+
+            var key = objectKey.Trim('/').Replace("//", "/");
+
+            using var stream = file.OpenReadStream();
+            var request = new PutObjectRequest
+            {
+                BucketName = _options.BucketName,
+                Key = key,
+                InputStream = stream,
+                ContentType = contentType,
+                UseChunkEncoding = false
+            };
+
+            await _s3Client.PutObjectAsync(request);
+
+            return GetPublicUrl(key);
+        }
+
+        public string GetPublicUrl(string objectKey) =>
+            $"{_options.PublicUrl.TrimEnd('/')}/{objectKey.TrimStart('/')}";
     }
 }
