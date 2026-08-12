@@ -10,7 +10,7 @@
            href="#"
            data-url="/Account/TimeZone">Time Zone</a>
     </li>
-    @if (User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
+    @if (User.IsInRole("Admin") || User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
     {
         <li class="nav-item">
             <a class="nav-link @(ViewBag.ActiveTab == "ChangePassword" ? "active" : "")"

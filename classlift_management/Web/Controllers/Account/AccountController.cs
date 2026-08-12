@@ -168,14 +168,14 @@ namespace Web.Controllers.Account
             return PartialView("_TimeZone", model);
         }
 
-        [Authorize(Roles = "Child,Coach,Staff")]
+        [Authorize(Roles = "Admin,Child,Coach,Staff")]
         [HttpGet("ChangePassword")]
         public IActionResult ChangePassword()
         {
             return PartialView("_ChangePassword", new ChangePasswordViewModel());
         }
 
-        [Authorize(Roles = "Child,Coach,Staff")]
+        [Authorize(Roles = "Admin,Child,Coach,Staff")]
         [HttpPost("ChangePassword")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
