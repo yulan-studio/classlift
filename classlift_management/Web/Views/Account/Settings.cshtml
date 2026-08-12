@@ -81,6 +81,22 @@
                 });
             });
 
+            $(document).on("submit", ".settings-subform", function (event) {
+                event.preventDefault();
+                var form = $(this);
+
+                $.ajax({
+                    url: form.attr("action"),
+                    method: "POST",
+                    data: new FormData(form[0]),
+                    processData: false,
+                    contentType: false,
+                    success: function (html) {
+                        form.closest(".settings-subsection").html(html);
+                    }
+                });
+            });
+
             $(document).on("change", "#Logo", function () {
                 if (this.files && this.files[0]) {
                     $("#logoPreview").attr("src", URL.createObjectURL(this.files[0]));

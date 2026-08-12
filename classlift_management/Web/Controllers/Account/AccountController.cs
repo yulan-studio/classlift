@@ -25,6 +25,7 @@ namespace Web.Controllers.Account
         private readonly CurrentTenant _currentTenant;
         private const string StaffResetPassword = "hello123!";
         private const long MaxLogoSize = 2 * 1024 * 1024;
+        private const string DefaultHomePageUrl = "https://courses.roboturtle.ca/";
 
         public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant)
         {
@@ -137,8 +138,9 @@ namespace Web.Controllers.Account
 
         [Authorize(Roles = "Admin")]
         [HttpGet("Branding")]
-        public IActionResult Branding()
+        public async Task<IActionResult> Branding()
         {
+            ViewBag.HomePageUrl = await GetHomePageUrlAsync();
             return PartialView("_Branding", new BrandingSettingsViewModel
             {
                 CurrentLogoUrl = GetTenantLogoUrl()
@@ -152,6 +154,7 @@ namespace Web.Controllers.Account
         public async Task<IActionResult> Branding(BrandingSettingsViewModel model)
         {
             model.CurrentLogoUrl = GetTenantLogoUrl();
+            ViewBag.HomePageUrl = await GetHomePageUrlAsync();
 
             if (model.Logo == null || model.Logo.Length == 0)
             {
@@ -189,6 +192,45 @@ namespace Web.Controllers.Account
             return PartialView("_Branding", model);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet("HomePage")]
+        public async Task<IActionResult> HomePage()
+        {
+            return PartialView("_HomePage", new HomePageSettingsViewModel
+            {
+                PageUrl = await GetHomePageUrlAsync()
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("HomePage")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HomePage(HomePageSettingsViewModel model)
+        {
+            model.PageUrl = model.PageUrl?.Trim() ?? string.Empty;
+
+            if (!Uri.TryCreate(model.PageUrl, UriKind.Absolute, out var pageUri)
+                || (pageUri.Scheme != Uri.UriSchemeHttps && pageUri.Scheme != Uri.UriSchemeHttp))
+            {
+                ModelState.AddModelError(nameof(model.PageUrl), "Enter a complete URL beginning with https:// or http://.");
+            }
+
+            if (!ModelState.IsValid)
+                return PartialView("_HomePage", model);
+
+            try
+            {
+                await _storageService.UploadTextAsync(GetTenantHomePageUrlKey(), model.PageUrl);
+                ViewBag.SuccessMessage = "The Home page URL has been updated.";
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "The page URL could not be saved. Please try again.");
+            }
+
+            return PartialView("_HomePage", model);
+        }
+
         private string GetTenantLogoUrl() =>
             _storageService.GetPublicUrl(GetTenantLogoKey());
 
@@ -198,6 +240,22 @@ namespace Web.Controllers.Account
                 throw new InvalidOperationException("A tenant must be resolved before its branding can be changed.");
 
             return $"branding/{_currentTenant.DatabaseName}/logo";
+        }
+
+        private string GetTenantHomePageUrlKey()
+        {
+            if (string.IsNullOrWhiteSpace(_currentTenant.DatabaseName))
+                throw new InvalidOperationException("A tenant must be resolved before its Home page can be changed.");
+
+            return $"branding/{_currentTenant.DatabaseName}/home-page-url.txt";
+        }
+
+        private async Task<string> GetHomePageUrlAsync()
+        {
+            var savedUrl = await _storageService.GetTextAsync(GetTenantHomePageUrlKey());
+            return string.IsNullOrWhiteSpace(savedUrl)
+                ? DefaultHomePageUrl
+                : savedUrl.Trim();
         }
 
         private static async Task<string?> DetectImageContentTypeAsync(IFormFile file)
