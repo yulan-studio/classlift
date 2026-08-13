@@ -273,27 +273,27 @@ namespace Web.Controllers.User
             else {
                 ViewData["MemberIDParm"] = sortOrder == "id" ? "id_desc" : "id";
                 ViewData["NameSortParm"] = sortOrder == "name" ? "name_desc" : "name";
-                ViewData["PreferedNameSortParm"] = sortOrder == "preferedName" ? "preferedName_desc" : "preferedName";
+                ViewData["StatusSortParm"] = sortOrder == "status" ? "status_desc" : "status";
                 ViewData["GenderSortParm"] = sortOrder == "gender" ? "gender_desc" : "gender";
                 ViewData["CitySortParm"] = sortOrder == "city" ? "city_desc" : "city";
                 ViewData["CurrentSort"] = sortOrder;
 
 
 
-                coachList = sortOrder switch
+                coaches = sortOrder switch
                 {
-                    "id" => coachList.OrderBy(c => c.MemberID),
-                    "id_desc" => coachList.OrderByDescending(c => c.MemberID),
-                    "name" => coachList.OrderBy(c => c.Name),
-                    "name_desc" => coachList.OrderByDescending(c => c.Name),
-                    "preferedName" => coachList.OrderBy(c => c.PreferedName),
-                    "preferedName_desc" => coachList.OrderByDescending(c => c.PreferedName),
-                    "gender" => coachList.OrderBy(c => c.Gender),
-                    "gender_desc" => coachList.OrderByDescending(c => c.Gender),
-                    "city" => coachList.OrderBy(c => c.City.Name),
-                    "city_desc" => coachList.OrderByDescending(c => c.City.Name),
+                    "id" => coaches.OrderBy(c => c.Coach.MemberID).ToList(),
+                    "id_desc" => coaches.OrderByDescending(c => c.Coach.MemberID).ToList(),
+                    "name" => coaches.OrderBy(c => c.Coach.Name).ToList(),
+                    "name_desc" => coaches.OrderByDescending(c => c.Coach.Name).ToList(),
+                    "status" => coaches.OrderBy(c => c.Coach.Status == "InActive" ? "InActive" : "Active").ToList(),
+                    "status_desc" => coaches.OrderByDescending(c => c.Coach.Status == "InActive" ? "InActive" : "Active").ToList(),
+                    "gender" => coaches.OrderBy(c => c.Coach.Gender).ToList(),
+                    "gender_desc" => coaches.OrderByDescending(c => c.Coach.Gender).ToList(),
+                    "city" => coaches.OrderBy(c => c.Coach.City.Name).ToList(),
+                    "city_desc" => coaches.OrderByDescending(c => c.Coach.City.Name).ToList(),
 
-                    _ => coachList.OrderBy(c => c.Name) // default
+                    _ => coaches.OrderBy(c => c.Coach.Name).ToList() // default
                 };
 
 

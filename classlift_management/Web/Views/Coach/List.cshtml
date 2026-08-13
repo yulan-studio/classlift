@@ -78,13 +78,13 @@
             </th>
 
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["PreferedNameSortParm"]" style="color: black; text-decoration: none; ">
-                    Chosen Name
-                    @if ((string)ViewData["CurrentSort"] == "preferedName")
+                <a asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" style="color: black; text-decoration: none; ">
+                    Status
+                    @if ((string)ViewData["CurrentSort"] == "status")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "preferedName_desc")
+                    else if ((string)ViewData["CurrentSort"] == "status_desc")
                     {
 
                         <span>▼</span>
@@ -138,7 +138,9 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.MemberID</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Name</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.PreferedName</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @(coachWithDelete.Coach.Status == "InActive" ? "InActive" : "Active")
+                    </td>
                     <td style="padding: 8px; border: 1px solid #ddd;">
                         @if (coachWithDelete.Coach.CoachSpecialties != null && coachWithDelete.Coach.CoachSpecialties.Any())
                         {
