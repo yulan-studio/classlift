@@ -55,7 +55,12 @@
 
     <h2>Add Sessions </h2>
     <br/>
-     Total session count: @Model.CourseSessionsCount  |  @Model.EnrolledSessionsCount sessions added
+     Total session count: @Model.CourseSessionsCount  |
+    <span id="displayedSessionsCount" data-enrolled-count="@Model.EnrolledSessionsCount">@Model.EnrolledSessionsCount</span> sessions added
+    @if (Model.AvailableSessions.Any())
+    {
+        <text> | <a href="#" id="selectAllAvailableSessions">Select all</a></text>
+    }
     <br /><br />
     <form method="post" asp-action="AddRegisteredSessions">
         <input type="hidden" name="ChildID" value="@Model.ChildID" />
@@ -78,7 +83,7 @@
                     {
                         <tr>
                             <td>
-                                <input asp-for="AvailableSessions[i].IsSelected" />
+                                <input asp-for="AvailableSessions[i].IsSelected" class="available-session-checkbox" />
                                 <input type="hidden" asp-for="AvailableSessions[i].EnrollmentID" />
                                 <input type="hidden" asp-for="AvailableSessions[i].ScheduledAt" />
                                 <input type="hidden" asp-for="AvailableSessions[i].ScheduledHours" />
@@ -221,6 +226,34 @@
 
     <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button> <small style="color:darkslategray"> - Click 'Save Changes' to save changes in Status/Staff Note and send an email to the child about the changes.</small>
 </form>
+
+<script>
+    const displayedSessionsCount = document.getElementById("displayedSessionsCount");
+    const availableSessionCheckboxes = document.querySelectorAll(".available-session-checkbox");
+
+    function updateDisplayedSessionsCount() {
+        if (!displayedSessionsCount) return;
+
+        const enrolledCount = Number(displayedSessionsCount.dataset.enrolledCount);
+        const selectedCount = Array.from(availableSessionCheckboxes)
+            .filter(function (checkbox) { return checkbox.checked; })
+            .length;
+
+        displayedSessionsCount.textContent = enrolledCount + selectedCount;
+    }
+
+    availableSessionCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateDisplayedSessionsCount);
+    });
+
+    document.getElementById("selectAllAvailableSessions")?.addEventListener("click", function (event) {
+        event.preventDefault();
+        availableSessionCheckboxes.forEach(function (checkbox) {
+            checkbox.checked = true;
+        });
+        updateDisplayedSessionsCount();
+    });
+</script>
 
 
 
