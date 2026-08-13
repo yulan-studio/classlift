@@ -222,6 +222,8 @@ builder.Services.AddScoped<IChildCalendarService, ChildCalendarService>();
 
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IProvinceRepository, ProvinceRepository>();
+builder.Services.AddScoped<IProvinceService, ProvinceService>();
 
 builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 builder.Services.AddScoped<ISpecialtyService, SpecialtyService>();

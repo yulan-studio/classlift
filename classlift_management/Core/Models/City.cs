@@ -20,7 +20,10 @@ namespace Core.Models
         [StringLength(255)]
         public required string Name { get; set; }
 
-        
+        public int? ProvinceID { get; set; }
+
+        [ForeignKey(nameof(ProvinceID))]
+        public virtual Province? Province { get; set; }
 
         
         [ForeignKey("CreatedByUser")]

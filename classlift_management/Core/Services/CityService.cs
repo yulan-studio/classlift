@@ -29,7 +29,10 @@ namespace Core.Services
         {
             if (string.IsNullOrWhiteSpace(city.Name))
                 throw new ArgumentException("City name cannot be empty.");
-            var existingCity = await _cityRepository.GetByNameAsync(city.Name);
+            if (!city.ProvinceID.HasValue)
+                throw new ArgumentException("Please select a province.");
+            city.Name = city.Name.Trim();
+            var existingCity = await _cityRepository.GetByNameAsync(city.Name, city.ProvinceID);
             if (existingCity.Any())
                 throw new InvalidOperationException("This city already exist.");
             return await _cityRepository.AddAsync(city);
@@ -38,11 +41,21 @@ namespace Core.Services
         // ✅ Update a City
         public async Task<bool> UpdateAsync(City city)
         {
+            if (!city.ProvinceID.HasValue)
+                throw new ArgumentException("Please select a province.");
+
             var existingCity = await _cityRepository.GetAsync(city.CityID);
             if (existingCity == null)
                 throw new KeyNotFoundException("City not found.");
 
-            existingCity.Name = city.Name; // Update fields
+            var duplicateCity = await _cityRepository.GetByNameAsync(city.Name, city.ProvinceID);
+            if (duplicateCity.Any(item => item.CityID != city.CityID))
+                throw new InvalidOperationException("This city already exists in the selected province.");
+
+            existingCity.Name = city.Name.Trim();
+            existingCity.ProvinceID = city.ProvinceID;
+            existingCity.UpdatedBy = city.UpdatedBy;
+            existingCity.UpdatedDate = city.UpdatedDate;
 
             return await _cityRepository.UpdateAsync(existingCity);
         }
