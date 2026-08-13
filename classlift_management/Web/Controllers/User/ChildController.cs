@@ -625,7 +625,7 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Staff")]
         [HttpPost("AddParent")]
-        public async Task<IActionResult> AddParent(int childId, string Name, string Email, string Phone, string Wechat, string Relationship)
+        public async Task<IActionResult> AddParent(int childId, string Name, string Email, string Phone, string Wechat, string WhatsApp, string Relationship)
         {
             try
             {
@@ -637,6 +637,7 @@ namespace Web.Controllers.User
                     Phone = Phone,
                     Email = Email,
                     Wechat = Wechat,
+                    WhatsApp = WhatsApp,
                     CreatedBy = user.Id, // Assume the user ID of admin/creator
                     CreatedDate = DateTime.UtcNow
                 };
@@ -674,7 +675,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateParent(int ParentChildID, int ChildID, string Name, string Email, string Phone, string Wechat, string Relationship)
+        public async Task<IActionResult> UpdateParent(int ParentChildID, int ChildID, string Name, string Email, string Phone, string Wechat, string WhatsApp, string Relationship)
         {
 
 
@@ -686,9 +687,14 @@ namespace Web.Controllers.User
                 parent.Email = Email;
                 parent.Phone = Phone;
                 parent.Wechat = Wechat;
-                //parent.Relationship = Relationship;
+                parent.WhatsApp = WhatsApp;
 
                 await _parentService.UpdateAsync(parent);
+                var user = await _userManager.GetUserAsync(User);
+                parentChild.Relationship = Relationship;
+                parentChild.UpdatedBy = user?.Id ?? parentChild.UpdatedBy;
+                parentChild.UpdatedDate = DateTime.UtcNow;
+                await _parentChildService.UpdateAsync(parentChild);
                 TempData["SuccessMessage"] = "Parent updated successfully.";
             }
             else

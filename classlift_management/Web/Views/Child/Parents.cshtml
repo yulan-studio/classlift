@@ -1,110 +1,180 @@
-﻿@model Core.ViewModels.ManageParentsViewModel
-
-
+@model Core.ViewModels.ManageParentsViewModel
 
 @{
     Layout = null;
 }
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Manage Parents</h2>
+    <a href="#" data-bs-toggle="modal" data-bs-target="#addParentModal">
+        Add Parent
+    </a>
+</div>
 
-<h2>Manage Parents</h2>
-
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
-    <thead>
-        <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Wechat</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Relationship</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var parentChild in Model.Parents)
-        {
-            if (ViewBag.EditParentId != null && (int)ViewBag.EditParentId == parentChild.ParentID)
+<div class="table-responsive">
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>WeChat</th>
+                <th>WhatsApp</th>
+                <th>Relationship</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var parentChild in Model.Parents)
             {
-                <!-- Edit mode row -->
-               
-             <tr>
-                <td colspan="6">
-                    <form asp-action="UpdateParent" asp-controller="Child" method="post" style="display: flex; gap: 10px;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="ParentChildID" value="@parentChild.ParentChildID" />
-                        <input type="hidden" name="ChildID" value="@parentChild.ChildID" />
-
-                        <input name="Name" value="@parentChild.Parent.Name" required />
-                        <input name="Email" value="@parentChild.Parent.Email" type="email" required />
-                        <input name="Phone" value="@parentChild.Parent.Phone" />
-                        <input name="Wechat" value="@parentChild.Parent.Wechat" />
-                        <input name="Relationship" value="@parentChild.Relationship" disabled />
-
-                        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px;">Save</button>
-                        <a href="@Url.Action("MoreInfo", new { childId = parentChild.ChildID, tab = "Parents" })"
-                           style="margin-right: 10px; color: #007bff;">Cancel</a>
-                    </form>
-                </td>
-             </tr>
-            }
-            else
-            {
-                <!-- Normal row -->
                 <tr>
                     <td>@parentChild.Parent.Name</td>
                     <td>@parentChild.Parent.Email</td>
                     <td>@parentChild.Parent.Phone</td>
                     <td>@parentChild.Parent.Wechat</td>
+                    <td>@parentChild.Parent.WhatsApp</td>
                     <td>@parentChild.Relationship</td>
-                    <td>
-                        @* <a href="@Url.Action("Parents", new { childId = parentChild.ChildID, editParentId = parentChild.ParentID })" style="margin-right: 10px; color: #007bff;">Edit</a> *@
-                        <a href="@Url.Action("MoreInfo", new { childId = parentChild.ChildID, tab = "Parents", editParentId = parentChild.ParentID })"
-                           style="margin-right: 10px; color: #007bff;">Edit</a>
-                        <form asp-action="DeleteParent" asp-controller="Child" method="post" style="display:inline;">
+                    <td class="text-nowrap">
+                        <button type="button"
+                                class="btn btn-link p-0 me-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editParentModal-@parentChild.ParentChildID">
+                            Edit
+                        </button>
+                        <form asp-action="DeleteParent" asp-controller="Child" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="parentChildId" value="@parentChild.ParentChildID" />
                             <input type="hidden" name="childId" value="@parentChild.ChildID" />
                             <input type="hidden" name="parentId" value="@parentChild.ParentID" />
-                            <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px;">Delete</button>
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
                     </td>
                 </tr>
             }
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
 
-<div style="margin-bottom: 30px;"></div>
+<div class="modal fade" id="addParentModal" tabindex="-1" aria-labelledby="addParentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form asp-action="AddParent" asp-controller="Child" asp-route-childId="@Model.Child.ChildID" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addParentModalLabel">Add Parent</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label class="form-label">Relationship</label>
+                            <select name="Relationship" class="form-select" required>
+                                <option value="">-- Select Relationship --</option>
+                                <option value="Father">Father</option>
+                                <option value="Mother">Mother</option>
+                                <option value="Guardian">Guardian</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label">Name</label>
+                            <input name="Name" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input name="Email" type="email" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            <input name="Phone" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">WeChat</label>
+                            <input name="Wechat" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">WhatsApp</label>
+                            <input name="WhatsApp" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Parent</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-<h4>Add Parent</h4>
-<form asp-action="AddParent" asp-controller="Child" asp-route-childId="@Model.Child.ChildID" method="post">
-    @Html.AntiForgeryToken()
-    <input name="Name" placeholder="Name" required />
-    <input name="Email" placeholder="Email" type="email" required />
-    <input name="Phone" placeholder="Phone" />
-    <input name="Wechat" placeholder="Wechat" />
-    @* <input name="Relationship" placeholder="Relationship" required /> *@
-    <select name="Relationship" placeholder="Relationship" required style="margin-right: 10px;">
-        <option value="">-- Select Relationship --</option>
-        <option value="Father">Father</option>
-        <option value="Mother">Mother</option>
-        <option value="Guardian">Guardian</option>
-
-    </select>
-    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px;">Add Parent</button>
-</form>
+@foreach (var parentChild in Model.Parents)
+{
+    <div class="modal fade"
+         id="editParentModal-@parentChild.ParentChildID"
+         tabindex="-1"
+         aria-labelledby="editParentModalLabel-@parentChild.ParentChildID"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form asp-action="UpdateParent" asp-controller="Child" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ParentChildID" value="@parentChild.ParentChildID" />
+                    <input type="hidden" name="ChildID" value="@parentChild.ChildID" />
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editParentModalLabel-@parentChild.ParentChildID">Edit Parent</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-5">
+                                <label class="form-label">Relationship</label>
+                                <select name="Relationship" class="form-select" required>
+                                    <option value="">-- Select Relationship --</option>
+                                    <option value="Father" selected="@(parentChild.Relationship == "Father" ? "selected" : null)">Father</option>
+                                    <option value="Mother" selected="@(parentChild.Relationship == "Mother" ? "selected" : null)">Mother</option>
+                                    <option value="Guardian" selected="@(parentChild.Relationship == "Guardian" ? "selected" : null)">Guardian</option>
+                                </select>
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label">Name</label>
+                                <input name="Name" value="@parentChild.Parent.Name" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input name="Email" value="@parentChild.Parent.Email" type="email" class="form-control" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                <input name="Phone" value="@parentChild.Parent.Phone" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">WeChat</label>
+                                <input name="Wechat" value="@parentChild.Parent.Wechat" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">WhatsApp</label>
+                                <input name="WhatsApp" value="@parentChild.Parent.WhatsApp" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success" style="margin-top:15px;">
-        @TempData["SuccessMessage"]
-    </div>
+    <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
 }
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger" style="margin-top:15px;">
-        @TempData["ErrorMessage"]
-    </div>
+    <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
 }
-
-

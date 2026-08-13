@@ -27,6 +27,9 @@ namespace Core.Models
         [StringLength(100)]
         public string? Wechat { get; set; } // WeChat ID (nullable)
 
+        [StringLength(50)]
+        public string? WhatsApp { get; set; }
+
         //[Required]
         //public string Gender { get; set; }
 

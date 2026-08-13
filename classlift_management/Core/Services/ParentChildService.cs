@@ -68,7 +68,9 @@ namespace Core.Services
             if (existingParent == null)
                 throw new KeyNotFoundException("Parent not found.");
 
-            existingParent.Parent = parentChild.Parent; 
+            existingParent.Relationship = parentChild.Relationship;
+            existingParent.UpdatedBy = parentChild.UpdatedBy;
+            existingParent.UpdatedDate = parentChild.UpdatedDate;
 
             return await _parentChildRepository.UpdateAsync(existingParent);
         }
