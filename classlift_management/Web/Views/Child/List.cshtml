@@ -47,7 +47,7 @@
 
 
 <form method="get" asp-action="List" style="margin-bottom:15px;">
-    <input type="text" name="searchName" placeholder="Search child name..."
+    <input type="text" name="searchName" placeholder="Search @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() name..."
            style="padding:5px; width:250px;" value="@Context.Request.Query["searchName"]" />
 
     <button type="submit" style="padding:5px 10px; margin-left: 10px;">Search</button>
