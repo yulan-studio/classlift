@@ -331,7 +331,11 @@ namespace Web.Controllers.User
                 return RedirectToAction("List");
             }
 
-            ViewBag.CityList = await GetCityList(child);
+            var selectedProvinceId = child.CityID.HasValue
+                ? (await _cityService.GetAsync(child.CityID.Value)).ProvinceID
+                : null;
+            ViewBag.ProvinceList = await GetProvinceList(selectedProvinceId);
+            ViewBag.CityList = await GetCityListByProvince(selectedProvinceId, child.CityID);
             return View(child);
         }
 
@@ -340,13 +344,41 @@ namespace Web.Controllers.User
         [HttpPost("Edit/{childId}")]
         [ValidateAntiForgeryToken]
 
-        public async Task<IActionResult> Edit(int childId, string name, DateTime birthDate, string gender, int cityId, string email, bool hasOAP/*, string password*/)
+        public async Task<IActionResult> Edit(int childId, string name, DateTime birthDate, string gender, int? provinceId, int? cityId, string email, bool hasOAP/*, string password*/)
         {
+            if (!provinceId.HasValue)
+                ModelState.AddModelError(nameof(provinceId), "Please select a province.");
+            if (!cityId.HasValue)
+                ModelState.AddModelError(nameof(cityId), "Please select a city.");
+
+            if (provinceId.HasValue && cityId.HasValue)
+            {
+                var selectedCity = (await _cityService.GetAllAsync())
+                    .FirstOrDefault(city => city.CityID == cityId.Value);
+                if (selectedCity?.ProvinceID != provinceId.Value)
+                    ModelState.AddModelError(nameof(cityId), "The selected city does not belong to the selected province.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var invalidChild = await _childService.GetAsync(childId);
+                if (invalidChild == null) return NotFound();
+
+                invalidChild.Name = name;
+                invalidChild.BirthDate = birthDate;
+                invalidChild.Gender = gender;
+                invalidChild.CityID = cityId;
+                invalidChild.HasOAP = hasOAP;
+                invalidChild.User.Email = email;
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
+                return View(invalidChild);
+            }
 
 
             try
             {
-                var result = await _childService.UpdateAsync(childId, name, birthDate, gender, cityId, email, hasOAP/*, string password*/);
+                var result = await _childService.UpdateAsync(childId, name, birthDate, gender, cityId!.Value, email, hasOAP/*, string password*/);
 
 
                 if (!result)
@@ -360,7 +392,8 @@ namespace Web.Controllers.User
                     }
 
 
-                    ViewBag.CityList = await GetCityList(child);
+                    ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                    ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
 
                     // Pass the coach details to the Edit.cshtml view
                     return View(child);
@@ -371,7 +404,7 @@ namespace Web.Controllers.User
             }
             catch (Exception ex)
             {
-                //TempData["ErrorMessage"] = $"Error: {ex.Message}";
+                ModelState.AddModelError(string.Empty, ex.Message);
                 var child = await _childService.GetAsync(childId);
 
                 if (child == null)
@@ -379,7 +412,8 @@ namespace Web.Controllers.User
                     return NotFound();
                 }
 
-                ViewBag.CityList = await GetCityList(child);
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
 
                 // Pass the child details to the Edit.cshtml view
                 return View(child);
