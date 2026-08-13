@@ -46,8 +46,11 @@
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
 <ul class="nav nav-tabs mb-3">
-    <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" ? "active" : "")" href="#" data-url="/Child/CoreInfo/@Model.ChildID">Core Member Information</a></li>
-    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Parents" ? "active" : "")" href="#" data-url="/Child/Parents/@Model.ChildID">Parents</a></li>
+    <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" || (!CurrentTenant.Terminology.ParticipantsRequireParentSupport && ViewBag.ActiveTab == "Parents") ? "active" : "")" href="#" data-url="/Child/CoreInfo/@Model.ChildID">Core Member Information</a></li>
+    @if (CurrentTenant.Terminology.ParticipantsRequireParentSupport)
+    {
+        <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Parents" ? "active" : "")" href="#" data-url="/Child/Parents/@Model.ChildID">Parents / Guardians</a></li>
+    }
     @* <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "ManagePayments" ? "active" : "")" href="#" data-url="/Child/ManagePayments/@Model.ChildID">Payments</a></li>
     <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Registerations" ? "active" : "")" href="#" data-url="/Child/Registrations/@Model.ChildID">Registrations</a></li>
     <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "EnrollmentsHistory" ? "active" : "")" href="#" data-url="/Child/EnrollmentsHistory/@Model.ChildID">Enrollments</a></li> *@

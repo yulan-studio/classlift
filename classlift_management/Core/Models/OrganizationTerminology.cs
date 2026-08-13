@@ -11,5 +11,7 @@ namespace Core.Models
         public string ParticipantSingular { get; set; } = "Child";
 
         public string ParticipantPlural { get; set; } = "Children";
+
+        public bool ParticipantsRequireParentSupport { get; set; } = true;
     }
 }

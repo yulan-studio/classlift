@@ -46,6 +46,14 @@
         </div>
     </div>
 
+    <div class="form-check mt-3">
+        <input asp-for="ParticipantsRequireParentSupport" class="form-check-input" />
+        <label asp-for="ParticipantsRequireParentSupport" class="form-check-label"></label>
+        <div class="form-text">
+            Enable this to show parent and guardian support features for participants. Existing parent records are preserved if it is later disabled.
+        </div>
+    </div>
+
     <div class="form-text mt-2">These are display names only. Existing accounts and permissions are not changed.</div>
-    <button type="submit" class="btn btn-primary mt-3">Save role names</button>
+    <button type="submit" class="btn btn-primary mt-3">Save organization settings</button>
 </form>

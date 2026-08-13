@@ -23,5 +23,8 @@ namespace Core.ViewModels
         [Required, StringLength(40)]
         [Display(Name = "Participant role (plural)")]
         public string ParticipantPlural { get; set; } = "Children";
+
+        [Display(Name = "Participants are under 18 or require parent/guardian support")]
+        public bool ParticipantsRequireParentSupport { get; set; } = true;
     }
 }

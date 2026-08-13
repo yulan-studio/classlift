@@ -214,12 +214,13 @@ namespace Web.Controllers.Account
                     ProviderSingular = model.ProviderSingular,
                     ProviderPlural = model.ProviderPlural,
                     ParticipantSingular = model.ParticipantSingular,
-                    ParticipantPlural = model.ParticipantPlural
+                    ParticipantPlural = model.ParticipantPlural,
+                    ParticipantsRequireParentSupport = model.ParticipantsRequireParentSupport
                 };
 
                 await _terminologyService.SaveAsync(GetTenantDatabaseName(), terminology);
                 _currentTenant.Terminology = terminology;
-                ViewBag.SuccessMessage = "Organization terminology has been updated.";
+                ViewBag.SuccessMessage = "Organization settings have been updated.";
             }
             catch
             {
@@ -302,7 +303,8 @@ namespace Web.Controllers.Account
             ProviderSingular = terminology.ProviderSingular,
             ProviderPlural = terminology.ProviderPlural,
             ParticipantSingular = terminology.ParticipantSingular,
-            ParticipantPlural = terminology.ParticipantPlural
+            ParticipantPlural = terminology.ParticipantPlural,
+            ParticipantsRequireParentSupport = terminology.ParticipantsRequireParentSupport
         };
 
         private static void NormalizeTerminology(OrganizationTerminologyViewModel model)
