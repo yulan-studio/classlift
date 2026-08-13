@@ -76,6 +76,9 @@
                             $(".navbar-brand img")
                                 .attr("onerror", "this.onerror=null;this.src=this.dataset.fallbackUrl;")
                                 .attr("src", updatedLogo);
+                            $("#organizationFavicon")
+                                .attr("onerror", "this.onerror=null;this.href=this.dataset.fallbackUrl;")
+                                .attr("href", updatedLogo);
                         }
                     }
                 });
