@@ -97,13 +97,13 @@ namespace Web.Controllers.Account
                 //if(user.Role == "Admin")
                 //    return Redirect("/Dashboard/Admin"); // Redirect to the requested page
                 if (user.Role == "Coach")
-                    return Redirect("/Coach/ManageCourse"); 
+                    return Redirect("/Home/Index"); 
                   
                 else if (user.Role == "Child")
-                    return Redirect("/Child/MyRegistrations"); 
+                    return Redirect("/Home/Index");
 
                 else if (user.Role == "Staff")
-                    return Redirect("/Child/List");
+                    return Redirect("/Home/Index");
                 
                 else
                     return Redirect("/Home/Index");
