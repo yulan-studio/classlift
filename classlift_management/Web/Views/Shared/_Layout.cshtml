@@ -187,7 +187,10 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-lg-0 ms-auto">
-
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item"><a class="nav-link" href="/Account/Settings">Settings</a></li>
+                    }
                     @if (User.IsInRole("Admin"))
                     {
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
@@ -198,10 +201,11 @@
                     @if (User.IsInRole("Staff"))
                     {
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
+                         <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Specialty/List">Specialties</a></li>
                         <li class="nav-item"><a class="nav-link" href="/City/List">Cities</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Coach/List">@CurrentTenant.Terminology.ProviderPlural</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
+                       
                         <li class="nav-item"><a class="nav-link" href="/Course/List">Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Activity/List">Activities</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/List">@CurrentTenant.Terminology.ParticipantPlural</a></li>
@@ -227,7 +231,6 @@
 
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item"><a class="nav-link" href="/Account/Settings">Settings</a></li>
                         <li class="nav-item">
                             <a class="nav-link text-danger"
                                href="#"
