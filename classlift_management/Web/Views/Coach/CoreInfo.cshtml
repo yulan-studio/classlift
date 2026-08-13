@@ -74,13 +74,10 @@
                 <input asp-for="Status" class="form-control" />
             </td> *@
             <td style="padding: 8px;">
-                <select name="Status" style="width: 50%;">
+                <select name="Status" style="width: 50%;" required>
                     <option value="">-- Select Status --</option>
-                    <option value="Citizen" selected="@(Model.Status == "Citizen" ? "selected" : null)">Citizen</option>
-                    <option value="PR" selected="@(Model.Status == "PR" ? "selected" : null)">PR</option>
-                    <option value="WP" selected="@(Model.Status == "WP" ? "selected" : null)">WP</option>
-                    <option value="SP" selected="@(Model.Status == "SP" ? "selected" : null)">SP</option>
-                    <option value="Unknown" selected="@(Model.Status == "Unknown" ? "selected" : null)">Unknown</option>
+                    <option value="Active" selected="@(Model.Status == "Active" ? "selected" : null)">Active</option>
+                    <option value="InActive" selected="@(Model.Status == "InActive" ? "selected" : null)">InActive</option>
                 </select>
             </td>
         </tr>

@@ -508,6 +508,9 @@ namespace Web.Controllers.User
         public async Task<IActionResult> CoreInfo(int coachId, string? memberID, string? preferedName, string? address, /*int OAPAmount, */string? postCode, int? bank, int? transit, int? account, string status, bool photoConsent)
         {
             var coach = await _coachService.GetAsync(coachId);
+            if (status is not ("Active" or "InActive"))
+                ModelState.AddModelError(nameof(status), "Please select Active or InActive.");
+
             if (ModelState.IsValid)
             {
 

@@ -90,6 +90,7 @@ namespace Core.Services
                 CityID = cityId,
                 City = city,
                 Gender = gender,
+                Status = "Active",
                 CoachSpecialties = specialtyIds.Select(specialtyId => new CoachSpecialty
                 {
                     SpecialtyID = specialtyId
