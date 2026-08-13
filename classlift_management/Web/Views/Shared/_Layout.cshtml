@@ -202,12 +202,12 @@
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Admin/List">Admins</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Staff/List">Staff</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Report/Index">Reports</a></li>
                     }
                     @if (User.IsInRole("Staff"))
                     {
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
-                         <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Specialty/List">Specialties</a></li>
                         <li class="nav-item"><a class="nav-link" href="/City/List">Cities</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Coach/List">@CurrentTenant.Terminology.ProviderPlural</a></li>

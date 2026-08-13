@@ -10,6 +10,7 @@ using Core.Repositories;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Core.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Web.Controllers.Payment
@@ -27,6 +28,7 @@ namespace Web.Controllers.Payment
         }
 
         [HttpGet("List")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> List()
         {
             var packages = await _paymentPackageService.GetAllAsync();
@@ -41,6 +43,7 @@ namespace Web.Controllers.Payment
         }
 
         [HttpGet("AddEdit/{packageId?}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddEdit(int? packageId)
         {
             var package = packageId.HasValue ? await _paymentPackageService.GetByIdAsync(packageId.Value) : new PaymentPackage();
@@ -48,6 +51,7 @@ namespace Web.Controllers.Payment
         }
 
         [HttpPost("Save")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Save(PaymentPackage package)
         {
             if (!ModelState.IsValid) return View("AddEdit", package);
@@ -79,6 +83,7 @@ namespace Web.Controllers.Payment
         }
 
         [HttpGet("ConfirmDelete/{packageId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ConfirmDelete(int packageId)
         {
             var package = await _paymentPackageService.GetByIdAsync(packageId);
@@ -86,6 +91,7 @@ namespace Web.Controllers.Payment
         }
 
         [HttpPost("DeleteConfirmed")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int packageId)
         {
             try
@@ -111,6 +117,7 @@ namespace Web.Controllers.Payment
 
 
         [HttpGet("GetPackageAmount")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> GetPackageAmount(int packageId)
         {
             if (packageId <= 0)
