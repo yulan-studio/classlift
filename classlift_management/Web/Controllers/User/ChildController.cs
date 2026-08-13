@@ -41,6 +41,7 @@ namespace Web.Controllers.User
         private readonly ICourseService _courseService;
         private readonly IParentService _parentService;
         private readonly ICityService _cityService;
+        private readonly IProvinceService _provinceService;
         private readonly IParentChildService _parentChildService;
         private readonly IEmergencyContactService _emergencyContactService;
         private readonly ICourseEnrollmentService _courseEnrollmentService;
@@ -58,13 +59,14 @@ namespace Web.Controllers.User
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
             _balanceService = balanceService;
             _parentService = parentService;
             _cityService = cityService;
+            _provinceService = provinceService;
             _parentChildService = parentChildService;
             _courseService = courseService;
             _specialtyService = specialtyService;
@@ -87,6 +89,36 @@ namespace Web.Controllers.User
         {
             return (await _cityService.GetAllAsync())
                 .Select(c => new SelectListItem { Value = c.CityID.ToString(), Text = c.Name })
+                .ToList();
+        }
+
+        private async Task<List<SelectListItem>> GetProvinceList(int? selectedProvinceId = null)
+        {
+            return (await _provinceService.GetAllAsync())
+                .Select(province => new SelectListItem
+                {
+                    Value = province.ProvinceID.ToString(),
+                    Text = province.Name,
+                    Selected = province.ProvinceID == selectedProvinceId
+                })
+                .ToList();
+        }
+
+        private async Task<List<SelectListItem>> GetCityListByProvince(
+            int? provinceId,
+            int? selectedCityId = null)
+        {
+            if (!provinceId.HasValue)
+                return new List<SelectListItem>();
+
+            return (await _cityService.GetAllAsync())
+                .Where(city => city.ProvinceID == provinceId)
+                .Select(city => new SelectListItem
+                {
+                    Value = city.CityID.ToString(),
+                    Text = city.Name,
+                    Selected = city.CityID == selectedCityId
+                })
                 .ToList();
         }
 
@@ -220,28 +252,53 @@ namespace Web.Controllers.User
         //[HttpGet]
         public async Task<IActionResult> Add()
         {
-            ViewBag.CityList = await GetCityList();
+            ViewBag.ProvinceList = await GetProvinceList();
+            ViewBag.CityList = new List<SelectListItem>();
 
             return View();
         }
 
         [Authorize(Roles = "Staff")]
-        [HttpPost("Add")]
-        public async Task<IActionResult> Add(string name, DateTime birthDate, string gender, int cityId, string email, string password, bool hasOAP)
+        [HttpGet("CitiesByProvince/{provinceId:int}")]
+        public async Task<IActionResult> CitiesByProvince(int provinceId)
         {
+            var cities = await GetCityListByProvince(provinceId);
+            return Json(cities.Select(city => new { city.Value, city.Text }));
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpPost("Add")]
+        public async Task<IActionResult> Add(string name, DateTime birthDate, string gender, int? provinceId, int? cityId, string email, string password, bool hasOAP)
+        {
+            if (!provinceId.HasValue)
+                ModelState.AddModelError(nameof(provinceId), "Please select a province.");
+            if (!cityId.HasValue)
+                ModelState.AddModelError(nameof(cityId), "Please select a city.");
+
+            if (provinceId.HasValue && cityId.HasValue)
+            {
+                var selectedCity = (await _cityService.GetAllAsync())
+                    .FirstOrDefault(city => city.CityID == cityId.Value);
+                if (selectedCity?.ProvinceID != provinceId.Value)
+                    ModelState.AddModelError(nameof(cityId), "The selected city does not belong to the selected province.");
+            }
+
             if (!ModelState.IsValid)
             {
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
                 return View();
             }
 
             try
             {
                 Core.Models.User user = await _userManager.GetUserAsync(User);
-                var result = await _childService.AddAsync(name, birthDate, gender, cityId, email, password, hasOAP, user);
+                var result = await _childService.AddAsync(name, birthDate, gender, cityId!.Value, email, password, hasOAP, user);
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, "Failed in adding the child info.");
-                    ViewBag.CityList = await GetCityList();
+                    ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                    ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
                     return View();
                 }
 
@@ -254,7 +311,8 @@ namespace Web.Controllers.User
             {
                 //ModelState.AddModelError(String.Empty, $"{ex.Message}");
                 TempData["ErrorMessage"] = ex.Message;
-                ViewBag.CityList = await GetCityList();
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
                 return View();
 
             }
