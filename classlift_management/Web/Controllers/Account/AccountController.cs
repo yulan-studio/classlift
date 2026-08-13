@@ -24,7 +24,7 @@ namespace Web.Controllers.Account
         private readonly R2StorageService _storageService;
         private readonly CurrentTenant _currentTenant;
         private readonly OrganizationTerminologyService _terminologyService;
-        private const string StaffResetPassword = "hello123!";
+        private const string AdminResetPassword = "hello123!";
         private const long MaxLogoSize = 2 * 1024 * 1024;
         private const string DefaultHomePageUrl = "https://courses.roboturtle.ca/";
 
@@ -421,14 +421,14 @@ namespace Web.Controllers.Account
             return PartialView("_ChangePassword", new ChangePasswordViewModel());
         }
 
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("ResetPassword")]
         public IActionResult ResetPassword()
         {
             return PartialView("_ResetPassword", new ResetPasswordViewModel());
         }
 
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("FindResetPasswordUser")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FindResetPasswordUser(ResetPasswordViewModel model)
@@ -438,9 +438,13 @@ namespace Web.Controllers.Account
                 return PartialView("_ResetPassword", model);
 
             var targetUser = await _userManager.FindByNameAsync(model.SearchUsername.Trim());
-            if (targetUser == null || !CanStaffReset(targetUser.Role))
+            if (targetUser == null || !CanAdminReset(targetUser.Role))
             {
-                ModelState.AddModelError(nameof(model.SearchUsername), "No Staff, Child, or Coach user was found with that username.");
+                var participantTerm = _currentTenant.Terminology.ParticipantSingular;
+                var providerTerm = _currentTenant.Terminology.ProviderSingular;
+                ModelState.AddModelError(
+                    nameof(model.SearchUsername),
+                    $"No Admin, Staff, {participantTerm}, or {providerTerm} account was found with that exact username.");
                 return PartialView("_ResetPassword", model);
             }
 
@@ -448,7 +452,7 @@ namespace Web.Controllers.Account
             return PartialView("_ResetPassword", model);
         }
 
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("ResetUserPassword")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetUserPassword(ResetPasswordViewModel model)
@@ -460,16 +464,16 @@ namespace Web.Controllers.Account
             }
 
             var targetUser = await _userManager.FindByIdAsync(model.TargetUserId.Value.ToString());
-            if (targetUser == null || !CanStaffReset(targetUser.Role))
+            if (targetUser == null || !CanAdminReset(targetUser.Role))
                 return NotFound();
 
-            var staffUser = await _userManager.GetUserAsync(User);
-            if (staffUser == null) return Challenge();
+            var adminUser = await _userManager.GetUserAsync(User);
+            if (adminUser == null) return Challenge();
 
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(targetUser);
-            targetUser.UpdatedBy = staffUser.Id;
+            targetUser.UpdatedBy = adminUser.Id;
             targetUser.UpdatedDate = DateTime.UtcNow;
-            var result = await _userManager.ResetPasswordAsync(targetUser, resetToken, StaffResetPassword);
+            var result = await _userManager.ResetPasswordAsync(targetUser, resetToken, AdminResetPassword);
 
             await PopulateResetProfileAsync(model, targetUser);
             if (!result.Succeeded)
@@ -479,13 +483,14 @@ namespace Web.Controllers.Account
                 return PartialView("_ResetPassword", model);
             }
 
-            ViewBag.SuccessMessage = $"The password for {targetUser.UserName} was reset to {StaffResetPassword}";
+            ViewBag.SuccessMessage = $"The password for {targetUser.UserName} was reset to {AdminResetPassword}";
             return PartialView("_ResetPassword", model);
         }
 
-        private static bool CanStaffReset(string? role) =>
+        private static bool CanAdminReset(string? role) =>
             role is not null
-            && (role.Equals("Staff", StringComparison.OrdinalIgnoreCase)
+            && (role.Equals("Admin", StringComparison.OrdinalIgnoreCase)
+                || role.Equals("Staff", StringComparison.OrdinalIgnoreCase)
                 || role.Equals("Child", StringComparison.OrdinalIgnoreCase)
                 || role.Equals("Coach", StringComparison.OrdinalIgnoreCase));
 
@@ -500,6 +505,10 @@ namespace Web.Controllers.Account
             model.Role = targetUser.Role;
             model.DisplayName = targetUser.Role switch
             {
+                "Admin" => await _dbContext.Admins.AsNoTracking()
+                    .Where(item => item.UserID == targetUser.Id)
+                    .Select(item => item.Name)
+                    .FirstOrDefaultAsync(),
                 "Staff" => await _dbContext.Staff.AsNoTracking()
                     .Where(item => item.UserID == targetUser.Id)
                     .Select(item => item.Name)
