@@ -102,6 +102,16 @@
                     $("#logoPreview").attr("src", URL.createObjectURL(this.files[0]));
                 }
             });
+
+            $(document).on("change", "#organizationType", function () {
+                var selected = $(this).find(":selected");
+                if ($(this).val() === "Custom") return;
+
+                $("#ProviderSingular").val(selected.data("provider"));
+                $("#ProviderPlural").val(selected.data("providers"));
+                $("#ParticipantSingular").val(selected.data("participant"));
+                $("#ParticipantPlural").val(selected.data("participants"));
+            });
         });
     </script>
 }

@@ -3,7 +3,7 @@
 *@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Manage Coaches";
+    ViewData["Title"] = $"Manage {CurrentTenant.Terminology.ProviderPlural}";
 }
 
 
@@ -30,9 +30,9 @@
     }
 </style>
 
-<h1>Manage Coaches</h1>
+<h1>Manage @CurrentTenant.Terminology.ProviderPlural</h1>
 
-<a href="/Coach/Add" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add Coach</a>
+<a href="/Coach/Add" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add @CurrentTenant.Terminology.ProviderSingular</a>
 
 
 <form method="get" asp-action="List" style="margin-bottom:15px;">

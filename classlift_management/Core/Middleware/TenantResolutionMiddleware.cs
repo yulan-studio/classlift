@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Core.Services;
 
 namespace Core.Middleware
 {
@@ -25,7 +26,8 @@ namespace Core.Middleware
         public async Task InvokeAsync(
             HttpContext context,
             ITenantConnectionStringFactory connectionFactory,
-            CurrentTenant currentTenant)
+            CurrentTenant currentTenant,
+            OrganizationTerminologyService terminologyService)
         {
             var host = context.Request.Host.Host
                 .Trim()
@@ -43,6 +45,7 @@ namespace Core.Middleware
                     connectionFactory.BuildConnectionString(LocalDatabaseName);
 
                 context.Items["CurrentTenant"] = currentTenant;
+                currentTenant.Terminology = await terminologyService.GetAsync(LocalDatabaseName);
 
                 _logger.LogInformation(
                     "Local tenant resolved. Host={Host}, Database={Database}",
@@ -110,6 +113,7 @@ namespace Core.Middleware
             _logger.LogInformation("tenant was found for host {Host}", host);
             // Optional backward compatibility for existing code.
             context.Items["CurrentTenant"] = currentTenant;
+            currentTenant.Terminology = await terminologyService.GetAsync(tenant.DatabaseName);
 
             _logger.LogInformation(
                 "Tenant resolved. Host={Host}, Subdomain={Subdomain}, Database={Database}",

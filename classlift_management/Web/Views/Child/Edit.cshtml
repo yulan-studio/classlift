@@ -9,7 +9,7 @@
 
 @model Core.Models.Child
 
-<h2>Edit Child</h2>
+<h2>Edit @CurrentTenant.Terminology.ParticipantSingular</h2>
 
 <form asp-action="Edit" method="post">
    @*  <input type="hidden" name="childId" value="@Model.ChildID" /> *@

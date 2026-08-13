@@ -37,6 +37,13 @@
 <hr class="my-4" />
 
 <div class="settings-subsection">
+    <partial name="_Terminology"
+             model="(Core.ViewModels.OrganizationTerminologyViewModel)ViewBag.Terminology" />
+</div>
+
+<hr class="my-4" />
+
+<div class="settings-subsection">
     <partial name="_HomePage"
              model="new Core.ViewModels.HomePageSettingsViewModel { PageUrl = ViewBag.HomePageUrl }" />
 </div>

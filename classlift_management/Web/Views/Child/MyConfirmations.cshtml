@@ -44,7 +44,7 @@
 
             <strong>Course Type: </strong>  @courseSchedulesToConfirm.Course.CourseType
             <strong> &nbsp; &nbsp; Sessions Count: </strong> @courseSchedulesToConfirm.Course.SessionCount
-            <strong> &nbsp; &nbsp;Coach: </strong>   @(courseSchedulesToConfirm.Course.Coach?.Name ?? "N/A")
+            <strong> &nbsp; &nbsp;@CurrentTenant.Terminology.ProviderSingular: </strong>   @(courseSchedulesToConfirm.Course.Coach?.Name ?? "N/A")
 
 
         </div>

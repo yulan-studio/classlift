@@ -95,7 +95,7 @@
 <!-- Info Panel -->
 <div class="p-3 mb-4 bg-light border rounded">
     <strong>Course:</strong> @Model.Course.Title <br />
-    <strong>Child:</strong> @Model.Child.Name <br />
+            <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
     <strong>Gender:</strong> @Model.Child.Gender <br />
     <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br />
     <strong>City:</strong> @Model.Child.City.Name <br /><br />
@@ -129,7 +129,7 @@
             <th>Location</th>
             <th>Status</th>
             <th>Parent Note</th>
-            <th>Coach Note</th>
+                            <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
             <th>Actions</th>
         </tr>
     </thead>

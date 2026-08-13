@@ -97,7 +97,7 @@
                 <strong> &nbsp; &nbsp; Sessions Count: </strong> @courseSchedules.Course.SessionCount
             </span>
 
-            <strong> &nbsp; &nbsp;Coach: </strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")
+            <strong> &nbsp; &nbsp;@CurrentTenant.Terminology.ProviderSingular: </strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")
             @if (courseSchedules.Course.CourseType == "Private")
             {
                 <strong> &nbsp; &nbsp;Phone#: </strong> @(courseSchedules.Course.Coach?.Phone ?? "N/A")

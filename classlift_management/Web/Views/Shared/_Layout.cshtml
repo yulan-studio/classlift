@@ -200,11 +200,11 @@
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Specialty/List">Specialties</a></li>
                         <li class="nav-item"><a class="nav-link" href="/City/List">Cities</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Coach/List">Coaches</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Coach/List">@CurrentTenant.Terminology.ProviderPlural</a></li>
                         <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Course/List">Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Activity/List">Activities</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Child/List">Children</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Child/List">@CurrentTenant.Terminology.ParticipantPlural</a></li>
                     }
                     @if (User.IsInRole("Coach"))
                     {

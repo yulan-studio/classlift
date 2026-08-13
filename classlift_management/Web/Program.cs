@@ -355,6 +355,7 @@ System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 builder.Services.Configure<Core.R2.CloudflareR2Options>(
     builder.Configuration.GetSection("CloudflareR2"));
 builder.Services.AddSingleton<Core.R2.R2StorageService>();
+builder.Services.AddSingleton<OrganizationTerminologyService>();
 
 
 var app = builder.Build();

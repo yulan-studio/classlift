@@ -16,6 +16,8 @@ namespace Core.Models
 
         public string? ConnectionString { get; set; }
 
+        public OrganizationTerminology Terminology { get; set; } = new();
+
         public bool IsResolved =>
             !string.IsNullOrWhiteSpace(DatabaseName) &&
             !string.IsNullOrWhiteSpace(ConnectionString);

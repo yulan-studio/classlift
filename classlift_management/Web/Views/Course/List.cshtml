@@ -58,7 +58,7 @@
             </th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["CoachSortParm"]" style="color: black; text-decoration: none; ">
-                    Coach
+                    @CurrentTenant.Terminology.ProviderSingular
                     @if ((string)ViewData["CurrentSort"] == "coach")
                     {
                         <span>▲</span>

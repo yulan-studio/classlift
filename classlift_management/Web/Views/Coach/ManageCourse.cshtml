@@ -138,7 +138,7 @@
             <table class="mobile-stack table table-bordered mt-3">
                 <thead class="table-primary">
                     <tr>
-                        <th>Child Name</th>
+                        <th>@CurrentTenant.Terminology.ParticipantSingular Name</th>
                         <th class="desktop-only">Gender</th>
                         <th class="desktop-only">City</th>
                         <th class="desktop-only">Birthday</th>
@@ -162,7 +162,7 @@
                         foreach (var child in course.RegisteredChildren)
                         {
                             <tr>
-                                <td data-label="Child Name">@child.Name</td>
+                                <td data-label="@CurrentTenant.Terminology.ParticipantSingular Name">@child.Name</td>
                                 <td class="desktop-only" data-label="Gender">@child.Gender</td>
                                 <td class="desktop-only" data-label="City">@child.City</td>
                                 <td class="desktop-only" data-label="Birthday">

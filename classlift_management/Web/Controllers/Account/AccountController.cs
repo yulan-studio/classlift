@@ -23,11 +23,12 @@ namespace Web.Controllers.Account
         private readonly AppDbContext _dbContext;
         private readonly R2StorageService _storageService;
         private readonly CurrentTenant _currentTenant;
+        private readonly OrganizationTerminologyService _terminologyService;
         private const string StaffResetPassword = "hello123!";
         private const long MaxLogoSize = 2 * 1024 * 1024;
         private const string DefaultHomePageUrl = "https://courses.roboturtle.ca/";
 
-        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant)
+        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant, OrganizationTerminologyService terminologyService)
         {
             _userRegistrationService = userRegistrationService;
             _signInManager = signInManager;
@@ -36,6 +37,7 @@ namespace Web.Controllers.Account
             _dbContext = dbContext;
             _storageService = storageService;
             _currentTenant = currentTenant;
+            _terminologyService = terminologyService;
         }
 
         // Show Registration Form (GET)
@@ -141,6 +143,7 @@ namespace Web.Controllers.Account
         public async Task<IActionResult> Branding()
         {
             ViewBag.HomePageUrl = await GetHomePageUrlAsync();
+            ViewBag.Terminology = ToTerminologyViewModel(_currentTenant.Terminology);
             return PartialView("_Branding", new BrandingSettingsViewModel
             {
                 CurrentLogoUrl = GetTenantLogoUrl()
@@ -155,6 +158,7 @@ namespace Web.Controllers.Account
         {
             model.CurrentLogoUrl = GetTenantLogoUrl();
             ViewBag.HomePageUrl = await GetHomePageUrlAsync();
+            ViewBag.Terminology = ToTerminologyViewModel(_currentTenant.Terminology);
 
             if (model.Logo == null || model.Logo.Length == 0)
             {
@@ -190,6 +194,39 @@ namespace Web.Controllers.Account
             }
 
             return PartialView("_Branding", model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("Terminology")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Terminology(OrganizationTerminologyViewModel model)
+        {
+            NormalizeTerminology(model);
+
+            if (!ModelState.IsValid)
+                return PartialView("_Terminology", model);
+
+            try
+            {
+                var terminology = new OrganizationTerminology
+                {
+                    OrganizationType = model.OrganizationType,
+                    ProviderSingular = model.ProviderSingular,
+                    ProviderPlural = model.ProviderPlural,
+                    ParticipantSingular = model.ParticipantSingular,
+                    ParticipantPlural = model.ParticipantPlural
+                };
+
+                await _terminologyService.SaveAsync(GetTenantDatabaseName(), terminology);
+                _currentTenant.Terminology = terminology;
+                ViewBag.SuccessMessage = "Organization terminology has been updated.";
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "The terminology could not be saved. Please try again.");
+            }
+
+            return PartialView("_Terminology", model);
         }
 
         [Authorize(Roles = "Admin")]
@@ -248,6 +285,33 @@ namespace Web.Controllers.Account
                 throw new InvalidOperationException("A tenant must be resolved before its Home page can be changed.");
 
             return $"branding/{_currentTenant.DatabaseName}/home-page-url.txt";
+        }
+
+        private string GetTenantDatabaseName()
+        {
+            if (string.IsNullOrWhiteSpace(_currentTenant.DatabaseName))
+                throw new InvalidOperationException("A tenant must be resolved before its terminology can be changed.");
+
+            return _currentTenant.DatabaseName;
+        }
+
+        private static OrganizationTerminologyViewModel ToTerminologyViewModel(
+            OrganizationTerminology terminology) => new()
+        {
+            OrganizationType = terminology.OrganizationType,
+            ProviderSingular = terminology.ProviderSingular,
+            ProviderPlural = terminology.ProviderPlural,
+            ParticipantSingular = terminology.ParticipantSingular,
+            ParticipantPlural = terminology.ParticipantPlural
+        };
+
+        private static void NormalizeTerminology(OrganizationTerminologyViewModel model)
+        {
+            model.OrganizationType = model.OrganizationType?.Trim() ?? string.Empty;
+            model.ProviderSingular = model.ProviderSingular?.Trim() ?? string.Empty;
+            model.ProviderPlural = model.ProviderPlural?.Trim() ?? string.Empty;
+            model.ParticipantSingular = model.ParticipantSingular?.Trim() ?? string.Empty;
+            model.ParticipantPlural = model.ParticipantPlural?.Trim() ?? string.Empty;
         }
 
         private async Task<string> GetHomePageUrlAsync()
