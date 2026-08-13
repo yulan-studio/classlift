@@ -48,8 +48,15 @@ namespace Web.Controllers.User
         private readonly EmailService _emailService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
+        private readonly CurrentTenant _currentTenant;
+
+        private string ProviderName =>
+            _currentTenant.Terminology.ProviderSingular;
+
+        private string ProviderNameLower =>
+            ProviderName.ToLowerInvariant();
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
         {
             _coachService = coachService;
             _incomeService = incomeService;
@@ -67,6 +74,7 @@ namespace Web.Controllers.User
             _emailService = emailService;
             _userManager = userManager;
             _timeZoneService = timeZoneService;
+            _currentTenant = currentTenant;
             
         }
 
@@ -103,7 +111,7 @@ namespace Web.Controllers.User
                 var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, wechat, cityId, user);
                 if (!result)
                 {
-                    ModelState.AddModelError(string.Empty, "Failed in adding the coach info.");
+                    ModelState.AddModelError(string.Empty, $"Failed to add the {ProviderNameLower} information.");
 
                    
                     // Repopulate CityList for the dropdown if validation fails
@@ -125,7 +133,7 @@ namespace Web.Controllers.User
 
                     return View();
                 }
-                TempData["SuccessMessage"] = "Coach info has been added successfully.";
+                TempData["SuccessMessage"] = $"{ProviderName} information has been added successfully.";
                 return RedirectToAction("List"); // Redirect to the coach list page
 
 
@@ -213,11 +221,11 @@ namespace Web.Controllers.User
 
                 if (!result)
                 {
-                    TempData["ErrorMessage"] = "The coach member could not be deleted.";
+                    TempData["ErrorMessage"] = $"The {ProviderNameLower} member could not be deleted.";
                     return RedirectToAction("List");
                 }
 
-                TempData["SuccessMessage"] = "Coach member has been deleted successfully.";
+                TempData["SuccessMessage"] = $"{ProviderName} member has been deleted successfully.";
                 return RedirectToAction("List"); // Redirect to the coach list page
             }
             catch (Exception ex)
@@ -383,7 +391,7 @@ namespace Web.Controllers.User
 
                 if (!result)
                 {
-                    ModelState.AddModelError(string.Empty, "Failed to update coach information.");
+                    ModelState.AddModelError(string.Empty, $"Failed to update {ProviderNameLower} information.");
                     var coach = await _coachService.GetAsync(coachId);
 
                     if (coach == null)
@@ -429,7 +437,7 @@ namespace Web.Controllers.User
                     return View(coach);
                 }
 
-                TempData["SuccessMessage"] = "coach information updated successfully.";
+                TempData["SuccessMessage"] = $"{ProviderName} information updated successfully.";
                 return RedirectToAction("List");
             }
             catch (Exception ex)
@@ -507,20 +515,46 @@ namespace Web.Controllers.User
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CoreInfo(int coachId, string? memberID, string? preferedName, string? address, /*int OAPAmount, */string? postCode, int? bank, int? transit, int? account, string status, bool photoConsent)
         {
-            var coach = await _coachService.GetAsync(coachId);
             if (status is not ("Active" or "InActive"))
                 ModelState.AddModelError(nameof(status), "Please select Active or InActive.");
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-
-                await _coachService.UpdateAsync(coachId, memberID, preferedName, address, postCode, bank, transit, account, status, photoConsent);
-
+                TempData["ErrorMessage"] = string.Join(" ", ModelState.Values
+                    .SelectMany(value => value.Errors)
+                    .Select(error => error.ErrorMessage)
+                    .Where(message => !string.IsNullOrWhiteSpace(message)));
                 return RedirectToAction("MoreInfo", new { coachId });
             }
-            else
-                //return View(child);
-                return RedirectToAction("MoreInfo", new { coachId });
+
+            try
+            {
+                var saved = await _coachService.UpdateAsync(
+                    coachId,
+                    memberID,
+                    preferedName,
+                    address,
+                    postCode,
+                    bank,
+                    transit,
+                    account,
+                    status,
+                    photoConsent);
+
+                if (!saved)
+                {
+                    TempData["ErrorMessage"] = $"The {ProviderNameLower} information could not be saved. Please try again.";
+                    return RedirectToAction("MoreInfo", new { coachId });
+                }
+
+                TempData["SuccessMessage"] = $"The {ProviderNameLower} information was saved successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = $"An unexpected error occurred while saving the {ProviderNameLower} information. Please try again.";
+            }
+
+            return RedirectToAction("MoreInfo", new { coachId });
         }
 
 
@@ -588,7 +622,7 @@ namespace Web.Controllers.User
 
                 if (specialties == null || !specialties.Any())
                 {
-                    TempData["ErrorMessage"] = "No specialties found for this coach.";
+                    TempData["ErrorMessage"] = $"No specialties found for this {ProviderNameLower}.";
                     return RedirectToAction("Index", "Home"); // Redirect to a safe page
                 }
 
@@ -1016,7 +1050,7 @@ namespace Web.Controllers.User
 
 
             if (coach == null)
-                return NotFound("Coach profile not found.");
+                return NotFound($"{ProviderName} profile not found.");
 
             // Get income records
             //var incomeRecords = await _incomeService.GetCoachIncomeAsync(coach.CoachID);

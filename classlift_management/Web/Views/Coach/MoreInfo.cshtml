@@ -1,5 +1,15 @@
 ﻿@model Core.Models.Coach
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["ErrorMessage"]</div>
+}
+
 @* <div>
     <p><strong>Name:</strong> @Model.Name</p>
     <p><strong>Birth Date:</strong> @(Model.BirthDate.HasValue ? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</p>

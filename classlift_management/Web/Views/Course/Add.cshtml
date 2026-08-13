@@ -50,7 +50,10 @@
         <tr>
             <td style="padding: 8px;"><label for="CoachID">@CurrentTenant.Terminology.ProviderSingular:</label></td>
             <td style="padding: 8px;">
-                <select id="CoachID" name="CoachID" class="form-control" style="width: 100%;" required>
+                <select id="CoachID" name="CoachID" class="form-control"
+                        data-role-name="@CurrentTenant.Terminology.ProviderSingular"
+                        data-role-plural="@CurrentTenant.Terminology.ProviderPlural"
+                        style="width: 100%;" required>
                     <option value="" selected>-- Select @CurrentTenant.Terminology.ProviderSingular --</option>
                 </select>
 

@@ -34,9 +34,10 @@ namespace Web.Controllers.Courses
         private readonly ICourseEnrollmentService _courseEnrollmentService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
+        private readonly CurrentTenant _currentTenant;
 
 
-        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
+        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
         {
             _courseService = courseService;
             _coachService = coachService;
@@ -44,6 +45,7 @@ namespace Web.Controllers.Courses
             _userManager = userManager;
             _courseEnrollmentService = courseEnrollmentService;
             _timeZoneService = timeZoneService;
+            _currentTenant = currentTenant;
         }
 
 
@@ -183,6 +185,7 @@ namespace Web.Controllers.Courses
         }
 
 
+        [Authorize(Roles = "Staff")]
         [HttpGet("GetCoachesBySpecialty")]
         public async Task<IActionResult> GetCoachesBySpecialty(int specialtyId)
         {
@@ -208,6 +211,17 @@ namespace Web.Controllers.Courses
         [HttpPost("Add")]
         public async Task<IActionResult> Add(AddCourseViewModel model)
         {
+            if (model.SpecialtyID > 0 && model.CoachID > 0)
+            {
+                var activeCoaches = await _coachService.GetCoachesBySpecailtyAsync(model.SpecialtyID);
+                if (!activeCoaches.Any(coach => coach.CoachID == model.CoachID))
+                {
+                    ModelState.AddModelError(
+                        nameof(model.CoachID),
+                        $"Please select an active {_currentTenant.Terminology.ProviderSingular.ToLowerInvariant()} in the selected specialty.");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 var specialties = await _specialtyService.GetAllAsync();
