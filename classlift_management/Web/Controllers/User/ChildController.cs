@@ -491,6 +491,14 @@ namespace Web.Controllers.User
             return View(child);
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("EmergencyContacts/{childId}")]
+        public async Task<IActionResult> EmergencyContacts(int childId)
+        {
+            var child = await _childService.GetAsync(childId);
+            return View(child);
+        }
+
 
 
         [Authorize(Roles = "Staff")]
@@ -534,10 +542,10 @@ namespace Web.Controllers.User
 
                 await _emergencyContactService.AddAsync(contact);
 
-                return RedirectToAction("MoreInfo", new { childId });
+                return RedirectToAction("MoreInfo", new { childId, tab = "EmergencyContacts" });
             }
 
-            return RedirectToAction("MoreInfo", new { childId });
+            return RedirectToAction("MoreInfo", new { childId, tab = "EmergencyContacts" });
         }
 
         [Authorize(Roles = "Staff")]
@@ -551,7 +559,7 @@ namespace Web.Controllers.User
                 await _emergencyContactService.DeleteAsync(contactId);
             }
 
-            return RedirectToAction("MoreInfo", new { childId });
+            return RedirectToAction("MoreInfo", new { childId, tab = "EmergencyContacts" });
         }
 
 
