@@ -34,6 +34,13 @@
         </tr>
        
         <tr>
+            <td style="padding: 8px;"><label>City</label></td>
+            <td style="padding: 8px;">
+                <span class="form-control-plaintext">@(Model.City?.Name ?? "N/A")</span>
+            </td>
+        </tr>
+
+        <tr>
             <td style="padding: 8px;"><label asp-for="Address">Address</label></td>
             <td style="padding: 8px;">
                 <input asp-for="Address" class="form-control" />
