@@ -37,6 +37,16 @@ namespace Core.Models
 
         public string? PrimaryDiagnosis { get; set; }
         public string? Address { get; set; }
+
+        [StringLength(50)]
+        public string? Phone { get; set; }
+
+        [StringLength(100)]
+        public string? WeChat { get; set; }
+
+        [StringLength(50)]
+        public string? WhatsApp { get; set; }
+
         public int? OAPAmount { get; set; }
         public bool PhotoConsent { get; set; }
 

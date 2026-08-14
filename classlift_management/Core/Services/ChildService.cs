@@ -165,7 +165,9 @@ namespace Core.Services
 
 
 
-        public async Task<bool> UpdateAsync(int childId, string? memberID, string? address, /*int OAPAmount,*/  string? primaryDiagnosis, bool photoConsent/*, string password*/)
+        public async Task<bool> UpdateAsync(int childId, string? memberID, string? address,
+            string? primaryDiagnosis, bool photoConsent, string? email, string? phone,
+            string? weChat, string? whatsApp)
         {
             // Find the coach by ID
             var child = await _childRepository.GetAsync(childId);
@@ -180,6 +182,18 @@ namespace Core.Services
             //child.OAPAmount = OAPAmount;
             child.PrimaryDiagnosis = primaryDiagnosis;
             child.PhotoConsent = photoConsent;
+            child.Phone = phone;
+            child.WeChat = weChat;
+            child.WhatsApp = whatsApp;
+
+            if (!string.Equals(child.User.Email, email, StringComparison.OrdinalIgnoreCase))
+            {
+                var emailResult = await _userManager.SetEmailAsync(child.User, email);
+                if (!emailResult.Succeeded)
+                {
+                    throw new InvalidOperationException(string.Join(" ", emailResult.Errors.Select(e => e.Description)));
+                }
+            }
            
            // child.User.UpdatedDate = DateTime.UtcNow;
 

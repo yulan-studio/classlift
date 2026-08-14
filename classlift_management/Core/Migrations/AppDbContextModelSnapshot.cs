@@ -294,8 +294,20 @@ namespace Core.Migrations
                     b.Property<bool>("PhotoConsent")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.Property<string>("PrimaryDiagnosis")
                         .HasColumnType("longtext");
+
+                    b.Property<string>("WeChat")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("WhatsApp")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<int>("UserID")
                         .HasColumnType("int");

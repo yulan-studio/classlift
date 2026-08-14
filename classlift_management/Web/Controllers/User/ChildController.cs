@@ -496,13 +496,16 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost("CoreInfo/{childId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CoreInfo(int childId, string? memberID, string? address, /*int OAPAmount, */string? primaryDiagnosis, bool photoConsent)
+        public async Task<IActionResult> CoreInfo(int childId, string? memberID, string? address,
+            string? primaryDiagnosis, bool photoConsent, string? email, string? phone,
+            string? weChat, string? whatsApp)
         {
             var child = await _childService.GetAsync(childId);
             if (ModelState.IsValid)
             {
 
-                await _childService.UpdateAsync(childId, memberID, address, /*OAPAmount,*/ primaryDiagnosis, photoConsent);
+                await _childService.UpdateAsync(childId, memberID, address, primaryDiagnosis,
+                    photoConsent, email, phone, weChat, whatsApp);
 
                 return RedirectToAction("MoreInfo", new { childId });
             }
