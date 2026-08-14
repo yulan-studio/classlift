@@ -188,10 +188,14 @@ namespace Core.Services
 
             if (!string.Equals(child.User.Email, email, StringComparison.OrdinalIgnoreCase))
             {
-                var emailResult = await _userManager.SetEmailAsync(child.User, email);
-                if (!emailResult.Succeeded)
+                child.User.Email = email;
+                child.User.UserName = email;
+
+                var userUpdateResult = await _userManager.UpdateAsync(child.User);
+                if (!userUpdateResult.Succeeded)
                 {
-                    throw new InvalidOperationException(string.Join(" ", emailResult.Errors.Select(e => e.Description)));
+                    throw new InvalidOperationException(
+                        string.Join(" ", userUpdateResult.Errors.Select(e => e.Description)));
                 }
             }
            
