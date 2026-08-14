@@ -537,6 +537,14 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Staff")]
+        [HttpGet("EmergencyContacts/{coachId}")]
+        public async Task<IActionResult> EmergencyContacts(int coachId)
+        {
+            var coach = await _coachService.GetAsync(coachId);
+            return View(coach);
+        }
+
+        [Authorize(Roles = "Staff")]
         [HttpPost("CoreInfo/{coachId}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CoreInfo(int coachId, string? memberID, string? preferedName, string? address, /*int OAPAmount, */string? postCode, int? bank, int? transit, int? account, string status, bool photoConsent)
@@ -604,14 +612,14 @@ namespace Web.Controllers.User
                 var result = await _emergencyContactService.AddAsync(contact);
 
                 
-                return RedirectToAction("MoreInfo", new { coachId });
+                return RedirectToAction("MoreInfo", new { coachId, tab = "EmergencyContacts" });
                
 
                 
             
             }
 
-            return RedirectToAction("MoreInfo", new { coachId });
+            return RedirectToAction("MoreInfo", new { coachId, tab = "EmergencyContacts" });
         }
 
         [Authorize(Roles = "Staff")]
@@ -625,7 +633,7 @@ namespace Web.Controllers.User
                 await _emergencyContactService.DeleteAsync(contactId);
             }
 
-            return RedirectToAction("MoreInfo", new { coachId });
+            return RedirectToAction("MoreInfo", new { coachId, tab = "EmergencyContacts" });
         }
 
 

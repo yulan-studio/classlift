@@ -1,0 +1,48 @@
+@model Core.Models.Coach
+
+@{
+    Layout = null;
+}
+
+<h2>Emergency Contacts</h2>
+
+<table style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Relationship</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in Model.EmergencyContacts ?? Enumerable.Empty<Core.Models.EmergencyContact>())
+        {
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;">@contact.ContactName</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@contact.Relationship</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@contact.Phone</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@contact.Email</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">
+                    <form asp-action="DeleteEmergencyContact" asp-route-contactId="@contact.EmergencyContactID" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="coachId" value="@Model.CoachID" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-bottom: 40px;"></div>
+
+<form asp-action="AddEmergencyContact" asp-route-coachId="@Model.CoachID" method="post">
+    @Html.AntiForgeryToken()
+    <input name="contactName" placeholder="Contact Name" required />
+    <input name="relationship" placeholder="Relationship" required />
+    <input name="phone" placeholder="Phone" required />
+    <input name="email" type="email" placeholder="Email" required />
+    <button type="submit" class="btn btn-danger btn-sm">Add Contact</button>
+</form>
