@@ -36,6 +36,7 @@ namespace Web.Controllers.User
         private readonly IChildBalanceService _balanceService;
         private readonly ICoachRepository _coachRepository;
         private readonly ICityService _cityService;
+        private readonly IProvinceService _provinceService;
         private readonly ISpecialtyService _specialtyService;
         private readonly IEmergencyContactService _emergencyContactService;
         private readonly ICoachSpecialtyService _coachSpecialtyService;
@@ -56,13 +57,14 @@ namespace Web.Controllers.User
         private string ProviderNameLower =>
             ProviderName.ToLowerInvariant();
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
         {
             _coachService = coachService;
             _incomeService = incomeService;
             _balanceService = balanceService;
             _coachRepository = coachRepository;
             _cityService = cityService;
+            _provinceService = provinceService;
             _specialtyService = specialtyService;
             _coachSpecialtyService = coachSpecialtyService;
             _emergencyContactService = emergencyService;
@@ -76,6 +78,36 @@ namespace Web.Controllers.User
             _timeZoneService = timeZoneService;
             _currentTenant = currentTenant;
             
+        }
+
+        private async Task PopulateLocationListsAsync(int? provinceId, int? cityId)
+        {
+            ViewBag.ProvinceList = (await _provinceService.GetAllAsync())
+                .Select(province => new SelectListItem
+                {
+                    Value = province.ProvinceID.ToString(),
+                    Text = province.Name,
+                    Selected = province.ProvinceID == provinceId
+                }).ToList();
+
+            ViewBag.CityList = (await _cityService.GetAllAsync())
+                .Where(city => city.ProvinceID == provinceId)
+                .Select(city => new SelectListItem
+                {
+                    Value = city.CityID.ToString(),
+                    Text = city.Name,
+                    Selected = city.CityID == cityId
+                }).ToList();
+        }
+
+        [HttpGet("CitiesByProvince/{provinceId:int}")]
+        public async Task<IActionResult> CitiesByProvince(int provinceId)
+        {
+            var cities = (await _cityService.GetAllAsync())
+                .Where(city => city.ProvinceID == provinceId)
+                .Select(city => new { value = city.CityID.ToString(), text = city.Name });
+
+            return Json(cities);
         }
 
         [Authorize(Roles = "Staff")]
@@ -336,16 +368,8 @@ namespace Web.Controllers.User
                 return NotFound();
             }
 
-            var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-
-
-
-            ViewBag.CityList = cities.Select(c => new SelectListItem
-            {
-                Value = c.CityID.ToString(),
-                Text = c.Name,
-                Selected = c.CityID == coach.CityID
-            }).ToList();
+            var selectedProvinceId = (await _cityService.GetAsync(coach.CityID)).ProvinceID;
+            await PopulateLocationListsAsync(selectedProvinceId, coach.CityID);
 
 
             var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
@@ -379,14 +403,36 @@ namespace Web.Controllers.User
         [ValidateAntiForgeryToken]
 
        
-        public async Task<IActionResult> Edit(int coachId, string name, string email, /*string password,*/List<int> specialtyIds, string gender, string phone, string wechat, int cityId)
+        public async Task<IActionResult> Edit(int coachId, string name, string email, /*string password,*/List<int> specialtyIds, string gender, string phone, string wechat, int? provinceId, int? cityId)
         {
-           
+            if (!provinceId.HasValue)
+                ModelState.AddModelError(nameof(provinceId), "Please select a province.");
+            if (!cityId.HasValue)
+                ModelState.AddModelError(nameof(cityId), "Please select a city.");
+            if (provinceId.HasValue && cityId.HasValue)
+            {
+                var selectedCity = await _cityService.GetAsync(cityId.Value);
+                if (selectedCity?.ProvinceID != provinceId.Value)
+                    ModelState.AddModelError(nameof(cityId), "The selected city does not belong to the selected province.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var coach = await _coachService.GetAsync(coachId);
+                await PopulateLocationListsAsync(provinceId, cityId);
+                var specialties = await _specialtyService.GetAllAsync();
+                ViewBag.SpecialtyList = specialties.Select(s => new SelectListItem
+                {
+                    Value = s.SpecialtyID.ToString(), Text = s.Title,
+                    Selected = specialtyIds.Contains(s.SpecialtyID)
+                }).ToList();
+                return View(coach);
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, wechat, cityId, user);
+                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, wechat, cityId!.Value, user);
 
 
                 if (!result)
@@ -399,16 +445,7 @@ namespace Web.Controllers.User
                         return NotFound();
                     }
 
-                    var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-
-
-
-                    ViewBag.CityList = cities.Select(c => new SelectListItem
-                    {
-                        Value = c.CityID.ToString(),
-                        Text = c.Name,
-                        Selected = c.CityID == coach.CityID
-                    }).ToList();
+                    await PopulateLocationListsAsync(provinceId, cityId);
 
 
                     //var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
@@ -450,16 +487,7 @@ namespace Web.Controllers.User
                     return NotFound();
                 }
 
-                var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-
-
-
-                ViewBag.CityList = cities.Select(c => new SelectListItem
-                {
-                    Value = c.CityID.ToString(),
-                    Text = c.Name,
-                    Selected = c.CityID == coach.CityID
-                }).ToList();
+                await PopulateLocationListsAsync(provinceId, cityId);
 
 
                 //var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
