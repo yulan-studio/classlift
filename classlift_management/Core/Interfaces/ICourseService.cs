@@ -24,7 +24,7 @@ namespace Core.Interfaces
 
         // Add a new course
 
-        Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal? hourlyCost, decimal? hourlyCost2, bool isActive, int coachId, int specialtyId,  User user);
+        Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal? hourlyCost, bool isActive, int coachId, int specialtyId,  User user);
 
 
 

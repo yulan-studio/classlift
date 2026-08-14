@@ -237,7 +237,7 @@ namespace Web.Controllers.Courses
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                var result = await _courseService.AddAsync(model.Title, model.Description,model.CourseType, model.MaxCapacity, model.SessionCount, model.HourlyCost, model.HourlyCost2, model.IsActive, model.CoachID, model.SpecialtyID, user);
+                var result = await _courseService.AddAsync(model.Title, model.Description,model.CourseType, model.MaxCapacity, model.SessionCount, model.HourlyCost, model.IsActive, model.CoachID, model.SpecialtyID, user);
 
                 if (!result)
                 {

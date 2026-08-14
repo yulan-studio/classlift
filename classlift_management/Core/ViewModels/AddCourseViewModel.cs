@@ -27,8 +27,8 @@ namespace Core.ViewModels
         public decimal HourlyCost { get; set; }
 
        
-        [Range(0, double.MaxValue)]
-        public decimal? HourlyCost2 { get; set; }
+        //[Range(0, double.MaxValue)]
+        //public decimal? HourlyCost2 { get; set; }
 
         public bool IsActive { get; set; }
     }

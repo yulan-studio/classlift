@@ -55,7 +55,7 @@ namespace Core.Services
 
         // Add a new course
         
-        public async  Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapacity, int? sessionCount, decimal? hourlyCost, decimal? hourlyCost2, bool isActive, int coachId, int specialtyId, User user)
+        public async  Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapacity, int? sessionCount, decimal? hourlyCost, bool isActive, int coachId, int specialtyId, User user)
         {
             // Validate inputs
             //if (string.IsNullOrWhiteSpace(title))
@@ -119,7 +119,6 @@ namespace Core.Services
                 MaxCapacity = maxCapacity,
                 SessionCount = sessionCount,
                 HourlyCost = hourlyCost,
-                HourlyCost2 = hourlyCost2,
                 IsActive = isActive,
                 Coach = coach,
                 Specialty = specialty,
