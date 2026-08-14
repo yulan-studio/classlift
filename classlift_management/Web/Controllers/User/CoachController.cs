@@ -536,8 +536,6 @@ namespace Web.Controllers.User
             return View(coach);
         }
 
-
-
         [Authorize(Roles = "Staff")]
         [HttpPost("CoreInfo/{coachId}")]
         [ValidateAntiForgeryToken]

@@ -294,6 +294,10 @@ namespace Core.Migrations
                     b.Property<bool>("PhotoConsent")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("PostCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");

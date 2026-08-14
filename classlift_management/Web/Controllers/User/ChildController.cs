@@ -496,7 +496,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost("CoreInfo/{childId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CoreInfo(int childId, string? memberID, string? address,
+        public async Task<IActionResult> CoreInfo(int childId, string? memberID, string? address, string? postCode,
             string? primaryDiagnosis, bool photoConsent, string? email, string? phone,
             string? weChat, string? whatsApp)
         {
@@ -504,7 +504,7 @@ namespace Web.Controllers.User
             if (ModelState.IsValid)
             {
 
-                await _childService.UpdateAsync(childId, memberID, address, primaryDiagnosis,
+                await _childService.UpdateAsync(childId, memberID, address, postCode, primaryDiagnosis,
                     photoConsent, email, phone, weChat, whatsApp);
 
                 return RedirectToAction("MoreInfo", new { childId });

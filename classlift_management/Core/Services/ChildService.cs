@@ -165,7 +165,7 @@ namespace Core.Services
 
 
 
-        public async Task<bool> UpdateAsync(int childId, string? memberID, string? address,
+        public async Task<bool> UpdateAsync(int childId, string? memberID, string? address, string? postCode,
             string? primaryDiagnosis, bool photoConsent, string? email, string? phone,
             string? weChat, string? whatsApp)
         {
@@ -179,6 +179,7 @@ namespace Core.Services
             // Update fields
             child.MemberID = memberID;
             child.Address = address;
+            child.PostCode = postCode;
             //child.OAPAmount = OAPAmount;
             child.PrimaryDiagnosis = primaryDiagnosis;
             child.PhotoConsent = photoConsent;

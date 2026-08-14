@@ -38,6 +38,9 @@ namespace Core.Models
         public string? PrimaryDiagnosis { get; set; }
         public string? Address { get; set; }
 
+        [StringLength(10)]
+        public string? PostCode { get; set; }
+
         [StringLength(50)]
         public string? Phone { get; set; }
 

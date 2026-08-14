@@ -44,6 +44,12 @@
             </td>
         </tr>
         <tr>
+            <td style="padding: 8px;"><label asp-for="PostCode">Post Code</label></td>
+            <td style="padding: 8px;">
+                <input asp-for="PostCode" class="form-control" maxlength="10" />
+            </td>
+        </tr>
+        <tr>
             <td style="padding: 8px;"><label for="email">Email</label></td>
             <td style="padding: 8px;">
                 <input id="email" name="email" type="email" value="@Model.User.Email" maxlength="256" class="form-control" />
