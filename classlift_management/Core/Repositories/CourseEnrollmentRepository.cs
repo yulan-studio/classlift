@@ -637,6 +637,29 @@ namespace Core.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> CancelSessionAndChildRegistrationsAsync(CourseEnrollment session, string? staffNote)
+        {
+            var childRegistrations = await _context.CourseEnrollments
+                .Where(e => e.EnrollmentID_Ref == session.EnrollmentID
+                            && e.ChildID != null
+                            && e.Status != "Canceled"
+                            && e.Status != "Deleted"
+                            && e.Status != "Completed")
+                .ToListAsync();
+
+            session.Status = "Canceled";
+            session.StaffNote = staffNote;
+
+            foreach (var registration in childRegistrations)
+            {
+                registration.Status = "Canceled";
+                registration.StaffNote = staffNote;
+            }
+
+            _context.CourseEnrollments.Update(session);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
 
 
         public async Task<bool> UpdateCompletedCoursesAsync()
