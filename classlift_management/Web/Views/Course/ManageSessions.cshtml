@@ -134,6 +134,17 @@
     </form>
 </div>
 
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" style="margin-top: 20px;">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" style="margin-top: 20px;">@TempData["ErrorMessage"]</div>
+}
+
 <!-- Existing Sessions Table -->
 <h5>Upcoming Sessions</h5>
 
@@ -211,15 +222,7 @@
 </table>
 
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success" style="margin-top: 20px;">@TempData["SuccessMessage"]</div>
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger" style="margin-top: 20px;">@TempData["ErrorMessage"]</div>
-}
 
 <!-- Modal Popup -->
 <div id="sessionModal" class="modal fade">
