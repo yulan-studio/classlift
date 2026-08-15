@@ -11,7 +11,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Birth Date</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
             <th style="padding: 8px; border: 1px solid #ddd;">City</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Has OAP</th>
+           @*  <th style="padding: 8px; border: 1px solid #ddd;">Has OAP</th> *@
             <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
         </tr>
     </thead>
@@ -27,7 +27,7 @@
             <td style="padding: 8px; border: 1px solid #ddd;">
                 @(Model.Child.City != null ? Model.Child.City.Name : "N/A")
             </td>
-            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Child.HasOAP</td>
+          @*   <td style="padding: 8px; border: 1px solid #ddd;">@Model.Child.HasOAP</td> *@
             <td style="padding: 8px; border: 1px solid #ddd;">@Model.Child.User.Email</td>
         </tr>
     </tbody>

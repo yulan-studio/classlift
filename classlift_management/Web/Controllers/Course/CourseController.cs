@@ -410,11 +410,15 @@ namespace Web.Controllers.Courses
                     var openSessionCount = (await _courseEnrollmentService
                         .GetOpenSessionsByCourseAsync(courseId))
                         .Count();
+                    var completedSessionCount = (await _courseEnrollmentService
+                        .GetCompletedSessionsByCourseAsync(courseId))
+                        .Count();
+                    var countedSessionCount = openSessionCount + completedSessionCount;
 
-                    if (openSessionCount + totalOccurrences > course.SessionCount.Value)
+                    if (countedSessionCount + totalOccurrences > course.SessionCount.Value)
                         throw new InvalidOperationException(
-                            $"A course can have at most {course.SessionCount.Value} open sessions. " +
-                            $"There are currently {openSessionCount} open sessions.");
+                            $"This course can have at most {course.SessionCount.Value} sessions. " +
+                            $"There are currently {openSessionCount} open and {completedSessionCount} completed sessions.");
                 }
 
                 var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
