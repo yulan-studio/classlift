@@ -470,6 +470,10 @@ namespace Web.Controllers.Courses
             var session = await _courseEnrollmentService.GetAsync(enrollmentId);
             if (session == null) return NotFound();
 
+            var registeredSessionIds = await _courseEnrollmentService
+                .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
+            ViewBag.HasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
+
             return PartialView("_EditSession", session);
         }
 
@@ -491,7 +495,13 @@ namespace Web.Controllers.Courses
                 var result = false;
                 session.Location = location;
                 session.StaffNote = staffNote;
-                session.Status = status;
+
+                var registeredSessionIds = await _courseEnrollmentService
+                    .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
+                var hasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
+
+                if (hasRegistrations)
+                    session.Status = status;
 
                 //This also include if update the session Status to 'Canceled', all children's registration to the session need to be canceled. 
                 result = await _courseEnrollmentService.UpdateSessionAsync(session);
@@ -499,7 +509,7 @@ namespace Web.Controllers.Courses
 
                 if (result)
                 {
-                    if (status == "Canceled")
+                    if (hasRegistrations && session.Status == "Canceled")
                     { 
                         await _courseEnrollmentService.UpdateChildCanceledSessionsAsync(session.EnrollmentID, staffNote);
 
