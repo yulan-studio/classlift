@@ -132,20 +132,6 @@
                 </a>
             </th>
 
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["OAPSortParm"]" style="color: black; text-decoration: none; ">
-                    Has OAP
-                    @if ((string)ViewData["CurrentSort"] == "oap")
-                    {
-                        <span>▲</span>
-                    }
-                    else if ((string)ViewData["CurrentSort"] == "oap_desc")
-                    {
-
-                        <span>▼</span>
-                    }
-                </a>
-            </th>
             <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
             <th style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Payments</th> *@
@@ -167,7 +153,7 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@(childWithDelete.Child.BirthDate.HasValue ? childWithDelete.Child.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@childWithDelete.Child.Gender</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@(childWithDelete.Child.City != null ? childWithDelete.Child.City.Name : "N/A")</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; color:@(childWithDelete.Child.HasOAP == false ? "#DC3545" : "inherit");">@childWithDelete.Child.HasOAP</td>
+                   
                     @* <tr>
             <td style="padding: 8px;"><label for="Password">Password:</label></td>
             <td style="padding: 8px;"><input type="text" name="password" value="@Model.User.PasswordHash" placeholder="Password" value="12345" style="width: 100%;" /></td>
