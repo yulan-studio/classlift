@@ -404,6 +404,19 @@ namespace Web.Controllers.Courses
                     throw new ArgumentException("Please select a valid repeat type.");
 
                 var totalOccurrences = repeatType == "None" ? 1 : Math.Clamp(repeatCount, 1, 365);
+
+                if (course.SessionCount.HasValue)
+                {
+                    var openSessionCount = (await _courseEnrollmentService
+                        .GetOpenSessionsByCourseAsync(courseId))
+                        .Count();
+
+                    if (openSessionCount + totalOccurrences > course.SessionCount.Value)
+                        throw new InvalidOperationException(
+                            $"A course can have at most {course.SessionCount.Value} open sessions. " +
+                            $"There are currently {openSessionCount} open sessions.");
+                }
+
                 var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
                 var timings = new List<ScheduleTiming>();
 
