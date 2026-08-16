@@ -139,7 +139,7 @@
 <div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Sessions Awaiting Completion</h5></div>
 
 <div style="padding: 10px 10px 10px 10px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #FFDBF6; ">
-    To complete the session, the coach is required to enter the actual hours and then click the 'Complete' button.<br/>
+    To complete the session, the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() is required to enter the actual hours and then click the 'Complete' button.<br/>
     For courses with a fixed number of sessions, completing all sessions will automatically mark the root enrollment as completed.<br />
     Ensure total completed hours = Session Count × Duration per Session for fixed-session courses.
 </div>
@@ -271,7 +271,7 @@
             <th>Scheduled At</th>
             <th>Scheduled Hours</th>
             <th>Actual Hours</th>
-            <th class="desktop-only">Parent Note</th>
+            <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th class="desktop-only">My Note</th>
         </tr>
     </thead>
@@ -318,7 +318,7 @@
             <th>Scheduled At</th>
             <th>Scheduled Hours</th>
             <th class="desktop-only">Actual Hours</th>
-            <th>Parent Note</th>
+            <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th class="desktop-only">My Note</th>
         </tr>
     </thead>
