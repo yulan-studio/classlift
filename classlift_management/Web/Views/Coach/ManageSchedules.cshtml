@@ -128,7 +128,7 @@
             <th>End</th>
             <th>Location</th>
             <th>Status</th>
-            <th>Parent Note</th>
+            <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
                             <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
             <th>Actions</th>
         </tr>
@@ -162,7 +162,7 @@
                     </td>
 
                     <td data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FFDBF6" : "transparent")">@s.Status</td>
-                    <td data-label="Parent Note">@s.ParentNote</td>
+                    <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">@s.ParentNote</td>
                     <td data-label="Coach Note"><textarea id="coachNote-@s.EnrollmentID" class=" form-control">@s.CoachNote</textarea></td>
 
                     <td data-label="Actions">
