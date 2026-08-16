@@ -18,7 +18,6 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Birth Date</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
             <th style="padding: 8px; border: 1px solid #ddd;">City</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Has OAP</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
         </tr>
     </thead>
@@ -34,7 +33,7 @@
             <td style="padding: 8px; border: 1px solid #ddd;">
                 @(Model.City != null ? Model.City.Name : "N/A")
             </td>
-            <td style="padding: 8px; border: 1px solid #ddd; color:@(Model.HasOAP == false ? "#DC3545" : "inherit");">@Model.HasOAP</td>
+           
             <td style="padding: 8px; border: 1px solid #ddd;">@Model.User.Email</td>
         </tr>
     </tbody>
