@@ -28,6 +28,12 @@ namespace Core.ViewModels
 
         public string? Description { get; set; }
 
+        public int? SessionCount { get; set; }
+
+        public decimal? SessionCost { get; set; }
+
+        public decimal? HourlyCost { get; set; }
+
         //public DateTime ScheduledAt { get; set; }
         public required string Status { get; set; }
  

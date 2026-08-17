@@ -19,6 +19,8 @@ namespace Core.ViewModels
         public int CourseID { get; set; }
         public List<CourseEnrollment> Schedules { get; set; } = new();
 
+        public int OpenSessionCount { get; set; }
+
         public Fee Fee { get; set; }
 
     }

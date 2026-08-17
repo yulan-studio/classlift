@@ -1260,12 +1260,16 @@ namespace Web.Controllers.User
             foreach (var group in scheduledCoursesToConfirm.GroupBy(e => e.Course))
             {
                 var fee = await _feeService.GetByChildIdCourseIdAsync(child.ChildID, group.Key.CourseID);
+                var openSessionCount = (await _courseEnrollmentService
+                    .GetOpenSessionsByCourseAsync(group.Key.CourseID))
+                    .Count();
 
                 courseSchedulesToConfirmList.Add(new CourseSchedulesViewModel
                 {
                     Course = group.Key,
                     CourseID = group.Key.CourseID,
                     Schedules = group.ToList(),
+                    OpenSessionCount = openSessionCount,
                     Fee = fee
                 });
             }

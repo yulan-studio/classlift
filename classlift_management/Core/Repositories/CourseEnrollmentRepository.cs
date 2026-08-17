@@ -826,6 +826,9 @@ namespace Core.Repositories
                //Address = e.Activity.Address,
                //ScheduledAt = e.Activity.ScheduledAt,
                Description = e.Course.Description,
+               SessionCount = e.Course.SessionCount,
+               SessionCost = e.Course.SessionCost,
+               HourlyCost = e.Course.HourlyCost,
                Status = e.Status,
 
                TotalCost = _context.Fees

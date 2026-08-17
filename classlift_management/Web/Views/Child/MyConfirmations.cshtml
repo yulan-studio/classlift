@@ -76,6 +76,8 @@
                                     <th style="padding: 8px; border: 1px solid #ddd;" width="10%">End Time</th>
                                     <th style="padding: 8px; border: 1px solid #ddd;" width="15%">Location</th>
                                     <th style="padding: 8px; border: 1px solid #ddd;" width="15%">Status</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Open Sessions</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Session Cost</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -101,13 +103,15 @@
                                             </td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">@schedule.Location</td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">@schedule.Status</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.OpenSessionCount</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.Course.SessionCost</td>
                                         </tr>
                                     }
                                 }
                                 else
                                 {
                                     <tr>
-                                        <td colspan="5" style="text-align: center; padding-top: 10px;">
+                                        <td colspan="7" style="text-align: center; padding-top: 10px;">
                                             There are currently no schedules waiting for your confirmation.
                                         </td>
                                     </tr>
@@ -126,7 +130,7 @@
 
                         <div style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
                             Please click 'Confirm' to complete your course registration.<br />
-                            请点击"Confirm"以完成课程注册。<br /><br />
+                            <br />
                             <button type="submit" name="actionType" value="Confirm"
                                     class="btn btn-primary mt-2">
                                 Confirm
@@ -186,6 +190,15 @@
                     <tr>
                         <th style="padding: 8px; border: 1px solid #ddd;">Course</th>
                         <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+                        @if (enrollment.SessionCount.HasValue)
+                        {
+                            <th style="padding: 8px; border: 1px solid #ddd;">Session Count</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">Session Cost</th>
+                        }
+                        else
+                        {
+                            <th style="padding: 8px; border: 1px solid #ddd;">Hourly Cost</th>
+                        }
                         <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
 
                     </tr>
@@ -194,6 +207,15 @@
                     <tr>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Description</td>
+                        @if (enrollment.SessionCount.HasValue)
+                        {
+                            <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.SessionCount</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.SessionCost</td>
+                        }
+                        else
+                        {
+                            <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.HourlyCost</td>
+                        }
                         <td style="padding: 8px; border: 1px solid #ddd;@(enrollment.Status == "Canceled" ? "color: red" : "")">@enrollment.Status</td>
 
                     </tr>
@@ -212,7 +234,7 @@
 
             <div @* class="alert alert-danger" *@  style="padding: 20px 20px 20px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
                 Please click 'Confirm' to complete your course registration.<br />
-                请点击"Confirm"以完成课程注册。<br /><br />
+                <br />
                 <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
 
             </div>
