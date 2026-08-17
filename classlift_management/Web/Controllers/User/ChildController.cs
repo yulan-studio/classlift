@@ -1851,11 +1851,29 @@ namespace Web.Controllers.User
             //else if (actionType == "Confirm")
             if (actionType == "Confirm")
             {
-                // Handle Confirm logic
+                var fee = await _feeService.GetByChildIdCourseIdAsync(child.ChildID, model.CourseID);
+                if (fee == null || !fee.CourseEnrollmentID.HasValue)
+                {
+                    TempData["ErrorMessage2"] = "The course fee could not be found.";
+                    return RedirectToAction("MyConfirmations");
+                }
+
                 bool result1 = true;
-                if (model.Fee.PaymentModel == "Token" && !model.Fee.IsPaid)
-                { 
-                     result1 = await _balanceService.DeductGroupCourseCostAsync(child.ChildID, model.CourseID, (decimal)model.Fee.TotalCost, user.Id);
+                if (fee.PaymentModel == "Token" && !fee.IsPaid)
+                {
+                    if (!fee.TotalCost.HasValue)
+                    {
+                        TempData["ErrorMessage2"] = "The token fee amount could not be found.";
+                        return RedirectToAction("MyConfirmations");
+                    }
+
+                    result1 = await _balanceService.DeductGroupCourseCostAsync(child.ChildID, model.CourseID, fee.TotalCost.Value, user.Id);
+                }
+
+                if (!result1)
+                {
+                    TempData["ErrorMessage2"] = "The token balance could not be deducted. The course was not confirmed.";
+                    return RedirectToAction("MyConfirmations");
                 }
 
                 //public async Task<IEnumerable<CourseEnrollment>> GetEnrollmentsByCourseChildAsync(int courseId, int childId)
@@ -1872,9 +1890,9 @@ namespace Web.Controllers.User
                 bool result3 = true;
 
 
-                if (model.Fee.PaymentModel == "Token" && !model.Fee.IsPaid)
+                if (fee.PaymentModel == "Token" && !fee.IsPaid)
                 {
-                    result3 = await _feeService.UpdateCourseIsPaidAsync((int)model.Fee.CourseEnrollmentID, user.Id);
+                    result3 = await _feeService.UpdateCourseIsPaidAsync(fee.CourseEnrollmentID.Value, user.Id);
                 }
 
                 if (result1 == true && result2 == true && result3 == true)
@@ -1930,23 +1948,34 @@ namespace Web.Controllers.User
 
             if (actionType == "Confirm")
             {
-                // Handle Confirm logic
+                var fee = await _feeService.GetFeeForCourseEnrollmentAsync(model.EnrollmentID);
+                if (fee?.CourseEnrollment == null || fee.CourseEnrollment.ChildID != child.ChildID)
+                {
+                    TempData["ErrorMessage2"] = "The course fee could not be found.";
+                    return RedirectToAction("MyConfirmations");
+                }
 
-                //Upon confirmation, deduct the cost from child's balance
-                //if(model.Fee.PaymentModel == "Token")
+                var courseId = fee.CourseEnrollment.CourseID;
 
                 bool result1 = true;
 
-                if (model.PaymentModel == "Token")
+                if (fee.PaymentModel == "Token" && !fee.IsPaid && fee.TotalCost.HasValue)
                 {
-                   //result1 = await _balanceService.DeductCourseCostAsync(child.ChildID, model.CourseID, (decimal)model.TotalCost, user.Id);
+                    result1 = await _balanceService.DeductCourseCostAsync(child.ChildID, courseId, fee.TotalCost.Value, user.Id);
                 }
+
+                if (!result1)
+                {
+                    TempData["ErrorMessage2"] = "The token balance could not be deducted. The course was not confirmed.";
+                    return RedirectToAction("MyConfirmations");
+                }
+
                 bool result2 = await _courseEnrollmentService.UpdateCourseEnrollmentStatusToConfirmedAsync(model.EnrollmentID);
 
                 bool result3 = true;
 
 
-                if (model.PaymentModel == "Token")
+                if (fee.PaymentModel == "Token" && !fee.IsPaid && fee.TotalCost.HasValue)
                 {
                     result3 = await _feeService.UpdateCourseIsPaidAsync(model.EnrollmentID, user.Id);
                 }
