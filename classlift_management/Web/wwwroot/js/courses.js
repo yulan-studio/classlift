@@ -37,6 +37,10 @@ window.addEventListener('DOMContentLoaded', function () {
             sessionCost.value = "";
         }
 
+        if (isPrivate) {
+            maxCapacity.value = "";
+        }
+
         maxCapacity.disabled = isPrivate;
         hourlyCost.disabled = !isPrivate || hasSessionCount;
         hourlyCost.required = isPrivate && !hasSessionCount;
