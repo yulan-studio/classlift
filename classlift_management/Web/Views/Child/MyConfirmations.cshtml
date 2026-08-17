@@ -1,5 +1,4 @@
 ﻿@model Core.ViewModels.ChildSchedulesToConfirmViewModel
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 <h2>Confirmations</h2>
@@ -37,37 +36,46 @@
 
     @foreach (var courseSchedulesToConfirm in Model.CoursesSchedulesToConfirm)
     {
-        <div style="padding: 10px 20px 10px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
-            <h5>Course: @courseSchedulesToConfirm.Course.Title</h5>
+        <form method="post" asp-action="UpdateSchedulesToConform">
+            <input type="hidden" name="CourseID" value="@courseSchedulesToConfirm.Course.CourseID" />
+            <input type="hidden" name="Fee.PaymentModel" value="@courseSchedulesToConfirm.Fee.PaymentModel" />
+            <input type="hidden" name="Fee.TotalCost" value="@courseSchedulesToConfirm.Fee.TotalCost" />
+            <input type="hidden" name="Fee.CourseEnrollmentID" value="@courseSchedulesToConfirm.Fee.CourseEnrollmentID" />
 
+            <table class="mobile-stack table" style="border-collapse: collapse; width: 100%; text-align: left;">
+                <thead class="table-primary">
+                    <tr>
+                        <th style="padding: 8px; border: 1px solid #ddd;">Course</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">Session Count</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">Session Cost</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.Course.Title</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.Course.Description</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.Course.SessionCount</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.Course.SessionCost</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@(courseSchedulesToConfirm.Fee.CourseEnrollment?.Status ?? "Registered")</td>
+                    </tr>
+                </tbody>
+            </table>
 
+            <div class="mb-3">
+                <button id="toggleBtn_@courseSchedulesToConfirm.Course.CourseID"
+                        class="btn btn-grey"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseCourse_@courseSchedulesToConfirm.Course.CourseID"
+                        aria-expanded="false"
+                        aria-controls="collapseCourse_@courseSchedulesToConfirm.Course.CourseID">
+                    Show Schedules
+                </button>
 
-            <strong>Course Type: </strong>  @courseSchedulesToConfirm.Course.CourseType
-            <strong> &nbsp; &nbsp; Sessions Count: </strong> @courseSchedulesToConfirm.Course.SessionCount
-            <strong> &nbsp; &nbsp;@CurrentTenant.Terminology.ProviderSingular: </strong>   @(courseSchedulesToConfirm.Course.Coach?.Name ?? "N/A")
-
-
-        </div>
-
-        <div class="mb-3">
-            <button id="toggleBtn_@courseSchedulesToConfirm.Course.CourseID"
-                    class="btn btn-grey"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseCourse_@courseSchedulesToConfirm.Course.CourseID"
-                    aria-expanded="false"
-                    aria-controls="collapseCourse_@courseSchedulesToConfirm.Course.CourseID">
-                Show Schedules to Confirm
-            </button>
-
-            <div id="collapseCourse_@courseSchedulesToConfirm.Course.CourseID" class="collapse mt-2">
-                <div class="card card-body">
-                    <form method="post" asp-action="UpdateSchedulesToConform">
-                        <input type="hidden" name="CourseID" value="@courseSchedulesToConfirm.Course.CourseID" />
-                        <input type="hidden" name="Fee.PaymentModel" value="@courseSchedulesToConfirm.Fee.PaymentModel" />
-                        <input type="hidden" name="Fee.TotalCost" value="@courseSchedulesToConfirm.Fee.TotalCost" />
-                        <input type="hidden" name="Fee.CourseEnrollmentID" value="@courseSchedulesToConfirm.Fee.CourseEnrollmentID" />
-
+                <div id="collapseCourse_@courseSchedulesToConfirm.Course.CourseID" class="collapse mt-2">
+                    <div class="card card-body">
                         <table style="border-collapse: collapse; width: 100%; text-align: left;">
                             <thead>
                                 <tr style="background-color: #f2f2f2;">
@@ -91,13 +99,13 @@
                                         <input type="hidden" name="Schedules[@i].EnrollmentID" value="@schedule.EnrollmentID" />
                                         <tr>
                                             <td style="padding: 8px; border: 1px solid #ddd;">
-                                                @(scheduledAt.HasValue? scheduledAt.Value.ToString("yyyy-MM-dd") : "")
+                                                @(scheduledAt.HasValue ? scheduledAt.Value.ToString("yyyy-MM-dd") : "")
                                             </td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">
-                                                @(scheduledAt.HasValue? scheduledAt.Value.ToString("HH:mm") : "")
+                                                @(scheduledAt.HasValue ? scheduledAt.Value.ToString("HH:mm") : "")
                                             </td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">
-                                                @(endTime.HasValue? endTime.Value.ToString("HH:mm") : "")
+                                                @(endTime.HasValue ? endTime.Value.ToString("HH:mm") : "")
                                             </td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">@schedule.Location</td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">@schedule.Status</td>
@@ -114,28 +122,24 @@
                                 }
                             </tbody>
                         </table>
-
-                        <br />
-                        @if (!courseSchedulesToConfirm.Fee.IsPaid)
-                        {
-                        <div style="padding: 10px 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
-                            Total Cost: @courseSchedulesToConfirm.Fee.TotalCost<br />
-                            @(courseSchedulesToConfirm.Fee.Description)<br />
-                        </div>
-                        }
-
-                        <div style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
-                            Please click 'Confirm' to complete your course registration.<br />
-                            <br />
-                            <button type="submit" name="actionType" value="Confirm"
-                                    class="btn btn-primary mt-2">
-                                Confirm
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            @if (!courseSchedulesToConfirm.Fee.IsPaid)
+            {
+                <div style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
+                    Total Cost: $@courseSchedulesToConfirm.Fee.TotalCost<br />
+                    @(courseSchedulesToConfirm.Fee.Description)<br />
+                </div>
+            }
+
+            <div style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
+                Please click 'Confirm' to complete your course registration.<br />
+                <br />
+                <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
+            </div>
+        </form>
 
 
 
@@ -153,7 +157,7 @@
                 });
 
                 collapseElement.addEventListener('hide.bs.collapse', function () {
-                    buttonElement.textContent = 'Show Schedules to confirm';
+                    buttonElement.textContent = 'Show Schedules';
                 });
             });
         </script>
