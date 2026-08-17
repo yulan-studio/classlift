@@ -240,6 +240,19 @@
         document.getElementById('directPaymentRow').style.display = isDirect ? 'table-row' : 'none';
         document.getElementById('amount').readOnly = isPackage;
 
+        if (isPackage) {
+            document.getElementById('amount').value = '';
+
+            document.querySelectorAll("input[name='selectedFeeId']").forEach(function (radio) {
+                radio.checked = false;
+            });
+
+            const feeIdInput = document.getElementById('feeId');
+            if (feeIdInput) {
+                feeIdInput.value = '';
+            }
+        }
+
         if (!isPackage) {
             document.getElementById('amount').value = ''; // clear for manual entry
         }
