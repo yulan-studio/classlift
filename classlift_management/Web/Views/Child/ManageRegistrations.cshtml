@@ -415,7 +415,17 @@
         const openSessionCount = Number(selectedOption.getAttribute("data-open-session-count") || 0);
         const sessionCost = Number(selectedOption.getAttribute("data-session-cost") || 0);
         usesSessionFee = courseType === "Group" || (courseType === "Private" && sessionCount !== "");
+        const requiresTokenPayment = courseType === "Private" && sessionCount === "";
         const openSessionInfo = document.getElementById("openSessionInfo");
+        const paymentModelDropdown = courseDropdown.closest("form").querySelector("[name='paymentModel']");
+
+        Array.from(paymentModelDropdown.options).forEach(option => {
+            option.disabled = requiresTokenPayment && option.value !== "Token";
+        });
+
+        if (requiresTokenPayment) {
+            paymentModelDropdown.value = "Token";
+        }
 
         openSessionInfo.style.display = usesSessionFee ? "inline" : "none";
         document.getElementById("openSessionCount").textContent = openSessionCount;

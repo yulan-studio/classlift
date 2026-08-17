@@ -34,7 +34,7 @@
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Parent</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Token Payment</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Direct Payment | OAP Payment</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Direct Payment</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Amount</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Payment Date</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Screenshot</th>
@@ -153,10 +153,6 @@
                     &nbsp;&nbsp;
                     <input type="radio" id="manualPayment" name="paymentType" value="manual" onchange="togglePaymentType()">
                     <label for="manualPayment">Direct Payment</label>
-                    &nbsp;&nbsp;
-                    
-                    <input type="radio" id="oapPayment" name="paymentType" value="oap"  onchange="togglePaymentType()">
-                    <label for="oapPayment">OAP Payment</label>
                 </td>
             </tr>
             <!-- Package Row -->
@@ -210,43 +206,6 @@
             </tr>
 
 
-            <!-- OAP Payment Row -->
-            <tr id="oapPaymentRow" style="display: none;">
-                <td style="padding: 8px; vertical-align: top;"><label>Select Course or Activity:</label></td>
-                <td>
-                    @if (ViewBag.UnpaidOAPItems != null && ViewBag.UnpaidOAPItems.Count > 0)
-                    {
-
-                        @foreach (var item in ViewBag.UnpaidOAPItems)
-                        {
-                            <div style="margin-bottom: 6px;">
-                                <input type="radio"
-                                       name="selectedFeeId"
-                                       value="@item.FeeID"
-                                       data-cost="@item.TotalCost"
-                                       data-feeId="@item.FeeID"
-                                       id="fee_@item.FeeID"
-                                       onchange="updateAmountFromFee(this)" />
-                                <label for="fee_@item.FeeID">[@item.Type] @item.Title (@item.TotalCost.ToString("C"))</label>
-                            </div>
-
-                            @* <label for="fee_@item.FeeID">@item.Type: @item.Title (@item.TotalCost.ToString("C"))</label> *@
-
-                            @* @item.Type  @item.Title @item.TotalCost.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-CA")); *@
-                        }
-
-                        <input type="hidden" name="feeId" id="feeId" />
-
-                    }
-                    else
-                    {
-                        <p style="color: gray;">No unpaid courses or activities available.</p>
-                    }
-                </td>
-            </tr>
-
-         
-
             <!-- Amount -->
             <tr>
                 <td style="padding: 8px;"><label for="amount">Amount:</label></td>
@@ -288,14 +247,12 @@
         //alert("toggleAmountField called");
         var isPackage = document.getElementById('packagePayment').checked;
         var isDirect = document.getElementById('manualPayment').checked;
-        var isOAP = document.getElementById('oapPayment').checked;
 
         //document.getElementById('packageDiv').style.display = isPackage ? 'block' : 'none';
         // Toggle the <tr> rows
         //document.getElementById('packageRow').style.display = isPackage ? 'table-row' : 'none';
         document.getElementById('packageRow').style.display = isPackage ? 'table-row' : 'none';
         document.getElementById('directPaymentRow').style.display = isDirect ? 'table-row' : 'none';
-        document.getElementById('oapPaymentRow').style.display = isOAP ? 'table-row' : 'none';
         document.getElementById('amount').readOnly = isPackage;
 
         if (!isPackage) {

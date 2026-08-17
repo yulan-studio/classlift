@@ -891,6 +891,14 @@ namespace Web.Controllers.User
                 var course = await _courseService.GetAsync(courseId);
                 var shouldCalculateSessionFee = course.CourseType == "Group"
                     || (course.CourseType == "Private" && course.SessionCount.HasValue);
+                var requiresTokenPayment = course.CourseType == "Private"
+                    && !course.SessionCount.HasValue;
+
+                if (requiresTokenPayment)
+                {
+                    paymentModel = "Token";
+                    totalCost = null;
+                }
 
                 if (shouldCalculateSessionFee)
                 {
@@ -1041,7 +1049,6 @@ namespace Web.Controllers.User
             var payments = await _paymentService.GetByChildAsync(childId);
             var child = await _childService.GetAsync(childId);
             var unpaidDirectItems = await _paymentService.GetUnpaidDirectEnrollmentsByChildAsync(childId);
-            var unpaidOAPItems = await _paymentService.GetUnpaidOAPEnrollmentsByChildAsync(childId);
 
             if (child == null)
             {
@@ -1074,7 +1081,6 @@ namespace Web.Controllers.User
             }).ToList();
 
             ViewBag.UnpaidDirectItems = unpaidDirectItems;
-            ViewBag.UnpaidOAPItems = unpaidOAPItems;
 
             return View("ManagePayments", payment);
         }
