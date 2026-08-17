@@ -22,9 +22,8 @@ namespace Core.ViewModels
 
         public int? SessionCount { get; set; }
 
-        [Required]
         [Range(0, double.MaxValue)]
-        public decimal HourlyCost { get; set; }
+        public decimal? HourlyCost { get; set; }
 
         [Range(0, double.MaxValue)]
         public decimal? SessionCost { get; set; }

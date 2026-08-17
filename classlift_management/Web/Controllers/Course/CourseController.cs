@@ -226,6 +226,22 @@ namespace Web.Controllers.Courses
         [HttpPost("Add")]
         public async Task<IActionResult> Add(AddCourseViewModel model)
         {
+            if (model.CourseType == "Private")
+            {
+                if (model.SessionCount.HasValue && !model.SessionCost.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCost),
+                        "Session Cost is required when Session Count is provided for a private course.");
+                }
+                else if (!model.SessionCount.HasValue && !model.HourlyCost.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.HourlyCost),
+                        "Hourly Cost is required when Session Count is empty for a private course.");
+                }
+            }
+
             if (model.SpecialtyID > 0 && model.CoachID > 0)
             {
                 var activeCoaches = await _coachService.GetCoachesBySpecailtyAsync(model.SpecialtyID);

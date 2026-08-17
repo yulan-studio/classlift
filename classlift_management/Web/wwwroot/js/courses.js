@@ -39,7 +39,9 @@ window.addEventListener('DOMContentLoaded', function () {
 
         maxCapacity.disabled = isPrivate;
         hourlyCost.disabled = !isPrivate || hasSessionCount;
+        hourlyCost.required = isPrivate && !hasSessionCount;
         sessionCost.disabled = isPrivate && !hasSessionCount;
+        sessionCost.required = isPrivate && hasSessionCount;
     }
 
     courseType.addEventListener("change", updateCostFields);
