@@ -889,6 +889,9 @@ namespace Web.Controllers.User
             try
             {
                 var course = await _courseService.GetAsync(courseId);
+                var openGroupSessions = course.CourseType == "Group"
+                    ? (await _courseEnrollmentService.GetOpenSessionsByCourseAsync(courseId)).ToList()
+                    : new List<CourseEnrollment>();
                 var shouldCalculateSessionFee = course.CourseType == "Group"
                     || (course.CourseType == "Private" && course.SessionCount.HasValue);
                 var requiresTokenPayment = course.CourseType == "Private"
@@ -904,9 +907,7 @@ namespace Web.Controllers.User
                 {
                     var openSessionCount = course.CourseType == "Private" && course.SessionCount.HasValue
                         ? course.SessionCount.Value
-                        : (await _courseEnrollmentService
-                            .GetOpenSessionsByCourseAsync(courseId))
-                            .Count();
+                        : openGroupSessions.Count;
 
                     totalCost = (course.SessionCost ?? 0) * openSessionCount;
                 }
@@ -925,7 +926,24 @@ namespace Web.Controllers.User
                 {
                     throw new Exception("Adding course fee failed.");
                 }
-               
+
+                foreach (var session in openGroupSessions)
+                {
+                    success = await _courseEnrollmentService.AddSessionRegisteredEnrollmentAsync(
+                        childId,
+                        courseId,
+                        session.ScheduledAt,
+                        session.ScheduledHours,
+                        session.Location,
+                        session.EnrollmentID,
+                        "Registered",
+                        user);
+
+                    if (!success)
+                    {
+                        throw new Exception("Adding an open course session failed.");
+                    }
+                }
 
                 
                 //await transaction.CommitAsync();
@@ -1502,37 +1520,8 @@ namespace Web.Controllers.User
             ViewBag.ChildID = childId;
             ViewBag.CourseID = courseId;
 
-            var sessionOptions = new List<SessionOption>();
-
-            // Sessions available to register
-            var sessions = await _courseEnrollmentService.GetOpenSessionsByCourseAsync(courseId);
-
             // Sessions the child already registered to
-            //var registeredSessions = await _courseEnrollmentService.GetRegisteredByCourseChildAsync(courseId, childId);
             var allEnrolledSessions = await _courseEnrollmentService.GetEnrollmentsByCourseChildAsync(courseId, childId);
-            var allEnrolledSessions2 = await _courseEnrollmentService.GetEnrollments2ByCourseChildAsync(courseId, childId);
-            if (sessions != null)
-            {
-                foreach (var session in sessions)
-                {
-
-                    if (allEnrolledSessions.Any(e => e.ScheduledAt == session.ScheduledAt))
-                    {
-                        continue;
-                    }
-
-                    var sessionOption = new ManageSessionRegistrationsViewModel.SessionOption
-                    {
-                        EnrollmentID = session.EnrollmentID,
-                        ScheduledAt = session.ScheduledAt ?? DateTime.MinValue,
-                        ScheduledHours = session.ScheduledHours ?? 0,
-                        Location = session.Location ?? string.Empty,
-                        IsSelected = false
-                    };
-                    sessionOptions.Add(sessionOption);
-                    
-                }
-            }
 
 
             //var allSessions = await _courseEnrollmentService.GetEnrollmentsByCourseChildAsync(courseId, childId);
@@ -1568,66 +1557,12 @@ namespace Web.Controllers.User
                 Course = course,
                 ChildID = childId,
                 CourseID = courseId,
-                AvailableSessions = sessionOptions,
-                AllSessions = all_sessions,
-                //ScheduledSessions = scheduled_sessions,
-                CourseSessionsCount = (int)course.SessionCount,
-                EnrolledSessionsCount = allEnrolledSessions2.Count()
+                AllSessions = all_sessions
 
             };
 
             return View(viewModel);
         }
-
-        //Add course sessions to a child who has registered to a group course 
-        [Authorize(Roles = "Staff")]
-        [HttpPost("AddRegisteredSessions")]
-        public async Task<IActionResult> AddRegisteredSessions(ManageSessionRegistrationsViewModel model)
-        {
-            try
-            {
-                Core.Models.User user = await _userManager.GetUserAsync(User);
-                var selectedSessions = model.AvailableSessions.Where(s => s.IsSelected).ToList();
-
-
-                if (selectedSessions.Count + model.EnrolledSessionsCount > model.CourseSessionsCount)
-                {
-                    TempData["ErrorMessage"] = "You can't register more than " + model.CourseSessionsCount + " sessions";
-                    return RedirectToAction("ManageSessionRegistrations", new { childId = model.ChildID, courseId = model.CourseID });
-
-                }
-
-
-                foreach (var session in selectedSessions)
-                {
-
-                    var sessionRef = await _courseEnrollmentService.GetAsync(session.EnrollmentID);
-
-                    if (sessionRef == null) continue;
-
-
-
-                    var success = await _courseEnrollmentService.AddSessionRegisteredEnrollmentAsync(model.ChildID, model.CourseID, sessionRef.ScheduledAt, sessionRef.ScheduledHours, sessionRef.Location, sessionRef.EnrollmentID, "Registered", user);
-
-                    if (!success)
-                    {
-                        TempData["ErrorMessage"] = "Failed to add session.";
-                    }
-                    else
-                    {
-                        TempData["SuccessMessage"] = "Session added successfully.";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"{ex.Message}";
-                return RedirectToAction("ManageSessionRegistrations", new { childId = model.ChildID, courseId = model.CourseID });
-            }
-
-            return RedirectToAction("ManageSessionRegistrations", new { childId = model.ChildID, courseId = model.CourseID });
-        }
-
 
         [Authorize(Roles = "Staff")]
         [HttpPost("UpdateAllSessions")]

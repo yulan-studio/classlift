@@ -51,73 +51,6 @@
 
 
 
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2; border-radius: 8px;">
-
-    <h2>Add Sessions </h2>
-    <br/>
-     Total session count: @Model.CourseSessionsCount  |
-    <span id="displayedSessionsCount" data-enrolled-count="@Model.EnrolledSessionsCount">@Model.EnrolledSessionsCount</span> sessions added
-    @if (Model.AvailableSessions.Any())
-    {
-        <text> | <a href="#" id="selectAllAvailableSessions">Select all</a></text>
-    }
-    <br /><br />
-    <form method="post" asp-action="AddRegisteredSessions">
-        <input type="hidden" name="ChildID" value="@Model.ChildID" />
-        <input type="hidden" name="CourseID" value="@Model.CourseID" />
-        <input type="hidden" name="EnrolledSessionsCount" value="@Model.EnrolledSessionsCount" />
-        <input type="hidden" name="CourseSessionsCount" value="@Model.CourseSessionsCount" />
-
-        <table class="table" style="background-color: #f2f2f2; ">
-            <thead>
-                <tr>
-                    <th>Select</th>
-                    <th>Scheduled At</th>
-                    <th>Scheduled Hours</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.AvailableSessions.Any())
-                {
-                    @for (int i = 0; i < Model.AvailableSessions.Count; i++)
-                    {
-                        <tr>
-                            <td>
-                                <input asp-for="AvailableSessions[i].IsSelected" class="available-session-checkbox" />
-                                <input type="hidden" asp-for="AvailableSessions[i].EnrollmentID" />
-                                <input type="hidden" asp-for="AvailableSessions[i].ScheduledAt" />
-                                <input type="hidden" asp-for="AvailableSessions[i].ScheduledHours" />
-                                
-                            </td>
-                            <td>@Model.AvailableSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
-                            <td>@Model.AvailableSessions[i].ScheduledHours</td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="3" style="text-align: center; padding: 10px;">No session to be added.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Sessions</button>
-        <p style="margin-top: 20px">
-            <small style="color:darkslategray"> - After sessions are added to a @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant(), their status will be set to 'Registered'. Click 'Save Changes', an email will be sent to remind the @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() to confirm the sessions. Once the @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() confirms, the status will change to 'Scheduled'. </small> <br /><br />
-            <small style="color:#ff4d4d">
-                - If staff add additional sessions after a @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() has confirmed registration, please ask the @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() to log in to the portal and confirm the new sessions. Once confirmed, the session status will update to 'Scheduled'.  <strong>[important]</strong>.
-            </small>
-        </p>
-
-    </form>
-</div>
-
-<div style="margin-top: 20px;"></div>
-
-
-
 <h3>All Sessions</h3>
 
 <form method="post" asp-action="UpdateAllSessions">
@@ -226,38 +159,6 @@
 
     <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button> <small style="color:darkslategray"> - Click 'Save Changes' to save changes in Status/Staff Note and send an email to the child about the changes.</small>
 </form>
-
-<script>
-    const displayedSessionsCount = document.getElementById("displayedSessionsCount");
-    const availableSessionCheckboxes = document.querySelectorAll(".available-session-checkbox");
-
-    function updateDisplayedSessionsCount() {
-        if (!displayedSessionsCount) return;
-
-        const enrolledCount = Number(displayedSessionsCount.dataset.enrolledCount);
-        const selectedCount = Array.from(availableSessionCheckboxes)
-            .filter(function (checkbox) { return checkbox.checked; })
-            .length;
-
-        displayedSessionsCount.textContent = enrolledCount + selectedCount;
-    }
-
-    availableSessionCheckboxes.forEach(function (checkbox) {
-        checkbox.addEventListener("change", updateDisplayedSessionsCount);
-    });
-
-    document.getElementById("selectAllAvailableSessions")?.addEventListener("click", function (event) {
-        event.preventDefault();
-        availableSessionCheckboxes.forEach(function (checkbox) {
-            checkbox.checked = true;
-        });
-        updateDisplayedSessionsCount();
-    });
-</script>
-
-
-
-
 
 @* <div style="margin-top: 20px;"></div>
 
