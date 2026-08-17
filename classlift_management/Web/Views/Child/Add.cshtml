@@ -13,6 +13,7 @@
 </div>
 
 <form method="post" action="/Child/Add">
+    <input type="hidden" name="hasOAP" value="true" />
     <table style="border-collapse: collapse; width: 50%; text-align: left;">
 
         @* <tr>
@@ -96,17 +97,6 @@
                 <small id="cityHelp" style="display: block; color: darkslategray;">
                     Select a province first.
                 </small>
-            </td>
-        </tr>
-
-        <tr>
-            <td style="padding: 8px;"><label for="hasOAP">Has OAP:</label></td>
-            <td style="padding: 8px;">
-                <select name="hasOAP" style="width: 100%;">
-                    <option value="" selected>-- Select Has OAP --</option>
-                    <option value= "true">True</option>
-                    <option value= "false">False</option>
-                </select>
             </td>
         </tr>
 
