@@ -100,13 +100,73 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%">Session Max Capacity</th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 2%">Session Count</th>
+            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["MaxCapacitySortParm"]" style="color: black; text-decoration: none;">
+                    Session Max Capacity
+                    @if ((string)ViewData["CurrentSort"] == "max_capacity")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "max_capacity_desc")
+                    {
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd; width: 2%; background-color: lightblue;">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["SessionCountSortParm"]" style="color: black; text-decoration: none;">
+                    Session Count
+                    @if ((string)ViewData["CurrentSort"] == "session_count")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "session_count_desc")
+                    {
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
             
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%">Hourly Cost</th>
+            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["HourlyCostSortParm"]" style="color: black; text-decoration: none;">
+                    Hourly Cost
+                    @if ((string)ViewData["CurrentSort"] == "hourly_cost")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "hourly_cost_desc")
+                    {
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
  
-            <th style="padding: 8px; border: 1px solid #ddd;"># of Registrations</th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%">Is Active</th>
+            <th style="padding: 8px; border: 1px solid #ddd; background-color: lightblue;">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationsSortParm"]" style="color: black; text-decoration: none;">
+                    # of Registrations
+                    @if ((string)ViewData["CurrentSort"] == "registrations")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "registrations_desc")
+                    {
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["IsActiveSortParm"]" style="color: black; text-decoration: none;">
+                    Is Active
+                    @if ((string)ViewData["CurrentSort"] == "is_active")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "is_active_desc")
+                    {
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 15%">Actions</th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 5%">Group Sessions</th>
         </tr>

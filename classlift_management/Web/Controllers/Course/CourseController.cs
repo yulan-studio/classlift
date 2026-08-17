@@ -150,6 +150,11 @@ namespace Web.Controllers.Courses
             ViewData["CoachSortParm"] = sortOrder == "coach" ? "coach_desc" : "coach";
             ViewData["TypeSortParm"] = sortOrder == "type" ? "type_desc" : "type";
             ViewData["SpecialtySortParm"] = sortOrder == "specialty" ? "specialty_desc" : "specialty";
+            ViewData["RegistrationsSortParm"] = sortOrder == "registrations" ? "registrations_desc" : "registrations";
+            ViewData["IsActiveSortParm"] = sortOrder == "is_active" ? "is_active_desc" : "is_active";
+            ViewData["HourlyCostSortParm"] = sortOrder == "hourly_cost" ? "hourly_cost_desc" : "hourly_cost";
+            ViewData["SessionCountSortParm"] = sortOrder == "session_count" ? "session_count_desc" : "session_count";
+            ViewData["MaxCapacitySortParm"] = sortOrder == "max_capacity" ? "max_capacity_desc" : "max_capacity";
             ViewData["CurrentSort"] = sortOrder;
             var courses = await _courseService.GetAllAsync();
 
@@ -163,6 +168,16 @@ namespace Web.Controllers.Courses
                 "coach_desc" => courses.OrderByDescending(c => c.CoachName),
                 "type" => courses.OrderBy(c => c.CourseType),
                 "type_desc" => courses.OrderByDescending(c => c.CourseType),
+                "registrations" => courses.OrderBy(c => c.RegisteredChildrenCount),
+                "registrations_desc" => courses.OrderByDescending(c => c.RegisteredChildrenCount),
+                "is_active" => courses.OrderBy(c => c.IsActive),
+                "is_active_desc" => courses.OrderByDescending(c => c.IsActive),
+                "hourly_cost" => courses.OrderBy(c => c.HourlyCost),
+                "hourly_cost_desc" => courses.OrderByDescending(c => c.HourlyCost),
+                "session_count" => courses.OrderBy(c => c.SessionCount),
+                "session_count_desc" => courses.OrderByDescending(c => c.SessionCount),
+                "max_capacity" => courses.OrderBy(c => c.MaxCapacity),
+                "max_capacity_desc" => courses.OrderByDescending(c => c.MaxCapacity),
                 _ => courses.OrderBy(c => c.CourseType) // default
             };
 
