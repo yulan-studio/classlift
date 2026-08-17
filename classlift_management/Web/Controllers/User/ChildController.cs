@@ -852,7 +852,28 @@ namespace Web.Controllers.User
         public async Task<IActionResult> GetActiveCoursesBySpecialty(int specialtyId)
         {
             var courses = await _courseService.GetActiveCoursesBySpecialtyAsync(specialtyId);
-            return Json(courses.Select(c => new { c.CourseID, c.Title, c.CourseType }));
+            var courseOptions = new List<object>();
+
+            foreach (var course in courses)
+            {
+                var openSessionCount = course.CourseType == "Private" && course.SessionCount.HasValue
+                    ? course.SessionCount.Value
+                    : (await _courseEnrollmentService
+                        .GetOpenSessionsByCourseAsync(course.CourseID))
+                        .Count();
+
+                courseOptions.Add(new
+                {
+                    course.CourseID,
+                    course.Title,
+                    course.CourseType,
+                    course.SessionCount,
+                    course.SessionCost,
+                    OpenSessionCount = openSessionCount
+                });
+            }
+
+            return Json(courseOptions);
         }
 
         [Authorize(Roles = "Staff")]
@@ -867,6 +888,21 @@ namespace Web.Controllers.User
 
             try
             {
+                var course = await _courseService.GetAsync(courseId);
+                var shouldCalculateSessionFee = course.CourseType == "Group"
+                    || (course.CourseType == "Private" && course.SessionCount.HasValue);
+
+                if (shouldCalculateSessionFee)
+                {
+                    var openSessionCount = course.CourseType == "Private" && course.SessionCount.HasValue
+                        ? course.SessionCount.Value
+                        : (await _courseEnrollmentService
+                            .GetOpenSessionsByCourseAsync(courseId))
+                            .Count();
+
+                    totalCost = (course.SessionCost ?? 0) * openSessionCount;
+                }
+
                 int newEnrollmentId = await _courseEnrollmentService.AddRegisteredEnrollmentAsync(childId, courseId, scheduledHours, "Registered", user);
 
                 if (totalCost == null)
