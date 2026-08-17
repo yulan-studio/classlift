@@ -95,7 +95,7 @@
             {
                 <tr>
                     <td @* data-label="Statement Date" *@ class="desktop-only">
-                        @item.CreatedDate.ToString("yyyy-MM-dd HH:mm")
+                        @item.CreatedDate.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
                     </td>
 
                     <td @* data-label="Type" *@ class="desktop-only">
