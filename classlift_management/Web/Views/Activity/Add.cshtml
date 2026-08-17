@@ -14,6 +14,9 @@
 }
 
 <h2>Add Activity</h2>
+<div style="padding-top: 20px;">
+  
+</div>
 
 <form method="post" action="/Activity/Add">
     <table style="border-collapse: collapse; width: 80%; text-align: left; width:80%">
@@ -40,10 +43,6 @@
         </tr>
 
         <tr>
-            <td style="padding: 8px;"><label for="ScheduledAt">Scheduled Date:</label></td>
-            <td style="padding: 8px;"><input type="datetime-local" name="ScheduledAt" style="width: 25%;" /></td>
-        </tr>
-        <tr>
             <td style="padding: 8px;"><label for="scheduledTimeZoneId">Event Time Zone:</label></td>
             <td style="padding: 8px;">
                 <select id="scheduledTimeZoneId" name="scheduledTimeZoneId" required style="width: 45%;">
@@ -55,19 +54,13 @@
             </td>
         </tr>
 
-        @* <tr>
-            <td style="padding: 8px;"><label for="Cost">Cost:</label></td>
-            <td style="padding: 8px;"><input type="number" name="cost" step="1" min="0"  placeholder="Enter cost" style="width: 100%;" /></td>
-        </tr> *@
+        <tr>
+            <td style="padding: 8px;"><label for="ScheduledAt">Scheduled Date:</label></td>
+            <td style="padding: 8px;"><input type="datetime-local" name="ScheduledAt" style="width: 25%;" /></td>
+        </tr>
+        
 
-       @*  <tr>
-            <td style="padding: 8px;"><label for="IsActive">Active:</label></td>
-            <td style="padding: 8px;">
-                <input id="IsActive" name="IsActive" type="checkbox" value="true" />
-                <input name="IsActive" type="hidden" value="false" />
-                <label for="IsActive">Check if the activity is active</label>
-            </td>
-        </tr> *@
+     
 
         <tr>
 
@@ -77,24 +70,11 @@
                     <option value="" selected>-- Select Status --</option>
                     <option value="Open">Open to registration</option>
                     <option value="Closed">Closed to registration</option> 
-                  @*   <option value="Canceled">Canceled</option>
-                    <option value="Completed">Completed</option> *@
+                 
                 </select>
             </td>
         </tr>
-        @* <tr>
-            <td style="padding: 8px;"><label for="ContactID">Contact Person:</label></td>
-            <td style="padding: 8px;">
-                <select name="ContactID" style="width: 100%;">
-                    <option value="" selected>Select Contact</option>
-                    @foreach (var user in ViewBag.ContactList)
-                    {
-                        <option value="@user.Value">@user.Text</option>
-                    }
-                </select>
-            </td>
-        </tr> *@
-
+      
         <tr>
             <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
                 <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Activity</button>
