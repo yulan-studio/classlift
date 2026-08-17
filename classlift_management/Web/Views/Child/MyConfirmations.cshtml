@@ -76,8 +76,6 @@
                                     <th style="padding: 8px; border: 1px solid #ddd;" width="10%">End Time</th>
                                     <th style="padding: 8px; border: 1px solid #ddd;" width="15%">Location</th>
                                     <th style="padding: 8px; border: 1px solid #ddd;" width="15%">Status</th>
-                                    <th style="padding: 8px; border: 1px solid #ddd;">Open Sessions</th>
-                                    <th style="padding: 8px; border: 1px solid #ddd;">Session Cost</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -103,15 +101,13 @@
                                             </td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">@schedule.Location</td>
                                             <td style="padding: 8px; border: 1px solid #ddd;">@schedule.Status</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.OpenSessionCount</td>
-                                            <td style="padding: 8px; border: 1px solid #ddd;">@courseSchedulesToConfirm.Course.SessionCost</td>
                                         </tr>
                                     }
                                 }
                                 else
                                 {
                                     <tr>
-                                        <td colspan="7" style="text-align: center; padding-top: 10px;">
+                                        <td colspan="5" style="text-align: center; padding-top: 10px;">
                                             There are currently no schedules waiting for your confirmation.
                                         </td>
                                     </tr>
