@@ -161,9 +161,23 @@
         const citySelect = document.getElementById("cityId");
         const cityHelp = document.getElementById("cityHelp");
 
+        function updateCityHelp() {
+            if (citySelect.value) {
+                cityHelp.style.display = "none";
+            } else {
+                cityHelp.style.display = "block";
+                cityHelp.textContent = provinceSelect.value
+                    ? "Select a city."
+                    : "Select a province first.";
+            }
+        }
+
+        citySelect.addEventListener("change", updateCityHelp);
+
         provinceSelect.addEventListener("change", async function () {
             citySelect.innerHTML = '<option value="">-- Select City --</option>';
             citySelect.disabled = true;
+            cityHelp.style.display = "block";
 
             if (!provinceSelect.value) {
                 cityHelp.textContent = "Select a province first.";
@@ -193,8 +207,6 @@
             }
         });
 
-        if (citySelect.options.length > 1) {
-            cityHelp.textContent = "Select a city.";
-        }
+        updateCityHelp();
     });
 </script>
