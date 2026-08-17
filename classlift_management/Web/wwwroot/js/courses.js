@@ -31,6 +31,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     function updateCostFields() {
         const isPrivate = courseType.value === "Private";
+        const isGroup = courseType.value === "Group";
         const hasSessionCount = sessionCount.value.trim() !== "";
 
         if (!hasSessionCount) {
@@ -42,10 +43,11 @@ window.addEventListener('DOMContentLoaded', function () {
         }
 
         maxCapacity.disabled = isPrivate;
+        sessionCount.required = isGroup;
         hourlyCost.disabled = !isPrivate || hasSessionCount;
         hourlyCost.required = isPrivate && !hasSessionCount;
         sessionCost.disabled = isPrivate && !hasSessionCount;
-        sessionCost.required = isPrivate && hasSessionCount;
+        sessionCost.required = isGroup || (isPrivate && hasSessionCount);
     }
 
     courseType.addEventListener("change", updateCostFields);

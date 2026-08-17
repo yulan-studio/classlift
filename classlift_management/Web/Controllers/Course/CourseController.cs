@@ -241,6 +241,22 @@ namespace Web.Controllers.Courses
                         "Hourly Cost is required when Session Count is empty for a private course.");
                 }
             }
+            else if (model.CourseType == "Group")
+            {
+                if (!model.SessionCount.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCount),
+                        "Session Count is required for a group course.");
+                }
+
+                if (!model.SessionCost.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCost),
+                        "Session Cost is required for a group course.");
+                }
+            }
 
             if (model.SpecialtyID > 0 && model.CoachID > 0)
             {
