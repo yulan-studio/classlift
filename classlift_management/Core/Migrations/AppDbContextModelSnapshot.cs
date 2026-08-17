@@ -591,9 +591,6 @@ namespace Core.Migrations
                     b.Property<decimal?>("HourlyCost")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<decimal?>("HourlyCost2")
-                        .HasColumnType("decimal(10,2)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
@@ -602,6 +599,9 @@ namespace Core.Migrations
 
                     b.Property<int?>("SessionCount")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("SessionCost")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("SpecialtyID")
                         .HasColumnType("int");

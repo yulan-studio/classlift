@@ -189,7 +189,7 @@ namespace Core.Repositories
                CoachName = e.Course.Coach != null ? e.Course.Coach.Name : "N/A",
                SpecialtyName = e.Course.Specialty.Title,
                HourlyCost = e.Course.HourlyCost,
-               HourlyCost2 = e.Course.HourlyCost2,
+               SessionCost = e.Course.SessionCost,
                Status = e.Status,
                RegisteredSessions = _context.CourseEnrollments.Count(c => c.ChildID == e.ChildID && c.CourseID == e.CourseID && c.Status == "Registered" && c.EnrollmentID_Ref != null), // Count all registered sessions
                ScheduledSessions = _context.CourseEnrollments.Count(c => c.ChildID == e.ChildID && c.CourseID == e.CourseID && c.Status == "Scheduled" && c.EnrollmentID_Ref != null), // Count all scheduled sessions

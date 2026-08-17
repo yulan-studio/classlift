@@ -55,7 +55,7 @@ namespace Core.Services
 
         // Add a new course
         
-        public async  Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapacity, int? sessionCount, decimal? hourlyCost, bool isActive, int coachId, int specialtyId, User user)
+        public async Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapacity, int? sessionCount, decimal? hourlyCost, decimal? sessionCost, bool isActive, int coachId, int specialtyId, User user)
         {
             // Validate inputs
             //if (string.IsNullOrWhiteSpace(title))
@@ -66,11 +66,6 @@ namespace Core.Services
             //if (hourlyCost <= 0)
             //{
             //    throw new ArgumentException("Hourly cost must be greater than zero.", nameof(hourlyCost));
-            //}
-
-            //if (hourlyCost2 <= 0)
-            //{
-            //    throw new ArgumentException("Hourly cost must be greater than zero.", nameof(hourlyCost2));
             //}
 
             //if(courseType == "Private")
@@ -119,6 +114,7 @@ namespace Core.Services
                 MaxCapacity = maxCapacity,
                 SessionCount = sessionCount,
                 HourlyCost = hourlyCost,
+                SessionCost = sessionCost,
                 IsActive = isActive,
                 Coach = coach,
                 Specialty = specialty,
@@ -143,7 +139,7 @@ namespace Core.Services
 
 
         // Update an existing course
-        public async Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? hourlyCost2, bool isActive, User user/*, int userId, int updatedBy*/)
+        public async Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive, User user/*, int userId, int updatedBy*/)
         {
             // Validate inputs
             if (string.IsNullOrWhiteSpace(title))
@@ -156,9 +152,9 @@ namespace Core.Services
                 throw new ArgumentException("Hourly cost cannot be negative.", nameof(hourlyCost));
             }
 
-            if (hourlyCost2 !=null && hourlyCost2 < 0)
+            if (sessionCost != null && sessionCost < 0)
             {
-                throw new ArgumentException("Hourly cost (no funding) cannot be negative.", nameof(hourlyCost2));
+                throw new ArgumentException("Session cost cannot be negative.", nameof(sessionCost));
             }
 
             if (courseType == "Private")
@@ -186,7 +182,7 @@ namespace Core.Services
             existingCourse.MaxCapacity = maxCapatcity;
             existingCourse.SessionCount = sessionCount;
             existingCourse.HourlyCost = hourlyCost;
-            existingCourse.HourlyCost2 = hourlyCost2; 
+            existingCourse.SessionCost = sessionCost;
             existingCourse.IsActive = isActive;
            // existingCourse.UserID = userId;
             existingCourse.UpdatedBy = user.Id;
