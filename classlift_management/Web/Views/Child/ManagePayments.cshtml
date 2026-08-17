@@ -32,7 +32,6 @@
 <table style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; border: 1px solid #ddd;">Parent</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Token Payment</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Direct Payment</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Amount</th>
@@ -51,7 +50,6 @@
 
             {
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@payment.Parent.Name</td>
                     <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.PaymentPackage != null ? payment.PaymentPackage.Title : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.Fee != null ? (payment.Fee.CourseEnrollment != null ? payment.Fee.CourseEnrollment.Course.Title : (payment.Fee.ActivityEnrollment!=null?payment.Fee.ActivityEnrollment.Activity.Title:"")) : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">$@payment.Amount</td>
@@ -89,7 +87,7 @@
 
         {
             <tr>
-                <td colspan="7" style="text-align: center; padding: 10px;">No payments found.</td>
+                <td colspan="6" style="text-align: center; padding: 10px;">No payments found.</td>
             </tr>
         }
 
@@ -97,7 +95,7 @@
 
         {
             <tr>
-                <td colspan="7">
+                <td colspan="6">
                     <div class="alert alert-success">
                         @TempData["SuccessMessage"]
                     </div>
@@ -109,7 +107,7 @@
 
         {
             <tr>
-                <td colspan="7">
+                <td colspan="6">
                     <div class="alert alert-danger">
                         @TempData["ErrorMessage"]
                     </div>
@@ -131,19 +129,6 @@
        
 
         <table style="width: 100%; border-collapse: collapse;">
-            <!-- Select Parent -->
-            <tr>
-                <td style="padding: 8px; width: 200px;"><label for="parentId">Select Parent:</label></td>
-                <td>
-                    <select id="parentId" name="parentId" required style="width: 20%;">
-                        <option value="">-- Select Parent --</option>
-                        @foreach (var parent in ViewBag.ParentList)
-                        {
-                            <option value="@parent.Value">@parent.Text</option>
-                        }
-                    </select>
-                </td>
-            </tr>
             <!-- Payment Type -->
             <tr>
                 <td style="padding: 8px;"><label>Payment Type:</label></td>

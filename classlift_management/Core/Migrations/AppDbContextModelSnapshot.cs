@@ -960,9 +960,6 @@ namespace Core.Migrations
                     b.Property<string>("Memo")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("ParentID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("datetime(6)");
 
@@ -986,8 +983,6 @@ namespace Core.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("FeeID");
-
-                    b.HasIndex("ParentID");
 
                     b.HasIndex("PaymentPackageID");
 
@@ -1809,12 +1804,6 @@ namespace Core.Migrations
                         .WithMany()
                         .HasForeignKey("FeeID");
 
-                    b.HasOne("Core.Models.Parent", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Core.Models.PaymentPackage", "PaymentPackage")
                         .WithMany()
                         .HasForeignKey("PaymentPackageID");
@@ -1828,8 +1817,6 @@ namespace Core.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Fee");
-
-                    b.Navigation("Parent");
 
                     b.Navigation("PaymentPackage");
 

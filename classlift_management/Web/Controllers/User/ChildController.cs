@@ -1061,15 +1061,6 @@ namespace Web.Controllers.User
                 Child = child
             };
 
-            var parents = await _paymentService.GetParentsByChildAsync(childId);
-
-            // ✅ Populate Parent dropdown
-            ViewBag.ParentList = parents.Select(p => new SelectListItem
-            {
-                Value = p.ParentID.ToString(),
-                Text = p.Name
-            }).ToList();
-
             // ✅ Fetch all active payment packages
             var packages = await _paymentService.GetAllActivePackagesAsync();
 
@@ -1088,7 +1079,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost("AddPayment")]
 
-        public async Task<IActionResult> AddPayment(int childId, int parentId, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
+        public async Task<IActionResult> AddPayment(int childId, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
         {
 
             try
@@ -1132,13 +1123,13 @@ namespace Web.Controllers.User
 
                 if (packageId != null)
                 { 
-                    var paymentId = await _paymentService.AddTokenPaymentAsync(childId, parentId, packageId, amount, paymentDate, fileUrl, user);
+                    var paymentId = await _paymentService.AddTokenPaymentAsync(childId, packageId, amount, paymentDate, fileUrl, user);
                     result = await _balanceService.AddPaymentToBalanceAsync(childId, paymentId, amount, fileUrl, user.Id);
                 }
 
                 if (feeId != null)
                 {
-                    var paymentId = await _paymentService.AddNoneTokenPaymentAsync(childId, parentId, feeId, amount, paymentDate, fileUrl, user);
+                    var paymentId = await _paymentService.AddNoneTokenPaymentAsync(childId, feeId, amount, paymentDate, fileUrl, user);
 
                     if (paymentId > 0)
                         result = true;
