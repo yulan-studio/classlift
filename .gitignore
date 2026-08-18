@@ -164,3 +164,8 @@
 /classlift_management/Web/.codex-build/obj/Debug/net8.0
 /classlift_management/Test/bin/Release/net8.0/Core.pdb
 /classlift_management/Test/bin/Release/net8.0/Test.pdb
+/classlift_management/Test/obj/Release/net8.0/Test.AssemblyInfo.cs
+/classlift_management/Test/obj/Release/net8.0/Test.AssemblyInfoInputs.cache
+/classlift_management/Test/obj/Release/net8.0/Test.csproj.AssemblyReference.cache
+/classlift_management/Test/obj/Release/net8.0/Test.pdb
+/classlift_management/Test/obj/Release/net8.0/Test.sourcelink.json
