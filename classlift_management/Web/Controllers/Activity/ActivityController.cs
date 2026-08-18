@@ -174,7 +174,7 @@ namespace Web.Controllers.Activity
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, "Failed in adding the activity info.");
-                   
+                    SetTimeZoneOptions(scheduledTimeZoneId);
                     return View();
                 }
 
