@@ -328,10 +328,13 @@ else
             {
                 <tr>
                    
+            <strong> &nbsp; &nbsp;Scheduled At: </strong> @enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
+            <strong> &nbsp; &nbsp;Address: </strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Address) ? "N/A" : enrollment.Activity.Address)<br/></>
+            <strong>Description: </strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Description) ? "N/A" : enrollment.Activity.Description)
 
                     <td data-label="Activity">@enrollment.Activity.Title</td>
                     <td data-label="Description">@enrollment.Activity.Description</td>
-                    <td data-label="Address">@enrollment.Activity.Address</td>
+            <strong> &nbsp; &nbsp;Status: </strong> @enrollment.Status
                     <td data-label="Scheduled At">@enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                     <td data-label="Status">@enrollment.Status</td>
                 </tr>
