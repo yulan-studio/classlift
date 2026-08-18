@@ -216,7 +216,7 @@
         <!-- Fee Input (visible conditionally) -->
         <span id="feeSection" style="display:none; margin-top:10px;">
             <label for="totalCost">Fee:</label>
-                <input type="number" step="0.01" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" />
+                <input type="number" step="0.01" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" readonly />
 
             <!-- Description Textarea -->
             <label for="description" style="margin-top:8px; display:block;">Description:</label>
@@ -443,7 +443,7 @@
         document.getElementById("openSessionCount").textContent = openSessionCount;
 
         const totalCostInput = document.getElementById("totalCost");
-        totalCostInput.readOnly = usesSessionFee;
+        totalCostInput.readOnly = true;
         if (usesSessionFee) {
             totalCostInput.value = (sessionCost * openSessionCount).toFixed(2);
         } else {
