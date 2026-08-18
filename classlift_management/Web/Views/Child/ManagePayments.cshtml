@@ -32,10 +32,11 @@
 <table style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Payment Date</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Token Payment</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Direct Payment</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Amount</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Payment Date</th>
+            
             <th style="padding: 8px; border: 1px solid #ddd;">Screenshot</th>
 
             <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
@@ -50,10 +51,11 @@
 
             {
                 <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(payment.PaymentDate.HasValue ? payment.PaymentDate.Value.ToString("yyyy-MM-dd") : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.PaymentPackage != null ? payment.PaymentPackage.Title : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.Fee != null ? (payment.Fee.CourseEnrollment != null ? payment.Fee.CourseEnrollment.Course.Title : (payment.Fee.ActivityEnrollment!=null?payment.Fee.ActivityEnrollment.Activity.Title:"")) : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">$@payment.Amount</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@(payment.PaymentDate.HasValue? payment.PaymentDate.Value.ToString("yyyy-MM-dd") : "")</td>
+                   
                     <td style="padding: 8px; border: 1px solid #ddd;">
                         @if (!string.IsNullOrEmpty(payment.Receipt))
 
@@ -144,7 +146,7 @@
             <tr id="packageRow">
                 <td style="padding: 8px;"><label for="packageId">Select Package:</label></td>
                 <td>
-                    <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" style="width: 20%;">
+                    <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" style="width: 40%;">
                         <option value="">-- Select Package --</option>
                         @foreach (var package in ViewBag.PaymentPackages)
                         {
@@ -194,18 +196,18 @@
             <!-- Amount -->
             <tr>
                 <td style="padding: 8px;"><label for="amount">Amount:</label></td>
-                <td><input id="amount" name="amount" required readonly style="width: 20%;" /></td>
+                <td><input id="amount" name="amount" required readonly style="width: 40%;" /></td>
             </tr>
 
             <!-- Upload Receipt -->
             <tr>
                 <td style="padding: 8px;"><label for="file">Upload Screenshot:</label></td>
-                <td><input type="file" name="file" accept="image/*" required style="width: 20%;" /></td>
+                <td><input type="file" name="file" accept="image/*" required style="width: 40%;" /></td>
             </tr>
             <!-- Payment Date -->
             <tr>
                 <td style="padding: 8px;"><label for="paymentDate">Payment Date:</label></td>
-                <td><input type="date" name="paymentDate" required style="width: 20%;" /></td>
+                <td><input type="date" name="paymentDate" required style="width: 40%;" /></td>
             </tr>
             <!-- Submit -->
             <tr>
