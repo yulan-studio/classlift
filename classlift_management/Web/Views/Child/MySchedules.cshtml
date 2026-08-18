@@ -94,7 +94,7 @@
             <span class="desktop-only">
                <strong>Course Type: </strong>  @courseSchedules.Course.CourseType
             
-                <strong> &nbsp; &nbsp; Sessions Count: </strong> @courseSchedules.Course.SessionCount
+                <strong> &nbsp; &nbsp; Sessions Count: </strong> @(courseSchedules.Course.SessionCount?.ToString() ?? "N/A")
             </span>
 
             <strong> &nbsp; &nbsp;@CurrentTenant.Terminology.ProviderSingular: </strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")
