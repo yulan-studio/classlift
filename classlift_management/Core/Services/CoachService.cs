@@ -125,7 +125,7 @@ namespace Core.Services
 
        
 
-        public async Task<bool> UpdateAsync(int coachId, string? memberID, string? preferedName, string? address, string? postCode, int? bank, int? transit, int? account, string status,  bool photoConsent/*, string password*/)
+        public async Task<bool> UpdateAsync(int coachId, string? memberID, string? preferedName, string? wechat, string? whatsApp, string? address, string? postCode, int? bank, int? transit, int? account, string status,  bool photoConsent/*, string password*/)
         {
             // Find the coach by ID
             var coach = await _coachRepository.GetAsync(coachId);
@@ -137,6 +137,8 @@ namespace Core.Services
             // Update fields
             coach.MemberID = memberID;
             coach.PreferedName = preferedName;
+            coach.Wechat = wechat;
+            coach.WhatsApp = whatsApp;
             coach.Address = address;
             coach.PostCode = postCode;
             coach.Bank = bank;

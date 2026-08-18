@@ -493,6 +493,10 @@ namespace Core.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<string>("WhatsApp")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.HasKey("CoachID");
 
                     b.HasIndex("CityID");

@@ -47,6 +47,9 @@ namespace Core.Models
         [MaxLength(100)]
         public string? Wechat { get; set; }
 
+        [MaxLength(50)]
+        public string? WhatsApp { get; set; }
+
         [MaxLength(100)]
         public string? Address { get; set; }
 

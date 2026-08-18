@@ -547,7 +547,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost("CoreInfo/{coachId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CoreInfo(int coachId, string? memberID, string? preferedName, string? address, /*int OAPAmount, */string? postCode, int? bank, int? transit, int? account, string status, bool photoConsent)
+        public async Task<IActionResult> CoreInfo(int coachId, string? memberID, string? preferedName, string? wechat, string? whatsApp, string? address, /*int OAPAmount, */string? postCode, int? bank, int? transit, int? account, string status, bool photoConsent)
         {
             if (status is not ("Active" or "InActive"))
                 ModelState.AddModelError(nameof(status), "Please select Active or InActive.");
@@ -567,6 +567,8 @@ namespace Web.Controllers.User
                     coachId,
                     memberID,
                     preferedName,
+                    wechat,
+                    whatsApp,
                     address,
                     postCode,
                     bank,
