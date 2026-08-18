@@ -31,6 +31,8 @@ namespace Core.Interfaces
 
         Task<Activity> GetAsync(int activityId);
 
+        Task<bool> HasRegistrationsAsync(int activityId);
+
 
         // Get all Activity from the database asynchronously
         Task<IEnumerable<ActivityViewModel>> GetAllAsync();

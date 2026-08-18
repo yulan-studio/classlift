@@ -41,6 +41,9 @@ namespace Core.Migrations
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 

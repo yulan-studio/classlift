@@ -153,7 +153,7 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Add")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, /*Decimal cost,*/ /*bool isActive,*/ string status)
+        public async Task<IActionResult> Add(string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, decimal cost, /*bool isActive,*/ string status)
         {
             //createdBy = 1; //temparary set
 
@@ -169,7 +169,7 @@ namespace Web.Controllers.Activity
                 var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
                 if (timing.ScheduledAtUtc <= DateTime.UtcNow)
                     throw new ArgumentException("Scheduled time must be in the future.");
-                var result = await _activityService.AddAsync( title,  description,  address,  maxCapacity, timing,  /*cost,*/  status, user!);
+                var result = await _activityService.AddAsync(title, description, address, maxCapacity, timing, cost, status, user!);
 
                 if (!result)
                 {
@@ -216,6 +216,7 @@ namespace Web.Controllers.Activity
             SetTimeZoneOptions(zoneId);
             ViewBag.ScheduledLocalTime = activity.ScheduledLocalTime
                 ?? _timeZoneService.ConvertUtcToLocal(activity.ScheduledAt, zoneId);
+            ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
             return View(activity);
 
         }
@@ -223,13 +224,13 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Edit/{activityId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, /*decimal cost,*/ /*bool isActive,*/ string status)
+        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, decimal cost, /*bool isActive,*/ string status)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
                 var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
-                var result = await _activityService.UpdateAsync(activityId,  title,  description,  address,  maxCapacity, timing, /* cost,*/ /*isActive, */status, user!);
+                var result = await _activityService.UpdateAsync(activityId, title, description, address, maxCapacity, timing, cost, status, user!);
 
                 if (!result)
                 {
@@ -237,6 +238,7 @@ namespace Web.Controllers.Activity
                     var activity = await _activityService.GetAsync(activityId);
                     SetTimeZoneOptions(scheduledTimeZoneId);
                     ViewBag.ScheduledLocalTime = scheduledAt;
+                    ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
                     return View(activity);
                 }
 
@@ -254,6 +256,7 @@ namespace Web.Controllers.Activity
                 var activity = await _activityService.GetAsync(activityId);
                 SetTimeZoneOptions(scheduledTimeZoneId);
                 ViewBag.ScheduledLocalTime = scheduledAt;
+                ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
                 return View(activity);
             }
         }

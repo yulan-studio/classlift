@@ -67,13 +67,16 @@
             </td>
         </tr>
 
-      @*   <tr>
+        <tr>
             <td style="padding: 8px;"><label for="Cost">Cost:</label></td>
             <td style="padding: 8px;">
-                <input type="hidden" name="cost" step="0.01" value="@Model.Cost" placeholder="Enter cost" style="width: 100%;" />
-                @Model.Cost
+                <input type="number" name="cost" step="0.01" min="0" value="@(Model.Cost ?? 0)" style="width: 100%;" required readonly="@((bool)ViewBag.HasRegistrations)" />
+                @if ((bool)ViewBag.HasRegistrations)
+                {
+                    <small style="display: block; color: darkslategray;">Cost cannot be edited because this activity has registrations.</small>
+                }
             </td>
-        </tr> *@
+        </tr>
 
        @*  <tr>
             <td style="padding: 8px;"><label for="IsActive">Active:</label></td>
