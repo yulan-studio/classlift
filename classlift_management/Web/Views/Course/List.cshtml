@@ -127,7 +127,7 @@
                 </a>
             </th>
             
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
+            @* <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["HourlyCostSortParm"]" style="color: black; text-decoration: none;">
                     Hourly Cost
                     @if ((string)ViewData["CurrentSort"] == "hourly_cost")
@@ -139,7 +139,7 @@
                         <span>▼</span>
                     }
                 </a>
-            </th>
+            </th> *@
  
             <th style="padding: 8px; border: 1px solid #ddd; background-color: lightblue;">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationsSortParm"]" style="color: black; text-decoration: none;">
@@ -185,7 +185,7 @@
                     <th style="padding: 8px; border: 1px solid #ddd;">@course.CourseType</th>
                     <th style="padding: 8px; border: 1px solid #ddd;">@course.MaxCapacity</th>
                     <th style="padding: 8px; border: 1px solid #ddd;">@course.SessionCount</th>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@course.HourlyCost</td>
+                    @*  <td style="padding: 8px; border: 1px solid #ddd;">@course.HourlyCost</td>*@
         
                     <td style="padding: 8px; border: 1px solid #ddd;">@course.RegisteredChildrenCount</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@course.IsActive</td>
