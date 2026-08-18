@@ -78,7 +78,7 @@
                         <option value="@city.Value" selected="@(city.Selected ? "selected" : null)">@city.Text</option>
                     }
                 </select>
-                <small id="cityHelp" style="display: block; color: darkslategray;">@(ViewBag.CityList.Count == 0 ? "Select a province first." : "Select a city.")</small>
+                <small id="cityHelp" style="display: block; color: darkslategray;">@(ViewBag.CityList.Count == 0 ? "Select a province first.":"") </small>
             </td>
         </tr>
 
