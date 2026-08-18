@@ -56,6 +56,10 @@
             foreach (var enrollment in Model.CourseEnrollments)
 
             {
+                var canRemove = enrollment.Status == "Registered" &&
+                    (!enrollment.IsPaid ||
+                     (enrollment.CourseType == "Private" && !enrollment.SessionCount.HasValue));
+
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                     @* <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.CourseType</td> *@
@@ -89,13 +93,16 @@
                     
 
                     <td style="padding: 8px; border: 1px solid #ddd;">
-                        <form method="post" action="/Child/UnregisterCourse">
-                            <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
-                            <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;@(enrollment.CompletedSessions == 0 && enrollment.ScheduledSessions == 0 && !@enrollment.IsPaid ? "" : "display: none;")">
-                                Remove
-                            </button>
-                        </form>
+                        @if (canRemove)
+                        {
+                            <form method="post" action="/Child/UnregisterCourse">
+                                <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
+                                <input type="hidden" name="childId" value="@enrollment.ChildID" />
+                                <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+                                    Remove
+                                </button>
+                            </form>
+                        }
                     </td>
                     <td style="padding: 8px; border: 1px solid #ddd; @(concernIds.Contains(@enrollment.EnrollmentID) ? "background-color: #F8C3DF;" : "")">
                         <a href="/Child/ManageSessionRegistrations?childId=@enrollment.ChildID&courseId=@enrollment.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(enrollment.CourseType == "Group" ?"":"display: none;")">Manage</a>
