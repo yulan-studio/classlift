@@ -1044,6 +1044,19 @@ namespace Web.Controllers.User
         {
             try
             {
+                var enrollment = (await _activityEnrollmentService
+                    .GetAllEnrollmentsViewByChildAsync(childId))
+                    .FirstOrDefault(e => e.EnrollmentID == enrollmentId);
+
+                if (enrollment == null)
+                    throw new InvalidOperationException("Activity registration not found.");
+
+                if (enrollment.IsPaid || enrollment.Status == "Confirmed")
+                    throw new InvalidOperationException("A paid or confirmed activity registration cannot be removed.");
+
+                if (enrollment.Status is "Canceled" or "Completed")
+                    throw new InvalidOperationException("A canceled or completed activity registration cannot be removed.");
+
                 var success1 = await _feeService.DeleteActivityFeeAsync(enrollmentId);
                 var success2 = await _activityEnrollmentService.RemoveRegisteredEnrollmentAsync(enrollmentId);
 

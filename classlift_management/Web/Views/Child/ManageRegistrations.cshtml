@@ -278,7 +278,13 @@
                         <form method="post" action="/Child/UnregisterActivity">
                             <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
                             <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(enrollment.Status == "Canceled" || enrollment.Status == "Completed" ? "display: none" : "")">
+                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(
+                                enrollment.IsPaid ||
+                                enrollment.Status == "Confirmed" ||
+                                enrollment.Status == "Canceled" ||
+                                enrollment.Status == "Completed"
+                                    ? "display: none"
+                                    : "")">
                                 Remove
                             </button>
                         </form>
