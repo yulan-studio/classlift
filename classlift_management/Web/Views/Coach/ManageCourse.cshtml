@@ -125,10 +125,10 @@
             <table class="mobile-stack table table-bordered mt-3">
                 <thead class="table-primary">
                     <tr>
-                        <th>@CurrentTenant.Terminology.ParticipantSingular Name</th>
+                        <th>@CurrentTenant.Terminology.ParticipantSingular</th>
                         <th class="desktop-only">Gender</th>
                         <th class="desktop-only">City</th>
-                        <th class="desktop-only">Birthday</th>
+                        @* <th class="desktop-only">Birthday</th> *@
                         <th class="desktop-only">Registration Date</th>
                         <th class="desktop-only">Scheduled</th>
                         <th>Request to Reschedule</th>
@@ -152,9 +152,9 @@
                                 <td data-label="@CurrentTenant.Terminology.ParticipantSingular Name">@child.Name</td>
                                 <td class="desktop-only" data-label="Gender">@child.Gender</td>
                                 <td class="desktop-only" data-label="City">@child.City</td>
-                                <td class="desktop-only" data-label="Birthday">
+                               @*  <td class="desktop-only" data-label="Birthday">
                                     @(child.BirthDate?.ToString("yyyy-MM-dd") ?? "N/A")
-                                </td>
+                                </td> *@
                                 <td class="desktop-only" data-label="Registration Date">
                                     @child.RegisteredDate.ToString("yyyy-MM-dd")
                                 </td>

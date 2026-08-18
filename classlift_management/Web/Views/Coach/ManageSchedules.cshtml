@@ -95,10 +95,11 @@
 <!-- Info Panel -->
 <div class="p-3 mb-4 bg-light border rounded">
     <strong>Course:</strong> @Model.Course.Title <br />
-            <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
+    <strong>Session Count:</strong> @Model.Course.SessionCount <br />
+    <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
     <strong>Gender:</strong> @Model.Child.Gender <br />
-    <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br />
-    <strong>City:</strong> @Model.Child.City.Name <br /><br />
+    @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
+    <strong>City:</strong> @Model.Child.City.Name <br />
 
     @foreach (var pc in Model.Parents)
     {
@@ -118,9 +119,9 @@
 
 
 
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Upcoming Sessions</h5></div>
+<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB;"><h4>Upcoming Sessions</h4></div>
 
-<table class="mobile-stack table table-bordered mt-3" @* class="mobile-stack mt-3" *@>
+<table class="mobile-stack table table-bordered mt-2" @* class="mobile-stack mt-3" *@>
     <thead class="table-primary">
         <tr>
             <th>Date</th>
@@ -210,7 +211,7 @@
 </table>
 <form method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
 
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Schedule Sessions</h5></div>
+<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB;"><h4>Schedule Sessions</h4></div>
 
 <div class="mb-3">
     <strong>Schedule Type</strong><br />
@@ -219,7 +220,7 @@
 </div>
 
 <!-- Schedule Form -->
-<div class="mt-4 p-3 bg-light border rounded">
+<div class="mt-2 p-3 bg-light border rounded">
     
         <input type="hidden" name="childId" value="@Model.Child.ChildID" />
         <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
