@@ -312,38 +312,17 @@ else
 
 @if (Model.ActivitySchedules!=null && Model.ActivitySchedules.Any())
 {
-<table class="mobile-table" style="border-collapse: collapse; width: 100%; text-align: left;">
-    <thead class="table-primary">
-        <tr>
-            <th>Activity</th>
-            <th>Description</th>
-            <th>Address</th>
-            <th>Scheduled At</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-       
-            @foreach (var enrollment in Model.ActivitySchedules)
-            {
-                <tr>
-                   
-            <strong> &nbsp; &nbsp;Scheduled At: </strong> @enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
-            <strong> &nbsp; &nbsp;Address: </strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Address) ? "N/A" : enrollment.Activity.Address)<br/></>
+    @foreach (var enrollment in Model.ActivitySchedules)
+    {
+        <div class="course-summary" style="padding: 12px; margin: 16px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
+            <h5>Activity: @enrollment.Activity.Title</h5>
+            
+            <strong> Scheduled At: </strong> @enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
+            <strong> &nbsp; &nbsp;Address: </strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Address) ? "N/A" : enrollment.Activity.Address)<br/>
             <strong>Description: </strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Description) ? "N/A" : enrollment.Activity.Description)
-
-                    <td data-label="Activity">@enrollment.Activity.Title</td>
-                    <td data-label="Description">@enrollment.Activity.Description</td>
-            <strong> &nbsp; &nbsp;Status: </strong> @enrollment.Status
-                    <td data-label="Scheduled At">@enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
-                    <td data-label="Status">@enrollment.Status</td>
-                </tr>
-            }
-    
-
-
-    </tbody>
-</table>
+            
+        </div>
+    }
 }
 else
 {
