@@ -800,10 +800,11 @@ namespace Web.Controllers.User
             var activityEnrollments = await _activityEnrollmentService.GetAllEnrollmentsViewByChildAsync(childId);
             var activities = await _activityService.GetAllActiveOpenAsync();
 
-            ViewBag.ActivityList = activities.Select(a => new SelectListItem
+            ViewBag.ActivityList = activities.Select(a => new
             {
                 Value = a.ActivityID.ToString(),
-                Text = a.Title
+                Text = a.Title,
+                Cost = a.Cost ?? 0
             }).ToList();
 
             return View("ManageRegistrations", new ManageRegisterationsViewModel
@@ -1001,6 +1002,17 @@ namespace Web.Controllers.User
                 var user = await _userManager.GetUserAsync(User);
                 var success1 = false;
                 var success2 = false;
+
+                if (paymentModel is not ("Token" or "Direct"))
+                    throw new ArgumentException("Please select a valid payment model.");
+
+                var activity = await _activityService.GetAsync(activityId);
+                totalCost = activity.Cost ?? 0;
+                description = totalCost == 0
+                    ? "Free"
+                    : paymentModel == "Token"
+                        ? $"Use Token - ${totalCost:F2} will be deducted from your balance once confirmed."
+                        : $"Please email transfer ${totalCost:F2} to [youremail_address], and send screenshot to customer service.";
                 
                 int newEnrollmentId = await _activityEnrollmentService.AddRegisteredEnrollmentAsync(childId, activityId, "Registered", user);
 

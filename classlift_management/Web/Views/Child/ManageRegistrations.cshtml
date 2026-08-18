@@ -343,20 +343,19 @@
     <input type="hidden" name="childId" value="@Model.Child.ChildID" />
 
     <label for="activityId">Select Activity:</label>
-    <select id="activityId" name="activityId" required>
+    <select id="activityId" name="activityId" required onchange="updateActivityFeeDetails()">
         <option value="">-- Select Activity --</option>
         @foreach (var activity in ViewBag.ActivityList)
         {
-            <option value="@activity.Value">@activity.Text</option>
+            <option value="@activity.Value" data-cost="@activity.Cost">@activity.Text</option>
         }
     </select>
         <div style="margin-top: 10px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label @* for="PaymentModel2" *@>Payment Model:</label>
-            <select id="paymentModel" name="paymentModel" required onchange="toggleActivityFeeInput(this);updateDescription(this);">
+            <select id="activityPaymentModel" name="paymentModel" required onchange="updateActivityFeeDetails()">
             <option value="">-- Select Payment Model --</option>
             <option value="Token">Token</option>
-            <option value="OAP">OAP</option>
             <option value="Direct">Direct</option>
         </select>
 
@@ -364,12 +363,12 @@
 
         <!-- Fee Input (visible conditionally) -->
         <span id="activityFeeSection" style="display:none; margin-top:10px;">
-            <label for="totalCost">Fee:</label>
-                <input type="number" step="1" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" />
+            <label for="activityTotalCost">Fee:</label>
+                <input type="number" step="0.01" min="0" id="activityTotalCost" name="totalCost" readonly />
 
             <!-- Description Textarea -->
-            <label for="description" style="margin-top:8px; display:block;">Description:</label>
-            <textarea id="description" name="description" rows="3" cols="40"
+            <label for="activityDescription" style="margin-top:8px; display:block;">Description:</label>
+            <textarea id="activityDescription" name="description" rows="3" cols="40"
                       placeholder="Enter fee details here..."></textarea>
                 
         </span>
@@ -505,30 +504,35 @@
 
 
 
-    function toggleActivityFeeInput(element) {
-        const parentDiv = element.closest("div"); // Find nearest div section
-        const paymentModelDropdown = parentDiv.querySelector("[name='paymentModel']");
-        //const paymentModel = document.getElementById("paymentModel").value;
-        const paymentModel = paymentModelDropdown.value;
+    function updateActivityFeeDetails() {
+        const activityDropdown = document.getElementById("activityId");
+        const selectedActivity = activityDropdown.options[activityDropdown.selectedIndex];
+        const paymentModel = document.getElementById("activityPaymentModel").value;
         const feeSection = document.getElementById("activityFeeSection");
+        const totalCostInput = document.getElementById("activityTotalCost");
+        const descriptionInput = document.getElementById("activityDescription");
+        const hasActivity = Boolean(activityDropdown.value);
 
-        if (paymentModel === "Direct") {
-            feeSection.style.display = "block";
-            document.getElementById("totalCost").setAttribute("required", "required");
+        if (!hasActivity || !paymentModel) {
+            feeSection.style.display = "none";
+            totalCostInput.removeAttribute("required");
+            totalCostInput.value = "";
+            descriptionInput.value = "";
+            return;
         }
-        else if (paymentModel === "Token") {
 
-                feeSection.style.display = "block";
-                document.getElementById("totalCost").setAttribute("required", "required");
-        }
-        else if (paymentModel === "OAP") {
+        const cost = Number(selectedActivity.getAttribute("data-cost") || 0);
+        const formattedCost = cost.toFixed(2);
+        feeSection.style.display = "block";
+        totalCostInput.setAttribute("required", "required");
+        totalCostInput.value = formattedCost;
 
-                feeSection.style.display = "block";
-                document.getElementById("totalCost").setAttribute("required", "required");
-        }
-        else {
-                feeSection.style.display = "none";
-                document.getElementById("totalCost").removeAttribute("required");
+        if (cost === 0) {
+            descriptionInput.value = "Free";
+        } else if (paymentModel === "Token") {
+            descriptionInput.value = `Use Token - $${formattedCost} will be deducted from your balance once confirmed.`;
+        } else {
+            descriptionInput.value = `Please email transfer $${formattedCost} to [youremail_address], and send screenshot to customer service.`;
         }
     }
 
