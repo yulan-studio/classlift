@@ -114,7 +114,7 @@ namespace Web.Controllers.User
         // POST: Add Staff Action
         [HttpPost("Add")]
         //[HttpPost]
-        public async Task<IActionResult> Add(string name, string email, string password, List<int> specialtyIds, string gender, string phone, string? wechat, int cityId)
+        public async Task<IActionResult> Add(string name, string email, string password, List<int> specialtyIds, string gender, string phone, int cityId)
         {
 
            
@@ -140,7 +140,7 @@ namespace Web.Controllers.User
             {
                 var user = await _userManager.GetUserAsync(User);
                 
-                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, wechat, cityId, user);
+                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, cityId, user);
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, $"Failed to add the {ProviderNameLower} information.");
@@ -403,7 +403,7 @@ namespace Web.Controllers.User
         [ValidateAntiForgeryToken]
 
        
-        public async Task<IActionResult> Edit(int coachId, string name, string email, /*string password,*/List<int> specialtyIds, string gender, string phone, string wechat, int? provinceId, int? cityId)
+        public async Task<IActionResult> Edit(int coachId, string name, string email, /*string password,*/List<int> specialtyIds, string gender, string phone, int? provinceId, int? cityId)
         {
             if (!provinceId.HasValue)
                 ModelState.AddModelError(nameof(provinceId), "Please select a province.");
@@ -432,7 +432,7 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, wechat, cityId!.Value, user);
+                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, cityId!.Value, user);
 
 
                 if (!result)

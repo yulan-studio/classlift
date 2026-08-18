@@ -49,7 +49,7 @@ namespace Core.Services
 
         }
 
-        public async Task<bool> AddAsync(string name, string email, string password, List<int> specialtyIds, string gender, string phone, string? wechat, int cityId, User user)
+        public async Task<bool> AddAsync(string name, string email, string password, List<int> specialtyIds, string gender, string phone, int cityId, User user)
         {
             // Check if a user with the same email already exists
 
@@ -86,7 +86,6 @@ namespace Core.Services
                 UserID = newUser.Id,
                 Name = name,
                 Phone = phone,
-                Wechat = wechat,
                 CityID = cityId,
                 City = city,
                 Gender = gender,
@@ -163,7 +162,7 @@ namespace Core.Services
 
 
 
-        public async Task<bool> UpdateAsync(int coachId, string name,string email, /*string password,*/ List<int> specialtyIds, string gender, string phone, string wechat, int cityId, User user)
+        public async Task<bool> UpdateAsync(int coachId, string name,string email, /*string password,*/ List<int> specialtyIds, string gender, string phone, int cityId, User user)
         {
             // Find the coach by ID
             var coach = await _coachRepository.GetAsync(coachId);
@@ -178,7 +177,6 @@ namespace Core.Services
            
             coach.Gender = gender;
             coach.Phone = phone;
-            coach.Wechat = wechat;
             coach.CityID = cityId;
             coach.User.UpdatedDate = DateTime.UtcNow;
             coach.User.UpdatedBy = user.Id;
