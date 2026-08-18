@@ -94,7 +94,7 @@
 @* btn-light  mb-3*@
 <!-- Info Panel -->
 <div class="p-3 mb-4 bg-light border rounded">
-    <strong>Course:</strong> @Model.Course.Title <br />
+    <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
     <strong>Gender:</strong> @Model.Child.Gender <br />
@@ -209,9 +209,12 @@
         }
     </tbody>
 </table>
+@if (!Model.Course.SessionCount.HasValue ||
+     Model.ScheduledCount + Model.CompletedCount < Model.Course.SessionCount.Value)
+{
 <form method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
 
-<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB;"><h4>Schedule Sessions</h4></div>
+<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB;"><h5>Schedule Sessions</h5></div>
 
 <div class="mb-3">
     <strong>Schedule Type</strong><br />
@@ -273,6 +276,7 @@
     
 </div>
 </form>
+}
 
 @if (TempData["SuccessMessage"] != null)
 {
