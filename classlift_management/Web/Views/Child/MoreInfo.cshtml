@@ -18,6 +18,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Birth Date</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
             <th style="padding: 8px; border: 1px solid #ddd;">City</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
            @*  <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
             <th style="padding: 8px; border: 1px solid #ddd;">WeChat</th>
@@ -36,6 +37,7 @@
             <td style="padding: 8px; border: 1px solid #ddd;">
                 @(Model.City != null ? Model.City.Name : "N/A")
             </td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@(Model.Phone ?? "N/A")</td>
             <td style="padding: 8px; border: 1px solid #ddd;">@(Model.User.Email ?? "N/A")</td>
           @*   <td style="padding: 8px; border: 1px solid #ddd;">@(Model.Phone ?? "N/A")</td>
             <td style="padding: 8px; border: 1px solid #ddd;">@(Model.WeChat ?? "N/A")</td>
