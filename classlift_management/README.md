@@ -134,7 +134,20 @@ Run all tests:
 dotnet test classlift_management.sln
 ```
 
-The current test suite is only a placeholder. High-value additions are tenant isolation, authentication/authorization, enrollment rules, payment calculations, and course/session status transitions.
+The NUnit test project references `Core`, but the current test suite is still only a placeholder. It does not reference `Web`, so middleware and controller integration tests will require additional test-project setup. High-value additions are tenant isolation, authentication/authorization, enrollment rules, payment calculations, and course/session status transitions.
+
+## Current product capabilities
+
+In addition to the main children, coaches, courses, activities, enrollment, and payment workflows, the application currently supports:
+
+- Per-user time-zone preferences, with scheduled course and activity times stored in UTC and converted for display.
+- Tenant-specific participant/provider terminology and branding assets stored through Cloudflare R2.
+- A tenant-specific home-page URL, also stored in R2, with a configured application fallback.
+- Province-based city selection for child and coach addresses.
+- WhatsApp and postal-code contact fields.
+- Per-session pricing for applicable courses.
+
+When changing any of these features, check the corresponding EF migrations under `Core/Migrations` and preserve compatibility with existing tenant databases.
 
 ## Multi-tenancy
 
@@ -149,7 +162,7 @@ Production tenant resolution works as follows:
 
 `BillingDbContext` is not one context per tenant. It is a short-lived EF context for the single platform registry database. `AppDbContext` is the tenant-scoped application context. Neither context should be registered as a singleton.
 
-See [Docs/tenant-connection-strings.md](Docs/tenant-connection-strings.md) for deeper background, but verify its statements against current code before changing tenancy behavior.
+See the authoritative [tenant connection-string guide](Docs/tenant-connection-strings.md) for deeper background. Tenant behavior is security-sensitive, so still verify the guide against current code when making changes.
 
 ## Background processing
 
@@ -159,7 +172,13 @@ Production processing enumerates active tenants from `classlift_platform` and cr
 
 ## Database migrations
 
-EF migrations currently live under `Core/Migrations`. The design-time factory still expects a `DefaultConnection` value from `Web/appsettings.json`, while runtime uses `ServerConnection`. Treat migration commands as needing repair and verification before relying on them.
+EF migrations live under `Core/Migrations`. For commands run with `Web` as the startup project, `Web/DesignTimeAppDbContextFactory.cs` reads `ServerConnection` (or `ConnectionStrings:ServerConnection`), loads the environment-specific configuration file, and targets the local `classlift` database.
+
+An older duplicate factory remains at `Core/Contexts/AppDbContextFactory.cs`; it still expects `DefaultConnection`. Until that duplicate is removed, specify the project and startup project explicitly and verify which factory EF selects before generating or applying a migration. For example:
+
+```powershell
+dotnet ef migrations list --project Core/Core.csproj --startup-project Web/Web.csproj
+```
 
 Do not run migration or cleanup commands against production without explicitly confirming the target server and database.
 

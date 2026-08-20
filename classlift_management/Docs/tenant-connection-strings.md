@@ -124,8 +124,8 @@ The following are treated as local:
 
 - `localhost`
 - `127.0.0.1`
-- `::1`
-- Any host ending in `.localhost`, such as `school-one.localhost`
+
+The current middleware does not recognize `::1` or `*.localhost`. Requests using those host forms proceed through non-local resolution and will normally remain unresolved.
 
 For these hosts, the middleware:
 
@@ -135,14 +135,12 @@ For these hosts, the middleware:
 4. Calls `BuildConnectionString("classlift")`.
 5. Stores the result in `CurrentTenant`.
 
-Both of these URLs therefore use the same local database:
+These URLs use the local database:
 
 ```text
-http://localhost:8080
-http://school-one.localhost:8080
+http://localhost:5026
+https://localhost:7225
 ```
-
-The `.localhost` subdomain is useful for testing hostname-based behavior, but it does not select a different local database.
 
 ### Production and staging requests
 
@@ -223,7 +221,7 @@ AppDbContext was requested before the tenant was resolved.
 
 `TenantStatusUpdater` has no HTTP request and therefore has no hostname to inspect. It uses `IHostEnvironment` instead.
 
-### Development
+### Development behavior in the worker implementation
 
 The updater constructs an in-memory `TenantRegistry` object:
 
@@ -243,7 +241,7 @@ This object is never inserted into the platform database. It only allows local e
 ProcessTenantAsync(TenantRegistry tenant, CancellationToken cancellationToken)
 ```
 
-The local updater therefore processes only `classlift` and never calls `LoadActiveTenantsAsync`.
+If the worker is registered in Development, its local branch processes only `classlift` and never calls `LoadActiveTenantsAsync`. However, `Web/Program.cs` currently registers `TenantStatusUpdater` only outside the Development environment, so this branch does not run during normal local startup.
 
 ### Production and Railway
 
@@ -317,11 +315,12 @@ Confirm that tenant resolution remains before authentication, authorization, and
 
 ### Localhost attempts to access `classlift_platform`
 
-Confirm all of the following:
+For an HTTP request, confirm all of the following:
 
-- The request host is recognized by `IsLocalHost`.
+- The request host is exactly `localhost` or `127.0.0.1`.
 - `BillingDbContext` is still resolved lazily after the local branch.
-- `ASPNETCORE_ENVIRONMENT` is `Development` so the background updater uses its local branch.
+
+The background updater is not registered during normal Development startup.
 
 ### Railway uses the wrong database
 
