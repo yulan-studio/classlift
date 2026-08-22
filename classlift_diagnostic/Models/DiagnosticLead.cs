@@ -53,7 +53,8 @@ public sealed class DiagnosticLead
 
     public DiagnosticResponse ToResponse() => new(Id, CreatedAt,
         new ScoreResult(OperationalEfficiencyScore, SystemizationScore, KeyPersonScore,
-            FinancialControlScore, ScalabilityScore, TotalScore, Classification, ""), LeadIntent);
+            FinancialControlScore, ScalabilityScore, TotalScore, Classification, ""), LeadIntent,
+        string.IsNullOrWhiteSpace(AiSummary) ? null : JsonSerializer.Deserialize<AiDiagnosticReport>(AiSummary));
 
     private static string LeadIntentFor(string? timeline) => timeline switch
     {

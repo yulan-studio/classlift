@@ -14,4 +14,5 @@ public sealed record DiagnosticResponse(
     Guid LeadId,
     DateTimeOffset CreatedAt,
     ScoreResult Scores,
-    string LeadIntent);
+    string LeadIntent,
+    AiDiagnosticReport? Report = null);

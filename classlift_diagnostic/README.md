@@ -115,6 +115,29 @@ Content-Type: application/json
 GET /api/diagnostics/{leadId}
 ```
 
+## AI 报告
+
+AI 没有配置或调用失败时，系统仍会生成确定性报告，不会阻断 Lead 保存。
+
+在 Railway Web Service → Variables 中添加：
+
+```text
+OPENAI_API_KEY=你的 OpenAI API Key
+OPENAI_MODEL=gpt-5-mini
+```
+
+不要把 API Key 写进 `appsettings.json` 或提交到 Git。AI 请求使用 Responses API 的 Structured Outputs，并设置 `store: false`。姓名、Email 和机构名称不会发送给模型。
+
+可以通过 API 返回报告中的 `aiGenerated` 判断内容来源：
+
+```json
+{
+  "report": {
+    "aiGenerated": true
+  }
+}
+```
+
 ## 安全提醒
 
 - 不要提交 `appsettings.Development.json`、`.env`、数据库密码或 OpenAI API Key。

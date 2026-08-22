@@ -22,6 +22,7 @@ else
 }
 
 builder.Services.AddSingleton<ScoringService>();
+builder.Services.AddHttpClient<AiReportService>(client => client.Timeout = TimeSpan.FromSeconds(45));
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
@@ -47,6 +48,7 @@ app.MapGet("/api/health", () => Results.Ok(new
 app.MapPost("/api/diagnostics", async (
     CreateDiagnosticRequest request,
     ScoringService scoring,
+    AiReportService aiReports,
     IDiagnosticRepository repository,
     CancellationToken cancellationToken) =>
 {
@@ -55,10 +57,13 @@ app.MapPost("/api/diagnostics", async (
 
     var result = scoring.Calculate(request);
     var diagnostic = DiagnosticLead.From(request, result);
+    var report = await aiReports.GenerateAsync(request, result, cancellationToken);
+    diagnostic.AiSummary = System.Text.Json.JsonSerializer.Serialize(report);
+    diagnostic.RecommendedModulesJson = System.Text.Json.JsonSerializer.Serialize(report.RelevantCapabilities);
     await repository.AddAsync(diagnostic, cancellationToken);
 
     return Results.Created($"/api/diagnostics/{diagnostic.Id}", new DiagnosticResponse(
-        diagnostic.Id, diagnostic.CreatedAt, result, diagnostic.LeadIntent));
+        diagnostic.Id, diagnostic.CreatedAt, result, diagnostic.LeadIntent, report));
 });
 
 app.MapGet("/api/diagnostics/{id:guid}", async (
