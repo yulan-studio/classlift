@@ -64,10 +64,33 @@ $('#leadForm').onsubmit=async e=>{
   const form=e.currentTarget, button=form.querySelector('button[type=submit]'), fd=new FormData(form);
   state.lead=Object.fromEntries(fd);
   button.disabled=true; button.textContent='正在生成报告…';
-  const payload={...state.answers,...state.lead,key_person_dependency:Number(state.answers.key_person_dependency)};
+  const a=state.answers;
+  const payload={
+    businessType:a.business_type,
+    studentCount:a.student_count,
+    adminCount:Number(a.admin_count),
+    currentTools:a.current_tools,
+    primaryPain:a.primary_pain,
+    desiredOutcome:a.desired_outcome,
+    motivation:a.motivation,
+    costOfInaction:a.cost_of_inaction,
+    previousSolutions:a.previous_solutions,
+    rootCause:a.root_cause||null,
+    keyPersonDependency:Number(a.key_person_dependency),
+    buyingCriteria:a.buying_criteria,
+    implementationTimeline:a.implementation_timeline,
+    selfIdentifiedPriority:a.self_identified_priority,
+    name:state.lead.name,
+    email:state.lead.email,
+    organization:state.lead.organization||null
+  };
   try{
     const response=await fetch('/api/diagnostics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(!response.ok) throw new Error(`提交失败 (${response.status})`);
+    if(!response.ok){
+      const problem=await response.json().catch(()=>null);
+      const details=problem?.errors?Object.values(problem.errors).flat().join(' '):problem?.detail;
+      throw new Error(details||`提交失败 (${response.status})`);
+    }
     state.serverResult=await response.json();
     localStorage.removeItem('classlift-diagnostic');
     leadGate.classList.add('hidden'); renderReport(state.serverResult); report.classList.remove('hidden'); window.scrollTo(0,0);
