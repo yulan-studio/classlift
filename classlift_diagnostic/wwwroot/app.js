@@ -59,11 +59,31 @@ function classification(n){return n>=80?['Highly Scalable','你的运营已经�
 function bottlenecks(){const a=[];if(Number(state.answers.key_person_dependency)<=10)a.push(['关键人员依赖','多项核心工作可能集中在少数员工手中，交接韧性有提升空间。']);if(includes('current_tools',['Excel','多个','纸张']))a.push(['系统与数据分散','信息可能存在于不同工具或表格中，增加重复输入与遗漏风险。']);if(includes('primary_pain',['收费','工资']))a.push(['财务流程依赖人工','收费、课时或工资环节的人工处理，会降低财务信息的及时性。']);if(includes('primary_pain',['重复行政','排课','跟进']))a.push(['重复行政工作','高频、规则明确的工作仍消耗员工时间，限制了团队服务能力。']);if(includes('cost_of_inaction',['增加行政','人工成本']))a.push(['增长与人力绑定','按照目前方式增长，行政人数与人工成本可能需要同步增加。']);while(a.length<3)a.push([['运营可视性','流程标准化','规模复制能力'][a.length],'目前答案显示这一能力值得在下一阶段进一步验证和完善。']);return a.slice(0,3)}
 function priorities(){const b=bottlenecks();return b.map(([x],i)=>i===0?['建立统一运营基础',`优先围绕“${state.answers.primary_pain}”梳理负责人、数据与标准流程。`]:i===1?['自动化重复工作','选择高频、规则清楚的行政任务先自动化，并记录节省的时间。']:['降低交接风险','把关键员工的经验转化为团队可执行、可追踪的工作流程。'])}
 
-$('#leadForm').onsubmit=e=>{e.preventDefault();const fd=new FormData(e.currentTarget);state.lead=Object.fromEntries(fd);leadGate.classList.add('hidden');renderReport();report.classList.remove('hidden');window.scrollTo(0,0)};
-function renderReport(){
- const s=calculateScores(), c=classification(s.total), bs=bottlenecks(), ps=priorities(), impacts=(state.answers.cost_of_inaction||[]).filter(x=>!x.includes('暂时不会')).slice(0,4); const intent={'现在就需要解决':'VERY HIGH','未来 1–3 个月':'HIGH','3–6 个月':'MEDIUM','6–12 个月':'LOW','暂时只是了解':'RESEARCH'}[state.answers.implementation_timeline];
+$('#leadForm').onsubmit=async e=>{
+  e.preventDefault();
+  const form=e.currentTarget, button=form.querySelector('button[type=submit]'), fd=new FormData(form);
+  state.lead=Object.fromEntries(fd);
+  button.disabled=true; button.textContent='正在生成报告…';
+  const payload={...state.answers,...state.lead,key_person_dependency:Number(state.answers.key_person_dependency)};
+  try{
+    const response=await fetch('/api/diagnostics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!response.ok) throw new Error(`提交失败 (${response.status})`);
+    state.serverResult=await response.json();
+    localStorage.removeItem('classlift-diagnostic');
+    leadGate.classList.add('hidden'); renderReport(state.serverResult); report.classList.remove('hidden'); window.scrollTo(0,0);
+  }catch(error){
+    button.disabled=false; button.innerHTML='重新生成报告 <span>→</span>';
+    let message=form.querySelector('.submit-error');
+    if(!message){message=document.createElement('p');message.className='error submit-error';form.appendChild(message)}
+    message.textContent=`暂时无法生成报告：${error.message}。请稍后重试。`;
+  }
+};
+function renderReport(serverResult){
+ const remote=serverResult?.scores;
+ const s=remote?{operational:remote.operationalEfficiency,systemization:remote.systemization,key:remote.keyPersonIndependence,financial:remote.financialControl,scalability:remote.scalability,total:remote.total}:calculateScores();
+ const c=remote?[remote.classification,remote.classificationDescription]:classification(s.total), bs=bottlenecks(), ps=priorities(), impacts=(state.answers.cost_of_inaction||[]).filter(x=>!x.includes('暂时不会')).slice(0,4); const intent=serverResult?.leadIntent||{'现在就需要解决':'VERY HIGH','未来 1–3 个月':'HIGH','3–6 个月':'MEDIUM','6–12 个月':'LOW','暂时只是了解':'RESEARCH'}[state.answers.implementation_timeline];
  const metrics=[['运营效率',s.operational,25],['系统化程度',s.systemization,20],['关键人员独立',s.key,20],['财务控制',s.financial,15],['规模化能力',s.scalability,20]];
- report.innerHTML=`<nav class="report-nav"><a class="brand"><span class="brand-mark">C</span><span>ClassLift</span></a><div class="report-nav-actions"><button class="ghost-btn" onclick="window.print()">打印 / 保存 PDF</button><button class="ghost-btn" onclick="location.reload()">重新诊断</button></div></nav><article class="report-sheet"><header class="report-hero"><div><span class="report-kicker">YOUR BUSINESS SCALABILITY REPORT · ${new Date().toLocaleDateString('zh-CN')}</span><h2>${state.lead.organization||state.lead.name} 的<br>业务可规模化诊断</h2><p>${c[1]}</p></div><div class="big-score"><span>BUSINESS SCALABILITY SCORE</span><strong>${s.total}<span> / 100</span></strong><b>${c[0]}</b></div></header><div class="report-body"><div class="score-grid">${metrics.map(m=>`<div class="metric"><span>${m[0]}</span><strong>${m[1]}<small> / ${m[2]}</small></strong></div>`).join('')}</div>
+ report.innerHTML=`<nav class="report-nav"><a class="brand"><span class="brand-mark">C</span><span>ClassLift</span></a><div class="report-nav-actions"><span class="report-id">Report ${serverResult?.leadId?.slice(0,8)||'Preview'}</span><button class="ghost-btn" onclick="window.print()">打印 / 保存 PDF</button><button class="ghost-btn" onclick="location.reload()">重新诊断</button></div></nav><article class="report-sheet"><header class="report-hero"><div><span class="report-kicker">YOUR BUSINESS SCALABILITY REPORT · ${new Date().toLocaleDateString('zh-CN')}</span><h2>${state.lead.organization||state.lead.name} 的<br>业务可规模化诊断</h2><p>${c[1]}</p></div><div class="big-score"><span>BUSINESS SCALABILITY SCORE</span><strong>${s.total}<span> / 100</span></strong><b>${c[0]}</b></div></header><div class="report-body"><div class="score-grid">${metrics.map(m=>`<div class="metric"><span>${m[0]}</span><strong>${m[1]}<small> / ${m[2]}</small></strong></div>`).join('')}</div>
  <section class="report-section"><span class="section-index">01 · YOUR DIRECTION</span><h3>你希望公司变成什么样？</h3><div class="goal-box">你的主要目标是「${state.answers.desired_outcome}」，因为你「${state.answers.motivation}」。<small>Based on your answers</small></div></section>
  <section class="report-section"><span class="section-index">02 · TOP BOTTLENECKS</span><h3>目前最值得关注的三个瓶颈</h3><div class="bottlenecks">${bs.map((x,i)=>`<div class="insight-card"><b>0${i+1}</b><h4>${x[0]}</h4><p>${x[1]}</p></div>`).join('')}</div></section>
  <section class="report-section"><span class="section-index">03 · COST OF INACTION</span><h3>如果什么都不改变</h3><p>根据你自己的判断，维持目前方式最可能带来：</p><div class="impact-flow">${(impacts.length?impacts:['暂时不会有明显影响']).map((x,i)=>`${i?'<i>→</i>':''}<span>${x}</span>`).join('')}</div></section>
