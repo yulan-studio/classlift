@@ -103,7 +103,7 @@ function renderReport(serverResult){
  <section class="report-section"><span class="section-index">01 · YOUR DIRECTION</span><h3>你希望公司变成什么样？</h3><div class="goal-box">${ai?.desiredOutcomeSummary||`你的主要目标是「${state.answers.desired_outcome}」，因为你「${state.answers.motivation}」。`}<small>Based on your answers${ai?.aiGenerated?' · AI organized':''}</small></div></section>
  <section class="report-section"><span class="section-index">02 · TOP BOTTLENECKS</span><h3>目前最值得关注的三个瓶颈</h3><div class="bottlenecks">${bs.map((x,i)=>`<div class="insight-card"><b>0${i+1}</b><h4>${x[0]}</h4><p>${x[1]}</p></div>`).join('')}</div></section>
  <section class="report-section"><span class="section-index">03 · COST OF INACTION</span><h3>如果什么都不改变</h3><p>根据你自己的判断，维持目前方式最可能带来：</p><div class="impact-flow">${(impacts.length?impacts:['暂时不会有明显影响']).map((x,i)=>`${i?'<i>→</i>':''}<span>${x}</span>`).join('')}</div></section>
- <section class="report-section"><span class="section-index">04 · YOUR OWN WORDS</span><h3>你认为最应该先改变什么</h3><div class="quote">“${state.answers.self_identified_priority}”</div></section>
+ <section class="report-section"><span class="section-index">04 · TOP PRIORITY</span><h3>你最急需解决的问题</h3><div class="quote">“${state.answers.primary_pain}”</div></section>
  <section class="report-section"><span class="section-index">05 · PRIORITIES</span><h3>建议的三个改善优先级</h3><div class="priorities">${ps.map((x,i)=>`<div class="insight-card"><b>PRIORITY ${i+1}</b><h4>${x[0]}</h4><p>${x[1]}</p></div>`).join('')}</div></section>
  <div class="solution-cta"><div><h3>看看这些问题可以如何被系统化</h3><p>基于你的 ${c[0]} 诊断与 ${intent} 改善意愿，查看与你当前问题相关的能力。</p></div><button class="primary-btn" onclick="alert('下一步可在这里连接 ClassLift 个性化解决方案页面。')">看看系统如何解决我的三个问题 <span>→</span></button></div></div></article>`;
 }
