@@ -142,4 +142,32 @@ OPENAI_MODEL=gpt-5-mini
 
 - 不要提交 `appsettings.Development.json`、`.env`、数据库密码或 OpenAI API Key。
 - Railway 密钥只放在 Service Variables。
-- 当前读取接口适合开发验证；正式上线前应为报告和销售后台增加授权或不可猜测的访问令牌。
+- 销售后台接口必须通过管理员 Cookie 认证；不要把管理员账户提供给不需要访问客户资料的人员。
+
+## 销售后台
+
+销售后台地址：
+
+```text
+https://你的域名/admin
+```
+
+在 Railway Web Service → Variables 中添加：
+
+```text
+ADMIN_USERNAME=你的管理员用户名
+ADMIN_PASSWORD=一个至少 16 位的随机强密码
+```
+
+添加变量后重新部署。不要把真实密码写入代码、README、`appsettings.json` 或 GitHub。
+
+后台功能包括：
+
+- 按提交时间倒序查看 Lead
+- 搜索姓名、Email、机构和最紧急问题
+- 按 Lead Intent 筛选
+- 查看完整答案、五项评分与 Sales Brief
+- 分页
+- 导出经过 CSV 公式注入防护的 CSV 文件
+
+后台使用服务端 Cookie 认证；Cookie 为 HttpOnly、SameSite Strict，生产环境仅通过 HTTPS 传输。登录接口限制为每个 IP 每分钟最多 5 次尝试。如果没有配置管理员变量，登录接口会返回 503，后台不会使用默认密码。
