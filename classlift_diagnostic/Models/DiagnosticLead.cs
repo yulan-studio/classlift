@@ -34,6 +34,7 @@ public sealed class DiagnosticLead
     public string Name { get; set; } = "";
     public string Email { get; set; } = "";
     public string? Organization { get; set; }
+    public string? WebsiteUrl { get; set; }
     public string? AdditionalNeeds { get; set; }
 
     public static DiagnosticLead From(CreateDiagnosticRequest request, ScoreResult score) => new()
@@ -53,7 +54,8 @@ public sealed class DiagnosticLead
         KeyPersonScore = score.KeyPersonIndependence, FinancialControlScore = score.FinancialControl,
         ScalabilityScore = score.Scalability, TotalScore = score.Total, Classification = score.Classification,
         LeadIntent = LeadIntentFor(request.ImplementationTimeline), Name = request.Name!.Trim(),
-        Email = request.Email!.Trim().ToLowerInvariant(), Organization = request.Organization?.Trim(), AdditionalNeeds = request.AdditionalNeeds?.Trim()
+        Email = request.Email!.Trim().ToLowerInvariant(), Organization = request.Organization?.Trim(),
+        WebsiteUrl = request.WebsiteUrl?.Trim(), AdditionalNeeds = request.AdditionalNeeds?.Trim()
     };
 
     public DiagnosticResponse ToResponse() => new(Id, CreatedAt,

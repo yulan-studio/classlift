@@ -70,7 +70,8 @@ $('#leadForm').onsubmit=async e=>{
     additionalNeeds:a.additional_needs||null,
     name:state.lead.name,
     email:state.lead.email,
-    organization:state.lead.organization||null
+    organization:state.lead.organization||null,
+    websiteUrl:state.lead.websiteUrl||null
   };
   try{
     const response=await fetch('/api/diagnostics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});

@@ -5,12 +5,12 @@ namespace ClassLift.Diagnostic.Models;
 public sealed record AdminLoginRequest(string? Username, string? Password);
 
 public sealed record AdminLeadSummary(
-    Guid Id, DateTimeOffset CreatedAt, string Name, string Email, string? Organization,
+    Guid Id, DateTimeOffset CreatedAt, string Name, string Email, string? Organization, string? WebsiteUrl,
     string BusinessType, string StudentCount, string PrimaryPain,
     string ImplementationTimeline, int TotalScore, string Classification, string LeadIntent);
 
 public sealed record AdminLeadDetail(
-    Guid Id, DateTimeOffset CreatedAt, string Name, string Email, string? Organization,
+    Guid Id, DateTimeOffset CreatedAt, string Name, string Email, string? Organization, string? WebsiteUrl,
     string BusinessType, string StudentCount, IReadOnlyList<string> CurrentTools,
     IReadOnlyList<string> ImprovementAreas, string PrimaryPain, string ImplementationTimeline,
     string? AdditionalNeeds, int OperationalEfficiencyScore, int SystemizationScore,
@@ -18,7 +18,7 @@ public sealed record AdminLeadDetail(
     string Classification, string LeadIntent, AiDiagnosticReport? Report)
 {
     public static AdminLeadDetail From(DiagnosticLead lead) => new(
-        lead.Id, lead.CreatedAt, lead.Name, lead.Email, lead.Organization,
+        lead.Id, lead.CreatedAt, lead.Name, lead.Email, lead.Organization, lead.WebsiteUrl,
         lead.BusinessType, lead.StudentCount, ParseList(lead.CurrentToolsJson),
         ParseList(lead.ImprovementAreasJson), lead.PrimaryPain, lead.ImplementationTimeline,
         lead.AdditionalNeeds, lead.OperationalEfficiencyScore, lead.SystemizationScore,

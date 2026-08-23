@@ -161,9 +161,9 @@ app.MapGet("/api/admin/leads.csv", async (
     string? search, string? intent, IDiagnosticRepository repository, CancellationToken cancellationToken) =>
 {
     var page = await repository.ListAsync(search, intent, 1, 10_000, cancellationToken);
-    var csv = new StringBuilder("Created At,Name,Email,Organization,Business Type,Student Count,Primary Pain,Timeline,Score,Classification,Lead Intent\r\n");
+    var csv = new StringBuilder("Created At,Name,Email,Organization,Website URL,Business Type,Student Count,Primary Pain,Timeline,Score,Classification,Lead Intent\r\n");
     foreach (var lead in page.Items)
-        csv.AppendLine(string.Join(',', new[] { lead.CreatedAt.ToString("O"), lead.Name, lead.Email, lead.Organization,
+        csv.AppendLine(string.Join(',', new[] { lead.CreatedAt.ToString("O"), lead.Name, lead.Email, lead.Organization, lead.WebsiteUrl,
             lead.BusinessType, lead.StudentCount, lead.PrimaryPain, lead.ImplementationTimeline,
             lead.TotalScore.ToString(), lead.Classification, lead.LeadIntent }.Select(Csv)));
     return Results.File(Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray(),

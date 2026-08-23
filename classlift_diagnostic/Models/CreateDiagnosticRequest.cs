@@ -13,6 +13,7 @@ public sealed class CreateDiagnosticRequest
     public string? Name { get; init; }
     public string? Email { get; init; }
     public string? Organization { get; init; }
+    public string? WebsiteUrl { get; init; }
 
     // 兼容已经打开的旧版问卷页面。
     public string? DesiredOutcome { get; init; }
@@ -47,6 +48,10 @@ public sealed class CreateDiagnosticRequest
             errors[nameof(PrimaryPain)] = ["最急需解决的问题必须来自已选择的改善项目。"];
         if (!string.IsNullOrWhiteSpace(Email) && !System.Net.Mail.MailAddress.TryCreate(Email, out _))
             errors[nameof(Email)] = ["Email 格式无效。"];
+        if (!string.IsNullOrWhiteSpace(WebsiteUrl) &&
+            (!Uri.TryCreate(WebsiteUrl.Trim(), UriKind.Absolute, out var website) ||
+             (website.Scheme != Uri.UriSchemeHttp && website.Scheme != Uri.UriSchemeHttps)))
+            errors[nameof(WebsiteUrl)] = ["请输入以 http:// 或 https:// 开头的有效网址。"];
 
         return errors;
     }
