@@ -11,4 +11,6 @@
 @media(max-width:600px){.site-header{height:68px;padding:0 20px}.header-note{font-size:0}.header-note:after{content:"约 3 分钟";font-size:12px}.landing{padding:42px 20px 0}.landing h1{font-size:43px}.hero-lede{font-size:16px}.score-preview{padding:22px 18px}.deliverables{margin-top:32px}.options{grid-template-columns:1fr}.generating-card{padding:35px 24px}.report{padding:20px 12px 50px}.report-hero,.report-body{padding:30px 22px}.report-hero h2{font-size:40px}.big-score{min-height:210px}.score-grid{grid-template-columns:1fr}.solution-cta{padding:30px 22px}}
 @media print{.site-header,.report-nav{display:none}.report{padding:0;background:#fff}.report-sheet{box-shadow:none;margin:0}.solution-cta{break-inside:avoid}}
 .report-nav-actions{align-items:center}.report-id{font-size:11px;color:var(--muted);margin-right:6px}.primary-btn:disabled{opacity:.65;cursor:wait;transform:none}
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.impact-card{background:#f0eee5;padding:18px;display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.6}.impact-card b{font-family:Georgia,serif;color:var(--orange)}
 @media(max-width:600px){.header-note:after{content:"约 2 分钟"}}
+@media(max-width:700px){.impact-grid{grid-template-columns:1fr}}
