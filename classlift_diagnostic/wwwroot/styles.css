@@ -14,3 +14,5 @@
 .impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.impact-card{background:#f0eee5;padding:18px;display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.6}.impact-card b{font-family:Georgia,serif;color:var(--orange)}
 @media(max-width:600px){.header-note:after{content:"约 2 分钟"}}
 @media(max-width:700px){.impact-grid{grid-template-columns:1fr}}
+.brand-logo,.brand-mark{width:34px;height:34px;display:block;flex:0 0 34px;border-radius:7px;background:#fff url('/images/classlift_logo.png') center/contain no-repeat;object-fit:contain;font-size:0;color:transparent}
+.aside-brand .brand-mark{background:#fff url('/images/classlift_logo.png') center/contain no-repeat;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
