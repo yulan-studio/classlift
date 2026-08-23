@@ -10,6 +10,7 @@ public sealed class DiagnosticLead
     public string StudentCount { get; set; } = "";
     public int AdminCount { get; set; }
     public string CurrentToolsJson { get; set; } = "[]";
+    public string? ImprovementAreasJson { get; set; }
     public string PrimaryPain { get; set; } = "";
     public string DesiredOutcome { get; set; } = "";
     public string Motivation { get; set; } = "";
@@ -33,22 +34,26 @@ public sealed class DiagnosticLead
     public string Name { get; set; } = "";
     public string Email { get; set; } = "";
     public string? Organization { get; set; }
+    public string? AdditionalNeeds { get; set; }
 
     public static DiagnosticLead From(CreateDiagnosticRequest request, ScoreResult score) => new()
     {
         Id = Guid.NewGuid(), CreatedAt = DateTimeOffset.UtcNow,
         BusinessType = request.BusinessType!.Trim(), StudentCount = request.StudentCount!.Trim(),
-        AdminCount = request.AdminCount!.Value, CurrentToolsJson = JsonSerializer.Serialize(request.CurrentTools),
-        PrimaryPain = request.PrimaryPain!.Trim(), DesiredOutcome = request.DesiredOutcome!.Trim(),
-        Motivation = request.Motivation!.Trim(), CostOfInactionJson = JsonSerializer.Serialize(request.CostOfInaction),
+        AdminCount = request.AdminCount ?? 0, CurrentToolsJson = JsonSerializer.Serialize(request.CurrentTools),
+        ImprovementAreasJson = JsonSerializer.Serialize(request.ImprovementAreas),
+        PrimaryPain = request.PrimaryPain!.Trim(),
+        DesiredOutcome = string.IsNullOrWhiteSpace(request.AdditionalNeeds) ? "改善已选择的运营问题" : request.AdditionalNeeds.Trim(),
+        Motivation = "改善运营效率与业务稳定性", CostOfInactionJson = JsonSerializer.Serialize(request.CostOfInaction ?? []),
         PreviousSolutionsJson = JsonSerializer.Serialize(request.PreviousSolutions ?? []), RootCause = request.RootCause?.Trim(),
-        KeyPersonDependency = request.KeyPersonDependency!.Value, BuyingCriteriaJson = JsonSerializer.Serialize(request.BuyingCriteria),
-        ImplementationTimeline = request.ImplementationTimeline!.Trim(), SelfIdentifiedPriority = request.SelfIdentifiedPriority!.Trim(),
+        KeyPersonDependency = request.KeyPersonDependency ?? (request.ImprovementAreas?.Any(x => x.Contains("核心员工")) == true ? 5 : 15),
+        BuyingCriteriaJson = JsonSerializer.Serialize(request.BuyingCriteria ?? []),
+        ImplementationTimeline = request.ImplementationTimeline!.Trim(), SelfIdentifiedPriority = request.SelfIdentifiedPriority?.Trim() ?? request.PrimaryPain.Trim(),
         OperationalEfficiencyScore = score.OperationalEfficiency, SystemizationScore = score.Systemization,
         KeyPersonScore = score.KeyPersonIndependence, FinancialControlScore = score.FinancialControl,
         ScalabilityScore = score.Scalability, TotalScore = score.Total, Classification = score.Classification,
         LeadIntent = LeadIntentFor(request.ImplementationTimeline), Name = request.Name!.Trim(),
-        Email = request.Email!.Trim().ToLowerInvariant(), Organization = request.Organization?.Trim()
+        Email = request.Email!.Trim().ToLowerInvariant(), Organization = request.Organization?.Trim(), AdditionalNeeds = request.AdditionalNeeds?.Trim()
     };
 
     public DiagnosticResponse ToResponse() => new(Id, CreatedAt,

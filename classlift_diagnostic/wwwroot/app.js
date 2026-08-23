@@ -1,19 +1,13 @@
 const state = { step: 0, answers: {} };
 const option = (value, label = value) => ({ value, label });
 const questions = [
-  { id:'business_type', section:'ABOUT YOUR BUSINESS', aside:'先了解一点\n你的业务', title:'你的机构属于哪一类？', type:'single', options:['特殊教育','课后辅导','音乐学校','美术学校','编程学校','健身 / 私人教练','非营利组织','其他课程 / 活动机构'].map(x=>option(x)) },
+  { id:'business_type', section:'ABOUT YOUR BUSINESS', aside:'先了解一点\n你的业务', title:'你的机构属于哪一类？', type:'single', options:['特殊教育 / 儿童发展服务','学科辅导 / 课后教育','兴趣与技能培训（音乐、美术、舞蹈、编程、机器人、乐高、外语、棋类等）','健身 / 体育 / 私人教练','非营利组织 / 社区机构','其他课程 / 活动机构'].map(x=>option(x)) },
   { id:'student_count', section:'ABOUT YOUR BUSINESS', aside:'业务规模\n会影响诊断基准', title:'目前大约有多少活跃学生 / 客户？', type:'single', options:['1–50','51–100','101–300','301–500','501–1,000','1,000+'].map(x=>option(x)) },
-  { id:'admin_count', section:'ABOUT YOUR BUSINESS', aside:'业务规模\n会影响诊断基准', title:'目前有多少行政 / 运营工作人员？', help:'请输入人数（包括全职与固定兼职人员）', type:'number', placeholder:'例如：4' },
   { id:'current_tools', section:'CURRENT STATE', aside:'现在，你的业务\n如何运转？', title:'你们目前主要用什么方式管理客户、课程、收费和员工？', help:'可以选择多项', type:'multi', options:['Excel / Google Sheets','多个不同软件组合','一个课程管理软件','纸张 / 人工记录','邮件 / WhatsApp / 微信 / 短信','主要依赖员工记住和执行','自己开发的系统','其他'].map(x=>option(x)) },
-  { id:'primary_pain', section:'THE FRICTION', aside:'找到真正限制\n增长的摩擦力', title:'如果现在只能解决一个问题，你最希望解决哪一个？', type:'single', options:['客户咨询后没有被及时跟进','客户沟通和重要信息容易遗漏','排课和调整课程太繁琐','收费、Credit、课时记录混乱','老师工资计算麻烦','员工每天有大量重复行政工作','老板无法及时了解公司的运营情况','公司太依赖某几个核心员工','客户增加就必须继续增加行政人员','其他'].map(x=>option(x)) },
-  { id:'desired_outcome', section:'YOUR DIRECTION', aside:'你真正想要的\n不是更多软件', title:'如果未来 12 个月只能实现一个结果，你最希望是哪一个？', type:'single', options:['服务更多客户，但不增加太多行政人员','提高公司的利润率','老板可以随时了解公司的真实运营情况','减少员工加班和重复工作','公司不再依赖某一个关键员工','老板减少参与日常运营','建立第二家店 / 新的 Location','让现有业务更标准、更稳定','其他'].map(x=>option(x)) },
-  { id:'motivation', section:'YOUR WHY', aside:'理解改变背后\n真正的原因', title:'为什么这个结果现在对你很重要？', help:'选择最接近你真实想法的一项', type:'single', options:['希望获得更多利润','希望减少人工成本','希望有更多个人时间','希望公司可以继续扩大','准备建立第二家店','不希望公司过度依赖员工','希望真正经营公司，而不是每天给自己的公司“打工”','其他'].map(x=>option(x)) },
-  { id:'cost_of_inaction', section:'LOOKING AHEAD', aside:'如果维持现状，\n会发生什么？', title:'如果未来 12 个月继续按照现在的方法运营，你认为最可能发生什么？', help:'最多选择 3 项', type:'multi', max:3, options:['必须继续增加行政人员','人工成本继续上涨','无法服务更多客户','收入增加，但利润没有明显增加','老板越来越忙','更加依赖几个核心员工','客户体验下降','无法顺利建立第二家店','运营错误越来越多','我认为暂时不会有明显影响','其他'].map(x=>option(x)) },
-  { id:'previous_solutions', section:'WHAT YOU TRIED', aside:'过去的方法\n留下了什么？', title:'你过去尝试过哪些方法解决这些问题？', help:'可以选择多项', type:'multi', options:['招更多行政人员','Excel / Google Sheets','买过 / 正在使用课程管理软件','使用多个不同软件组合','找外包人员','依赖一个非常能干的员工','自己建立 SOP / 工作流程','自己开发系统','暂时停止扩大业务','还没有认真解决过','其他'].map(x=>option(x)) },
-  { id:'key_person_dependency', section:'BUSINESS RESILIENCE', aside:'员工很重要，\n系统也应该可靠', title:'如果最重要的一名行政 / 运营员工明天无法工作一个月，公司会怎么样？', type:'single', options:[option('20','基本没有影响'),option('15','会有一些影响，但其他人可以快速接手'),option('10','很多工作会变慢'),option('5','多项重要工作可能混乱'),option('0','我甚至不知道一些重要资料在哪里')] },
-  { id:'buying_criteria', section:'IDEAL FUTURE', aside:'定义对你有价值的\n解决方案', title:'如果有一个系统真正帮助你解决这些问题，最重要的 3 个条件是什么？', help:'最多选择 3 项', type:'multi', max:3, options:['员工容易学习和使用','不需要同时使用很多软件','老板随时可以看到公司运营情况','大量重复工作可以自动完成','工作不再依赖员工自己记住','员工离职后，新员工可以快速接手','客户增加，但行政人员不需要同比增加','可以支持多个 Location / 第二家店','收费、Credit、工资更加自动化','客户沟通更加统一'].map(x=>option(x)) },
-  { id:'implementation_timeline', section:'TIMING', aside:'改变不一定要急，\n但需要清晰', title:'你希望什么时候真正改善这些问题？', type:'single', options:['现在就需要解决','未来 1–3 个月','3–6 个月','6–12 个月','暂时只是了解'].map(x=>option(x)) },
-  { id:'self_identified_priority', section:'YOUR CONCLUSION', aside:'最重要的洞察，\n由你自己说出来', title:'回头看刚才的回答，你认为现在最应该优先改变的一件事情是什么？', help:'没有标准答案，请用你自己的话描述', type:'textarea', placeholder:'例如：我们不能继续依赖一个员工处理所有事情……' }
+  { id:'improvement_areas', section:'WHAT NEEDS TO IMPROVE', aside:'把所有需要改善的\n地方选出来', title:'你认为目前哪些方面需要改善？', help:'请选择所有符合现状的项目，不限数量', type:'multi', options:['客户咨询与 Follow-up','客户沟通和信息记录','排课、改课与教室安排','收费、Credit 与课时记录','老师工资计算','Attendance / 签到','重复行政工作太多','老板缺少实时运营数据','过度依赖核心员工','不同软件之间数据分散','客户增长就要增加行政人员','多 Location / 第二家店管理','标准工作流程（SOP）与员工交接','其他'].map(x=>option(x)) },
+  { id:'primary_pain', section:'TOP PRIORITY', aside:'所有问题中，\n哪一个最紧急？', title:'这些问题中，你最急需解决哪一个？', help:'请选择一个最高优先级', type:'single', options:()=>((state.answers.improvement_areas||[]).map(x=>option(x))) },
+  { id:'implementation_timeline', section:'TIMING', aside:'改变不一定要急，\n但需要清晰', title:'你希望什么时候解决这个最紧急的问题？', type:'single', options:['现在就需要解决','未来 1–3 个月','3–6 个月','6–12 个月','暂时只是了解'].map(x=>option(x)) },
+  { id:'additional_needs', section:'IN YOUR OWN WORDS', aside:'选项之外，\n还有什么？', title:'除了以上选项，你还有哪些痛点或需求？', help:'选填。可以描述具体场景、目前的处理方式，或你希望达到的结果。', type:'textarea', optional:true, placeholder:'例如：每个月月底都要花两天核对课时和老师工资，希望可以自动完成……' }
 ];
 
 const $ = s => document.querySelector(s);
@@ -27,7 +21,8 @@ function renderQuestion(){
   $('#sectionLabel').textContent=q.section; $('#asideTitle').innerHTML=q.aside.replace('\n','<br>'); $('#asideHint').textContent=state.step===questions.length-1?'请保留最真实的原话。':'你的回答将用于校准评分，不会公开。';
   $('#stepCounter').textContent=String(state.step+1).padStart(2,'0')+' / '+questions.length; $('#progressBar').style.width=((state.step+1)/questions.length*100)+'%';
   let control='';
-  if(q.type==='single'||q.type==='multi') control=`<div class="options">${q.options.map((o,i)=>`<div class="option"><input id="o${i}" name="answer" type="${q.type==='multi'?'checkbox':'radio'}" value="${o.value.replaceAll('"','&quot;')}" ${Array.isArray(saved)?saved.includes(o.value)?'checked':'':saved===o.value?'checked':''}><label for="o${i}">${o.label}</label></div>`).join('')}</div>`;
+  const availableOptions=typeof q.options==='function'?q.options():q.options;
+  if(q.type==='single'||q.type==='multi') control=`<div class="options">${availableOptions.map((o,i)=>`<div class="option"><input id="o${i}" name="answer" type="${q.type==='multi'?'checkbox':'radio'}" value="${o.value.replaceAll('"','&quot;')}" ${Array.isArray(saved)?saved.includes(o.value)?'checked':'':saved===o.value?'checked':''}><label for="o${i}">${o.label}</label></div>`).join('')}</div>`;
   else if(q.type==='number') control=`<input class="text-input" type="number" min="0" max="9999" name="answer" value="${saved||''}" placeholder="${q.placeholder}" autofocus>`;
   else control=`<textarea class="text-input textarea" name="answer" placeholder="${q.placeholder}" autofocus>${saved||''}</textarea>`;
   $('#questionMount').innerHTML=`<div class="question-wrap"><div class="q-number">Q${String(state.step+1).padStart(2,'0')}</div><h3>${q.title}</h3>${q.help?`<p class="q-help">${q.help}</p>`:''}${control}<div id="formError" class="error"></div></div>`;
@@ -39,7 +34,7 @@ $('#questionForm').onsubmit=e=>{
   if(q.type==='multi') value=[...document.querySelectorAll('input[name=answer]:checked')].map(x=>x.value);
   else if(q.type==='single') value=$('input[name=answer]:checked')?.value;
   else value=$('[name=answer]')?.value.trim();
-  if(!value || (Array.isArray(value)&&!value.length)){ $('#formError').textContent='请选择或填写一个答案后继续。'; return; }
+  if((!value || (Array.isArray(value)&&!value.length))&&!q.optional){ $('#formError').textContent='请选择或填写一个答案后继续。'; return; }
   if(q.max && value.length>q.max){ $('#formError').textContent=`最多选择 ${q.max} 项。`; return; }
   state.answers[q.id]=value;
   if(state.step<questions.length-1){ state.step++;renderQuestion();window.scrollTo(0,0) } else { quiz.classList.add('hidden');leadGate.classList.remove('hidden');window.scrollTo(0,0) }
@@ -68,18 +63,11 @@ $('#leadForm').onsubmit=async e=>{
   const payload={
     businessType:a.business_type,
     studentCount:a.student_count,
-    adminCount:Number(a.admin_count),
     currentTools:a.current_tools,
+    improvementAreas:a.improvement_areas,
     primaryPain:a.primary_pain,
-    desiredOutcome:a.desired_outcome,
-    motivation:a.motivation,
-    costOfInaction:a.cost_of_inaction,
-    previousSolutions:a.previous_solutions,
-    rootCause:a.root_cause||null,
-    keyPersonDependency:Number(a.key_person_dependency),
-    buyingCriteria:a.buying_criteria,
     implementationTimeline:a.implementation_timeline,
-    selfIdentifiedPriority:a.self_identified_priority,
+    additionalNeeds:a.additional_needs||null,
     name:state.lead.name,
     email:state.lead.email,
     organization:state.lead.organization||null

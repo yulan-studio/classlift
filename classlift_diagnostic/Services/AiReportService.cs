@@ -35,7 +35,8 @@ public sealed class AiReportService(HttpClient httpClient, IConfiguration config
             var userInput = JsonSerializer.Serialize(new
             {
                 request.BusinessType, request.StudentCount, request.AdminCount, request.CurrentTools,
-                request.PrimaryPain, request.DesiredOutcome, request.Motivation, request.CostOfInaction,
+                request.PrimaryPain, request.ImprovementAreas, request.AdditionalNeeds,
+                request.DesiredOutcome, request.Motivation, request.CostOfInaction,
                 request.PreviousSolutions, request.RootCause, request.KeyPersonDependency,
                 request.BuyingCriteria, request.ImplementationTimeline, request.SelfIdentifiedPriority,
                 Scores = scores
@@ -90,13 +91,14 @@ public sealed class AiReportService(HttpClient httpClient, IConfiguration config
     private static AiDiagnosticReport BuildFallback(CreateDiagnosticRequest request, ScoreResult scores)
     {
         var bottlenecks = new List<ReportInsight>();
-        if (request.KeyPersonDependency <= 10)
+        var keyPersonDependency = request.KeyPersonDependency ?? (Contains(request.ImprovementAreas, "核心员工", "员工交接") ? 5 : 15);
+        if (keyPersonDependency <= 10)
             bottlenecks.Add(new("关键人员依赖", "多项核心工作可能集中在少数员工手中，交接韧性有提升空间。"));
         if (Contains(request.CurrentTools, "Excel", "多个", "纸张"))
             bottlenecks.Add(new("系统与数据分散", "信息可能存在于不同工具或表格中，增加重复输入与遗漏风险。"));
-        if (Contains(request.PrimaryPain, "排课", "重复行政", "跟进"))
+        if (Contains(request.ImprovementAreas, "排课", "重复行政", "签到", "Follow-up"))
             bottlenecks.Add(new("重复行政工作", "高频、规则明确的工作仍在消耗团队时间。"));
-        if (Contains(request.CostOfInaction, "增加行政", "人工成本"))
+        if (Contains(request.ImprovementAreas, "客户增长", "增加行政"))
             bottlenecks.Add(new("增长与人力绑定", "按照目前方式增长，行政人数与人工成本可能需要同步增加。"));
         while (bottlenecks.Count < 3)
             bottlenecks.Add(new("流程标准化", "现有答案显示这一能力值得在下一阶段进一步验证和完善。"));
@@ -105,22 +107,24 @@ public sealed class AiReportService(HttpClient httpClient, IConfiguration config
         if (Contains(request.PrimaryPain, "跟进", "沟通")) capabilities.Add("CRM + Automated Follow-up");
         if (Contains(request.PrimaryPain, "排课")) capabilities.Add("Scheduling Automation");
         if (Contains(request.PrimaryPain, "收费", "工资")) capabilities.Add("Billing + Payroll Automation");
-        if (request.KeyPersonDependency <= 10) capabilities.Add("Workflow + Centralized Data + Permissions");
-        if (Contains(request.DesiredOutcome, "第二家店")) capabilities.Add("Multi-location Management");
+        if (keyPersonDependency <= 10) capabilities.Add("Workflow + Centralized Data + Permissions");
+        if (Contains(request.ImprovementAreas, "第二家店", "多 Location")) capabilities.Add("Multi-location Management");
         if (capabilities.Count == 0) capabilities.Add("Owner Dashboard");
 
         return new(
             $"当前业务可规模化得分为 {scores.Total}/100（{scores.Classification}）。主要关注点是：{request.PrimaryPain}。",
-            $"你的主要目标是「{request.DesiredOutcome}」，背后的原因是「{request.Motivation}」。",
+            string.IsNullOrWhiteSpace(request.AdditionalNeeds)
+                ? $"你希望优先解决「{request.PrimaryPain}」，并改善其他已选择的运营问题。"
+                : $"你希望优先解决「{request.PrimaryPain}」。你补充的需求是：{request.AdditionalNeeds}",
             bottlenecks.Take(3).ToArray(),
-            request.CostOfInaction?.ToArray() ?? [],
+            request.ImprovementAreas?.Where(x => x != request.PrimaryPain).Take(4).ToArray() ?? [],
             [
                 new("建立统一运营基础", $"围绕“{request.PrimaryPain}”梳理负责人、数据与标准流程。"),
                 new("自动化重复工作", "选择高频、规则清晰的行政任务先自动化，并记录节省的时间。"),
                 new("降低交接风险", "把关键员工经验转化为团队可执行、可追踪的工作流程。")
             ],
             capabilities,
-            $"{request.BusinessType}；{request.StudentCount} 名客户；Timeline: {request.ImplementationTimeline}；Priority: {request.SelfIdentifiedPriority}",
+            $"{request.BusinessType}；{request.StudentCount} 名客户；Timeline: {request.ImplementationTimeline}；Priority: {request.PrimaryPain}；Additional needs: {request.AdditionalNeeds ?? "无"}",
             false);
     }
 

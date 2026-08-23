@@ -16,19 +16,21 @@ public sealed class ScoringService
         if (Has(request.CurrentTools, "多个")) { operational -= 3; systemization -= 3; }
         if (Has(request.CurrentTools, "一个课程管理软件", "自己开发")) systemization += 2;
 
-        if (Has(request.PrimaryPain, "排课", "重复行政")) operational -= 5;
-        if (Has(request.PrimaryPain, "收费", "工资")) { operational -= 3; financial -= 6; }
-        if (Has(request.PrimaryPain, "了解公司的运营")) financial -= 3;
+        if (Has(request.ImprovementAreas, "排课", "重复行政", "签到")) operational -= 5;
+        if (Has(request.ImprovementAreas, "收费", "工资", "Credit")) { operational -= 3; financial -= 6; }
+        if (Has(request.ImprovementAreas, "运营数据")) financial -= 3;
+        if (Has(request.ImprovementAreas, "数据分散", "SOP")) systemization -= 3;
+        if (Has(request.ImprovementAreas, "客户增长", "多 Location", "第二家店")) scalability -= 5;
         if (Has(request.PreviousSolutions, "增加行政", "依赖一个")) scalability -= 5;
         if (Has(request.DesiredOutcome, "服务更多", "第二家店")) scalability -= 2;
         if (Has(request.CostOfInaction, "增加行政", "无法服务", "利润")) scalability -= 5;
-        if (request.KeyPersonDependency <= 5) { systemization -= 2; scalability -= 2; }
+        var keyPerson = request.KeyPersonDependency ?? (Has(request.ImprovementAreas, "核心员工", "员工交接") ? 5 : 15);
+        if (keyPerson <= 5) { systemization -= 2; scalability -= 2; }
 
         operational = Math.Clamp(operational, 0, 25);
         systemization = Math.Clamp(systemization, 0, 20);
         financial = Math.Clamp(financial, 0, 15);
         scalability = Math.Clamp(scalability, 0, 20);
-        var keyPerson = request.KeyPersonDependency ?? 10;
         var total = operational + systemization + financial + scalability + keyPerson;
         var (classification, description) = Classify(total);
 
