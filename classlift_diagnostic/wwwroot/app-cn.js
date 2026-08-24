@@ -1,7 +1,7 @@
 const state = { step: 0, answers: {} };
 const option = (value, label = value) => ({ value, label });
 const questions = [
-  { id:'business_type', section:'ABOUT YOUR BUSINESS', aside:'先了解一点\n你的业务', title:'你的机构属于哪一类？', type:'single', options:['特殊教育 / 儿童发展服务','学科辅导 / 课后教育','兴趣与技能培训（音乐、美术、舞蹈、编程、机器人、乐高、外语、棋类等）','健身 / 体育 / 私人教练','非营利组织 / 社区机构','治疗 / 康复机构'].map(x=>option(x)) },
+  { id:'business_type', section:'ABOUT YOUR BUSINESS', aside:'先了解一点\n你的业务', title:'你的机构属于哪一类？', type:'single', options:['特殊教育 / 儿童发展服务','学科辅导 / 课后教育','兴趣与技能培训（音乐、美术、舞蹈、编程、机器人、乐高、外语、棋类等）','健身 / 体育 / 私人教练','非营利组织 / 社区机构','心理咨询 / 治疗 / 康复与健康服务机构'].map(x=>option(x)) },
   { id:'student_count', section:'ABOUT YOUR BUSINESS', aside:'业务规模\n会影响诊断基准', title:'目前大约有多少活跃学生 / 客户？', type:'single', options:['1–50','51–100','101–300','301–500','501–1,000','1,000+'].map(x=>option(x)) },
   { id:'current_tools', section:'CURRENT STATE', aside:'现在，你的业务\n如何运转？', title:'你们目前主要用什么方式管理客户、课程、收费和员工？', help:'可以选择多项', type:'multi', options:['Excel / Google Sheets','多个不同软件组合','一个课程管理软件','纸张 / 人工记录','邮件 / WhatsApp / 微信 / 短信','主要依赖员工记住和执行','自己开发的系统','其他'].map(x=>option(x)) },
   { id:'improvement_areas', section:'WHAT NEEDS TO IMPROVE', aside:'把所有需要改善的\n地方选出来', title:'你认为目前哪些方面需要改善？', help:'请选择所有符合现状的项目，不限数量', type:'multi', options:['客户咨询与 Follow-up','客户沟通和信息记录','排课、改课与教室安排','收费、Credit 与课时记录','老师工资计算','Attendance / 签到','重复行政工作太多','老板缺少实时运营数据','过度依赖核心员工','不同软件之间数据分散','客户增长就要增加行政人员','多 Location / 第二家店管理','标准工作流程（SOP）与员工交接','其他'].map(x=>option(x)) },
