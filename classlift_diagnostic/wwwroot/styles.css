@@ -16,3 +16,4 @@
 @media(max-width:700px){.impact-grid{grid-template-columns:1fr}}
 .brand-logo,.brand-mark{width:34px;height:34px;display:block;flex:0 0 34px;border-radius:7px;background:#fff url('/images/classlift_logo.png') center/contain no-repeat;object-fit:contain;font-size:0;color:transparent}
 .aside-brand .brand-mark{background:#fff url('/images/classlift_logo.png') center/contain no-repeat;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.language-link{display:inline-block;margin-left:12px;padding:5px 8px;border:1px solid var(--line);border-radius:3px;color:var(--ink);font-weight:700;text-decoration:none}

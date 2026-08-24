@@ -170,6 +170,10 @@ app.MapGet("/api/admin/leads.csv", async (
         "text/csv; charset=utf-8", $"classlift-leads-{DateTime.UtcNow:yyyyMMdd}.csv");
 }).RequireAuthorization();
 
+app.MapGet("/cn", () => Results.Redirect("/cn/"));
+app.MapGet("/en", () => Results.Redirect("/en/"));
+app.MapGet("/cn/", () => Results.File(Path.Combine(app.Environment.WebRootPath, "cn", "index.html"), "text/html; charset=utf-8"));
+app.MapGet("/en/", () => Results.File(Path.Combine(app.Environment.WebRootPath, "en", "index.html"), "text/html; charset=utf-8"));
 app.MapFallbackToFile("index.html");
 app.Run();
 

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Find the operational bottlenecks limiting your organization’s growth in two minutes." />
+  <title>ClassLift — Business Scalability Diagnostic</title>
+  <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+  <link rel="icon" type="image/png" href="/images/classlift_logo.png?v=2" />
+  <link rel="apple-touch-icon" href="/images/classlift_logo.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="ClassLift home"><img class="brand-logo" src="/images/classlift_logo.png" alt=""><span>ClassLift</span></a>
+    <div class="header-note"><span class="status-dot"></span> Free business diagnostic <span class="sep">·</span> About 2 minutes <a class="language-link" href="/cn/">中文</a></div>
+  </header>
+
+  <main id="app">
+    <section id="landing" class="landing">
+      <div class="hero-copy">
+        <div class="eyebrow"><span>FREE DIAGNOSTIC</span><i></i><span>2026 EDITION</span></div>
+        <h1>If your clients doubled,<br><em>would your staff need to double too?</em></h1>
+        <p class="hero-lede">In two minutes, identify the operational issues that need attention, determine your top priority, and see what may be limiting your growth.</p>
+        <button class="primary-btn" id="startBtn">Start the free diagnostic <span>→</span></button>
+        <p class="microcopy">No credit card · About 2 minutes · Your answers are used only to create your report</p>
+      </div>
+
+      <div class="score-preview" aria-label="Report preview">
+        <div class="preview-top"><span>YOUR REPORT</span><span class="confidential">CONFIDENTIAL</span></div>
+        <div class="preview-score"><div><strong>68</strong><span>/ 100</span></div><div class="score-label">Growth<br>Ready</div></div>
+        <div class="preview-bars">
+          <div><span>Operational efficiency</span><i><b style="width:72%"></b></i><small>18/25</small></div>
+          <div><span>Systemization</span><i><b style="width:60%"></b></i><small>12/20</small></div>
+          <div><span>Key-person independence</span><i><b style="width:45%"></b></i><small>9/20</small></div>
+          <div><span>Financial control</span><i><b style="width:73%"></b></i><small>11/15</small></div>
+          <div><span>Scalability</span><i><b style="width:90%"></b></i><small>18/20</small></div>
+        </div>
+        <div class="preview-stamp">SAMPLE</div>
+      </div>
+
+      <div class="deliverables">
+        <span>What you’ll receive</span>
+        <div><b>01</b><p><strong>Overall score</strong><small>Business Scalability Score</small></p></div>
+        <div><b>02</b><p><strong>5 capability scores</strong><small>See where operations fall short</small></p></div>
+        <div><b>03</b><p><strong>Top 3 bottlenecks</strong><small>Focus on what matters most</small></p></div>
+        <div><b>04</b><p><strong>Improvement roadmap</strong><small>Clear, actionable priorities</small></p></div>
+      </div>
+    </section>
+
+    <section id="quiz" class="quiz hidden">
+      <aside class="quiz-aside">
+        <a class="brand aside-brand" href="#"><img class="brand-logo" src="/images/classlift_logo.png" alt=""><span>ClassLift</span></a>
+        <div class="aside-content"><span id="sectionLabel">ABOUT YOUR BUSINESS</span><h2 id="asideTitle">First, tell us about<br>your organization</h2><p id="asideHint">Your answers calibrate the score and remain private.</p></div>
+        <div class="aside-footer"><span id="stepCounter">01 / 07</span><div class="progress-track"><b id="progressBar"></b></div><button id="saveExit">Save and exit</button></div>
+      </aside>
+      <div class="quiz-main">
+        <button class="back-btn" id="backBtn" aria-label="Previous question">← <span>Previous</span></button>
+        <form id="questionForm"><div id="questionMount"></div><div class="form-actions"><button type="submit" class="primary-btn next-btn">Continue <span>→</span></button><span class="enter-tip">Press Enter ↵</span></div></form>
+      </div>
+    </section>
+
+    <section id="leadGate" class="lead-gate hidden">
+      <div class="generating-card">
+        <div class="check-ring">✓</div><span class="eyebrow simple">DIAGNOSTIC COMPLETE</span>
+        <h2>Your diagnostic is complete</h2><p>We’ve prepared your Business Scalability Report. Where should we send the full report?</p>
+        <form id="leadForm">
+          <label>Your name<input name="name" required autocomplete="name" placeholder="e.g. Alex Chen"></label>
+          <label>Email<input type="email" name="email" required autocomplete="email" placeholder="alex@company.com"></label>
+          <label>Organization <small>Optional</small><input name="organization" autocomplete="organization" placeholder="Your organization name"></label>
+          <label>Organization website <small>Optional</small><input type="url" name="websiteUrl" autocomplete="url" placeholder="https://www.example.com"></label>
+          <button class="primary-btn" type="submit">Generate my report <span>→</span></button>
+        </form>
+        <div class="privacy-note">🔒 Your details are used only to deliver your report. We never sell your information.</div>
+      </div>
+    </section>
+
+    <section id="report" class="report hidden"></section>
+  </main>
+  <script src="/app-en.js?v=20260824-1"></script>
+</body>
+</html>
