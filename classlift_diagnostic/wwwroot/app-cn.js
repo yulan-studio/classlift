@@ -5,7 +5,8 @@ const questions = [
   { id:'student_count', section:'ABOUT YOUR BUSINESS', aside:'业务规模\n会影响诊断基准', title:'目前大约有多少活跃学生 / 客户？', type:'single', options:['1–50','51–100','101–300','301–500','501–1,000','1,000+'].map(x=>option(x)) },
   { id:'current_tools', section:'CURRENT STATE', aside:'现在，你的业务\n如何运转？', title:'你们目前主要用什么方式管理客户、课程、收费和员工？', help:'可以选择多项', type:'multi', options:['Excel / Google Sheets','多个不同软件组合','一个课程管理软件','纸张 / 人工记录','邮件 / WhatsApp / 微信 / 短信','主要依赖员工记住和执行','自己开发的系统','其他'].map(x=>option(x)) },
   { id:'improvement_areas', section:'WHAT NEEDS TO IMPROVE', aside:'把所有需要改善的\n地方选出来', title:'你认为目前哪些方面需要改善？', help:'请选择所有符合现状的项目，不限数量', type:'multi', options:['客户咨询与 Follow-up','客户沟通和信息记录','排课、改课与教室安排','收费、Credit 与课时记录','老师工资计算','Attendance / 签到','重复行政工作太多','老板缺少实时运营数据','过度依赖核心员工','不同软件之间数据分散','客户增长就要增加行政人员','多 Location / 第二家店管理','标准工作流程（SOP）与员工交接','其他'].map(x=>option(x)) },
-  { id:'primary_pain', section:'TOP PRIORITY', aside:'所有问题中，\n哪一个最紧急？', title:'这些问题中，你最急需解决哪一个？', help:'请选择一个最高优先级', type:'single', options:()=>((state.answers.improvement_areas||[]).map(x=>option(x))) },
+  { id:'top_priorities', section:'TOP 3 PRIORITIES', aside:'所有问题中，\n哪三个最重要？', title:'请从这些问题中选出最重要的三项', help:'如果你只选择了少于三项，请选择全部项目', type:'multi', max:3, exactFrom:'improvement_areas', options:()=>((state.answers.improvement_areas||[]).map(x=>option(x))) },
+  { id:'primary_pain', section:'TOP PRIORITY', aside:'三个重点中，\n哪一个最紧急？', title:'这三项中，你最急需解决哪一个？', help:'请选择一个最高优先级', type:'single', options:()=>((state.answers.top_priorities||[]).map(x=>option(x))) },
   { id:'implementation_timeline', section:'TIMING', aside:'改变不一定要急，\n但需要清晰', title:'你希望什么时候解决这个最紧急的问题？', type:'single', options:['现在就需要解决','未来 1–3 个月','3–6 个月','6–12 个月','暂时只是了解'].map(x=>option(x)) },
   { id:'additional_needs', section:'IN YOUR OWN WORDS', aside:'选项之外，\n还有什么？', title:'除了以上选项，你还有哪些痛点或需求？', help:'选填。可以描述具体场景、目前的处理方式，或你希望达到的结果。', type:'textarea', optional:true, placeholder:'例如：每个月月底都要花两天核对课时和老师工资，希望可以自动完成……' }
 ];
@@ -35,6 +36,7 @@ $('#questionForm').onsubmit=e=>{
   else if(q.type==='single') value=$('input[name=answer]:checked')?.value;
   else value=$('[name=answer]')?.value.trim();
   if((!value || (Array.isArray(value)&&!value.length))&&!q.optional){ $('#formError').textContent='请选择或填写一个答案后继续。'; return; }
+  if(q.exactFrom){const required=Math.min(3,(state.answers[q.exactFrom]||[]).length);if(value.length!==required){$('#formError').textContent=`请选择 ${required} 项最重要的问题。`;return}}
   if(q.max && value.length>q.max){ $('#formError').textContent=`最多选择 ${q.max} 项。`; return; }
   state.answers[q.id]=value;
   if(state.step<questions.length-1){ state.step++;renderQuestion();window.scrollTo(0,0) } else { quiz.classList.add('hidden');leadGate.classList.remove('hidden');window.scrollTo(0,0) }
@@ -65,6 +67,7 @@ $('#leadForm').onsubmit=async e=>{
     studentCount:a.student_count,
     currentTools:a.current_tools,
     improvementAreas:a.improvement_areas,
+    topPriorities:a.top_priorities,
     primaryPain:a.primary_pain,
     implementationTimeline:a.implementation_timeline,
     additionalNeeds:a.additional_needs||null,

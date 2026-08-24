@@ -17,7 +17,7 @@ public sealed class AiReportService(HttpClient httpClient, IConfiguration config
         - 不评价员工好坏，不主动劝说购买；
         - 建议必须具体、简洁、可执行；信息不足时明确写“不足以判断”；
         - bottlenecks 和 priorities 必须各提供 1–3 项，最高优先级必须排在第一项；
-        - bottlenecks 必须来自用户选择的 improvementAreas，不得添加无关问题；
+        - bottlenecks 必须严格来自用户选择的 topPriorities，并保持 primaryPain 排在第一项；
         - inactionImpact 必须是与瓶颈直接对应、措辞克制的可能影响，不能描述为必然结果；
         - 全部面向客户的内容使用简体中文，SalesBrief 可以中英混合但要简洁。
         """;
@@ -36,7 +36,7 @@ public sealed class AiReportService(HttpClient httpClient, IConfiguration config
             var userInput = JsonSerializer.Serialize(new
             {
                 request.BusinessType, request.StudentCount, request.AdminCount, request.CurrentTools,
-                request.PrimaryPain, request.ImprovementAreas, request.AdditionalNeeds,
+                request.PrimaryPain, request.TopPriorities, request.ImprovementAreas, request.AdditionalNeeds,
                 request.DesiredOutcome, request.Motivation, request.CostOfInaction,
                 request.PreviousSolutions, request.RootCause, request.KeyPersonDependency,
                 request.BuyingCriteria, request.ImplementationTimeline, request.SelfIdentifiedPriority,
@@ -92,7 +92,7 @@ public sealed class AiReportService(HttpClient httpClient, IConfiguration config
     private static AiDiagnosticReport BuildFallback(CreateDiagnosticRequest request, ScoreResult scores)
     {
         var orderedAreas = new[] { request.PrimaryPain }
-            .Concat(request.ImprovementAreas ?? [])
+            .Concat(request.TopPriorities ?? [])
             .Where(area => !string.IsNullOrWhiteSpace(area))
             .Distinct()
             .Select(area => ProfileFor(area!, request.AdditionalNeeds))

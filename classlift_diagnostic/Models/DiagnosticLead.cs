@@ -11,6 +11,7 @@ public sealed class DiagnosticLead
     public int AdminCount { get; set; }
     public string CurrentToolsJson { get; set; } = "[]";
     public string? ImprovementAreasJson { get; set; }
+    public string? TopPrioritiesJson { get; set; }
     public string PrimaryPain { get; set; } = "";
     public string DesiredOutcome { get; set; } = "";
     public string Motivation { get; set; } = "";
@@ -43,6 +44,7 @@ public sealed class DiagnosticLead
         BusinessType = request.BusinessType!.Trim(), StudentCount = request.StudentCount!.Trim(),
         AdminCount = request.AdminCount ?? 0, CurrentToolsJson = JsonSerializer.Serialize(request.CurrentTools),
         ImprovementAreasJson = JsonSerializer.Serialize(request.ImprovementAreas),
+        TopPrioritiesJson = JsonSerializer.Serialize(request.TopPriorities),
         PrimaryPain = request.PrimaryPain!.Trim(),
         DesiredOutcome = string.IsNullOrWhiteSpace(request.AdditionalNeeds) ? "改善已选择的运营问题" : request.AdditionalNeeds.Trim(),
         Motivation = "改善运营效率与业务稳定性", CostOfInactionJson = JsonSerializer.Serialize(request.CostOfInaction ?? []),

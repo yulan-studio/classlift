@@ -24,6 +24,7 @@ public sealed class DiagnosticDbContext(DbContextOptions<DiagnosticDbContext> op
         lead.Property(x => x.Classification).HasMaxLength(50);
         lead.Property(x => x.CurrentToolsJson).HasColumnType("json");
         lead.Property(x => x.ImprovementAreasJson).HasColumnType("json");
+        lead.Property(x => x.TopPrioritiesJson).HasColumnType("json");
         lead.Property(x => x.CostOfInactionJson).HasColumnType("json");
         lead.Property(x => x.PreviousSolutionsJson).HasColumnType("json");
         lead.Property(x => x.BuyingCriteriaJson).HasColumnType("json");

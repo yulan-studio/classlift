@@ -7,6 +7,7 @@ public sealed class CreateDiagnosticRequest
     public int? AdminCount { get; init; }
     public IReadOnlyList<string>? CurrentTools { get; init; }
     public IReadOnlyList<string>? ImprovementAreas { get; init; }
+    public IReadOnlyList<string>? TopPriorities { get; init; }
     public string? PrimaryPain { get; init; }
     public string? ImplementationTimeline { get; init; }
     public string? AdditionalNeeds { get; init; }
@@ -44,8 +45,16 @@ public sealed class CreateDiagnosticRequest
             errors[nameof(CurrentTools)] = ["请至少选择一项当前管理方式。"];
         if (ImprovementAreas is null || ImprovementAreas.Count == 0)
             errors[nameof(ImprovementAreas)] = ["请至少选择一项需要改善的问题。"];
-        else if (!string.IsNullOrWhiteSpace(PrimaryPain) && !ImprovementAreas.Contains(PrimaryPain))
-            errors[nameof(PrimaryPain)] = ["最急需解决的问题必须来自已选择的改善项目。"];
+        else
+        {
+            var requiredPriorities = Math.Min(3, ImprovementAreas.Count);
+            if (TopPriorities is null || TopPriorities.Distinct().Count() != requiredPriorities)
+                errors[nameof(TopPriorities)] = [$"请选择 {requiredPriorities} 项最重要的问题。"];
+            else if (TopPriorities.Any(priority => !ImprovementAreas.Contains(priority)))
+                errors[nameof(TopPriorities)] = ["重点问题必须来自已选择的改善项目。"];
+            else if (!string.IsNullOrWhiteSpace(PrimaryPain) && !TopPriorities.Contains(PrimaryPain))
+                errors[nameof(PrimaryPain)] = ["最急需解决的问题必须来自三个重点问题。"];
+        }
         if (!string.IsNullOrWhiteSpace(Email) && !System.Net.Mail.MailAddress.TryCreate(Email, out _))
             errors[nameof(Email)] = ["Email 格式无效。"];
         if (!string.IsNullOrWhiteSpace(WebsiteUrl) &&

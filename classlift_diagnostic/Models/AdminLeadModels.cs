@@ -12,7 +12,7 @@ public sealed record AdminLeadSummary(
 public sealed record AdminLeadDetail(
     Guid Id, DateTimeOffset CreatedAt, string Name, string Email, string? Organization, string? WebsiteUrl,
     string BusinessType, string StudentCount, IReadOnlyList<string> CurrentTools,
-    IReadOnlyList<string> ImprovementAreas, string PrimaryPain, string ImplementationTimeline,
+    IReadOnlyList<string> ImprovementAreas, IReadOnlyList<string> TopPriorities, string PrimaryPain, string ImplementationTimeline,
     string? AdditionalNeeds, int OperationalEfficiencyScore, int SystemizationScore,
     int KeyPersonScore, int FinancialControlScore, int ScalabilityScore, int TotalScore,
     string Classification, string LeadIntent, AiDiagnosticReport? Report)
@@ -20,7 +20,7 @@ public sealed record AdminLeadDetail(
     public static AdminLeadDetail From(DiagnosticLead lead) => new(
         lead.Id, lead.CreatedAt, lead.Name, lead.Email, lead.Organization, lead.WebsiteUrl,
         lead.BusinessType, lead.StudentCount, ParseList(lead.CurrentToolsJson),
-        ParseList(lead.ImprovementAreasJson), lead.PrimaryPain, lead.ImplementationTimeline,
+        ParseList(lead.ImprovementAreasJson), ParseList(lead.TopPrioritiesJson), lead.PrimaryPain, lead.ImplementationTimeline,
         lead.AdditionalNeeds, lead.OperationalEfficiencyScore, lead.SystemizationScore,
         lead.KeyPersonScore, lead.FinancialControlScore, lead.ScalabilityScore, lead.TotalScore,
         lead.Classification, lead.LeadIntent,
