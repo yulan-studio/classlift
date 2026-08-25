@@ -60,13 +60,14 @@ namespace Core.Repositories
             }
         }
 
-        // Remove a User from the database asynchronously
+        // Remove both the admin profile and its Identity user atomically.
         public async Task<bool> RemoveAsync(Admin entity)
         {
             try
             {
                 _context.Admins.Remove(entity);
-                await _context.SaveChangesAsync();  // Commit the changes asynchronously
+                _context.Users.Remove(entity.User);
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -96,6 +97,11 @@ namespace Core.Repositories
         {
             return await _context.Admins.Include(u=>u.User)
                 .FirstOrDefaultAsync(u=> u.AdminID == adminId);  // Finds by ID asynchronously
+        }
+
+        public Task<int> CountAsync()
+        {
+            return _context.Admins.CountAsync();
         }
 
         // Get all Users from the database asynchronously

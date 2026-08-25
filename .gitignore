@@ -161,3 +161,11 @@
 /classlift_management/Core/obj/Release/net8.0/Core.csproj.AssemblyReference.cache
 /classlift_management/Core/obj/Release/net8.0/Core.GeneratedMSBuildEditorConfig.editorconfig
 /classlift_management/Core/obj/Release/net8.0/Core.GlobalUsings.g.cs
+/classlift_management/Web/.codex-build/obj/Debug/net8.0
+/classlift_management/Test/bin/Release/net8.0/Core.pdb
+/classlift_management/Test/bin/Release/net8.0/Test.pdb
+/classlift_management/Test/obj/Release/net8.0/Test.AssemblyInfo.cs
+/classlift_management/Test/obj/Release/net8.0/Test.AssemblyInfoInputs.cache
+/classlift_management/Test/obj/Release/net8.0/Test.csproj.AssemblyReference.cache
+/classlift_management/Test/obj/Release/net8.0/Test.pdb
+/classlift_management/Test/obj/Release/net8.0/Test.sourcelink.json

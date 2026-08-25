@@ -7,9 +7,13 @@
     ViewData["Title"] = "Add Child";
 }
 
-<h2>Add Child</h2>
+<h2>Add @CurrentTenant.Terminology.ParticipantSingular</h2>
+<div style="padding-top: 20px;">
+  
+</div>
 
 <form method="post" action="/Child/Add">
+    <input type="hidden" name="hasOAP" value="true" />
     <table style="border-collapse: collapse; width: 50%; text-align: left;">
 
         @* <tr>
@@ -46,26 +50,53 @@
         </tr>
 
         <tr>
-            <td style="padding: 8px;"><label for="cityID">City:</label></td>
+            <td style="padding: 8px;"><label for="provinceId">Province:</label></td>
             <td style="padding: 8px;">
-                <select name="cityID" style="width: 100%;">
-                    <option value="" selected>-- Select City --</option>
-                    @foreach (var city in ViewBag.CityList)
+                <select name="provinceId" id="provinceId" style="width: 100%;" required>
+                    <option value="">-- Select Province --</option>
+                    @foreach (var province in ViewBag.ProvinceList)
                     {
-                        <option value="@city.Value">@city.Text</option>
+                        if (province.Selected)
+                        {
+                            <option value="@province.Value" selected>@province.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@province.Value">@province.Text</option>
+                        }
                     }
                 </select>
+                @if (ViewData.ModelState["provinceId"]?.Errors.Count > 0)
+                {
+                    <span class="text-danger">@ViewData.ModelState["provinceId"]!.Errors[0].ErrorMessage</span>
+                }
             </td>
         </tr>
 
         <tr>
-            <td style="padding: 8px;"><label for="hasOAP">Has OAP:</label></td>
+            <td style="padding: 8px;"><label for="cityID">City:</label></td>
             <td style="padding: 8px;">
-                <select name="hasOAP" style="width: 100%;">
-                    <option value="" selected>-- Select Has OAP --</option>
-                    <option value= "true">True</option>
-                    <option value= "false">False</option>
+                <select name="cityID" id="cityId" style="width: 100%;" required @(ViewBag.CityList.Count == 0 ? "disabled" : null)>
+                    <option value="">-- Select City --</option>
+                    @foreach (var city in ViewBag.CityList)
+                    {
+                        if (city.Selected)
+                        {
+                            <option value="@city.Value" selected>@city.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@city.Value">@city.Text</option>
+                        }
+                    }
                 </select>
+                @if (ViewData.ModelState["cityId"]?.Errors.Count > 0)
+                {
+                    <span class="text-danger">@ViewData.ModelState["cityId"]!.Errors[0].ErrorMessage</span>
+                }
+                <small id="cityHelp" style="display: block; color: darkslategray;">
+                    Select a province first.
+                </small>
             </td>
         </tr>
 
@@ -82,7 +113,7 @@
         <tr>
             <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
                 <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">
-                    Add Child
+                    Add @CurrentTenant.Terminology.ParticipantSingular
                 </button>
                 <a href="/Child/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">
                     Cancel
@@ -113,3 +144,59 @@
         }
     </table>
 </form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const provinceSelect = document.getElementById("provinceId");
+        const citySelect = document.getElementById("cityId");
+        const cityHelp = document.getElementById("cityHelp");
+
+        function updateCityHelp() {
+            if (citySelect.value) {
+                cityHelp.style.display = "none";
+            } else {
+                cityHelp.style.display = "block";
+                cityHelp.textContent = provinceSelect.value
+                    ? "Select a city."
+                    : "Select a province first.";
+            }
+        }
+
+        citySelect.addEventListener("change", updateCityHelp);
+
+        provinceSelect.addEventListener("change", async function () {
+            citySelect.innerHTML = '<option value="">-- Select City --</option>';
+            citySelect.disabled = true;
+            cityHelp.style.display = "block";
+
+            if (!provinceSelect.value) {
+                cityHelp.textContent = "Select a province first.";
+                return;
+            }
+
+            cityHelp.textContent = "Loading cities...";
+
+            try {
+                const response = await fetch(`/Child/CitiesByProvince/${provinceSelect.value}`);
+                if (!response.ok) throw new Error("Unable to load cities.");
+
+                const cities = await response.json();
+                cities.forEach(function (city) {
+                    const option = document.createElement("option");
+                    option.value = city.value;
+                    option.textContent = city.text;
+                    citySelect.appendChild(option);
+                });
+
+                citySelect.disabled = cities.length === 0;
+                cityHelp.textContent = cities.length === 0
+                    ? "No cities are configured for this province."
+                    : "Select a city.";
+            } catch {
+                cityHelp.textContent = "Cities could not be loaded. Please try again.";
+            }
+        });
+
+        updateCityHelp();
+    });
+</script>

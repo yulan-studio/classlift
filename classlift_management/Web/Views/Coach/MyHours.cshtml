@@ -15,7 +15,7 @@
         <tr style="background-color: #1B7BAB; color: white;">
             <th>Session Date</th>
             <th>Course</th>
-            <th>Child</th>
+            <th>@CurrentTenant.Terminology.ParticipantSingular</th>
             <th>Hours</th>
             <th>Income for Session</th>
             <th>Total Income So Far</th>
@@ -41,11 +41,7 @@
 
 <h2>My Hours</h2>
 
-<div style="padding: 10px 20px 10px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
-    At this stage, coaches are requested to complete the original coaching time log in parallel and ensure that both records are consistent. <br />
-    在现阶段，请教练同时填写原来的教练时间登记表，且两份记录保持一致。<br />
-    <span style="align-content:end"><a href="https://sites.google.com/view/nsns-coach-attendance/%E9%A6%96%E9%A1%B5" target="_blank">NSNS Coach Attendance</a></span>
-</div>
+
 
     @foreach (var month in Model)
     {
@@ -83,7 +79,7 @@
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Child</th>
+                        <th>@CurrentTenant.Terminology.ParticipantSingular</th>
                         <th>Course</th>
                         <th>Hours</th>
                     </tr>

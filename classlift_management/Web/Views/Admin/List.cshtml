@@ -9,6 +9,10 @@
 
 @model IEnumerable<Admin>
 
+@{
+    var canDeleteAdmin = Model.Count() > 1;
+}
+
 
 <h1>Manage Admin</h1>
 
@@ -35,7 +39,10 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">@admin.Wechat</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">
                
-                    <a href="/Admin/ConfirmDelete/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
+                    @if (canDeleteAdmin)
+                    {
+                        <a href="/Admin/ConfirmDelete/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
+                    }
                     <a href="/Admin/Edit/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                 </td>
             </tr>

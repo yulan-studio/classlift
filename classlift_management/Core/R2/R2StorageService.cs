@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace Core.R2
 {
@@ -61,6 +62,71 @@ namespace Core.R2
 
             // Return public URL or save Key to DB
             return $"{_options.PublicUrl}/{folder}/{fileName}";
+        }
+
+        public async Task<string> UploadToKeyAsync(
+            IFormFile file,
+            string objectKey,
+            string contentType)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("The uploaded file is empty.", nameof(file));
+
+            var key = objectKey.Trim('/').Replace("//", "/");
+
+            using var stream = file.OpenReadStream();
+            var request = new PutObjectRequest
+            {
+                BucketName = _options.BucketName,
+                Key = key,
+                InputStream = stream,
+                ContentType = contentType,
+                UseChunkEncoding = false
+            };
+
+            await _s3Client.PutObjectAsync(request);
+
+            return GetPublicUrl(key);
+        }
+
+        public string GetPublicUrl(string objectKey) =>
+            $"{_options.PublicUrl.TrimEnd('/')}/{objectKey.TrimStart('/')}";
+
+        public async Task UploadTextAsync(
+            string objectKey,
+            string content)
+        {
+            var request = new PutObjectRequest
+            {
+                BucketName = _options.BucketName,
+                Key = objectKey.Trim('/').Replace("//", "/"),
+                ContentBody = content,
+                ContentType = "text/plain; charset=utf-8",
+                UseChunkEncoding = false
+            };
+
+            await _s3Client.PutObjectAsync(request);
+        }
+
+        public async Task<string?> GetTextAsync(string objectKey)
+        {
+            try
+            {
+                var request = new GetObjectRequest
+                {
+                    BucketName = _options.BucketName,
+                    Key = objectKey.Trim('/').Replace("//", "/")
+                };
+
+                using var response = await _s3Client.GetObjectAsync(request);
+                using var reader = new StreamReader(response.ResponseStream);
+                return await reader.ReadToEndAsync();
+            }
+            catch (AmazonS3Exception exception)
+                when (exception.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
         }
     }
 }

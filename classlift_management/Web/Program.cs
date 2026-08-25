@@ -220,6 +220,8 @@ builder.Services.AddScoped<IChildCalendarService, ChildCalendarService>();
 
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IProvinceRepository, ProvinceRepository>();
+builder.Services.AddScoped<IProvinceService, ProvinceService>();
 
 builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 builder.Services.AddScoped<ISpecialtyService, SpecialtyService>();
@@ -228,6 +230,9 @@ builder.Services.AddScoped<ICoachSpecialtyRepository, CoachSpecialtyRepository>(
 builder.Services.AddScoped<ICoachSpecialtyService, CoachSpecialtyService>();
 
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 
 
@@ -353,6 +358,7 @@ System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 builder.Services.Configure<Core.R2.CloudflareR2Options>(
     builder.Configuration.GetSection("CloudflareR2"));
 builder.Services.AddSingleton<Core.R2.R2StorageService>();
+builder.Services.AddSingleton<OrganizationTerminologyService>();
 
 
 var app = builder.Build();

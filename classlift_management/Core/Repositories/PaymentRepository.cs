@@ -27,7 +27,6 @@ namespace Core.Repositories
         public async Task<IEnumerable<Payment>> GetAllAsync()
         {
             return await _context.Payments
-                .Include(p => p.Parent)
                 .Include(p => p.PaymentPackage)
                 .ToListAsync();
         }
@@ -35,7 +34,6 @@ namespace Core.Repositories
         public async Task<IEnumerable<Payment>> GetByChildAsync(int childId)
         {
             return await _context.Payments
-                .Include(p => p.Parent)
                 .Include(p => p.PaymentPackage)
                 .Include(p => p.Fee)
                 .ThenInclude(Fee => Fee.ActivityEnrollment) // ✅ Include ActivityEnrollment
@@ -43,9 +41,7 @@ namespace Core.Repositories
                 .Include(p => p.Fee)
                 .ThenInclude(Fee => Fee.CourseEnrollment) // ✅ Include CourseEnrollment
                 .ThenInclude(ce => ce.Course) // ✅ Include Course entity
-                .Include(p => p.Parent.ParentChild) // ✅ Include ParentChild relationship
-                .ThenInclude(pc => pc.Child) // ✅ Include Child entity
-                .Where(p => _context.ParentChild.Any(pc => pc.ChildID == childId && pc.ParentID == p.ParentID)) // ✅ Filters by childId using ParentChild
+                .Where(p => p.ChildID == childId)
                 .ToListAsync();
         }
 
@@ -53,7 +49,6 @@ namespace Core.Repositories
         public async Task<Payment> GetByIdAsync(int id)
         {
             return await _context.Payments
-                .Include(p => p.Parent)
                 .Include(p => p.PaymentPackage)
                 .Include(p => p.Fee)
                 .FirstOrDefaultAsync(p => p.PaymentID == id);
@@ -75,14 +70,6 @@ namespace Core.Repositories
                 .FirstOrDefaultAsync();
         }
 
-
-        public async Task<IEnumerable<Parent>> GetParentsByChildAsync(int childId)
-        {
-            return await _context.ParentChild
-                .Where(pc => pc.ChildID == childId)
-                .Select(pc => pc.Parent)
-                .ToListAsync();
-        }
 
         public async Task<IEnumerable<PaymentPackage>> GetAllActivePackagesAsync()
         {

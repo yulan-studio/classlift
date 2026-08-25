@@ -138,6 +138,11 @@ namespace Core.Repositories
                         
         }
 
+        public Task<bool> HasRegistrationsAsync(int activityId)
+        {
+            return _context.ActivityEnrollments.AnyAsync(e => e.ActivityID == activityId);
+        }
+
         // Get all activities from the database asynchronously
         public async Task<IEnumerable<ActivityViewModel>> GetAllAsync()
         {
@@ -151,7 +156,7 @@ namespace Core.Repositories
                             Description = a.Description,
                             Address = a.Address,
                             ScheduledAt = a.ScheduledAt,
-                            //Cost = a.Cost,
+                            Cost = a.Cost,
                             MaxCapacity = a.MaxCapacity,
                             Status = a.Status,
                             RegisteredChildrenCount = _context.ActivityEnrollments

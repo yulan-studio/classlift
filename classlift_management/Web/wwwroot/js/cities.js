@@ -3,6 +3,15 @@
 function loadAddForm() {
     $.get("/City/Add/", function (data) {
         $("#modalContent").html(data);
+        $("#cityModal .modal-title").text("City");
+        $("#cityModal").modal("show");
+    });
+}
+
+function loadAddProvinceForm() {
+    $.get("/City/AddProvince", function (data) {
+        $("#modalContent").html(data);
+        $("#cityModal .modal-title").text("Province");
         $("#cityModal").modal("show");
     });
 }
@@ -10,6 +19,7 @@ function loadAddForm() {
 function loadEditForm(cityId) {
     $.get("/City/Edit/" + cityId, function (data) {
         $("#modalContent").html(data);
+        $("#cityModal .modal-title").text("City");
         $("#cityModal").modal("show");
     });
 }

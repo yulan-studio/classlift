@@ -23,20 +23,34 @@
 
 
 window.addEventListener('DOMContentLoaded', function () {
-    document.getElementById("CourseType").addEventListener("change", function () {
-        const selected = this.value;
-        const disable = selected === "Private";
+    const courseType = document.getElementById("CourseType");
+    const sessionCount = document.getElementById("SessionCount");
+    const maxCapacity = document.getElementById("MaxCapacity");
+    const hourlyCost = document.getElementById("HourlyCost");
+    const sessionCost = document.getElementById("SessionCost");
 
-        document.getElementById("MaxCapacity").disabled = disable;
-       /* document.getElementById("CoachID").disabled = !disable;*/
+    function updateCostFields() {
+        const isPrivate = courseType.value === "Private";
+        const isGroup = courseType.value === "Group";
+        const hasSessionCount = sessionCount.value.trim() !== "";
 
-       
-       /* document.getElementById("CoachIDHidden").disabled = disable; */
+        if (!hasSessionCount) {
+            sessionCost.value = "";
+        }
 
-        document.getElementById("HourlyCost").disabled = !disable; 
-        document.getElementById("HourlyCost2").disabled = !disable; 
+        if (isPrivate) {
+            maxCapacity.value = "";
+        }
 
+        maxCapacity.disabled = isPrivate;
+        sessionCount.required = isGroup;
+        hourlyCost.disabled = !isPrivate || hasSessionCount;
+        hourlyCost.required = isPrivate && !hasSessionCount;
+        sessionCost.disabled = isPrivate && !hasSessionCount;
+        sessionCost.required = isGroup || (isPrivate && hasSessionCount);
+    }
 
-
-    });
+    courseType.addEventListener("change", updateCostFields);
+    sessionCount.addEventListener("input", updateCostFields);
+    updateCostFields();
 });

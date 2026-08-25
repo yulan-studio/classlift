@@ -16,6 +16,9 @@
 
 
 <h2>Add Course</h2>
+<div style="padding-top: 20px;">
+  
+</div>
 
 <form method="post" action="/Course/Add">
     <table style="border-collapse: collapse; width: 90%; text-align: left; vertical-align: top;">
@@ -48,10 +51,13 @@
             <td></td>
         </tr>
         <tr>
-            <td style="padding: 8px;"><label for="CoachID">Coach:</label></td>
+            <td style="padding: 8px;"><label for="CoachID">@CurrentTenant.Terminology.ProviderSingular:</label></td>
             <td style="padding: 8px;">
-                <select id="CoachID" name="CoachID" class="form-control" style="width: 100%;" required>
-                    <option value="" selected>-- Select Coach --</option>
+                <select id="CoachID" name="CoachID" class="form-control"
+                        data-role-name="@CurrentTenant.Terminology.ProviderSingular"
+                        data-role-plural="@CurrentTenant.Terminology.ProviderPlural"
+                        style="width: 100%;" required>
+                    <option value="" selected>-- Select @CurrentTenant.Terminology.ProviderSingular --</option>
                 </select>
 
                 <!-- Hidden field to ensure CoachID=0 gets submitted -->
@@ -67,17 +73,16 @@
             </td>
             <td style="width:55%; padding-left: 30px;">
                 <label style="font-size:0.7em; color:darkslategray">
-                    - XXX course by XXX <br />
-                    - XXX course by XXX(Token) <br />
-                    - YYYY Group XXX course<br />
-                    - YYYY-YYYY Group XXX course 
+                    - Private XXX course by XXX <br />
+                    - Private XXX course by XXX(No fixed session count) <br />
+                    - Group XXX course by XXX<br />
                 </label>
             </td>
         </tr>
         <tr>
-            <td style="padding: 8px;"><label for="Description">Description:</label></td>  
+            <td style="padding: 8px;"><label for="Description">Session Duration:</label></td>  
             <td style="padding: 8px;">
-                <input id="Description" name="Description" type="text" placeholder="Enter course description" style="width: 100%;" required />
+                <input id="Description" name="Description" type="text" placeholder="Enter course duration" style="width: 100%;" required />
             </td>
             <td style="width:55%; padding-left: 30px;">
                 <label style="font-size:0.7em; color:darkslategray"> - XX min/session </label>
@@ -103,26 +108,30 @@
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
-                <label style="font-size:0.7em; color:darkslategray"> - For Token payment course, leave Session Count empty.</label>
+                <label style="font-size:0.7em; color:darkslategray"> - Enter the number of sessions if each session has a fixed duration and full payment is required.<br/>
+                    - Leave blank if each session fee will be deducted from the balance later.
+                </label>
             </td>
         </tr>
 
         <tr>
             <td style="padding: 8px;"><label for="HourlyCost">Hourly Cost:</label></td>
             <td style="padding: 8px;">
-                <input id="HourlyCost" name="HourlyCost" type="number" step="1" min="0" placeholder="Enter hourly cost" style="width: 100%;" required />
+                <input id="HourlyCost" name="HourlyCost" type="number" step="1" min="0" placeholder="Enter hourly cost" style="width: 100%;" />
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
-                <label style="font-size:0.7em; color:darkslategray"> - Used to calculate Token payment deductions / refunds.</label>
+                <label style="font-size:0.7em; color:darkslategray"> - Deduct the session fee from the balance after each session. Each session may have a different duration.</label>
             </td>
+        </tr>
+
         <tr>
-            <td style="padding: 8px;"><label for="HourlyCost2">Hourly Cost(No funding) :</label></td>
+            <td style="padding: 8px;"><label for="SessionCost">Session Cost:</label></td>
             <td style="padding: 8px;">
-                <input id="HourlyCost2" name="HourlyCost2" type="number"  step="1" min="0" placeholder="Enter hourly cost" style="width: 100%;"  />
+                <input id="SessionCost" name="SessionCost" type="number" step="0.01" min="0" placeholder="Enter cost per session" style="width: 100%;" />
             </td>
             <td style="width:55%; padding-left: 30px;">
-                <label style="font-size:0.7em; color:darkslategray"> - For Token payment course, leave Hourly Cost(No funding) empty.</label>
+                <label style="font-size:0.7em; color:darkslategray"> - Each session is charged at a fixed price.</label>
             </td>
         </tr>
 

@@ -9,7 +9,10 @@
 
 
 
-    <h2>Add Coach</h2>
+<h2>Add @CurrentTenant.Terminology.ProviderSingular</h2>
+<div style="padding-top: 20px;">
+  
+</div>
 
 
     <form method="post" action="/Coach/Add">
@@ -72,10 +75,6 @@
             <td style="padding: 8px;"><input type="text" name="phone" placeholder="Phone" style="width: 100%;" /></td>
         </tr>
         <tr>
-            <td style="padding: 8px;"><label for="wechat">WeChat:</label></td>
-            <td style="padding: 8px;"><input type="text" name="wechat" placeholder="WeChat" style="width: 100%;" /></td>
-        </tr>
-        <tr>
             <td style="padding: 8px; vertical-align:top"><label for="password">Password:</label></td>
             <td style="padding: 8px;">
                 <input type="text" name="password" placeholder="Password" value="hello123!" style="width: 100%;" />
@@ -84,7 +83,7 @@
         </tr>
         <tr>
             <td colspan="2" style="text-align: left;  padding: 20px 16px 16px 8px;">
-                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Coach</button>
+                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add @CurrentTenant.Terminology.ProviderSingular</button>
                 <a href="/Coach/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
 
             </td>

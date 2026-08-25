@@ -24,8 +24,8 @@
         <select asp-for="Role">
             <option value="Admin">Admin</option>
             <option value="Staff">Staff</option>
-            <option value="Coach">Coach</option>
-            <option value="Child">Child</option>
+            <option value="Coach">@CurrentTenant.Terminology.ProviderSingular</option>
+            <option value="Child">@CurrentTenant.Terminology.ParticipantSingular</option>
         </select>
         <span asp-validation-for="Role"></span>
     </div>
@@ -61,8 +61,8 @@
                 <select name="Role" style="width: 100%;" required>
                     <option value="Admin">Admin</option>
                     <option value="Staff">Staff</option>
-                    <option value="Coach">Coach</option>
-                    <option value="Child">Child</option>
+                    <option value="Coach">@CurrentTenant.Terminology.ProviderSingular</option>
+                    <option value="Child">@CurrentTenant.Terminology.ParticipantSingular</option>
                 </select>
                 <span asp-validation-for="Role" style="color: red;"></span>
             </td>

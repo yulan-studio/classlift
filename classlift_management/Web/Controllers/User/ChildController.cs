@@ -41,6 +41,7 @@ namespace Web.Controllers.User
         private readonly ICourseService _courseService;
         private readonly IParentService _parentService;
         private readonly ICityService _cityService;
+        private readonly IProvinceService _provinceService;
         private readonly IParentChildService _parentChildService;
         private readonly IEmergencyContactService _emergencyContactService;
         private readonly ICourseEnrollmentService _courseEnrollmentService;
@@ -58,13 +59,14 @@ namespace Web.Controllers.User
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
             _balanceService = balanceService;
             _parentService = parentService;
             _cityService = cityService;
+            _provinceService = provinceService;
             _parentChildService = parentChildService;
             _courseService = courseService;
             _specialtyService = specialtyService;
@@ -87,6 +89,36 @@ namespace Web.Controllers.User
         {
             return (await _cityService.GetAllAsync())
                 .Select(c => new SelectListItem { Value = c.CityID.ToString(), Text = c.Name })
+                .ToList();
+        }
+
+        private async Task<List<SelectListItem>> GetProvinceList(int? selectedProvinceId = null)
+        {
+            return (await _provinceService.GetAllAsync())
+                .Select(province => new SelectListItem
+                {
+                    Value = province.ProvinceID.ToString(),
+                    Text = province.Name,
+                    Selected = province.ProvinceID == selectedProvinceId
+                })
+                .ToList();
+        }
+
+        private async Task<List<SelectListItem>> GetCityListByProvince(
+            int? provinceId,
+            int? selectedCityId = null)
+        {
+            if (!provinceId.HasValue)
+                return new List<SelectListItem>();
+
+            return (await _cityService.GetAllAsync())
+                .Where(city => city.ProvinceID == provinceId)
+                .Select(city => new SelectListItem
+                {
+                    Value = city.CityID.ToString(),
+                    Text = city.Name,
+                    Selected = city.CityID == selectedCityId
+                })
                 .ToList();
         }
 
@@ -220,28 +252,53 @@ namespace Web.Controllers.User
         //[HttpGet]
         public async Task<IActionResult> Add()
         {
-            ViewBag.CityList = await GetCityList();
+            ViewBag.ProvinceList = await GetProvinceList();
+            ViewBag.CityList = new List<SelectListItem>();
 
             return View();
         }
 
         [Authorize(Roles = "Staff")]
-        [HttpPost("Add")]
-        public async Task<IActionResult> Add(string name, DateTime birthDate, string gender, int cityId, string email, string password, bool hasOAP)
+        [HttpGet("CitiesByProvince/{provinceId:int}")]
+        public async Task<IActionResult> CitiesByProvince(int provinceId)
         {
+            var cities = await GetCityListByProvince(provinceId);
+            return Json(cities.Select(city => new { city.Value, city.Text }));
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpPost("Add")]
+        public async Task<IActionResult> Add(string name, DateTime birthDate, string gender, int? provinceId, int? cityId, string email, string password, bool hasOAP)
+        {
+            if (!provinceId.HasValue)
+                ModelState.AddModelError(nameof(provinceId), "Please select a province.");
+            if (!cityId.HasValue)
+                ModelState.AddModelError(nameof(cityId), "Please select a city.");
+
+            if (provinceId.HasValue && cityId.HasValue)
+            {
+                var selectedCity = (await _cityService.GetAllAsync())
+                    .FirstOrDefault(city => city.CityID == cityId.Value);
+                if (selectedCity?.ProvinceID != provinceId.Value)
+                    ModelState.AddModelError(nameof(cityId), "The selected city does not belong to the selected province.");
+            }
+
             if (!ModelState.IsValid)
             {
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
                 return View();
             }
 
             try
             {
                 Core.Models.User user = await _userManager.GetUserAsync(User);
-                var result = await _childService.AddAsync(name, birthDate, gender, cityId, email, password, hasOAP, user);
+                var result = await _childService.AddAsync(name, birthDate, gender, cityId!.Value, email, password, hasOAP, user);
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, "Failed in adding the child info.");
-                    ViewBag.CityList = await GetCityList();
+                    ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                    ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
                     return View();
                 }
 
@@ -254,7 +311,8 @@ namespace Web.Controllers.User
             {
                 //ModelState.AddModelError(String.Empty, $"{ex.Message}");
                 TempData["ErrorMessage"] = ex.Message;
-                ViewBag.CityList = await GetCityList();
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
                 return View();
 
             }
@@ -273,7 +331,11 @@ namespace Web.Controllers.User
                 return RedirectToAction("List");
             }
 
-            ViewBag.CityList = await GetCityList(child);
+            var selectedProvinceId = child.CityID.HasValue
+                ? (await _cityService.GetAsync(child.CityID.Value)).ProvinceID
+                : null;
+            ViewBag.ProvinceList = await GetProvinceList(selectedProvinceId);
+            ViewBag.CityList = await GetCityListByProvince(selectedProvinceId, child.CityID);
             return View(child);
         }
 
@@ -282,13 +344,41 @@ namespace Web.Controllers.User
         [HttpPost("Edit/{childId}")]
         [ValidateAntiForgeryToken]
 
-        public async Task<IActionResult> Edit(int childId, string name, DateTime birthDate, string gender, int cityId, string email, bool hasOAP/*, string password*/)
+        public async Task<IActionResult> Edit(int childId, string name, DateTime birthDate, string gender, int? provinceId, int? cityId, string email, bool hasOAP/*, string password*/)
         {
+            if (!provinceId.HasValue)
+                ModelState.AddModelError(nameof(provinceId), "Please select a province.");
+            if (!cityId.HasValue)
+                ModelState.AddModelError(nameof(cityId), "Please select a city.");
+
+            if (provinceId.HasValue && cityId.HasValue)
+            {
+                var selectedCity = (await _cityService.GetAllAsync())
+                    .FirstOrDefault(city => city.CityID == cityId.Value);
+                if (selectedCity?.ProvinceID != provinceId.Value)
+                    ModelState.AddModelError(nameof(cityId), "The selected city does not belong to the selected province.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var invalidChild = await _childService.GetAsync(childId);
+                if (invalidChild == null) return NotFound();
+
+                invalidChild.Name = name;
+                invalidChild.BirthDate = birthDate;
+                invalidChild.Gender = gender;
+                invalidChild.CityID = cityId;
+                invalidChild.HasOAP = hasOAP;
+                invalidChild.User.Email = email;
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
+                return View(invalidChild);
+            }
 
 
             try
             {
-                var result = await _childService.UpdateAsync(childId, name, birthDate, gender, cityId, email, hasOAP/*, string password*/);
+                var result = await _childService.UpdateAsync(childId, name, birthDate, gender, cityId!.Value, email, hasOAP/*, string password*/);
 
 
                 if (!result)
@@ -302,7 +392,8 @@ namespace Web.Controllers.User
                     }
 
 
-                    ViewBag.CityList = await GetCityList(child);
+                    ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                    ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
 
                     // Pass the coach details to the Edit.cshtml view
                     return View(child);
@@ -313,7 +404,7 @@ namespace Web.Controllers.User
             }
             catch (Exception ex)
             {
-                //TempData["ErrorMessage"] = $"Error: {ex.Message}";
+                ModelState.AddModelError(string.Empty, ex.Message);
                 var child = await _childService.GetAsync(childId);
 
                 if (child == null)
@@ -321,7 +412,8 @@ namespace Web.Controllers.User
                     return NotFound();
                 }
 
-                ViewBag.CityList = await GetCityList(child);
+                ViewBag.ProvinceList = await GetProvinceList(provinceId);
+                ViewBag.CityList = await GetCityListByProvince(provinceId, cityId);
 
                 // Pass the child details to the Edit.cshtml view
                 return View(child);
@@ -399,18 +491,29 @@ namespace Web.Controllers.User
             return View(child);
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("EmergencyContacts/{childId}")]
+        public async Task<IActionResult> EmergencyContacts(int childId)
+        {
+            var child = await _childService.GetAsync(childId);
+            return View(child);
+        }
+
 
 
         [Authorize(Roles = "Staff")]
         [HttpPost("CoreInfo/{childId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CoreInfo(int childId, string? memberID, string? address, /*int OAPAmount, */string? primaryDiagnosis, bool photoConsent)
+        public async Task<IActionResult> CoreInfo(int childId, string? memberID, string? address, string? postCode,
+            string? primaryDiagnosis, bool photoConsent, string? email, string? phone,
+            string? weChat, string? whatsApp)
         {
             var child = await _childService.GetAsync(childId);
             if (ModelState.IsValid)
             {
 
-                await _childService.UpdateAsync(childId, memberID, address, /*OAPAmount,*/ primaryDiagnosis, photoConsent);
+                await _childService.UpdateAsync(childId, memberID, address, postCode, primaryDiagnosis,
+                    photoConsent, email, phone, weChat, whatsApp);
 
                 return RedirectToAction("MoreInfo", new { childId });
             }
@@ -439,10 +542,10 @@ namespace Web.Controllers.User
 
                 await _emergencyContactService.AddAsync(contact);
 
-                return RedirectToAction("MoreInfo", new { childId });
+                return RedirectToAction("MoreInfo", new { childId, tab = "EmergencyContacts" });
             }
 
-            return RedirectToAction("MoreInfo", new { childId });
+            return RedirectToAction("MoreInfo", new { childId, tab = "EmergencyContacts" });
         }
 
         [Authorize(Roles = "Staff")]
@@ -456,7 +559,7 @@ namespace Web.Controllers.User
                 await _emergencyContactService.DeleteAsync(contactId);
             }
 
-            return RedirectToAction("MoreInfo", new { childId });
+            return RedirectToAction("MoreInfo", new { childId, tab = "EmergencyContacts" });
         }
 
 
@@ -533,7 +636,7 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Staff")]
         [HttpPost("AddParent")]
-        public async Task<IActionResult> AddParent(int childId, string Name, string Email, string Phone, string Wechat, string Relationship)
+        public async Task<IActionResult> AddParent(int childId, string Name, string Email, string Phone, string Wechat, string WhatsApp, string Relationship)
         {
             try
             {
@@ -545,6 +648,7 @@ namespace Web.Controllers.User
                     Phone = Phone,
                     Email = Email,
                     Wechat = Wechat,
+                    WhatsApp = WhatsApp,
                     CreatedBy = user.Id, // Assume the user ID of admin/creator
                     CreatedDate = DateTime.UtcNow
                 };
@@ -582,7 +686,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateParent(int ParentChildID, int ChildID, string Name, string Email, string Phone, string Wechat, string Relationship)
+        public async Task<IActionResult> UpdateParent(int ParentChildID, int ChildID, string Name, string Email, string Phone, string Wechat, string WhatsApp, string Relationship)
         {
 
 
@@ -594,9 +698,14 @@ namespace Web.Controllers.User
                 parent.Email = Email;
                 parent.Phone = Phone;
                 parent.Wechat = Wechat;
-                //parent.Relationship = Relationship;
+                parent.WhatsApp = WhatsApp;
 
                 await _parentService.UpdateAsync(parent);
+                var user = await _userManager.GetUserAsync(User);
+                parentChild.Relationship = Relationship;
+                parentChild.UpdatedBy = user?.Id ?? parentChild.UpdatedBy;
+                parentChild.UpdatedDate = DateTime.UtcNow;
+                await _parentChildService.UpdateAsync(parentChild);
                 TempData["SuccessMessage"] = "Parent updated successfully.";
             }
             else
@@ -691,10 +800,11 @@ namespace Web.Controllers.User
             var activityEnrollments = await _activityEnrollmentService.GetAllEnrollmentsViewByChildAsync(childId);
             var activities = await _activityService.GetAllActiveOpenAsync();
 
-            ViewBag.ActivityList = activities.Select(a => new SelectListItem
+            ViewBag.ActivityList = activities.Select(a => new
             {
                 Value = a.ActivityID.ToString(),
-                Text = a.Title
+                Text = a.Title,
+                Cost = a.Cost ?? 0
             }).ToList();
 
             return View("ManageRegistrations", new ManageRegisterationsViewModel
@@ -743,7 +853,28 @@ namespace Web.Controllers.User
         public async Task<IActionResult> GetActiveCoursesBySpecialty(int specialtyId)
         {
             var courses = await _courseService.GetActiveCoursesBySpecialtyAsync(specialtyId);
-            return Json(courses.Select(c => new { c.CourseID, c.Title, c.CourseType }));
+            var courseOptions = new List<object>();
+
+            foreach (var course in courses)
+            {
+                var openSessionCount = course.CourseType == "Private" && course.SessionCount.HasValue
+                    ? course.SessionCount.Value
+                    : (await _courseEnrollmentService
+                        .GetOpenSessionsByCourseAsync(course.CourseID))
+                        .Count();
+
+                courseOptions.Add(new
+                {
+                    course.CourseID,
+                    course.Title,
+                    course.CourseType,
+                    course.SessionCount,
+                    course.SessionCost,
+                    OpenSessionCount = openSessionCount
+                });
+            }
+
+            return Json(courseOptions);
         }
 
         [Authorize(Roles = "Staff")]
@@ -758,6 +889,30 @@ namespace Web.Controllers.User
 
             try
             {
+                var course = await _courseService.GetAsync(courseId);
+                var openGroupSessions = course.CourseType == "Group"
+                    ? (await _courseEnrollmentService.GetOpenSessionsByCourseAsync(courseId)).ToList()
+                    : new List<CourseEnrollment>();
+                var shouldCalculateSessionFee = course.CourseType == "Group"
+                    || (course.CourseType == "Private" && course.SessionCount.HasValue);
+                var requiresTokenPayment = course.CourseType == "Private"
+                    && !course.SessionCount.HasValue;
+
+                if (requiresTokenPayment)
+                {
+                    paymentModel = "Token";
+                    totalCost = null;
+                }
+
+                if (shouldCalculateSessionFee)
+                {
+                    var openSessionCount = course.CourseType == "Private" && course.SessionCount.HasValue
+                        ? course.SessionCount.Value
+                        : openGroupSessions.Count;
+
+                    totalCost = (course.SessionCost ?? 0) * openSessionCount;
+                }
+
                 int newEnrollmentId = await _courseEnrollmentService.AddRegisteredEnrollmentAsync(childId, courseId, scheduledHours, "Registered", user);
 
                 if (totalCost == null)
@@ -772,7 +927,24 @@ namespace Web.Controllers.User
                 {
                     throw new Exception("Adding course fee failed.");
                 }
-               
+
+                foreach (var session in openGroupSessions)
+                {
+                    success = await _courseEnrollmentService.AddSessionRegisteredEnrollmentAsync(
+                        childId,
+                        courseId,
+                        session.ScheduledAt,
+                        session.ScheduledHours,
+                        session.Location,
+                        session.EnrollmentID,
+                        "Registered",
+                        user);
+
+                    if (!success)
+                    {
+                        throw new Exception("Adding an open course session failed.");
+                    }
+                }
 
                 
                 //await transaction.CommitAsync();
@@ -830,6 +1002,17 @@ namespace Web.Controllers.User
                 var user = await _userManager.GetUserAsync(User);
                 var success1 = false;
                 var success2 = false;
+
+                if (paymentModel is not ("Token" or "Direct"))
+                    throw new ArgumentException("Please select a valid payment model.");
+
+                var activity = await _activityService.GetAsync(activityId);
+                totalCost = activity.Cost ?? 0;
+                description = totalCost == 0
+                    ? "Free"
+                    : paymentModel == "Token"
+                        ? $"Use Token - ${totalCost:F2} will be deducted from your balance once confirmed."
+                        : $"Please email transfer ${totalCost:F2} to [youremail_address], and send screenshot to customer service.";
                 
                 int newEnrollmentId = await _activityEnrollmentService.AddRegisteredEnrollmentAsync(childId, activityId, "Registered", user);
 
@@ -861,6 +1044,19 @@ namespace Web.Controllers.User
         {
             try
             {
+                var enrollment = (await _activityEnrollmentService
+                    .GetAllEnrollmentsViewByChildAsync(childId))
+                    .FirstOrDefault(e => e.EnrollmentID == enrollmentId);
+
+                if (enrollment == null)
+                    throw new InvalidOperationException("Activity registration not found.");
+
+                if (enrollment.IsPaid || enrollment.Status == "Confirmed")
+                    throw new InvalidOperationException("A paid or confirmed activity registration cannot be removed.");
+
+                if (enrollment.Status is "Canceled" or "Completed")
+                    throw new InvalidOperationException("A canceled or completed activity registration cannot be removed.");
+
                 var success1 = await _feeService.DeleteActivityFeeAsync(enrollmentId);
                 var success2 = await _activityEnrollmentService.RemoveRegisteredEnrollmentAsync(enrollmentId);
 
@@ -896,7 +1092,6 @@ namespace Web.Controllers.User
             var payments = await _paymentService.GetByChildAsync(childId);
             var child = await _childService.GetAsync(childId);
             var unpaidDirectItems = await _paymentService.GetUnpaidDirectEnrollmentsByChildAsync(childId);
-            var unpaidOAPItems = await _paymentService.GetUnpaidOAPEnrollmentsByChildAsync(childId);
 
             if (child == null)
             {
@@ -909,15 +1104,6 @@ namespace Web.Controllers.User
                 Child = child
             };
 
-            var parents = await _paymentService.GetParentsByChildAsync(childId);
-
-            // ✅ Populate Parent dropdown
-            ViewBag.ParentList = parents.Select(p => new SelectListItem
-            {
-                Value = p.ParentID.ToString(),
-                Text = p.Name
-            }).ToList();
-
             // ✅ Fetch all active payment packages
             var packages = await _paymentService.GetAllActivePackagesAsync();
 
@@ -929,7 +1115,6 @@ namespace Web.Controllers.User
             }).ToList();
 
             ViewBag.UnpaidDirectItems = unpaidDirectItems;
-            ViewBag.UnpaidOAPItems = unpaidOAPItems;
 
             return View("ManagePayments", payment);
         }
@@ -937,7 +1122,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost("AddPayment")]
 
-        public async Task<IActionResult> AddPayment(int childId, int parentId, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
+        public async Task<IActionResult> AddPayment(int childId, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
         {
 
             try
@@ -981,13 +1166,13 @@ namespace Web.Controllers.User
 
                 if (packageId != null)
                 { 
-                    var paymentId = await _paymentService.AddTokenPaymentAsync(childId, parentId, packageId, amount, paymentDate, fileUrl, user);
+                    var paymentId = await _paymentService.AddTokenPaymentAsync(childId, packageId, amount, paymentDate, fileUrl, user);
                     result = await _balanceService.AddPaymentToBalanceAsync(childId, paymentId, amount, fileUrl, user.Id);
                 }
 
                 if (feeId != null)
                 {
-                    var paymentId = await _paymentService.AddNoneTokenPaymentAsync(childId, parentId, feeId, amount, paymentDate, fileUrl, user);
+                    var paymentId = await _paymentService.AddNoneTokenPaymentAsync(childId, feeId, amount, paymentDate, fileUrl, user);
 
                     if (paymentId > 0)
                         result = true;
@@ -1360,37 +1545,8 @@ namespace Web.Controllers.User
             ViewBag.ChildID = childId;
             ViewBag.CourseID = courseId;
 
-            var sessionOptions = new List<SessionOption>();
-
-            // Sessions available to register
-            var sessions = await _courseEnrollmentService.GetOpenSessionsByCourseAsync(courseId);
-
             // Sessions the child already registered to
-            //var registeredSessions = await _courseEnrollmentService.GetRegisteredByCourseChildAsync(courseId, childId);
             var allEnrolledSessions = await _courseEnrollmentService.GetEnrollmentsByCourseChildAsync(courseId, childId);
-            var allEnrolledSessions2 = await _courseEnrollmentService.GetEnrollments2ByCourseChildAsync(courseId, childId);
-            if (sessions != null)
-            {
-                foreach (var session in sessions)
-                {
-
-                    if (allEnrolledSessions.Any(e => e.ScheduledAt == session.ScheduledAt))
-                    {
-                        continue;
-                    }
-
-                    var sessionOption = new ManageSessionRegistrationsViewModel.SessionOption
-                    {
-                        EnrollmentID = session.EnrollmentID,
-                        ScheduledAt = session.ScheduledAt ?? DateTime.MinValue,
-                        ScheduledHours = session.ScheduledHours ?? 0,
-                        Location = session.Location ?? string.Empty,
-                        IsSelected = false
-                    };
-                    sessionOptions.Add(sessionOption);
-                    
-                }
-            }
 
 
             //var allSessions = await _courseEnrollmentService.GetEnrollmentsByCourseChildAsync(courseId, childId);
@@ -1426,66 +1582,12 @@ namespace Web.Controllers.User
                 Course = course,
                 ChildID = childId,
                 CourseID = courseId,
-                AvailableSessions = sessionOptions,
-                AllSessions = all_sessions,
-                //ScheduledSessions = scheduled_sessions,
-                CourseSessionsCount = (int)course.SessionCount,
-                EnrolledSessionsCount = allEnrolledSessions2.Count()
+                AllSessions = all_sessions
 
             };
 
             return View(viewModel);
         }
-
-        //Add course sessions to a child who has registered to a group course 
-        [Authorize(Roles = "Staff")]
-        [HttpPost("AddRegisteredSessions")]
-        public async Task<IActionResult> AddRegisteredSessions(ManageSessionRegistrationsViewModel model)
-        {
-            try
-            {
-                Core.Models.User user = await _userManager.GetUserAsync(User);
-                var selectedSessions = model.AvailableSessions.Where(s => s.IsSelected).ToList();
-
-
-                if (selectedSessions.Count + model.EnrolledSessionsCount > model.CourseSessionsCount)
-                {
-                    TempData["ErrorMessage"] = "You can't register more than " + model.CourseSessionsCount + " sessions";
-                    return RedirectToAction("ManageSessionRegistrations", new { childId = model.ChildID, courseId = model.CourseID });
-
-                }
-
-
-                foreach (var session in selectedSessions)
-                {
-
-                    var sessionRef = await _courseEnrollmentService.GetAsync(session.EnrollmentID);
-
-                    if (sessionRef == null) continue;
-
-
-
-                    var success = await _courseEnrollmentService.AddSessionRegisteredEnrollmentAsync(model.ChildID, model.CourseID, sessionRef.ScheduledAt, sessionRef.ScheduledHours, sessionRef.Location, sessionRef.EnrollmentID, "Registered", user);
-
-                    if (!success)
-                    {
-                        TempData["ErrorMessage"] = "Failed to add session.";
-                    }
-                    else
-                    {
-                        TempData["SuccessMessage"] = "Session added successfully.";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"{ex.Message}";
-                return RedirectToAction("ManageSessionRegistrations", new { childId = model.ChildID, courseId = model.CourseID });
-            }
-
-            return RedirectToAction("ManageSessionRegistrations", new { childId = model.ChildID, courseId = model.CourseID });
-        }
-
 
         [Authorize(Roles = "Staff")]
         [HttpPost("UpdateAllSessions")]
@@ -1702,11 +1804,29 @@ namespace Web.Controllers.User
             //else if (actionType == "Confirm")
             if (actionType == "Confirm")
             {
-                // Handle Confirm logic
+                var fee = await _feeService.GetByChildIdCourseIdAsync(child.ChildID, model.CourseID);
+                if (fee == null || !fee.CourseEnrollmentID.HasValue)
+                {
+                    TempData["ErrorMessage2"] = "The course fee could not be found.";
+                    return RedirectToAction("MyConfirmations");
+                }
+
                 bool result1 = true;
-                if (model.Fee.PaymentModel == "Token" && !model.Fee.IsPaid)
-                { 
-                     result1 = await _balanceService.DeductGroupCourseCostAsync(child.ChildID, model.CourseID, (decimal)model.Fee.TotalCost, user.Id);
+                if (fee.PaymentModel == "Token" && !fee.IsPaid)
+                {
+                    if (!fee.TotalCost.HasValue)
+                    {
+                        TempData["ErrorMessage2"] = "The token fee amount could not be found.";
+                        return RedirectToAction("MyConfirmations");
+                    }
+
+                    result1 = await _balanceService.DeductGroupCourseCostAsync(child.ChildID, model.CourseID, fee.TotalCost.Value, user.Id);
+                }
+
+                if (!result1)
+                {
+                    TempData["ErrorMessage2"] = "The token balance could not be deducted. The course was not confirmed.";
+                    return RedirectToAction("MyConfirmations");
                 }
 
                 //public async Task<IEnumerable<CourseEnrollment>> GetEnrollmentsByCourseChildAsync(int courseId, int childId)
@@ -1723,9 +1843,9 @@ namespace Web.Controllers.User
                 bool result3 = true;
 
 
-                if (model.Fee.PaymentModel == "Token" && !model.Fee.IsPaid)
+                if (fee.PaymentModel == "Token" && !fee.IsPaid)
                 {
-                    result3 = await _feeService.UpdateCourseIsPaidAsync((int)model.Fee.CourseEnrollmentID, user.Id);
+                    result3 = await _feeService.UpdateCourseIsPaidAsync(fee.CourseEnrollmentID.Value, user.Id);
                 }
 
                 if (result1 == true && result2 == true && result3 == true)
@@ -1781,23 +1901,34 @@ namespace Web.Controllers.User
 
             if (actionType == "Confirm")
             {
-                // Handle Confirm logic
+                var fee = await _feeService.GetFeeForCourseEnrollmentAsync(model.EnrollmentID);
+                if (fee?.CourseEnrollment == null || fee.CourseEnrollment.ChildID != child.ChildID)
+                {
+                    TempData["ErrorMessage2"] = "The course fee could not be found.";
+                    return RedirectToAction("MyConfirmations");
+                }
 
-                //Upon confirmation, deduct the cost from child's balance
-                //if(model.Fee.PaymentModel == "Token")
+                var courseId = fee.CourseEnrollment.CourseID;
 
                 bool result1 = true;
 
-                if (model.PaymentModel == "Token")
+                if (fee.PaymentModel == "Token" && !fee.IsPaid && fee.TotalCost.HasValue)
                 {
-                   //result1 = await _balanceService.DeductCourseCostAsync(child.ChildID, model.CourseID, (decimal)model.TotalCost, user.Id);
+                    result1 = await _balanceService.DeductCourseCostAsync(child.ChildID, courseId, fee.TotalCost.Value, user.Id);
                 }
+
+                if (!result1)
+                {
+                    TempData["ErrorMessage2"] = "The token balance could not be deducted. The course was not confirmed.";
+                    return RedirectToAction("MyConfirmations");
+                }
+
                 bool result2 = await _courseEnrollmentService.UpdateCourseEnrollmentStatusToConfirmedAsync(model.EnrollmentID);
 
                 bool result3 = true;
 
 
-                if (model.PaymentModel == "Token")
+                if (fee.PaymentModel == "Token" && !fee.IsPaid && fee.TotalCost.HasValue)
                 {
                     result3 = await _feeService.UpdateCourseIsPaidAsync(model.EnrollmentID, user.Id);
                 }

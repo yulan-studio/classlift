@@ -99,6 +99,9 @@ For background processing:
 | Reports | `ReportController` | Report service/repository and report DTOs |
 | Uploads | `UploadController` | `R2StorageService` |
 | Notifications | Notification controllers and workflow calls | `EmailService` |
+| Tenant appearance | `AccountController`, `HomeController` | `OrganizationTerminologyService`, `R2StorageService`, branding/home-page view models |
+| Locations | `CityController`, child/coach workflows | Province and city services/repositories |
+| Time zones | Account, course, activity, coach, child, and report controllers | `TimeZoneService`, `TimeZoneClaimsPrincipalFactory` |
 
 Some controllers, especially `ChildController` and `CoachController`, contain multiple concerns. For new substantial features, prefer a focused service and small controller action instead of expanding an already large method.
 
@@ -144,6 +147,24 @@ When changing email behavior:
 
 `R2StorageService` uploads using the S3-compatible API and returns a public URL. Before expanding uploads, add validation for maximum size, allowed content types, actual file signatures, safe object names, and access policy. Do not place sensitive child or payment material at permanently public URLs.
 
+R2 also stores tenant configuration that is not an uploaded image: organization terminology and the tenant home-page URL. These reads are deliberately best-effort so an R2 failure does not prevent the tenant application from loading. Preserve tenant-specific object keys and safe fallback values when changing this behavior.
+
+## Time zones and scheduling
+
+Users have a `TimeZoneId`, which is exposed as a claim by `TimeZoneClaimsPrincipalFactory`. `TimeZoneService` validates the supported IANA identifiers and converts local input to UTC for storage and UTC values back to the user's zone for display.
+
+- Keep persisted schedule instants in UTC.
+- Preserve the selected scheduling time-zone identifier where the model supports it.
+- Do not use the web server's local time zone as a business default.
+- The current application default is `America/Toronto`.
+- Exercise special care around invalid local times and daylight-saving transitions.
+
+## Tenant terminology and branding
+
+`CurrentTenant.Terminology` supplies tenant-specific participant and provider labels. `OrganizationTerminologyService` loads and saves these values through R2, while account settings manage terminology, branding, and the tenant home-page URL.
+
+Use the terminology object in user-facing text for concepts that tenants can rename. Keep stable domain type, route, database, and authorization names in code; branding must not change security or persistence identifiers.
+
 ## Configuration rules
 
 Runtime configuration keys include:
@@ -162,13 +183,15 @@ Do not print configuration values while debugging. Showing whether a value is pr
 
 Business and Identity mappings are combined in `AppDbContext`. Identity tables use custom lowercase names such as `users`, `roles`, and `userroles`. Business entities also map to existing singular/plural table names. Preserve these mappings unless a deliberate migration accompanies the change.
 
-Migrations are under `Core/Migrations`, but `AppDbContextFactory` currently uses the obsolete `DefaultConnection` key and does not load development configuration. Repair and test the design-time factory before generating or applying migrations.
+Migrations are under `Core/Migrations`. `Web/DesignTimeAppDbContextFactory.cs` is the current local EF CLI factory: it loads environment-specific configuration, reads `ServerConnection`, and targets `classlift`. A second, obsolete factory remains at `Core/Contexts/AppDbContextFactory.cs` and still reads `DefaultConnection`. Specify `--project Core/Core.csproj --startup-project Web/Web.csproj` and confirm the selected factory and target database before generating or applying migrations.
+
+Recent schema work includes provinces/cities, schedule time zones, child/parent/coach contact fields, nullable course pricing, and per-session costs. Existing tenant databases may be at different migration levels; do not infer schema state from model classes alone.
 
 Treat files in `DB/` as historical operational artifacts, not authoritative schema migrations.
 
 ## Testing strategy
 
-The existing NUnit project has only a placeholder test and does not yet reference the application projects. For new tests, prioritize:
+The existing NUnit project references `Core` but still has only placeholder coverage. It does not currently reference `Web`. For new tests, prioritize:
 
 1. Tenant hostname resolution and cross-tenant isolation
 2. Authentication, role authorization, and ownership
@@ -187,7 +210,7 @@ Do not silently fix unrelated issues during a focused change, but consider these
 - `UseCors("Classlift")` has no visible matching `AddCors` registration.
 - Unknown tenant hosts proceed unresolved instead of returning a clear response.
 - Local fallback is not explicitly environment-gated.
-- Design-time migration configuration is stale.
+- Two design-time `AppDbContext` factories exist; the `Core` copy is stale and can conflict with EF CLI discovery.
 - Test coverage is effectively zero.
 - Nullable warnings are numerous on clean builds.
 - Route and cookie registration are duplicated.
@@ -195,7 +218,7 @@ Do not silently fix unrelated issues during a focused change, but consider these
 - `ActivityFeedbackController.cs.cs` has an accidental double extension.
 - `Data` is not part of the solution.
 - Old/commented implementations and old views/styles remain.
-- The existing tenancy guide may be ahead of current implementation; code is the source of truth.
+- Keep the authoritative tenancy guide under `Docs/` synchronized with middleware and worker registration; code remains the source of truth.
 
 ## Codex workflow
 

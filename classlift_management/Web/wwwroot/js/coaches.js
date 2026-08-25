@@ -1,19 +1,33 @@
-﻿function fetchCoaches(specialtyId) {
+function fetchCoaches(specialtyId) {
+    const coachDropdown = document.getElementById('CoachID');
+    const roleName = coachDropdown.dataset.roleName || 'Teacher';
+    const rolePlural = coachDropdown.dataset.rolePlural || `${roleName}s`;
+
     if (!specialtyId) {
-        document.getElementById('CoachID').innerHTML = '<option value="">-- Select Coach --</option>';
+        coachDropdown.innerHTML = `<option value="">-- Select ${roleName} --</option>`;
         return;
     }
 
     fetch(`/Course/GetCoachesBySpecialty?specialtyId=${specialtyId}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Unable to load active ${rolePlural.toLowerCase()}.`);
+            }
+            return response.json();
+        })
         .then(data => {
-            const coachDropdown = document.getElementById('CoachID');
-            coachDropdown.innerHTML = '<option value="">-- Select Coach --</option>';
+            coachDropdown.innerHTML = data.length
+                ? `<option value="">-- Select ${roleName} --</option>`
+                : `<option value="">-- No active ${roleName.toLowerCase()} available --</option>`;
+
             data.forEach(coach => {
                 const option = document.createElement('option');
                 option.value = coach.coachID;
                 option.text = coach.name;
                 coachDropdown.add(option);
             });
+        })
+        .catch(() => {
+            coachDropdown.innerHTML = `<option value="">-- Unable to load ${rolePlural.toLowerCase()} --</option>`;
         });
 }

@@ -36,6 +36,7 @@ namespace Web.Controllers.User
         private readonly IChildBalanceService _balanceService;
         private readonly ICoachRepository _coachRepository;
         private readonly ICityService _cityService;
+        private readonly IProvinceService _provinceService;
         private readonly ISpecialtyService _specialtyService;
         private readonly IEmergencyContactService _emergencyContactService;
         private readonly ICoachSpecialtyService _coachSpecialtyService;
@@ -48,14 +49,22 @@ namespace Web.Controllers.User
         private readonly EmailService _emailService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
+        private readonly CurrentTenant _currentTenant;
+
+        private string ProviderName =>
+            _currentTenant.Terminology.ProviderSingular;
+
+        private string ProviderNameLower =>
+            ProviderName.ToLowerInvariant();
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
         {
             _coachService = coachService;
             _incomeService = incomeService;
             _balanceService = balanceService;
             _coachRepository = coachRepository;
             _cityService = cityService;
+            _provinceService = provinceService;
             _specialtyService = specialtyService;
             _coachSpecialtyService = coachSpecialtyService;
             _emergencyContactService = emergencyService;
@@ -67,14 +76,45 @@ namespace Web.Controllers.User
             _emailService = emailService;
             _userManager = userManager;
             _timeZoneService = timeZoneService;
+            _currentTenant = currentTenant;
             
+        }
+
+        private async Task PopulateLocationListsAsync(int? provinceId, int? cityId)
+        {
+            ViewBag.ProvinceList = (await _provinceService.GetAllAsync())
+                .Select(province => new SelectListItem
+                {
+                    Value = province.ProvinceID.ToString(),
+                    Text = province.Name,
+                    Selected = province.ProvinceID == provinceId
+                }).ToList();
+
+            ViewBag.CityList = (await _cityService.GetAllAsync())
+                .Where(city => city.ProvinceID == provinceId)
+                .Select(city => new SelectListItem
+                {
+                    Value = city.CityID.ToString(),
+                    Text = city.Name,
+                    Selected = city.CityID == cityId
+                }).ToList();
+        }
+
+        [HttpGet("CitiesByProvince/{provinceId:int}")]
+        public async Task<IActionResult> CitiesByProvince(int provinceId)
+        {
+            var cities = (await _cityService.GetAllAsync())
+                .Where(city => city.ProvinceID == provinceId)
+                .Select(city => new { value = city.CityID.ToString(), text = city.Name });
+
+            return Json(cities);
         }
 
         [Authorize(Roles = "Staff")]
         // POST: Add Staff Action
         [HttpPost("Add")]
         //[HttpPost]
-        public async Task<IActionResult> Add(string name, string email, string password, List<int> specialtyIds, string gender, string phone, string? wechat, int cityId)
+        public async Task<IActionResult> Add(string name, string email, string password, List<int> specialtyIds, string gender, string phone, int cityId)
         {
 
            
@@ -100,10 +140,10 @@ namespace Web.Controllers.User
             {
                 var user = await _userManager.GetUserAsync(User);
                 
-                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, wechat, cityId, user);
+                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, cityId, user);
                 if (!result)
                 {
-                    ModelState.AddModelError(string.Empty, "Failed in adding the coach info.");
+                    ModelState.AddModelError(string.Empty, $"Failed to add the {ProviderNameLower} information.");
 
                    
                     // Repopulate CityList for the dropdown if validation fails
@@ -125,7 +165,7 @@ namespace Web.Controllers.User
 
                     return View();
                 }
-                TempData["SuccessMessage"] = "Coach info has been added successfully.";
+                TempData["SuccessMessage"] = $"{ProviderName} information has been added successfully.";
                 return RedirectToAction("List"); // Redirect to the coach list page
 
 
@@ -213,11 +253,11 @@ namespace Web.Controllers.User
 
                 if (!result)
                 {
-                    TempData["ErrorMessage"] = "The coach member could not be deleted.";
+                    TempData["ErrorMessage"] = $"The {ProviderNameLower} member could not be deleted.";
                     return RedirectToAction("List");
                 }
 
-                TempData["SuccessMessage"] = "Coach member has been deleted successfully.";
+                TempData["SuccessMessage"] = $"{ProviderName} member has been deleted successfully.";
                 return RedirectToAction("List"); // Redirect to the coach list page
             }
             catch (Exception ex)
@@ -265,27 +305,27 @@ namespace Web.Controllers.User
             else {
                 ViewData["MemberIDParm"] = sortOrder == "id" ? "id_desc" : "id";
                 ViewData["NameSortParm"] = sortOrder == "name" ? "name_desc" : "name";
-                ViewData["PreferedNameSortParm"] = sortOrder == "preferedName" ? "preferedName_desc" : "preferedName";
+                ViewData["StatusSortParm"] = sortOrder == "status" ? "status_desc" : "status";
                 ViewData["GenderSortParm"] = sortOrder == "gender" ? "gender_desc" : "gender";
                 ViewData["CitySortParm"] = sortOrder == "city" ? "city_desc" : "city";
                 ViewData["CurrentSort"] = sortOrder;
 
 
 
-                coachList = sortOrder switch
+                coaches = sortOrder switch
                 {
-                    "id" => coachList.OrderBy(c => c.MemberID),
-                    "id_desc" => coachList.OrderByDescending(c => c.MemberID),
-                    "name" => coachList.OrderBy(c => c.Name),
-                    "name_desc" => coachList.OrderByDescending(c => c.Name),
-                    "preferedName" => coachList.OrderBy(c => c.PreferedName),
-                    "preferedName_desc" => coachList.OrderByDescending(c => c.PreferedName),
-                    "gender" => coachList.OrderBy(c => c.Gender),
-                    "gender_desc" => coachList.OrderByDescending(c => c.Gender),
-                    "city" => coachList.OrderBy(c => c.City.Name),
-                    "city_desc" => coachList.OrderByDescending(c => c.City.Name),
+                    "id" => coaches.OrderBy(c => c.Coach.MemberID).ToList(),
+                    "id_desc" => coaches.OrderByDescending(c => c.Coach.MemberID).ToList(),
+                    "name" => coaches.OrderBy(c => c.Coach.Name).ToList(),
+                    "name_desc" => coaches.OrderByDescending(c => c.Coach.Name).ToList(),
+                    "status" => coaches.OrderBy(c => c.Coach.Status == "InActive" ? "InActive" : "Active").ToList(),
+                    "status_desc" => coaches.OrderByDescending(c => c.Coach.Status == "InActive" ? "InActive" : "Active").ToList(),
+                    "gender" => coaches.OrderBy(c => c.Coach.Gender).ToList(),
+                    "gender_desc" => coaches.OrderByDescending(c => c.Coach.Gender).ToList(),
+                    "city" => coaches.OrderBy(c => c.Coach.City.Name).ToList(),
+                    "city_desc" => coaches.OrderByDescending(c => c.Coach.City.Name).ToList(),
 
-                    _ => coachList.OrderBy(c => c.Name) // default
+                    _ => coaches.OrderBy(c => c.Coach.Name).ToList() // default
                 };
 
 
@@ -328,16 +368,8 @@ namespace Web.Controllers.User
                 return NotFound();
             }
 
-            var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-
-
-
-            ViewBag.CityList = cities.Select(c => new SelectListItem
-            {
-                Value = c.CityID.ToString(),
-                Text = c.Name,
-                Selected = c.CityID == coach.CityID
-            }).ToList();
+            var selectedProvinceId = (await _cityService.GetAsync(coach.CityID)).ProvinceID;
+            await PopulateLocationListsAsync(selectedProvinceId, coach.CityID);
 
 
             var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
@@ -371,19 +403,41 @@ namespace Web.Controllers.User
         [ValidateAntiForgeryToken]
 
        
-        public async Task<IActionResult> Edit(int coachId, string name, string email, /*string password,*/List<int> specialtyIds, string gender, string phone, string wechat, int cityId)
+        public async Task<IActionResult> Edit(int coachId, string name, string email, /*string password,*/List<int> specialtyIds, string gender, string phone, int? provinceId, int? cityId)
         {
-           
+            if (!provinceId.HasValue)
+                ModelState.AddModelError(nameof(provinceId), "Please select a province.");
+            if (!cityId.HasValue)
+                ModelState.AddModelError(nameof(cityId), "Please select a city.");
+            if (provinceId.HasValue && cityId.HasValue)
+            {
+                var selectedCity = await _cityService.GetAsync(cityId.Value);
+                if (selectedCity?.ProvinceID != provinceId.Value)
+                    ModelState.AddModelError(nameof(cityId), "The selected city does not belong to the selected province.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var coach = await _coachService.GetAsync(coachId);
+                await PopulateLocationListsAsync(provinceId, cityId);
+                var specialties = await _specialtyService.GetAllAsync();
+                ViewBag.SpecialtyList = specialties.Select(s => new SelectListItem
+                {
+                    Value = s.SpecialtyID.ToString(), Text = s.Title,
+                    Selected = specialtyIds.Contains(s.SpecialtyID)
+                }).ToList();
+                return View(coach);
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, wechat, cityId, user);
+                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, cityId!.Value, user);
 
 
                 if (!result)
                 {
-                    ModelState.AddModelError(string.Empty, "Failed to update coach information.");
+                    ModelState.AddModelError(string.Empty, $"Failed to update {ProviderNameLower} information.");
                     var coach = await _coachService.GetAsync(coachId);
 
                     if (coach == null)
@@ -391,16 +445,7 @@ namespace Web.Controllers.User
                         return NotFound();
                     }
 
-                    var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-
-
-
-                    ViewBag.CityList = cities.Select(c => new SelectListItem
-                    {
-                        Value = c.CityID.ToString(),
-                        Text = c.Name,
-                        Selected = c.CityID == coach.CityID
-                    }).ToList();
+                    await PopulateLocationListsAsync(provinceId, cityId);
 
 
                     //var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
@@ -429,7 +474,7 @@ namespace Web.Controllers.User
                     return View(coach);
                 }
 
-                TempData["SuccessMessage"] = "coach information updated successfully.";
+                TempData["SuccessMessage"] = $"{ProviderName} information updated successfully.";
                 return RedirectToAction("List");
             }
             catch (Exception ex)
@@ -442,16 +487,7 @@ namespace Web.Controllers.User
                     return NotFound();
                 }
 
-                var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-
-
-
-                ViewBag.CityList = cities.Select(c => new SelectListItem
-                {
-                    Value = c.CityID.ToString(),
-                    Text = c.Name,
-                    Selected = c.CityID == coach.CityID
-                }).ToList();
+                await PopulateLocationListsAsync(provinceId, cityId);
 
 
                 //var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
@@ -500,24 +536,61 @@ namespace Web.Controllers.User
             return View(coach);
         }
 
-
+        [Authorize(Roles = "Staff")]
+        [HttpGet("EmergencyContacts/{coachId}")]
+        public async Task<IActionResult> EmergencyContacts(int coachId)
+        {
+            var coach = await _coachService.GetAsync(coachId);
+            return View(coach);
+        }
 
         [Authorize(Roles = "Staff")]
         [HttpPost("CoreInfo/{coachId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CoreInfo(int coachId, string? memberID, string? preferedName, string? address, /*int OAPAmount, */string? postCode, int? bank, int? transit, int? account, string status, bool photoConsent)
+        public async Task<IActionResult> CoreInfo(int coachId, string? memberID, string? preferedName, string? wechat, string? whatsApp, string? address, /*int OAPAmount, */string? postCode, int? bank, int? transit, int? account, string status, bool photoConsent)
         {
-            var coach = await _coachService.GetAsync(coachId);
-            if (ModelState.IsValid)
+            if (status is not ("Active" or "InActive"))
+                ModelState.AddModelError(nameof(status), "Please select Active or InActive.");
+
+            if (!ModelState.IsValid)
             {
-
-                await _coachService.UpdateAsync(coachId, memberID, preferedName, address, postCode, bank, transit, account, status, photoConsent);
-
+                TempData["ErrorMessage"] = string.Join(" ", ModelState.Values
+                    .SelectMany(value => value.Errors)
+                    .Select(error => error.ErrorMessage)
+                    .Where(message => !string.IsNullOrWhiteSpace(message)));
                 return RedirectToAction("MoreInfo", new { coachId });
             }
-            else
-                //return View(child);
-                return RedirectToAction("MoreInfo", new { coachId });
+
+            try
+            {
+                var saved = await _coachService.UpdateAsync(
+                    coachId,
+                    memberID,
+                    preferedName,
+                    wechat,
+                    whatsApp,
+                    address,
+                    postCode,
+                    bank,
+                    transit,
+                    account,
+                    status,
+                    photoConsent);
+
+                if (!saved)
+                {
+                    TempData["ErrorMessage"] = $"The {ProviderNameLower} information could not be saved. Please try again.";
+                    return RedirectToAction("MoreInfo", new { coachId });
+                }
+
+                TempData["SuccessMessage"] = $"The {ProviderNameLower} information was saved successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = $"An unexpected error occurred while saving the {ProviderNameLower} information. Please try again.";
+            }
+
+            return RedirectToAction("MoreInfo", new { coachId });
         }
 
 
@@ -541,14 +614,14 @@ namespace Web.Controllers.User
                 var result = await _emergencyContactService.AddAsync(contact);
 
                 
-                return RedirectToAction("MoreInfo", new { coachId });
+                return RedirectToAction("MoreInfo", new { coachId, tab = "EmergencyContacts" });
                
 
                 
             
             }
 
-            return RedirectToAction("MoreInfo", new { coachId });
+            return RedirectToAction("MoreInfo", new { coachId, tab = "EmergencyContacts" });
         }
 
         [Authorize(Roles = "Staff")]
@@ -562,7 +635,7 @@ namespace Web.Controllers.User
                 await _emergencyContactService.DeleteAsync(contactId);
             }
 
-            return RedirectToAction("MoreInfo", new { coachId });
+            return RedirectToAction("MoreInfo", new { coachId, tab = "EmergencyContacts" });
         }
 
 
@@ -585,7 +658,7 @@ namespace Web.Controllers.User
 
                 if (specialties == null || !specialties.Any())
                 {
-                    TempData["ErrorMessage"] = "No specialties found for this coach.";
+                    TempData["ErrorMessage"] = $"No specialties found for this {ProviderNameLower}.";
                     return RedirectToAction("Index", "Home"); // Redirect to a safe page
                 }
 
@@ -1013,7 +1086,7 @@ namespace Web.Controllers.User
 
 
             if (coach == null)
-                return NotFound("Coach profile not found.");
+                return NotFound($"{ProviderName} profile not found.");
 
             // Get income records
             //var incomeRecords = await _incomeService.GetCoachIncomeAsync(coach.CoachID);

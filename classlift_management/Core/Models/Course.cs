@@ -38,9 +38,9 @@ namespace Core.Models
 
 
         //[Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Please enter a valid hourly cost for child without OAP funding.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Please enter a valid session cost.")]
         [Column(TypeName = "decimal(10,2)")]
-        public decimal? HourlyCost2 { get; set; }  // Hourly cost of the course for child without OAP funding
+        public decimal? SessionCost { get; set; }  // Cost per session
 
 
         [Required]

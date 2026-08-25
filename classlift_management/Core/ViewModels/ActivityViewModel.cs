@@ -16,7 +16,7 @@ namespace Core.ViewModels
 
         public int MaxCapacity { get; set; }
         public DateTime ScheduledAt { get; set; }
-        //public decimal Cost { get; set; }
+        public decimal? Cost { get; set; }
 
         //public bool IsActive { get; set; }
 

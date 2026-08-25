@@ -61,6 +61,9 @@
     ViewData["Title"] = "Manage Group Course Sessions";
     Layout = "~/Views/Shared/_Layout.cshtml";
     int courseId = (int)ViewBag.CourseID;
+    int countedSessionCount = (Model.OpenSessions?.Count ?? 0) + (Model.FinishedSessions?.Count ?? 0);
+    bool canAddSessions = !Model.Course.SessionCount.HasValue
+        || countedSessionCount < Model.Course.SessionCount.Value;
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -75,10 +78,12 @@
 </div>
 
 <!-- Add New Session Form -->
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2; border-radius: 8px;">
-    <form method="post" asp-action="AddSession" asp-controller="Course" onsubmit="return validateScheduleTime()">
-        <input type="hidden" name="courseId" value="@courseId" />
-        <input type="hidden" name="courseId" value="@courseId" />
+@if (canAddSessions)
+{
+    <div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2; border-radius: 8px;">
+        <form method="post" asp-action="AddSession" asp-controller="Course" onsubmit="return validateScheduleTime()">
+            <input type="hidden" name="courseId" value="@courseId" />
+            <input type="hidden" name="courseId" value="@courseId" />
 
 
         <div style="margin-bottom: 10px;">
@@ -130,12 +135,24 @@
 
 
 
-        <button type="submit" style="background-color: #ff4d4d; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px;">Add Session(s)</button>
-    </form>
-</div>
+            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px;">Add Session(s)</button>
+        </form>
+    </div>
+}
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" style="margin-top: 20px;">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" style="margin-top: 20px;">@TempData["ErrorMessage"]</div>
+}
 
 <!-- Existing Sessions Table -->
-<h5>Upcoming Sessions</h5>
+<h5 style="color:steelblue; margin-bottom: 20px;">Upcoming Sessions</h5>
 
 <table style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
@@ -211,15 +228,7 @@
 </table>
 
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success" style="margin-top: 20px;">@TempData["SuccessMessage"]</div>
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger" style="margin-top: 20px;">@TempData["ErrorMessage"]</div>
-}
 
 <!-- Modal Popup -->
 <div id="sessionModal" class="modal fade">
@@ -246,7 +255,7 @@
 
 
 <!-- Completed Sessions Table -->
-<h5>Finished Sessions</h5>
+<h5 style="color:steelblue; margin-bottom: 20px;">Finished Sessions</h5>
 
 <table style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>

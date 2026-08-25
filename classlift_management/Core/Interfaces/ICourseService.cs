@@ -24,13 +24,13 @@ namespace Core.Interfaces
 
         // Add a new course
 
-        Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal? hourlyCost, decimal? hourlyCost2, bool isActive, int coachId, int specialtyId,  User user);
+        Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal? hourlyCost, decimal? sessionCost, bool isActive, int coachId, int specialtyId, User user);
 
 
 
 
         // Update an existing course
-        Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? hourlyCost2, bool isActive, User user/*, int userId, int updatedBy*/);
+        Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive, User user/*, int userId, int updatedBy*/);
 
 
         // Delete a course by ID

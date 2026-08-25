@@ -34,9 +34,10 @@ namespace Web.Controllers.Courses
         private readonly ICourseEnrollmentService _courseEnrollmentService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
+        private readonly CurrentTenant _currentTenant;
 
 
-        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
+        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
         {
             _courseService = courseService;
             _coachService = coachService;
@@ -44,6 +45,7 @@ namespace Web.Controllers.Courses
             _userManager = userManager;
             _courseEnrollmentService = courseEnrollmentService;
             _timeZoneService = timeZoneService;
+            _currentTenant = currentTenant;
         }
 
 
@@ -148,6 +150,11 @@ namespace Web.Controllers.Courses
             ViewData["CoachSortParm"] = sortOrder == "coach" ? "coach_desc" : "coach";
             ViewData["TypeSortParm"] = sortOrder == "type" ? "type_desc" : "type";
             ViewData["SpecialtySortParm"] = sortOrder == "specialty" ? "specialty_desc" : "specialty";
+            ViewData["RegistrationsSortParm"] = sortOrder == "registrations" ? "registrations_desc" : "registrations";
+            ViewData["IsActiveSortParm"] = sortOrder == "is_active" ? "is_active_desc" : "is_active";
+            ViewData["HourlyCostSortParm"] = sortOrder == "hourly_cost" ? "hourly_cost_desc" : "hourly_cost";
+            ViewData["SessionCountSortParm"] = sortOrder == "session_count" ? "session_count_desc" : "session_count";
+            ViewData["MaxCapacitySortParm"] = sortOrder == "max_capacity" ? "max_capacity_desc" : "max_capacity";
             ViewData["CurrentSort"] = sortOrder;
             var courses = await _courseService.GetAllAsync();
 
@@ -161,6 +168,16 @@ namespace Web.Controllers.Courses
                 "coach_desc" => courses.OrderByDescending(c => c.CoachName),
                 "type" => courses.OrderBy(c => c.CourseType),
                 "type_desc" => courses.OrderByDescending(c => c.CourseType),
+                "registrations" => courses.OrderBy(c => c.RegisteredChildrenCount),
+                "registrations_desc" => courses.OrderByDescending(c => c.RegisteredChildrenCount),
+                "is_active" => courses.OrderBy(c => c.IsActive),
+                "is_active_desc" => courses.OrderByDescending(c => c.IsActive),
+                "hourly_cost" => courses.OrderBy(c => c.HourlyCost),
+                "hourly_cost_desc" => courses.OrderByDescending(c => c.HourlyCost),
+                "session_count" => courses.OrderBy(c => c.SessionCount),
+                "session_count_desc" => courses.OrderByDescending(c => c.SessionCount),
+                "max_capacity" => courses.OrderBy(c => c.MaxCapacity),
+                "max_capacity_desc" => courses.OrderByDescending(c => c.MaxCapacity),
                 _ => courses.OrderBy(c => c.CourseType) // default
             };
 
@@ -183,6 +200,7 @@ namespace Web.Controllers.Courses
         }
 
 
+        [Authorize(Roles = "Staff")]
         [HttpGet("GetCoachesBySpecialty")]
         public async Task<IActionResult> GetCoachesBySpecialty(int specialtyId)
         {
@@ -208,6 +226,49 @@ namespace Web.Controllers.Courses
         [HttpPost("Add")]
         public async Task<IActionResult> Add(AddCourseViewModel model)
         {
+            if (model.CourseType == "Private")
+            {
+                if (model.SessionCount.HasValue && !model.SessionCost.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCost),
+                        "Session Cost is required when Session Count is provided for a private course.");
+                }
+                else if (!model.SessionCount.HasValue && !model.HourlyCost.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.HourlyCost),
+                        "Hourly Cost is required when Session Count is empty for a private course.");
+                }
+            }
+            else if (model.CourseType == "Group")
+            {
+                if (!model.SessionCount.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCount),
+                        "Session Count is required for a group course.");
+                }
+
+                if (!model.SessionCost.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCost),
+                        "Session Cost is required for a group course.");
+                }
+            }
+
+            if (model.SpecialtyID > 0 && model.CoachID > 0)
+            {
+                var activeCoaches = await _coachService.GetCoachesBySpecailtyAsync(model.SpecialtyID);
+                if (!activeCoaches.Any(coach => coach.CoachID == model.CoachID))
+                {
+                    ModelState.AddModelError(
+                        nameof(model.CoachID),
+                        $"Please select an active {_currentTenant.Terminology.ProviderSingular.ToLowerInvariant()} in the selected specialty.");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 var specialties = await _specialtyService.GetAllAsync();
@@ -223,7 +284,7 @@ namespace Web.Controllers.Courses
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                var result = await _courseService.AddAsync(model.Title, model.Description,model.CourseType, model.MaxCapacity, model.SessionCount, model.HourlyCost, model.HourlyCost2, model.IsActive, model.CoachID, model.SpecialtyID, user);
+                var result = await _courseService.AddAsync(model.Title, model.Description, model.CourseType, model.MaxCapacity, model.SessionCount, model.HourlyCost, model.SessionCost, model.IsActive, model.CoachID, model.SpecialtyID, user);
 
                 if (!result)
                 {
@@ -282,7 +343,7 @@ namespace Web.Controllers.Courses
         [Authorize(Roles = "Staff")]
         [HttpPost("Edit/{courseId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int courseId, string title, string description, string courseType, int? maxCapacity, int? sessionCount, decimal hourlyCost, decimal? hourlyCost2, bool isActive/*, int userId, int updatedBy*/)
+        public async Task<IActionResult> Edit(int courseId, string title, string description, string courseType, int? maxCapacity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive/*, int userId, int updatedBy*/)
         {
             try
             {
@@ -297,7 +358,7 @@ namespace Web.Controllers.Courses
 
                
 
-                var result = await _courseService.UpdateAsync(courseId, title, description, courseType, maxCapacity, sessionCount, hourlyCost, hourlyCost2, isActive, user);
+                var result = await _courseService.UpdateAsync(courseId, title, description, courseType, maxCapacity, sessionCount, hourlyCost, sessionCost, isActive, user);
 
                 if (!result)
                 {
@@ -390,6 +451,23 @@ namespace Web.Controllers.Courses
                     throw new ArgumentException("Please select a valid repeat type.");
 
                 var totalOccurrences = repeatType == "None" ? 1 : Math.Clamp(repeatCount, 1, 365);
+
+                if (course.SessionCount.HasValue)
+                {
+                    var openSessionCount = (await _courseEnrollmentService
+                        .GetOpenSessionsByCourseAsync(courseId))
+                        .Count();
+                    var completedSessionCount = (await _courseEnrollmentService
+                        .GetCompletedSessionsByCourseAsync(courseId))
+                        .Count();
+                    var countedSessionCount = openSessionCount + completedSessionCount;
+
+                    if (countedSessionCount + totalOccurrences > course.SessionCount.Value)
+                        throw new InvalidOperationException(
+                            $"This course can have at most {course.SessionCount.Value} sessions. " +
+                            $"There are currently {openSessionCount} open and {completedSessionCount} completed sessions.");
+                }
+
                 var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
                 var timings = new List<ScheduleTiming>();
 
@@ -443,6 +521,10 @@ namespace Web.Controllers.Courses
             var session = await _courseEnrollmentService.GetAsync(enrollmentId);
             if (session == null) return NotFound();
 
+            var registeredSessionIds = await _courseEnrollmentService
+                .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
+            ViewBag.HasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
+
             return PartialView("_EditSession", session);
         }
 
@@ -464,22 +546,28 @@ namespace Web.Controllers.Courses
                 var result = false;
                 session.Location = location;
                 session.StaffNote = staffNote;
-                session.Status = status;
 
-                //This also include if update the session Status to 'Canceled', all children's registration to the session need to be canceled. 
-                result = await _courseEnrollmentService.UpdateSessionAsync(session);
+                var registeredSessionIds = await _courseEnrollmentService
+                    .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
+                var hasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
+
+                if (hasRegistrations)
+                    session.Status = status;
+
+                if (hasRegistrations && status == "Canceled")
+                {
+                    // The session and all active child registrations are canceled in one database save.
+                    result = await _courseEnrollmentService
+                        .CancelSessionAndChildRegistrationsAsync(session, staffNote);
+                }
+                else
+                {
+                    result = await _courseEnrollmentService.UpdateSessionAsync(session);
+                }
 
 
                 if (result)
                 {
-                    if (status == "Canceled")
-                    { 
-                        await _courseEnrollmentService.UpdateChildCanceledSessionsAsync(session.EnrollmentID, staffNote);
-
-                        //Send email to all enrolled children
-
-                    }
-
                     return Json(new { success = true });
 
                 }

@@ -23,13 +23,11 @@ namespace Core.Interfaces
 
         //Task<Child> GetChildByIdAsync(int childId);
 
-        Task<IEnumerable<Parent>> GetParentsByChildAsync(int childId);
-
         Task<IEnumerable<PaymentPackage>> GetAllActivePackagesAsync();
         //Task<bool> AddAsync(int childId, int parentId, int packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
-        Task<int> AddTokenPaymentAsync(int childId, int parentId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
+        Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
 
-        Task<int> AddNoneTokenPaymentAsync(int childId, int parentId, int? feeId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
+        Task<int> AddNoneTokenPaymentAsync(int childId, int? feeId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
 
 
         Task<bool> UpdateAsync(Payment payment);

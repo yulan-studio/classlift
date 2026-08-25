@@ -189,7 +189,7 @@ namespace Core.Repositories
                CoachName = e.Course.Coach != null ? e.Course.Coach.Name : "N/A",
                SpecialtyName = e.Course.Specialty.Title,
                HourlyCost = e.Course.HourlyCost,
-               HourlyCost2 = e.Course.HourlyCost2,
+               SessionCost = e.Course.SessionCost,
                Status = e.Status,
                RegisteredSessions = _context.CourseEnrollments.Count(c => c.ChildID == e.ChildID && c.CourseID == e.CourseID && c.Status == "Registered" && c.EnrollmentID_Ref != null), // Count all registered sessions
                ScheduledSessions = _context.CourseEnrollments.Count(c => c.ChildID == e.ChildID && c.CourseID == e.CourseID && c.Status == "Scheduled" && c.EnrollmentID_Ref != null), // Count all scheduled sessions
@@ -637,6 +637,29 @@ namespace Core.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> CancelSessionAndChildRegistrationsAsync(CourseEnrollment session, string? staffNote)
+        {
+            var childRegistrations = await _context.CourseEnrollments
+                .Where(e => e.EnrollmentID_Ref == session.EnrollmentID
+                            && e.ChildID != null
+                            && e.Status != "Canceled"
+                            && e.Status != "Deleted"
+                            && e.Status != "Completed")
+                .ToListAsync();
+
+            session.Status = "Canceled";
+            session.StaffNote = staffNote;
+
+            foreach (var registration in childRegistrations)
+            {
+                registration.Status = "Canceled";
+                registration.StaffNote = staffNote;
+            }
+
+            _context.CourseEnrollments.Update(session);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
 
 
         public async Task<bool> UpdateCompletedCoursesAsync()
@@ -803,6 +826,9 @@ namespace Core.Repositories
                //Address = e.Activity.Address,
                //ScheduledAt = e.Activity.ScheduledAt,
                Description = e.Course.Description,
+               SessionCount = e.Course.SessionCount,
+               SessionCost = e.Course.SessionCost,
+               HourlyCost = e.Course.HourlyCost,
                Status = e.Status,
 
                TotalCost = _context.Fees

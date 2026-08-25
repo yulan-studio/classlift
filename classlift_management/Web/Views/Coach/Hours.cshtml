@@ -14,7 +14,7 @@
         <tr style="background-color: #1B7BAB; color: white;">
             <th>Session Date</th>
             <th>Course</th>
-            <th>Child</th>
+            <th>@CurrentTenant.Terminology.ParticipantSingular</th>
             <th>Hours</th>
             <th>Income for Session</th>
             <th>Total Income So Far</th>
@@ -38,7 +38,7 @@
 <h4>Total Income: <strong>$@total.ToString("F2")</strong></h4> *@
 
 
-<h2>Coach Hours</h2>
+<h2>@CurrentTenant.Terminology.ProviderSingular Hours</h2>
 
 <table style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
@@ -112,7 +112,7 @@
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Child</th>
+                        <th>@CurrentTenant.Terminology.ParticipantSingular</th>
                             <th>Course</th>
                             <th>Hours</th>
                         </tr>

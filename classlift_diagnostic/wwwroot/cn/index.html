@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="3 分钟了解你的业务是靠人运行，还是靠系统运行。" />
+  <title>ClassLift — Business Scalability Diagnostic</title>
+  <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+  <link rel="icon" type="image/png" href="/images/classlift_logo.png?v=2" />
+  <link rel="apple-touch-icon" href="/images/classlift_logo.png?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=20260824-2" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="ClassLift 首页"><img class="brand-logo" src="/images/classlift_logo.png" alt=""><span>ClassLift</span></a>
+    <div class="header-note"><span class="status-dot"></span> 免费业务诊断 <span class="sep">·</span> 约 2 分钟 <a class="language-link" href="/en/">EN</a></div>
+  </header>
+
+  <main id="app">
+    <section id="landing" class="landing">
+      <div class="hero-copy">
+        <div class="eyebrow"><span>FREE DIAGNOSTIC</span><i></i><span>2026 EDITION</span></div>
+        <h1>如果客户增加一倍，<br><em>你的员工也需要增加一倍吗？</em></h1>
+        <p class="hero-lede">用 2 分钟找出当前需要改善的运营问题，确定最高优先级，并了解业务增长可能受到哪些流程限制。</p>
+        <button class="primary-btn" id="startBtn">开始免费诊断 <span>→</span></button>
+        <p class="microcopy">无需信用卡 · 约 2 分钟 · 结果仅用于生成你的专属报告</p>
+      </div>
+
+      <div class="score-preview" aria-label="报告预览">
+        <div class="preview-top"><span>YOUR REPORT</span><span class="confidential">CONFIDENTIAL</span></div>
+        <div class="preview-score"><div><strong>68</strong><span>/ 100</span></div><div class="score-label">Growth<br>Ready</div></div>
+        <div class="preview-bars">
+          <div><span>运营效率</span><i><b style="width:72%"></b></i><small>18/25</small></div>
+          <div><span>系统化程度</span><i><b style="width:60%"></b></i><small>12/20</small></div>
+          <div><span>关键人员独立</span><i><b style="width:45%"></b></i><small>9/20</small></div>
+          <div><span>财务控制</span><i><b style="width:73%"></b></i><small>11/15</small></div>
+          <div><span>规模化能力</span><i><b style="width:90%"></b></i><small>18/20</small></div>
+        </div>
+        <div class="preview-stamp">SAMPLE</div>
+      </div>
+
+      <div class="deliverables">
+        <span>完成后你将获得</span>
+        <div><b>01</b><p><strong>总评分</strong><small>Business Scalability Score</small></p></div>
+        <div><b>02</b><p><strong>5 项能力分析</strong><small>清晰看见运营短板</small></p></div>
+        <div><b>03</b><p><strong>Top 3 瓶颈</strong><small>聚焦最值得关注的问题</small></p></div>
+        <div><b>04</b><p><strong>改善路线图</strong><small>具体、可执行的优先级</small></p></div>
+      </div>
+    </section>
+
+    <section id="quiz" class="quiz hidden">
+      <aside class="quiz-aside">
+        <a class="brand aside-brand" href="#"><img class="brand-logo" src="/images/classlift_logo.png" alt=""><span>ClassLift</span></a>
+        <div class="aside-content"><span id="sectionLabel">ABOUT YOUR BUSINESS</span><h2 id="asideTitle">先了解一点<br>你的业务</h2><p id="asideHint">你的回答将用于校准评分，不会公开。</p></div>
+        <div class="aside-footer"><span id="stepCounter">01 / 11</span><div class="progress-track"><b id="progressBar"></b></div><button id="saveExit">保存并退出</button></div>
+      </aside>
+      <div class="quiz-main">
+        <button class="back-btn" id="backBtn" aria-label="返回上一题">← <span>上一题</span></button>
+        <form id="questionForm"><div id="questionMount"></div><div class="form-actions"><button type="submit" class="primary-btn next-btn">继续 <span>→</span></button><span class="enter-tip">按 Enter ↵</span></div></form>
+      </div>
+    </section>
+
+    <section id="leadGate" class="lead-gate hidden">
+      <div class="generating-card">
+        <div class="check-ring">✓</div><span class="eyebrow simple">DIAGNOSTIC COMPLETE</span>
+        <h2>你的诊断已经完成</h2><p>我们已根据你的回答准备好 Business Scalability Report。把完整报告发送到哪里？</p>
+        <form id="leadForm">
+          <label>你的名字<input name="name" required autocomplete="name" placeholder="例如：Alex Chen"></label>
+          <label>Email<input type="email" name="email" required autocomplete="email" placeholder="alex@company.com"></label>
+          <label>机构名称 <small>选填</small><input name="organization" autocomplete="organization" placeholder="你的机构名称"></label>
+          <label>机构网站 <small>选填</small><input type="url" name="websiteUrl" autocomplete="url" placeholder="https://www.example.com"></label>
+          <button class="primary-btn" type="submit">生成我的报告 <span>→</span></button>
+        </form>
+        <div class="privacy-note">🔒 你的资料只用于发送报告，我们不会出售你的信息。</div>
+      </div>
+    </section>
+
+    <section id="report" class="report hidden"></section>
+  </main>
+  <script src="/app-cn.js?v=20260824-4"></script>
+</body>
+</html>

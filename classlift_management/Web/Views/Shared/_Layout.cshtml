@@ -1,9 +1,24 @@
 ﻿<!DOCTYPE html>
+@{
+    var defaultLogoUrl = "/images/classlift_logo.png";
+    var defaultFaviconUrl = "/favicon.ico";
+    var currentTenant = Context.Items["CurrentTenant"] as Core.Models.CurrentTenant;
+    var logoStorage = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions
+        .GetRequiredService<Core.R2.R2StorageService>(Context.RequestServices);
+    var navigationLogoUrl = string.IsNullOrWhiteSpace(currentTenant?.DatabaseName)
+        ? defaultLogoUrl
+        : $"{logoStorage.GetPublicUrl($"branding/{currentTenant.DatabaseName}/logo")}?v={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+}
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    <link id="organizationFavicon"
+          rel="icon"
+          href="@navigationLogoUrl"
+          data-fallback-url="@defaultFaviconUrl"
+          onerror="this.onerror=null;this.href=this.dataset.fallbackUrl;" />
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
@@ -160,7 +175,10 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
             <a class="navbar-brand" href="/">
-                <img src="/images/classlift_logo.png" alt="NSNS Logo" />
+                <img src="@navigationLogoUrl"
+                     data-fallback-url="@defaultLogoUrl"
+                     onerror="this.onerror=null;this.src=this.dataset.fallbackUrl;"
+                     alt="Organization logo" />
             </a>
 
             <button class="navbar-toggler"
@@ -175,12 +193,16 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-lg-0 ms-auto">
-
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item"><a class="nav-link" href="/Account/Settings">Settings</a></li>
+                    }
                     @if (User.IsInRole("Admin"))
                     {
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Admin/List">Admins</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Staff/List">Staff</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Report/Index">Reports</a></li>
                     }
                     @if (User.IsInRole("Staff"))
@@ -188,11 +210,11 @@
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Specialty/List">Specialties</a></li>
                         <li class="nav-item"><a class="nav-link" href="/City/List">Cities</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Coach/List">Coaches</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Coach/List">@CurrentTenant.Terminology.ProviderPlural</a></li>
+                       
                         <li class="nav-item"><a class="nav-link" href="/Course/List">Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Activity/List">Activities</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Child/List">Children</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Child/List">@CurrentTenant.Terminology.ParticipantPlural</a></li>
                     }
                     @if (User.IsInRole("Coach"))
                     {
@@ -207,7 +229,6 @@
                         <li class="nav-item"><a class="nav-link" href="/Child/MyRegistrations">Registrations</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyConfirmations">Confirmations</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MySchedules">Schedules</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Child/MyEnrollmentsHistory">Enrollments</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyCalendar">Calendar</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyBalance">Balance</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyPayments">Payments</a></li>
@@ -215,7 +236,6 @@
 
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item"><a class="nav-link" href="/Account/Settings">Settings</a></li>
                         <li class="nav-item">
                             <a class="nav-link text-danger"
                                href="#"
@@ -249,7 +269,7 @@
     </main>
 
     <footer class="text-center bg-light">
-        <p class="mb-0">&copy; @DateTime.UtcNow.Year - NSNS</p>
+        <p class="mb-0">&copy; @DateTime.UtcNow.Year - ClassLift</p>
     </footer>
 
     @RenderSection("Scripts", required: false)

@@ -13,13 +13,15 @@ namespace Core.Interfaces
     public interface IActivityService
     {
 
-        Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, /*Decimal cost,*/ /*bool isActive,*/ string status, User user);
+        Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, /*bool isActive,*/ string status, User user);
 
         Task<bool> RemoveAsync(int userId);
 
-        Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing,/* Decimal cost,*/ /*bool isActive,*/ string status, User user);
+        Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, /*bool isActive,*/ string status, User user);
 
         Task<Activity> GetAsync(int userId);
+
+        Task<bool> HasRegistrationsAsync(int activityId);
 
         Task<IEnumerable<ActivityViewModel>> GetAllAsync();
 

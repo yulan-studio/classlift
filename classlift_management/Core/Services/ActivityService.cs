@@ -30,8 +30,10 @@ namespace Core.Services
             _activityRepository = activityRepository;
         }
 
-        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, /*Decimal Cost,*/ string status, User user)
+        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, string status, User user)
         {
+            if (cost < 0)
+                throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
 
 
             // Create the activity
@@ -44,7 +46,7 @@ namespace Core.Services
                 ScheduledAt = timing.ScheduledAtUtc,
                 ScheduledLocalTime = timing.ScheduledLocalTime,
                 ScheduledTimeZoneId = timing.TimeZoneId,
-                //Cost = Cost,
+                Cost = cost,
                 //IsActive = isActive,
                 Status = status,
                 CreatedBy = user.Id,
@@ -75,7 +77,7 @@ namespace Core.Services
         }
 
 
-        public async Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing, /*Decimal cost,*/ /*bool isActive, */string status, User user)
+        public async Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, string status, User user)
         //public async Task<bool> UpdateAsync(Activity activity)
         {
             //Find the staff by ID
@@ -85,6 +87,12 @@ namespace Core.Services
                 throw new Exception("Activity not found.");
             }
 
+            if (cost < 0)
+                throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
+
+            if (await _activityRepository.HasRegistrationsAsync(id) && (activity.Cost ?? 0) != cost)
+                throw new InvalidOperationException("Cost cannot be changed after the activity has registrations.");
+
             // Update fields
             activity.Title = title;
             activity.Description = description;
@@ -93,7 +101,7 @@ namespace Core.Services
             activity.ScheduledAt = timing.ScheduledAtUtc;
             activity.ScheduledLocalTime = timing.ScheduledLocalTime;
             activity.ScheduledTimeZoneId = timing.TimeZoneId;
-            //activity.Cost = cost;
+            activity.Cost = cost;
             //activity.IsActive = isActive;
             activity.Status = status;
             activity.UpdatedDate = DateTime.UtcNow;
@@ -112,6 +120,11 @@ namespace Core.Services
             }
 
             return activity;
+        }
+
+        public Task<bool> HasRegistrationsAsync(int activityId)
+        {
+            return _activityRepository.HasRegistrationsAsync(activityId);
         }
 
 

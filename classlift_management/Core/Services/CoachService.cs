@@ -49,7 +49,7 @@ namespace Core.Services
 
         }
 
-        public async Task<bool> AddAsync(string name, string email, string password, List<int> specialtyIds, string gender, string phone, string? wechat, int cityId, User user)
+        public async Task<bool> AddAsync(string name, string email, string password, List<int> specialtyIds, string gender, string phone, int cityId, User user)
         {
             // Check if a user with the same email already exists
 
@@ -86,10 +86,10 @@ namespace Core.Services
                 UserID = newUser.Id,
                 Name = name,
                 Phone = phone,
-                Wechat = wechat,
                 CityID = cityId,
                 City = city,
                 Gender = gender,
+                Status = "Active",
                 CoachSpecialties = specialtyIds.Select(specialtyId => new CoachSpecialty
                 {
                     SpecialtyID = specialtyId
@@ -124,7 +124,7 @@ namespace Core.Services
 
        
 
-        public async Task<bool> UpdateAsync(int coachId, string? memberID, string? preferedName, string? address, string? postCode, int? bank, int? transit, int? account, string status,  bool photoConsent/*, string password*/)
+        public async Task<bool> UpdateAsync(int coachId, string? memberID, string? preferedName, string? wechat, string? whatsApp, string? address, string? postCode, int? bank, int? transit, int? account, string status,  bool photoConsent/*, string password*/)
         {
             // Find the coach by ID
             var coach = await _coachRepository.GetAsync(coachId);
@@ -136,6 +136,8 @@ namespace Core.Services
             // Update fields
             coach.MemberID = memberID;
             coach.PreferedName = preferedName;
+            coach.Wechat = wechat;
+            coach.WhatsApp = whatsApp;
             coach.Address = address;
             coach.PostCode = postCode;
             coach.Bank = bank;
@@ -160,7 +162,7 @@ namespace Core.Services
 
 
 
-        public async Task<bool> UpdateAsync(int coachId, string name,string email, /*string password,*/ List<int> specialtyIds, string gender, string phone, string wechat, int cityId, User user)
+        public async Task<bool> UpdateAsync(int coachId, string name,string email, /*string password,*/ List<int> specialtyIds, string gender, string phone, int cityId, User user)
         {
             // Find the coach by ID
             var coach = await _coachRepository.GetAsync(coachId);
@@ -175,7 +177,6 @@ namespace Core.Services
            
             coach.Gender = gender;
             coach.Phone = phone;
-            coach.Wechat = wechat;
             coach.CityID = cityId;
             coach.User.UpdatedDate = DateTime.UtcNow;
             coach.User.UpdatedBy = user.Id;

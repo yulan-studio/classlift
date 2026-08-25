@@ -1,0 +1,59 @@
+@model Core.ViewModels.OrganizationTerminologyViewModel
+
+<h4>Organization type and role names</h4>
+<p class="text-muted">Choose how the two main user roles are named throughout your organization.</p>
+
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
+}
+
+<form asp-controller="Account" asp-action="Terminology" method="post" class="settings-subform">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="OrganizationType" class="form-label"></label>
+        <select asp-for="OrganizationType" class="form-select" id="organizationType">
+            <option value="Education" data-provider="Teacher" data-providers="Teachers" data-participant="Student" data-participants="Students">Education — Teacher / Student</option>
+            <option value="Youth Coaching" data-provider="Coach" data-providers="Coaches" data-participant="Child" data-participants="Children">Youth coaching — Coach / Child</option>
+            <option value="Coaching" data-provider="Coach" data-providers="Coaches" data-participant="Client" data-participants="Clients">Coaching — Coach / Client</option>
+            <option value="Therapy" data-provider="Therapist" data-providers="Therapists" data-participant="Client" data-participants="Clients">Therapy — Therapist / Client</option>
+            <option value="Custom">Custom role names</option>
+        </select>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="ProviderSingular" class="form-label"></label>
+            <input asp-for="ProviderSingular" class="form-control terminology-name" />
+            <span asp-validation-for="ProviderSingular" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ProviderPlural" class="form-label"></label>
+            <input asp-for="ProviderPlural" class="form-control terminology-name" />
+            <span asp-validation-for="ProviderPlural" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ParticipantSingular" class="form-label"></label>
+            <input asp-for="ParticipantSingular" class="form-control terminology-name" />
+            <span asp-validation-for="ParticipantSingular" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ParticipantPlural" class="form-label"></label>
+            <input asp-for="ParticipantPlural" class="form-control terminology-name" />
+            <span asp-validation-for="ParticipantPlural" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-check mt-3">
+        <input asp-for="ParticipantsRequireParentSupport" class="form-check-input" />
+        <label asp-for="ParticipantsRequireParentSupport" class="form-check-label"></label>
+        <div class="form-text">
+            Enable this to show parent and guardian support features for participants. Existing parent records are preserved if it is later disabled.
+        </div>
+    </div>
+
+    <div class="form-text mt-2">These are display names only. Existing accounts and permissions are not changed.</div>
+    <button type="submit" class="btn btn-primary mt-3">Save organization settings</button>
+</form>
