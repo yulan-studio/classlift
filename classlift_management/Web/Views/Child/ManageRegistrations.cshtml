@@ -56,6 +56,10 @@
             foreach (var enrollment in Model.CourseEnrollments)
 
             {
+                var canRemove = enrollment.Status == "Registered" &&
+                    (!enrollment.IsPaid ||
+                     (enrollment.CourseType == "Private" && !enrollment.SessionCount.HasValue));
+
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                     @* <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.CourseType</td> *@
@@ -63,7 +67,7 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.CoachName</td> *@
                     
                     @* <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.HourlyCost</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.HourlyCost2</td> *@
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.SessionCost</td> *@
                 @*     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.IsActive</td> *@
                    
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.SessionCount</td>
@@ -89,13 +93,16 @@
                     
 
                     <td style="padding: 8px; border: 1px solid #ddd;">
-                        <form method="post" action="/Child/UnregisterCourse">
-                            <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
-                            <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;@(enrollment.CompletedSessions == 0 && enrollment.ScheduledSessions == 0 && !@enrollment.IsPaid ? "" : "display: none;")">
-                                Remove
-                            </button>
-                        </form>
+                        @if (canRemove)
+                        {
+                            <form method="post" action="/Child/UnregisterCourse">
+                                <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
+                                <input type="hidden" name="childId" value="@enrollment.ChildID" />
+                                <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+                                    Remove
+                                </button>
+                            </form>
+                        }
                     </td>
                     <td style="padding: 8px; border: 1px solid #ddd; @(concernIds.Contains(@enrollment.EnrollmentID) ? "background-color: #F8C3DF;" : "")">
                         <a href="/Child/ManageSessionRegistrations?childId=@enrollment.ChildID&courseId=@enrollment.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(enrollment.CourseType == "Group" ?"":"display: none;")">Manage</a>
@@ -189,6 +196,10 @@
             <option value="">-- Select Course --</option>
         </select>
 
+        <span id="openSessionInfo" style="display: none; margin-left: 10px; color: darkslategray;">
+            Open Sessions: <strong id="openSessionCount">0</strong>
+        </span>
+
         <input type="hidden" name="scheduledHours" value="0" />
         <div style="margin-top: 20px; margin-bottom:20px;">
         <!-- Select Payment Model -->
@@ -197,7 +208,7 @@
             <option value="">-- Select Payment Model --</option>
             <option value="Direct">Direct</option>
             <option value="Token">Token</option>
-            <option value="OAP">OAP</option>
+            @* <option value="OAP">OAP</option> *@
         </select>
 
             <label style="font-size:0.9em; color:darkslategray"> - If there is enough balance, choose 'Token'.</label>
@@ -205,7 +216,7 @@
         <!-- Fee Input (visible conditionally) -->
         <span id="feeSection" style="display:none; margin-top:10px;">
             <label for="totalCost">Fee:</label>
-                <input type="number" step="1" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" />
+                <input type="number" step="0.01" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" readonly />
 
             <!-- Description Textarea -->
             <label for="description" style="margin-top:8px; display:block;">Description:</label>
@@ -267,7 +278,13 @@
                         <form method="post" action="/Child/UnregisterActivity">
                             <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
                             <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(enrollment.Status == "Canceled" || enrollment.Status == "Completed" ? "display: none" : "")">
+                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(
+                                enrollment.IsPaid ||
+                                enrollment.Status == "Confirmed" ||
+                                enrollment.Status == "Canceled" ||
+                                enrollment.Status == "Completed"
+                                    ? "display: none"
+                                    : "")">
                                 Remove
                             </button>
                         </form>
@@ -332,20 +349,19 @@
     <input type="hidden" name="childId" value="@Model.Child.ChildID" />
 
     <label for="activityId">Select Activity:</label>
-    <select id="activityId" name="activityId" required>
+    <select id="activityId" name="activityId" required onchange="updateActivityFeeDetails()">
         <option value="">-- Select Activity --</option>
         @foreach (var activity in ViewBag.ActivityList)
         {
-            <option value="@activity.Value">@activity.Text</option>
+            <option value="@activity.Value" data-cost="@activity.Cost">@activity.Text</option>
         }
     </select>
         <div style="margin-top: 10px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label @* for="PaymentModel2" *@>Payment Model:</label>
-            <select id="paymentModel" name="paymentModel" required onchange="toggleActivityFeeInput(this);updateDescription(this);">
+            <select id="activityPaymentModel" name="paymentModel" required onchange="updateActivityFeeDetails()">
             <option value="">-- Select Payment Model --</option>
             <option value="Token">Token</option>
-            <option value="OAP">OAP</option>
             <option value="Direct">Direct</option>
         </select>
 
@@ -353,12 +369,12 @@
 
         <!-- Fee Input (visible conditionally) -->
         <span id="activityFeeSection" style="display:none; margin-top:10px;">
-            <label for="totalCost">Fee:</label>
-                <input type="number" step="1" min="0" id="totalCost" name="totalCost" oninput="updateDescription(this)" />
+            <label for="activityTotalCost">Fee:</label>
+                <input type="number" step="0.01" min="0" id="activityTotalCost" name="totalCost" readonly />
 
             <!-- Description Textarea -->
-            <label for="description" style="margin-top:8px; display:block;">Description:</label>
-            <textarea id="description" name="description" rows="3" cols="40"
+            <label for="activityDescription" style="margin-top:8px; display:block;">Description:</label>
+            <textarea id="activityDescription" name="description" rows="3" cols="40"
                       placeholder="Enter fee details here..."></textarea>
                 
         </span>
@@ -374,6 +390,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
 <script>
         function fetchCoursesBySpecialty(specialtyId) {
+            document.getElementById("openSessionInfo").style.display = "none";
+            document.getElementById("openSessionCount").textContent = "0";
+
             if (!specialtyId) {
                 document.getElementById('courseId').innerHTML = '<option value="">-- Select Course --</option>';
                 return;
@@ -389,31 +408,55 @@
                         option.value = course.courseID;
                         option.text = course.title;
                         option.setAttribute("data-course-type", course.courseType);
+                        option.setAttribute("data-session-count", course.sessionCount ?? "");
+                        option.setAttribute("data-session-cost", course.sessionCost ?? "");
+                        option.setAttribute("data-open-session-count", course.openSessionCount);
                         courseDropdown.add(option);
                     });
                 });
     }
 
 
-    let isGroupClass = false;
+    let usesSessionFee = false;
 
     function checkIfGroupClass(courseId) {
         const courseDropdown = document.getElementById("courseId");
         const selectedOption = courseDropdown.options[courseDropdown.selectedIndex];
         const courseType = selectedOption.getAttribute("data-course-type");
+        const sessionCount = selectedOption.getAttribute("data-session-count");
+        const openSessionCount = Number(selectedOption.getAttribute("data-open-session-count") || 0);
+        const sessionCost = Number(selectedOption.getAttribute("data-session-cost") || 0);
+        usesSessionFee = courseType === "Group" || (courseType === "Private" && sessionCount !== "");
+        const requiresTokenPayment = courseType === "Private" && sessionCount === "";
+        const openSessionInfo = document.getElementById("openSessionInfo");
+        const paymentModelDropdown = courseDropdown.closest("form").querySelector("[name='paymentModel']");
 
-        if (courseType === "Group") {
-            isGroupClass = true;
-        } else {
-            isGroupClass = false;
+        Array.from(paymentModelDropdown.options).forEach(option => {
+            option.disabled = requiresTokenPayment && option.value !== "Token";
+        });
+
+        if (requiresTokenPayment) {
+            paymentModelDropdown.value = "Token";
         }
 
-        toggleCourseFeeInput();
+        openSessionInfo.style.display = usesSessionFee ? "inline" : "none";
+        document.getElementById("openSessionCount").textContent = openSessionCount;
+
+        const totalCostInput = document.getElementById("totalCost");
+        totalCostInput.readOnly = true;
+        if (usesSessionFee) {
+            totalCostInput.value = (sessionCost * openSessionCount).toFixed(2);
+        } else {
+            totalCostInput.value = "";
+        }
+
+        toggleCourseFeeInput(courseDropdown);
+        updateDescription(totalCostInput);
     }
 
     function toggleCourseFeeInput(element) {
-        const parentDiv = element.closest("div"); // Find nearest div section
-        const paymentModelDropdown = parentDiv.querySelector("[name='paymentModel']");
+        const parentForm = element.closest("form");
+        const paymentModelDropdown = parentForm.querySelector("[name='paymentModel']");
         const paymentModel = paymentModelDropdown.value;
         const feeSection = document.getElementById("feeSection");
 
@@ -422,7 +465,7 @@
             document.getElementById("totalCost").setAttribute("required", "required");
         }
         else if (paymentModel === "Token") {
-            if (isGroupClass) {
+            if (usesSessionFee) {
                 feeSection.style.display = "block";
                 document.getElementById("totalCost").setAttribute("required", "required");
 
@@ -467,40 +510,45 @@
 
 
 
-    function toggleActivityFeeInput(element) {
-        const parentDiv = element.closest("div"); // Find nearest div section
-        const paymentModelDropdown = parentDiv.querySelector("[name='paymentModel']");
-        //const paymentModel = document.getElementById("paymentModel").value;
-        const paymentModel = paymentModelDropdown.value;
+    function updateActivityFeeDetails() {
+        const activityDropdown = document.getElementById("activityId");
+        const selectedActivity = activityDropdown.options[activityDropdown.selectedIndex];
+        const paymentModel = document.getElementById("activityPaymentModel").value;
         const feeSection = document.getElementById("activityFeeSection");
+        const totalCostInput = document.getElementById("activityTotalCost");
+        const descriptionInput = document.getElementById("activityDescription");
+        const hasActivity = Boolean(activityDropdown.value);
 
-        if (paymentModel === "Direct") {
-            feeSection.style.display = "block";
-            document.getElementById("totalCost").setAttribute("required", "required");
+        if (!hasActivity || !paymentModel) {
+            feeSection.style.display = "none";
+            totalCostInput.removeAttribute("required");
+            totalCostInput.value = "";
+            descriptionInput.value = "";
+            return;
         }
-        else if (paymentModel === "Token") {
 
-                feeSection.style.display = "block";
-                document.getElementById("totalCost").setAttribute("required", "required");
-        }
-        else if (paymentModel === "OAP") {
+        const cost = Number(selectedActivity.getAttribute("data-cost") || 0);
+        const formattedCost = cost.toFixed(2);
+        feeSection.style.display = "block";
+        totalCostInput.setAttribute("required", "required");
+        totalCostInput.value = formattedCost;
 
-                feeSection.style.display = "block";
-                document.getElementById("totalCost").setAttribute("required", "required");
-        }
-        else {
-                feeSection.style.display = "none";
-                document.getElementById("totalCost").removeAttribute("required");
+        if (cost === 0) {
+            descriptionInput.value = "Free";
+        } else if (paymentModel === "Token") {
+            descriptionInput.value = `Use Token - $${formattedCost} will be deducted from your balance once confirmed.`;
+        } else {
+            descriptionInput.value = `Please email transfer $${formattedCost} to [youremail_address], and send screenshot to customer service.`;
         }
     }
 
 
 
         function updateDescription(element) {
-        const parentDiv = element.closest("div"); // Find nearest div section
-        const paymentModelDropdown = parentDiv.querySelector("[name='paymentModel']");
-        const totalCostInput = parentDiv.querySelector("[name='totalCost']");
-        const descriptionInput = parentDiv.querySelector("[name='description']");
+        const parentForm = element.closest("form");
+        const paymentModelDropdown = parentForm.querySelector("[name='paymentModel']");
+        const totalCostInput = parentForm.querySelector("[name='totalCost']");
+        const descriptionInput = parentForm.querySelector("[name='description']");
 
         const paymentModel = paymentModelDropdown.value;
         const totalCost = totalCostInput.value.trim();

@@ -21,10 +21,15 @@ namespace Web.Controllers.Setting
     {
         //private readonly AppDbContext _context;
         private ICityService _cityService;
+        private readonly IProvinceService _provinceService;
         private readonly UserManager<Core.Models.User> _userManager;
-        public CityController(ICityService cityService, UserManager<Core.Models.User> userManager)
+        public CityController(
+            ICityService cityService,
+            IProvinceService provinceService,
+            UserManager<Core.Models.User> userManager)
         {
             _cityService = cityService;
+            _provinceService = provinceService;
             _userManager = userManager;
         }
 
@@ -33,6 +38,7 @@ namespace Web.Controllers.Setting
         public async Task<IActionResult> List(string sortOrder)
         {
             ViewData["CityNameParm"] = sortOrder == "name" ? "name_desc" : "name";
+            ViewData["ProvinceNameParm"] = sortOrder == "province" ? "province_desc" : "province";
             //var cities =await _cityService.GetAllAsync();
             //return View(cities);
 
@@ -46,6 +52,14 @@ namespace Web.Controllers.Setting
                     break;
                 case "name":
                     allCities = allCities.OrderBy(s => s.Name);
+                    break;
+                case "province_desc":
+                    allCities = allCities.OrderByDescending(s => s.Province != null ? s.Province.Name : string.Empty)
+                        .ThenBy(s => s.Name);
+                    break;
+                case "province":
+                    allCities = allCities.OrderBy(s => s.Province != null ? s.Province.Name : string.Empty)
+                        .ThenBy(s => s.Name);
                     break;
             }
 
@@ -64,7 +78,14 @@ namespace Web.Controllers.Setting
         [HttpGet("Add")]
         public async Task<IActionResult> Add()
         {
+            await PopulateProvincesAsync();
             return PartialView("_Add", new City{ Name = string.Empty });
+        }
+
+        [HttpGet("AddProvince")]
+        public IActionResult AddProvince()
+        {
+            return PartialView("_AddProvince", new Province { Name = string.Empty });
         }
 
 
@@ -77,6 +98,7 @@ namespace Web.Controllers.Setting
             var city = await _cityService.GetAsync(cityId);
             if (city == null) return NotFound();
 
+            await PopulateProvincesAsync(city.ProvinceID);
             return PartialView("_Edit", city);
         }
 
@@ -88,11 +110,17 @@ namespace Web.Controllers.Setting
         [HttpPost("Save")]
         public async Task<IActionResult> Save(City city)
         {
-            
-                if (!ModelState.IsValid)
-                    return BadRequest("Invalid data");
+            if (!city.ProvinceID.HasValue)
+                ModelState.AddModelError(nameof(city.ProvinceID), "Please select a province.");
+
+            if (!ModelState.IsValid)
+            {
+                await PopulateProvincesAsync(city.ProvinceID);
+                return PartialView(city.CityID == 0 ? "_Add" : "_Edit", city);
+            }
             //city.CreatedBy = 1;  //temparaly set it to 1
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
             try
             {
                 var result = false;
@@ -139,6 +167,41 @@ namespace Web.Controllers.Setting
             }
 
             
+        }
+
+        [HttpPost("SaveProvince")]
+        public async Task<IActionResult> SaveProvince(Province province)
+        {
+            if (!ModelState.IsValid)
+                return PartialView("_AddProvince", province);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            try
+            {
+                province.CreatedBy = user.Id;
+                province.CreatedDate = DateTime.UtcNow;
+                if (await _provinceService.AddAsync(province))
+                    TempData["SuccessMessage"] = "The province has been added.";
+                else
+                    TempData["ErrorMessage"] = "The province could not be added.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction("List");
+        }
+
+        private async Task PopulateProvincesAsync(int? selectedProvinceId = null)
+        {
+            ViewBag.Provinces = new SelectList(
+                await _provinceService.GetAllAsync(),
+                nameof(Province.ProvinceID),
+                nameof(Province.Name),
+                selectedProvinceId);
         }
 
 

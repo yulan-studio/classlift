@@ -1,5 +1,15 @@
 ﻿@model Core.Models.Coach
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["ErrorMessage"]</div>
+}
+
 @* <div>
     <p><strong>Name:</strong> @Model.Name</p>
     <p><strong>Birth Date:</strong> @(Model.BirthDate.HasValue ? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</p>
@@ -19,6 +29,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">City</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
         </tr>
     </thead>
 
@@ -41,16 +52,18 @@
             </td>
             <td style="padding: 8px; border: 1px solid #ddd;">@Model.Phone</td>
             <td style="padding: 8px; border: 1px solid #ddd;">@Model.User.Email</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@(Model.Status == "InActive" ? "InActive" : "Active")</td>
         </tr>
     </tbody>
 </table>
 
 
-<a href="/Coach/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to Coaches List</a>
+<a href="/Coach/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to @CurrentTenant.Terminology.ProviderPlural List</a>
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
 <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" ? "active" : "")" href="#" data-url="/Coach/CoreInfo/@Model.CoachID">Core Member Information</a></li>
+    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "EmergencyContacts" ? "active" : "")" href="#" data-url="/Coach/EmergencyContacts/@Model.CoachID">Emergency Contacts</a></li>
    @*  <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Parents" ? "active" : "")" href="#" data-url="/Child/Parents/@Model.ChildID">Parents</a></li> *@
     @* <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "ManagePayments" ? "active" : "")" href="#" data-url="/Child/ManagePayments/@Model.ChildID">Payments</a></li>
     <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Registerations" ? "active" : "")" href="#" data-url="/Child/Registrations/@Model.ChildID">Registrations</a></li>

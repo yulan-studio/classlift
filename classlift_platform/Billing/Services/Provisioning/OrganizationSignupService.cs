@@ -89,7 +89,8 @@ namespace Billing.Services.Provisioning
                 tenantConnectionString,
                 request.AdminEmail,
                 request.AdminPassword,
-                "Admin");
+                "Admin",
+                request.AdminName);
 
             // 9. Return tenant URL
 

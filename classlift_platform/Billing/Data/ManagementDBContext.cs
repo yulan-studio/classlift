@@ -8,6 +8,8 @@ namespace Billing.Data;
 
 public partial class ManagementDBContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
+    public DbSet<Admin> Admins => Set<Admin>();
+
     
     public ManagementDBContext(DbContextOptions<ManagementDBContext> options)
         : base(options)
@@ -24,6 +26,22 @@ public partial class ManagementDBContext : IdentityDbContext<User, IdentityRole<
             .HasCharSet("utf8mb4");
 
         modelBuilder.Entity<User>().ToTable("users"); // Explicitly map to the table name
+
+        modelBuilder.Entity<Admin>(entity =>
+        {
+            entity.ToTable("admins");
+            entity.HasKey(admin => admin.AdminId);
+            entity.Property(admin => admin.AdminId).HasColumnName("AdminID");
+            entity.Property(admin => admin.UserId).HasColumnName("UserID");
+            entity.Property(admin => admin.Name).HasMaxLength(255);
+            entity.Property(admin => admin.Phone).HasMaxLength(50);
+            entity.Property(admin => admin.Wechat).HasMaxLength(100);
+            entity.HasIndex(admin => admin.UserId).IsUnique();
+            entity.HasOne<User>()
+                .WithOne()
+                .HasForeignKey<Admin>(admin => admin.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
 
         modelBuilder.Entity<IdentityRole<int>>().ToTable("roles");

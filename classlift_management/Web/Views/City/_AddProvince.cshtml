@@ -1,0 +1,11 @@
+@model Province
+
+<form asp-action="SaveProvince" asp-controller="City" method="post">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Province Name</label>
+        <input asp-for="Name" class="form-control" placeholder="Province Name" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Province</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+</form>

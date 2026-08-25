@@ -3,7 +3,7 @@
 *@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Manage Coaches";
+    ViewData["Title"] = $"Manage {CurrentTenant.Terminology.ProviderPlural}";
 }
 
 
@@ -30,13 +30,13 @@
     }
 </style>
 
-<h1>Manage Coaches</h1>
+<h1>Manage @CurrentTenant.Terminology.ProviderPlural</h1>
 
-<a href="/Coach/Add" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add Coach</a>
+<a href="/Coach/Add" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add @CurrentTenant.Terminology.ProviderSingular</a>
 
 
 <form method="get" asp-action="List" style="margin-bottom:15px;">
-    <input type="text" name="searchName" placeholder="Search coach name..."
+    <input type="text" name="searchName" placeholder="Search @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() name..."
            style="padding:5px; width:250px;" value="@Context.Request.Query["searchName"]" />
 
     <button type="submit" style="padding:5px 10px; margin-left: 10px;">Search</button>
@@ -78,13 +78,13 @@
             </th>
 
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["PreferedNameSortParm"]" style="color: black; text-decoration: none; ">
-                    Chosen Name
-                    @if ((string)ViewData["CurrentSort"] == "preferedName")
+                <a asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" style="color: black; text-decoration: none; ">
+                    Status
+                    @if ((string)ViewData["CurrentSort"] == "status")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "preferedName_desc")
+                    else if ((string)ViewData["CurrentSort"] == "status_desc")
                     {
 
                         <span>▼</span>
@@ -138,7 +138,9 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.MemberID</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Name</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.PreferedName</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @(coachWithDelete.Coach.Status == "InActive" ? "InActive" : "Active")
+                    </td>
                     <td style="padding: 8px; border: 1px solid #ddd;">
                         @if (coachWithDelete.Coach.CoachSpecialties != null && coachWithDelete.Coach.CoachSpecialties.Any())
                         {

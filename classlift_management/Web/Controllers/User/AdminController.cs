@@ -118,11 +118,8 @@ namespace Web.Controllers.User
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"{ex.Message}";
+                return RedirectToAction("List");
             }
-
-            // If delete fails, reload the confirmation page
-            var admin = await _adminService.RemoveAsync(adminId);
-            return View(admin);
         }
 
 

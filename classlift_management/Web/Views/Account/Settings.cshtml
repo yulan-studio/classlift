@@ -5,12 +5,20 @@
 <h2 class="mb-4">Settings</h2>
 
 <ul class="nav nav-tabs mb-3">
+    @if (User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "Branding" ? "active" : "")"
+               href="#"
+               data-url="/Account/Branding">Branding</a>
+        </li>
+    }
     <li class="nav-item">
         <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
            href="#"
            data-url="/Account/TimeZone">Time Zone</a>
     </li>
-    @if (User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
+    @if (User.IsInRole("Admin") || User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
     {
         <li class="nav-item">
             <a class="nav-link @(ViewBag.ActiveTab == "ChangePassword" ? "active" : "")"
@@ -18,7 +26,7 @@
                data-url="/Account/ChangePassword">Change Password</a>
         </li>
     }
-    @if (User.IsInRole("Staff"))
+    @if (User.IsInRole("Admin"))
     {
         <li class="nav-item">
             <a class="nav-link @(ViewBag.ActiveTab == "ResetPassword" ? "active" : "")"
@@ -53,15 +61,59 @@
             $(document).on("submit", ".settings-form", function (event) {
                 event.preventDefault();
                 var form = $(this);
+                var formData = new FormData(form[0]);
 
                 $.ajax({
                     url: form.attr("action"),
                     method: "POST",
-                    data: form.serialize(),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function (html) {
                         $("#contentArea").html(html);
+                        var updatedLogo = $("#contentArea [data-updated-logo-url]").data("updated-logo-url");
+                        if (updatedLogo) {
+                            $(".navbar-brand img")
+                                .attr("onerror", "this.onerror=null;this.src=this.dataset.fallbackUrl;")
+                                .attr("src", updatedLogo);
+                            $("#organizationFavicon")
+                                .attr("onerror", "this.onerror=null;this.href=this.dataset.fallbackUrl;")
+                                .attr("href", updatedLogo);
+                        }
                     }
                 });
+            });
+
+            $(document).on("submit", ".settings-subform", function (event) {
+                event.preventDefault();
+                var form = $(this);
+
+                $.ajax({
+                    url: form.attr("action"),
+                    method: "POST",
+                    data: new FormData(form[0]),
+                    processData: false,
+                    contentType: false,
+                    success: function (html) {
+                        form.closest(".settings-subsection").html(html);
+                    }
+                });
+            });
+
+            $(document).on("change", "#Logo", function () {
+                if (this.files && this.files[0]) {
+                    $("#logoPreview").attr("src", URL.createObjectURL(this.files[0]));
+                }
+            });
+
+            $(document).on("change", "#organizationType", function () {
+                var selected = $(this).find(":selected");
+                if ($(this).val() === "Custom") return;
+
+                $("#ProviderSingular").val(selected.data("provider"));
+                $("#ProviderPlural").val(selected.data("providers"));
+                $("#ParticipantSingular").val(selected.data("participant"));
+                $("#ParticipantPlural").val(selected.data("participants"));
             });
         });
     </script>

@@ -132,9 +132,11 @@ namespace Core.Repositories
         public async Task<IEnumerable<Coach>> GetCoachesBySpecialtyAsync(int specialtyId)
         {
             return await _context.CoachSpecialties
-                .Where(cs => cs.SpecialtyID == specialtyId)
+                .Where(cs => cs.SpecialtyID == specialtyId
+                    && cs.Coach.Status == "Active")
                 .Include(cs => cs.Coach) // Ensure Coach entity is loaded
                 .Select(cs => cs.Coach)  // Extract the Coach entity
+                .AsNoTracking()
                 .ToListAsync();
         }
 

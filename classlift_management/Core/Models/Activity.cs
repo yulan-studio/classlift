@@ -34,8 +34,8 @@ namespace Core.Models
 
         public decimal? ScheduledHours { get; set; }
 
-        //[Column(TypeName = "decimal(10, 2)")]
-        //public decimal Cost { get; set; }
+        [Column(TypeName = "decimal(10, 2)")]
+        public decimal? Cost { get; set; }
 
         //public bool IsActive { get; set; } = true;
 

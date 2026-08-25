@@ -17,21 +17,26 @@
     <p><strong>Gender:</strong> @Model.Child.Gender</p>
     <p><strong>City:</strong> @(Model.Child.City != null ? Model.Child.City.Name : "N/A")</p>
 </div>
-<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to Children List</a>
+<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to @CurrentTenant.Terminology.ParticipantPlural List</a>
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div> *@
 
 
 
 <!-- ✅ Table Showing Payments -->
 <h3 style="color: 007bff">Manage Payments</h3>
+
+<div style="padding-top: 20px;">
+  
+</div>
+
 <table style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; border: 1px solid #ddd;">Parent</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Token Payment</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Direct Payment | OAP Payment</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Amount</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Payment Date</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Token Payment</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Direct Payment</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Amount</th>
+            
             <th style="padding: 8px; border: 1px solid #ddd;">Screenshot</th>
 
             <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
@@ -46,11 +51,11 @@
 
             {
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@payment.Parent.Name</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(payment.PaymentDate.HasValue ? payment.PaymentDate.Value.ToString("yyyy-MM-dd") : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.PaymentPackage != null ? payment.PaymentPackage.Title : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.Fee != null ? (payment.Fee.CourseEnrollment != null ? payment.Fee.CourseEnrollment.Course.Title : (payment.Fee.ActivityEnrollment!=null?payment.Fee.ActivityEnrollment.Activity.Title:"")) : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">$@payment.Amount</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@(payment.PaymentDate.HasValue? payment.PaymentDate.Value.ToString("yyyy-MM-dd") : "")</td>
+                   
                     <td style="padding: 8px; border: 1px solid #ddd;">
                         @if (!string.IsNullOrEmpty(payment.Receipt))
 
@@ -84,7 +89,7 @@
 
         {
             <tr>
-                <td colspan="7" style="text-align: center; padding: 10px;">No payments found.</td>
+                <td colspan="6" style="text-align: center; padding: 10px;">No payments found.</td>
             </tr>
         }
 
@@ -92,7 +97,7 @@
 
         {
             <tr>
-                <td colspan="7">
+                <td colspan="6">
                     <div class="alert alert-success">
                         @TempData["SuccessMessage"]
                     </div>
@@ -104,7 +109,7 @@
 
         {
             <tr>
-                <td colspan="7">
+                <td colspan="6">
                     <div class="alert alert-danger">
                         @TempData["ErrorMessage"]
                     </div>
@@ -126,19 +131,6 @@
        
 
         <table style="width: 100%; border-collapse: collapse;">
-            <!-- Select Parent -->
-            <tr>
-                <td style="padding: 8px; width: 200px;"><label for="parentId">Select Parent:</label></td>
-                <td>
-                    <select id="parentId" name="parentId" required style="width: 20%;">
-                        <option value="">-- Select Parent --</option>
-                        @foreach (var parent in ViewBag.ParentList)
-                        {
-                            <option value="@parent.Value">@parent.Text</option>
-                        }
-                    </select>
-                </td>
-            </tr>
             <!-- Payment Type -->
             <tr>
                 <td style="padding: 8px;"><label>Payment Type:</label></td>
@@ -148,17 +140,13 @@
                     &nbsp;&nbsp;
                     <input type="radio" id="manualPayment" name="paymentType" value="manual" onchange="togglePaymentType()">
                     <label for="manualPayment">Direct Payment</label>
-                    &nbsp;&nbsp;
-                    
-                    <input type="radio" id="oapPayment" name="paymentType" value="oap"  onchange="togglePaymentType()">
-                    <label for="oapPayment">OAP Payment</label>
                 </td>
             </tr>
             <!-- Package Row -->
             <tr id="packageRow">
                 <td style="padding: 8px;"><label for="packageId">Select Package:</label></td>
                 <td>
-                    <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" style="width: 20%;">
+                    <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" style="width: 40%;">
                         <option value="">-- Select Package --</option>
                         @foreach (var package in ViewBag.PaymentPackages)
                         {
@@ -205,58 +193,21 @@
             </tr>
 
 
-            <!-- OAP Payment Row -->
-            <tr id="oapPaymentRow" style="display: none;">
-                <td style="padding: 8px; vertical-align: top;"><label>Select Course or Activity:</label></td>
-                <td>
-                    @if (ViewBag.UnpaidOAPItems != null && ViewBag.UnpaidOAPItems.Count > 0)
-                    {
-
-                        @foreach (var item in ViewBag.UnpaidOAPItems)
-                        {
-                            <div style="margin-bottom: 6px;">
-                                <input type="radio"
-                                       name="selectedFeeId"
-                                       value="@item.FeeID"
-                                       data-cost="@item.TotalCost"
-                                       data-feeId="@item.FeeID"
-                                       id="fee_@item.FeeID"
-                                       onchange="updateAmountFromFee(this)" />
-                                <label for="fee_@item.FeeID">[@item.Type] @item.Title (@item.TotalCost.ToString("C"))</label>
-                            </div>
-
-                            @* <label for="fee_@item.FeeID">@item.Type: @item.Title (@item.TotalCost.ToString("C"))</label> *@
-
-                            @* @item.Type  @item.Title @item.TotalCost.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-CA")); *@
-                        }
-
-                        <input type="hidden" name="feeId" id="feeId" />
-
-                    }
-                    else
-                    {
-                        <p style="color: gray;">No unpaid courses or activities available.</p>
-                    }
-                </td>
-            </tr>
-
-         
-
             <!-- Amount -->
             <tr>
                 <td style="padding: 8px;"><label for="amount">Amount:</label></td>
-                <td><input id="amount" name="amount" required readonly style="width: 20%;" /></td>
+                <td><input id="amount" name="amount" required readonly style="width: 40%;" /></td>
             </tr>
 
             <!-- Upload Receipt -->
             <tr>
                 <td style="padding: 8px;"><label for="file">Upload Screenshot:</label></td>
-                <td><input type="file" name="file" accept="image/*" required style="width: 20%;" /></td>
+                <td><input type="file" name="file" accept="image/*" required style="width: 40%;" /></td>
             </tr>
             <!-- Payment Date -->
             <tr>
                 <td style="padding: 8px;"><label for="paymentDate">Payment Date:</label></td>
-                <td><input type="date" name="paymentDate" required style="width: 20%;" /></td>
+                <td><input type="date" name="paymentDate" required style="width: 40%;" /></td>
             </tr>
             <!-- Submit -->
             <tr>
@@ -283,15 +234,26 @@
         //alert("toggleAmountField called");
         var isPackage = document.getElementById('packagePayment').checked;
         var isDirect = document.getElementById('manualPayment').checked;
-        var isOAP = document.getElementById('oapPayment').checked;
 
         //document.getElementById('packageDiv').style.display = isPackage ? 'block' : 'none';
         // Toggle the <tr> rows
         //document.getElementById('packageRow').style.display = isPackage ? 'table-row' : 'none';
         document.getElementById('packageRow').style.display = isPackage ? 'table-row' : 'none';
         document.getElementById('directPaymentRow').style.display = isDirect ? 'table-row' : 'none';
-        document.getElementById('oapPaymentRow').style.display = isOAP ? 'table-row' : 'none';
         document.getElementById('amount').readOnly = isPackage;
+
+        if (isPackage) {
+            document.getElementById('amount').value = '';
+
+            document.querySelectorAll("input[name='selectedFeeId']").forEach(function (radio) {
+                radio.checked = false;
+            });
+
+            const feeIdInput = document.getElementById('feeId');
+            if (feeIdInput) {
+                feeIdInput.value = '';
+            }
+        }
 
         if (!isPackage) {
             document.getElementById('amount').value = ''; // clear for manual entry

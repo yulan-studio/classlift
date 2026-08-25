@@ -32,7 +32,7 @@ namespace Core.Interfaces
         Task<IEnumerable<City>> GetAllUsedAsync();
 
         // Get all Specialties
-        Task<IEnumerable<City>> GetByNameAsync(string name);
+        Task<IEnumerable<City>> GetByNameAsync(string name, int? provinceId);
        
 
 

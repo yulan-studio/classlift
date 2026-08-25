@@ -94,14 +94,15 @@
             <span class="desktop-only">
                <strong>Course Type: </strong>  @courseSchedules.Course.CourseType
             
-                <strong> &nbsp; &nbsp; Sessions Count: </strong> @courseSchedules.Course.SessionCount
+                <strong> &nbsp; &nbsp; Sessions Count: </strong> @(courseSchedules.Course.SessionCount?.ToString() ?? "N/A")
             </span>
 
-            <strong> &nbsp; &nbsp;Coach: </strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")
+            <strong> &nbsp; &nbsp;@CurrentTenant.Terminology.ProviderSingular: </strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")
             @if (courseSchedules.Course.CourseType == "Private")
             {
                 <strong> &nbsp; &nbsp;Phone#: </strong> @(courseSchedules.Course.Coach?.Phone ?? "N/A")
                 <strong> &nbsp; &nbsp;WeChat: </strong> @(courseSchedules.Course.Coach?.Wechat ?? "N/A")
+                <strong> &nbsp; &nbsp;WhatsApp: </strong> @(courseSchedules.Course.Coach?.WhatsApp ?? "N/A")
             }
 
            
@@ -153,7 +154,7 @@
                                 </th>
                             }
 
-                            <th width="20%">Parent Note</th>
+                            <th width="20%">@CurrentTenant.Terminology.ParticipantSingular Note</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -224,7 +225,7 @@
                                         }
                                     </td>
 
-                                    <td data-label="Parent Note">
+                                    <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">
                                         <textarea name="Schedules[@i].ParentNote" class="form-control" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" ? "disabled" : "")>
                                             @courseSchedules.Schedules[i].ParentNote
                                         </textarea>
@@ -270,16 +271,16 @@
                 @if (courseSchedules.Course.CourseType == "Group")
                 {
                     <div style="padding: 10px 20px 10px 20px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
-                                If you can’t attend the session, select 'Request to Leave' and click 'Save Changes'. <span style="color:brown">A one-time reschedule is available for your first leave request. </span>Please type 'First Leave' in the Parent Note with your request and contact NSNS support team.<br />
-                                如果您无法参加课程，请选择"Request to Leave(请假申请)"并点击"Save Changes"。<span style="color:brown">首次请假可享有一次改期机会。</span>请在家长备注中输入"首次请假"，并联系北极星客服。
+                                If you can’t attend the session, select 'Request to Leave' and click 'Save Changes'. <br />
+                               
                     </div>
                 }
 
                 @if (courseSchedules.Course.CourseType == "Private")
                 {
                     <div style="padding: 10px 20px 10px 20px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
-                        You can request a reschedule by clicking 'Request to Reschedule' at least 24 hours before the session begins. It is recommended that you communicate with the coach before making a reschedule request.<br />
-                        您可以在课程开始前至少24小时选择"Request to Reschedule(申请改期)"并点击"Save Changes"来提交改期请求。建议您在提出改期申请前先与教练沟通。
+                        You can request a reschedule by clicking 'Request to Reschedule' at least 24 hours before the session begins. 
+                        
                     </div>
                 }
                
@@ -311,35 +312,17 @@ else
 
 @if (Model.ActivitySchedules!=null && Model.ActivitySchedules.Any())
 {
-<table class="mobile-table" style="border-collapse: collapse; width: 100%; text-align: left;">
-    <thead class="table-primary">
-        <tr>
-            <th>Activity</th>
-            <th>Description</th>
-            <th>Address</th>
-            <th>Scheduled At</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-       
-            @foreach (var enrollment in Model.ActivitySchedules)
-            {
-                <tr>
-                   
-
-                    <td data-label="Activity">@enrollment.Activity.Title</td>
-                    <td data-label="Description">@enrollment.Activity.Description</td>
-                    <td data-label="Address">@enrollment.Activity.Address</td>
-                    <td data-label="Scheduled At">@enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
-                    <td data-label="Status">@enrollment.Status</td>
-                </tr>
-            }
-    
-
-
-    </tbody>
-</table>
+    @foreach (var enrollment in Model.ActivitySchedules)
+    {
+        <div class="course-summary" style="padding: 12px; margin: 16px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
+            <h5>Activity: @enrollment.Activity.Title</h5>
+            
+            <strong> Scheduled At: </strong> @enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
+            <strong> &nbsp; &nbsp;Address: </strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Address) ? "N/A" : enrollment.Activity.Address)<br/>
+            <strong>Description: </strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Description) ? "N/A" : enrollment.Activity.Description)
+            
+        </div>
+    }
 }
 else
 {

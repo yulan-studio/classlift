@@ -70,6 +70,8 @@ namespace Core.Interfaces
 
         Task UpdateChildCanceledSessionsAsync(int courseId, string staffNote);
 
+        Task<bool> CancelSessionAndChildRegistrationsAsync(CourseEnrollment session, string? staffNote);
+
         Task<bool> UpdateCompletedCoursesAsync();
 
         Task<bool> UpdateCompletedCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken);

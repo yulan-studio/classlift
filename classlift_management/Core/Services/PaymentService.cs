@@ -78,18 +78,13 @@ namespace Core.Services
         //}
 
 
-        public async Task<IEnumerable<Parent>> GetParentsByChildAsync(int childId)
-        {
-            return await _paymentRepository.GetParentsByChildAsync(childId);
-        }
-
         public async Task<IEnumerable<PaymentPackage>> GetAllActivePackagesAsync()
         {
             return await _paymentRepository.GetAllActivePackagesAsync();
         }
 
         // 🔹 Add a new payment
-        public async Task<int> AddTokenPaymentAsync(int childId, int parentId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user)
+        public async Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user)
         {
             
            // var createdBy = 1;
@@ -101,12 +96,6 @@ namespace Core.Services
                 throw new Exception("Child is not found.");
             }
 
-            var parent = await _parentRepository.GetAsync(parentId);
-            if (parent == null)
-            {
-                throw new Exception("Parent is not found.");
-            }
-
             //var createdByUser = await _userRepository.GetAsync(createdBy);
             //if (createdByUser == null)
             //{
@@ -115,12 +104,10 @@ namespace Core.Services
 
             var payment = new Payment
             {
-                //ChildID = childId,
-                ParentID = parentId,
+                ChildID = childId,
                 CreatedBy = user.Id,
                 PaymentPackageID = packageId,
                 Amount = amount,
-                Parent = parent,
                 Child = child,
                 PaymentDate = paymentDate,
                 CreatedByUser = user,
@@ -143,7 +130,7 @@ namespace Core.Services
         }
 
 
-        public async Task<int> AddNoneTokenPaymentAsync(int childId, int parentId, int? feeId, decimal amount, DateTime? paymentDate, string receiptPath, User user)
+        public async Task<int> AddNoneTokenPaymentAsync(int childId, int? feeId, decimal amount, DateTime? paymentDate, string receiptPath, User user)
         {
             //return await _paymentRepository.AddDirectPaymentAsync(feeId, createdBy);
 
@@ -157,12 +144,6 @@ namespace Core.Services
             if (child == null)
             {
                 throw new Exception("Child is not found.");
-            }
-
-            var parent = await _parentRepository.GetAsync(parentId);
-            if (parent == null)
-            {
-                throw new Exception("Parent is not found.");
             }
 
            
@@ -188,12 +169,10 @@ namespace Core.Services
             var payment = new Payment
             {
                 ChildID = childId,
-                ParentID = parentId,
                 CreatedBy = user.Id,
                 //PaymentPackageID = packageId,
                 FeeID = feeId,
                 Amount = amount,
-                Parent = parent,
                 Child = child,
                 PaymentDate = paymentDate,
                 CreatedByUser = user,

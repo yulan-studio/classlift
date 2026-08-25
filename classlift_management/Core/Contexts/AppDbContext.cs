@@ -94,6 +94,7 @@ namespace Core.Contexts
         public DbSet<Specialty> Specialties { get; set; }
 
         public DbSet<City> Cities { get; set; }
+        public DbSet<Province> Provinces { get; set; }
 
         public DbSet<CoachSpecialty> CoachSpecialties { get; set; }
 
@@ -215,6 +216,15 @@ namespace Core.Contexts
 
             modelBuilder.Entity<City>()
         .ToTable("cities"); // Explicitly map to the table name
+
+            modelBuilder.Entity<Province>()
+        .ToTable("provinces");
+
+            modelBuilder.Entity<City>()
+                .HasOne(city => city.Province)
+                .WithMany(province => province.Cities)
+                .HasForeignKey(city => city.ProvinceID)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CoachSpecialty>()
         .ToTable("coach_specialty"); // Explicitly map to the table name

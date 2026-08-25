@@ -18,7 +18,6 @@ namespace Core.Services
     {
         private readonly IAdminRepository _adminRepository;
         private readonly IUserRegistrationService _userRegistrationService;
-        private readonly IUserRepository<User> _userRepository;
         private readonly UserManager<Core.Models.User> _userManager;
         //private readonly IPasswordHasher<Admin> _passwordHasher;
         //private readonly JwtOptions _jwtOptions;
@@ -26,11 +25,10 @@ namespace Core.Services
 
 
 
-        public AdminService(IAdminRepository adminRepository, IUserRegistrationService userRegistrationService, IUserRepository<User> userRepository, UserManager<Core.Models.User> userManager/*, IPasswordHasher<Admin> password, IOptions<JwtOptions> jwtOptions*/)
+        public AdminService(IAdminRepository adminRepository, IUserRegistrationService userRegistrationService, UserManager<Core.Models.User> userManager/*, IPasswordHasher<Admin> password, IOptions<JwtOptions> jwtOptions*/)
         {
             _adminRepository = adminRepository;
             _userRegistrationService = userRegistrationService;
-            _userRepository = userRepository;
             _userManager = userManager;
             //_passwordHasher = password;
             //_jwtOptions = jwtOptions.Value;
@@ -79,18 +77,22 @@ namespace Core.Services
 
         public async Task<bool> RemoveAsync(int adminId)
         {
-            // Find the staff by ID
+            // Keep at least one admin account so the application cannot be left
+            // without an administrator.
+            if (await _adminRepository.CountAsync() <= 1)
+            {
+                throw new InvalidOperationException("The only admin member cannot be deleted. Add another admin before deleting this one.");
+            }
+
+            // Find the admin by ID
             var admin = await _adminRepository.GetAsync(adminId);
             if (admin == null)
             {
-                throw new Exception("Staff not found.");
+                throw new Exception("Admin not found.");
             }
 
-            // Remove the admin
-            var result = await _adminRepository.RemoveAsync(admin);
-            if (result)
-                result = await _userRepository.RemoveAsync(admin.User);
-            return result;
+            // The repository removes the admin profile and Identity user in one save.
+            return await _adminRepository.RemoveAsync(admin);
 
         }
 

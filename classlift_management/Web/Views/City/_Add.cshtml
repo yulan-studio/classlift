@@ -35,6 +35,15 @@
 <form asp-action="Save" method="post" id="cityForm">
     <table style="border-collapse: collapse; text-align: left; width: 100%;">
         <tr>
+            <td style="padding: 8px; width: 40%"><label asp-for="ProvinceID">Province:</label></td>
+            <td style="padding: 8px; width: 60%">
+                <select asp-for="ProvinceID" asp-items="ViewBag.Provinces" class="form-select" required>
+                    <option value="">-- Select Province --</option>
+                </select>
+                <span asp-validation-for="ProvinceID" class="text-danger"></span>
+            </td>
+        </tr>
+        <tr>
             <td style="padding: 8px; width: 40%">
                 <label for="Name">City Name:</label>
             </td>

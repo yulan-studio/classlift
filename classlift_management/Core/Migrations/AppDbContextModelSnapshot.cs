@@ -31,17 +31,18 @@ namespace Core.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ActivityID"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<int?>("ContactID")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("Cost")
-                        .HasColumnType("decimal(10, 2)");
-
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
@@ -49,14 +50,14 @@ namespace Core.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int?>("MaxCapacity")
+                    b.Property<int>("MaxCapacity")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ScheduledAt")
+                    b.Property<DateTime>("ScheduledAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("ScheduledHours")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<DateTime?>("ScheduledLocalTime")
                         .HasColumnType("datetime(6)");
@@ -64,6 +65,10 @@ namespace Core.Migrations
                     b.Property<string>("ScheduledTimeZoneId")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -108,6 +113,7 @@ namespace Core.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
@@ -259,6 +265,9 @@ namespace Core.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ChildID"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime(6)");
 
@@ -268,10 +277,44 @@ namespace Core.Migrations
                     b.Property<string>("Gender")
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("HasOAP")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("MemberID")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("OAPAmount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("PhotoConsent")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("PostCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("PrimaryDiagnosis")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("WeChat")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("WhatsApp")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<int>("UserID")
                         .HasColumnType("int");
@@ -303,13 +346,16 @@ namespace Core.Migrations
                     b.Property<decimal?>("BalanceChange")
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<string>("Calculation")
+                        .HasColumnType("longtext");
+
                     b.Property<int?>("ChildID")
                         .HasColumnType("int");
 
                     b.Property<int?>("CourseID")
                         .HasColumnType("int");
 
-                    b.Property<int>("CreatedBy")
+                    b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
@@ -320,6 +366,13 @@ namespace Core.Migrations
 
                     b.Property<int?>("PaymentID")
                         .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
@@ -361,6 +414,9 @@ namespace Core.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<int?>("ProvinceID")
+                        .HasColumnType("int");
+
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
@@ -370,6 +426,8 @@ namespace Core.Migrations
                     b.HasKey("CityID");
 
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("ProvinceID");
 
                     b.HasIndex("UpdatedBy");
 
@@ -384,6 +442,16 @@ namespace Core.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CoachID"));
 
+                    b.Property<int?>("Account")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int?>("Bank")
+                        .HasColumnType("int");
+
                     b.Property<int>("CityID")
                         .HasColumnType("int");
 
@@ -391,6 +459,9 @@ namespace Core.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
+
+                    b.Property<string>("MemberID")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -401,7 +472,21 @@ namespace Core.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<int>("SpecialtyID")
+                    b.Property<bool>("PhotoConsent")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("PostCode")
+                        .HasMaxLength(6)
+                        .HasColumnType("varchar(6)");
+
+                    b.Property<string>("PreferedName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int?>("Transit")
                         .HasColumnType("int");
 
                     b.Property<int>("UserID")
@@ -411,11 +496,13 @@ namespace Core.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<string>("WhatsApp")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.HasKey("CoachID");
 
                     b.HasIndex("CityID");
-
-                    b.HasIndex("SpecialtyID");
 
                     b.HasIndex("UserID")
                         .IsUnique();
@@ -431,10 +518,10 @@ namespace Core.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IncomeID"));
 
-                    b.Property<int?>("CoachID")
+                    b.Property<int>("CoachID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CourseID")
+                    b.Property<int>("CourseID")
                         .HasColumnType("int");
 
                     b.Property<int>("CreatedBy")
@@ -443,7 +530,7 @@ namespace Core.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("EnrollmentID")
+                    b.Property<int>("EnrollmentID")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("Income")
@@ -469,6 +556,21 @@ namespace Core.Migrations
                     b.ToTable("coach_income", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Models.CoachSpecialty", b =>
+                {
+                    b.Property<int>("CoachID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SpecialtyID")
+                        .HasColumnType("int");
+
+                    b.HasKey("CoachID", "SpecialtyID");
+
+                    b.HasIndex("SpecialtyID");
+
+                    b.ToTable("coach_specialty", (string)null);
+                });
+
             modelBuilder.Entity("Core.Models.Course", b =>
                 {
                     b.Property<int>("CourseID")
@@ -477,8 +579,12 @@ namespace Core.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CourseID"));
 
-                    b.Property<int>("CoachID")
+                    b.Property<int?>("CoachID")
                         .HasColumnType("int");
+
+                    b.Property<string>("CourseType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
@@ -487,14 +593,25 @@ namespace Core.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<decimal>("HourlyCost")
+                    b.Property<decimal?>("HourlyCost")
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("MaxCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SessionCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("SessionCost")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("SpecialtyID")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -513,6 +630,8 @@ namespace Core.Migrations
 
                     b.HasIndex("CreatedBy");
 
+                    b.HasIndex("SpecialtyID");
+
                     b.HasIndex("UpdatedBy");
 
                     b.ToTable("courses", (string)null);
@@ -529,8 +648,11 @@ namespace Core.Migrations
                     b.Property<decimal?>("ActualHours")
                         .HasColumnType("decimal(65,30)");
 
-                    b.Property<int>("ChildID")
+                    b.Property<int?>("ChildID")
                         .HasColumnType("int");
+
+                    b.Property<string>("CoachNote")
+                        .HasColumnType("longtext");
 
                     b.Property<int>("CourseID")
                         .HasColumnType("int");
@@ -541,8 +663,20 @@ namespace Core.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("EnrollmentID_Ref")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ParentNote")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime?>("ScheduledAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("ScheduledHours")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<DateTime?>("ScheduledLocalTime")
                         .HasColumnType("datetime(6)");
@@ -551,8 +685,8 @@ namespace Core.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<decimal?>("ScheduledHours")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<string>("StaffNote")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -627,6 +761,97 @@ namespace Core.Migrations
                     b.ToTable("course_notifications", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Models.EmergencyContact", b =>
+                {
+                    b.Property<int>("EmergencyContactID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("EmergencyContactID"));
+
+                    b.Property<int?>("ChildID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CoachID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContactName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Relationship")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("EmergencyContactID");
+
+                    b.HasIndex("ChildID");
+
+                    b.HasIndex("CoachID");
+
+                    b.ToTable("emergency_contacts", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Models.Fee", b =>
+                {
+                    b.Property<int>("FeeID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("FeeID"));
+
+                    b.Property<int?>("ActivityEnrollmentID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CourseEnrollmentID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PaymentModel")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("TotalCost")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("FeeID");
+
+                    b.HasIndex("ActivityEnrollmentID");
+
+                    b.HasIndex("CourseEnrollmentID");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("fees", (string)null);
+                });
+
             modelBuilder.Entity("Core.Models.Parent", b =>
                 {
                     b.Property<int>("ParentID")
@@ -663,6 +888,10 @@ namespace Core.Migrations
                     b.Property<string>("Wechat")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("WhatsApp")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("ParentID");
 
@@ -732,11 +961,11 @@ namespace Core.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("FeeID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Memo")
                         .HasColumnType("longtext");
-
-                    b.Property<int>("ParentID")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("datetime(6)");
@@ -760,7 +989,7 @@ namespace Core.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("ParentID");
+                    b.HasIndex("FeeID");
 
                     b.HasIndex("PaymentPackageID");
 
@@ -807,6 +1036,40 @@ namespace Core.Migrations
                     b.HasKey("PackageID");
 
                     b.ToTable("payment_package", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Models.Province", b =>
+                {
+                    b.Property<int>("ProvinceID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ProvinceID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp");
+
+                    b.HasKey("ProvinceID");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("provinces", (string)null);
                 });
 
             modelBuilder.Entity("Core.Models.Specialty", b =>
@@ -1282,11 +1545,18 @@ namespace Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Core.Models.Province", "Province")
+                        .WithMany("Cities")
+                        .HasForeignKey("ProvinceID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Core.Models.User", "UpdatedByUser")
                         .WithMany()
                         .HasForeignKey("UpdatedBy");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Province");
 
                     b.Navigation("UpdatedByUser");
                 });
@@ -1299,12 +1569,6 @@ namespace Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Core.Models.Specialty", "Specialty")
-                        .WithMany()
-                        .HasForeignKey("SpecialtyID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Core.Models.User", "User")
                         .WithOne()
                         .HasForeignKey("Core.Models.Coach", "UserID")
@@ -1313,8 +1577,6 @@ namespace Core.Migrations
 
                     b.Navigation("City");
 
-                    b.Navigation("Specialty");
-
                     b.Navigation("User");
                 });
 
@@ -1322,15 +1584,21 @@ namespace Core.Migrations
                 {
                     b.HasOne("Core.Models.Coach", "Coach")
                         .WithMany()
-                        .HasForeignKey("CoachID");
+                        .HasForeignKey("CoachID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Core.Models.Course", "Course")
                         .WithMany()
-                        .HasForeignKey("CourseID");
+                        .HasForeignKey("CourseID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Core.Models.CourseEnrollment", "Enrollment")
                         .WithMany()
-                        .HasForeignKey("EnrollmentID");
+                        .HasForeignKey("EnrollmentID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Coach");
 
@@ -1339,17 +1607,40 @@ namespace Core.Migrations
                     b.Navigation("Enrollment");
                 });
 
-            modelBuilder.Entity("Core.Models.Course", b =>
+            modelBuilder.Entity("Core.Models.CoachSpecialty", b =>
                 {
                     b.HasOne("Core.Models.Coach", "Coach")
-                        .WithMany()
+                        .WithMany("CoachSpecialties")
                         .HasForeignKey("CoachID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Core.Models.Specialty", "Specialty")
+                        .WithMany("CoachSpecialties")
+                        .HasForeignKey("SpecialtyID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Coach");
+
+                    b.Navigation("Specialty");
+                });
+
+            modelBuilder.Entity("Core.Models.Course", b =>
+                {
+                    b.HasOne("Core.Models.Coach", "Coach")
+                        .WithMany()
+                        .HasForeignKey("CoachID");
+
                     b.HasOne("Core.Models.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.Specialty", "Specialty")
+                        .WithMany()
+                        .HasForeignKey("SpecialtyID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1361,6 +1652,8 @@ namespace Core.Migrations
 
                     b.Navigation("CreatedByUser");
 
+                    b.Navigation("Specialty");
+
                     b.Navigation("UpdatedByUser");
                 });
 
@@ -1368,9 +1661,7 @@ namespace Core.Migrations
                 {
                     b.HasOne("Core.Models.Child", "Child")
                         .WithMany()
-                        .HasForeignKey("ChildID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ChildID");
 
                     b.HasOne("Core.Models.Course", "Course")
                         .WithMany()
@@ -1426,6 +1717,48 @@ namespace Core.Migrations
                     b.Navigation("UpdatedByUser");
                 });
 
+            modelBuilder.Entity("Core.Models.EmergencyContact", b =>
+                {
+                    b.HasOne("Core.Models.Child", "Child")
+                        .WithMany("EmergencyContacts")
+                        .HasForeignKey("ChildID");
+
+                    b.HasOne("Core.Models.Coach", "Coach")
+                        .WithMany("EmergencyContacts")
+                        .HasForeignKey("CoachID");
+
+                    b.Navigation("Child");
+
+                    b.Navigation("Coach");
+                });
+
+            modelBuilder.Entity("Core.Models.Fee", b =>
+                {
+                    b.HasOne("Core.Models.ActivityEnrollment", "ActivityEnrollment")
+                        .WithMany()
+                        .HasForeignKey("ActivityEnrollmentID");
+
+                    b.HasOne("Core.Models.CourseEnrollment", "CourseEnrollment")
+                        .WithMany()
+                        .HasForeignKey("CourseEnrollmentID");
+
+                    b.HasOne("Core.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.HasOne("Core.Models.User", "UpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy");
+
+                    b.Navigation("ActivityEnrollment");
+
+                    b.Navigation("CourseEnrollment");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("UpdatedByUser");
+                });
+
             modelBuilder.Entity("Core.Models.Parent", b =>
                 {
                     b.HasOne("Core.Models.User", "CreatedByUser")
@@ -1474,11 +1807,9 @@ namespace Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Core.Models.Parent", "Parent")
+                    b.HasOne("Core.Models.Fee", "Fee")
                         .WithMany()
-                        .HasForeignKey("ParentID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FeeID");
 
                     b.HasOne("Core.Models.PaymentPackage", "PaymentPackage")
                         .WithMany()
@@ -1492,9 +1823,26 @@ namespace Core.Migrations
 
                     b.Navigation("CreatedByUser");
 
-                    b.Navigation("Parent");
+                    b.Navigation("Fee");
 
                     b.Navigation("PaymentPackage");
+
+                    b.Navigation("UpdatedByUser");
+                });
+
+            modelBuilder.Entity("Core.Models.Province", b =>
+                {
+                    b.HasOne("Core.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", "UpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy");
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("UpdatedByUser");
                 });
@@ -1580,12 +1928,31 @@ namespace Core.Migrations
 
             modelBuilder.Entity("Core.Models.Child", b =>
                 {
+                    b.Navigation("EmergencyContacts");
+
                     b.Navigation("ParentChild");
+                });
+
+            modelBuilder.Entity("Core.Models.Coach", b =>
+                {
+                    b.Navigation("CoachSpecialties");
+
+                    b.Navigation("EmergencyContacts");
                 });
 
             modelBuilder.Entity("Core.Models.Parent", b =>
                 {
                     b.Navigation("ParentChild");
+                });
+
+            modelBuilder.Entity("Core.Models.Province", b =>
+                {
+                    b.Navigation("Cities");
+                });
+
+            modelBuilder.Entity("Core.Models.Specialty", b =>
+                {
+                    b.Navigation("CoachSpecialties");
                 });
 #pragma warning restore 612, 618
         }

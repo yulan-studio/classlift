@@ -47,6 +47,9 @@ namespace Core.Models
         [MaxLength(100)]
         public string? Wechat { get; set; }
 
+        [MaxLength(50)]
+        public string? WhatsApp { get; set; }
+
         [MaxLength(100)]
         public string? Address { get; set; }
 
@@ -68,6 +71,7 @@ namespace Core.Models
         [Range(00000, 99999, ErrorMessage = "Account must be a 5-digit number.")]
         public int? Account { get; set; }
 
+        [MaxLength(20)]
         public string? Status { get; set; }
 
         public bool PhotoConsent { get; set; }

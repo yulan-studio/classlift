@@ -18,8 +18,11 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Birth Date</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
             <th style="padding: 8px; border: 1px solid #ddd;">City</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Has OAP</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+           @*  <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">WeChat</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">WhatsApp</th> *@
         </tr>
     </thead>
 
@@ -34,20 +37,27 @@
             <td style="padding: 8px; border: 1px solid #ddd;">
                 @(Model.City != null ? Model.City.Name : "N/A")
             </td>
-            <td style="padding: 8px; border: 1px solid #ddd;">@Model.HasOAP</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">@Model.User.Email</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@(Model.Phone ?? "N/A")</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@(Model.User.Email ?? "N/A")</td>
+          @*   <td style="padding: 8px; border: 1px solid #ddd;">@(Model.Phone ?? "N/A")</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@(Model.WeChat ?? "N/A")</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">@(Model.WhatsApp ?? "N/A")</td> *@
         </tr>
     </tbody>
 </table>
 
 
-<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; margin-right: 20px; border: 1px solid #ccc;">Back to Children List</a>
+<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; margin-right: 20px; border: 1px solid #ccc;">Back to @CurrentTenant.Terminology.ParticipantPlural List</a>
 <a href="/Child/Participation/@Model.ChildID">Participation</a>
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
 <ul class="nav nav-tabs mb-3">
-    <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" ? "active" : "")" href="#" data-url="/Child/CoreInfo/@Model.ChildID">Core Member Information</a></li>
-    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Parents" ? "active" : "")" href="#" data-url="/Child/Parents/@Model.ChildID">Parents</a></li>
+    <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" || (!CurrentTenant.Terminology.ParticipantsRequireParentSupport && ViewBag.ActiveTab == "Parents") ? "active" : "")" href="#" data-url="/Child/CoreInfo/@Model.ChildID">Core Member Information</a></li>
+    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "EmergencyContacts" ? "active" : "")" href="#" data-url="/Child/EmergencyContacts/@Model.ChildID">Emergency Contacts</a></li>
+    @if (CurrentTenant.Terminology.ParticipantsRequireParentSupport)
+    {
+        <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Parents" ? "active" : "")" href="#" data-url="/Child/Parents/@Model.ChildID">Parents / Guardians</a></li>
+    }
     @* <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "ManagePayments" ? "active" : "")" href="#" data-url="/Child/ManagePayments/@Model.ChildID">Payments</a></li>
     <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Registerations" ? "active" : "")" href="#" data-url="/Child/Registrations/@Model.ChildID">Registrations</a></li>
     <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "EnrollmentsHistory" ? "active" : "")" href="#" data-url="/Child/EnrollmentsHistory/@Model.ChildID">Enrollments</a></li> *@

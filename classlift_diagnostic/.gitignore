@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+.idea/
+appsettings.Development.json
+.env
+*.user
+*.suo
+.publish-test/

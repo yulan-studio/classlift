@@ -4,6 +4,7 @@
 
 @{
     var selectedStatus = Model.Status;
+    var hasRegistrations = (bool?)ViewBag.HasRegistrations ?? false;
 }
 
 
@@ -22,11 +23,19 @@
 
     <div style="margin-bottom: 10px;">
         <strong>Status:</strong><br />
-        <select id="statusSelect" name="status" required style="width: 50%; padding: 5px;" >
+        <select id="statusSelect" name="status" required disabled="@(!hasRegistrations)" style="width: 50%; padding: 5px;" >
             <option value="Open" selected="@(selectedStatus == "Open")" >Open</option>
             <option value="Canceled" selected="@(selectedStatus == "Canceled")">Canceled</option>
          </select>
-        <br/><span style="color:red">This can't be undo once the session status is set to Canceled.</span>
+        @if (!hasRegistrations)
+        {
+            <input type="hidden" name="status" value="@selectedStatus" />
+            <br/>
+        }
+        else
+        {
+            <br/><span style="color:red">This can't be undone once the session status is set to Canceled.</span>
+        }
     </div>
 
 

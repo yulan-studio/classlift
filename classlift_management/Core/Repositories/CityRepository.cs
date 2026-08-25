@@ -76,6 +76,7 @@ namespace Core.Repositories
         public async Task<City> GetAsync(int id)
         {
             return await _context.Cities
+                .Include(s => s.Province)
                 .Include(s => s.CreatedByUser)
                 .Include(s => s.UpdatedByUser)
                 .FirstOrDefaultAsync(s => s.CityID == id);
@@ -85,6 +86,7 @@ namespace Core.Repositories
         public async Task<IEnumerable<City>> GetAllAsync()
         {
             return await _context.Cities
+                .Include(s => s.Province)
                 .Include(s => s.CreatedByUser)
                 .Include(s => s.UpdatedByUser)
                 .ToListAsync();
@@ -107,10 +109,10 @@ namespace Core.Repositories
         }
 
         // Get all Specialties
-        public async Task<IEnumerable<City>> GetByNameAsync(string name)
+        public async Task<IEnumerable<City>> GetByNameAsync(string name, int? provinceId)
         {
             return await _context.Cities
-                .Where(c => c.Name.ToLower() == name.ToLower())  // ✅ Search for partial match
+                .Where(c => c.Name.ToLower() == name.ToLower() && c.ProvinceID == provinceId)
                 .Include(c => c.CreatedByUser)  // ✅ Include related data if needed
                 .Include(c => c.UpdatedByUser)
                 .ToListAsync();

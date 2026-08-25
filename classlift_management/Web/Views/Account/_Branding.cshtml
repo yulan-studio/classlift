@@ -1,0 +1,49 @@
+@model Core.ViewModels.BrandingSettingsViewModel
+
+<h4>Organization logo</h4>
+<p class="text-muted">Upload a PNG, JPEG, or WebP image up to 2 MB. It will appear in the navigation bar for everyone in your organization.</p>
+
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
+    <span data-updated-logo-url="@Model.CurrentLogoUrl" hidden></span>
+}
+
+<form asp-controller="Account" asp-action="Branding" method="post" enctype="multipart/form-data" class="settings-form">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <div class="border rounded bg-light p-3 d-inline-flex align-items-center justify-content-center"
+             style="width: 240px; height: 100px;">
+            <img id="logoPreview"
+                 src="@Model.CurrentLogoUrl"
+                 data-fallback-url="/images/classlift_logo.png"
+                 onerror="this.onerror=null;this.src=this.dataset.fallbackUrl;"
+                 alt="Current organization logo"
+                 style="max-width: 100%; max-height: 74px; object-fit: contain;" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Logo" class="form-label">Choose a new logo</label>
+        <input asp-for="Logo" class="form-control" type="file" accept="image/png,image/jpeg,image/webp" />
+        <span asp-validation-for="Logo" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save logo</button>
+</form>
+
+<hr class="my-4" />
+
+<div class="settings-subsection">
+    <partial name="_Terminology"
+             model="(Core.ViewModels.OrganizationTerminologyViewModel)ViewBag.Terminology" />
+</div>
+
+<hr class="my-4" />
+
+<div class="settings-subsection">
+    <partial name="_HomePage"
+             model="new Core.ViewModels.HomePageSettingsViewModel { PageUrl = ViewBag.HomePageUrl }" />
+</div>

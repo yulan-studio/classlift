@@ -32,7 +32,7 @@ namespace Core.ViewModels
 
         public decimal? HourlyCost { get; set; }
 
-        public decimal? HourlyCost2 { get; set; }
+        public decimal? SessionCost { get; set; }
         public string Status { get; set; }
 
         public int RegisteredSessions { get; set; }

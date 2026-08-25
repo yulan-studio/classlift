@@ -18,28 +18,12 @@ namespace Core.ViewModels
         public Child Child { get; set; }
         public Course Course { get; set; }
 
-        public int EnrolledSessionsCount { get; set; }
-
-        public int CourseSessionsCount { get; set; }
-
-        public List<SessionOption> AvailableSessions { get; set; } = new();
         public List<SessionViewModel> AllSessions { get; set; } = new();
 
 
         //public List<SessionViewModel> ScheduledSessions { get; set; } = new();
 
 
-
-
-        public class SessionOption
-        {
-            public int EnrollmentID { get; set; } // from the session (Status = "Open")
-            public DateTime ScheduledAt { get; set; }
-            public decimal ScheduledHours { get; set; }
-
-            public string Location { get; set; }
-            public bool IsSelected { get; set; }
-        }
 
 
         public class SessionViewModel

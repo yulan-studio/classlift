@@ -471,6 +471,11 @@ namespace Core.Services
             await _enrollmentRepository.UpdateChildCanceledSessionsAsync(enrollmentId, staffNote);
         }
 
+        public async Task<bool> CancelSessionAndChildRegistrationsAsync(CourseEnrollment session, string? staffNote)
+        {
+            return await _enrollmentRepository.CancelSessionAndChildRegistrationsAsync(session, staffNote);
+        }
+
 
         //This is set Status to "Deleted", not actually delete the record. All the Delete change made by Coach can be seen by Coach and Parent.
         public async Task<bool> RemoveScheduleAsync(int enrollmentId, string coachNote)

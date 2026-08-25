@@ -58,8 +58,11 @@ namespace Core.Repositories
                     SessionCount = c.SessionCount,
 
                     HourlyCost = c.HourlyCost,
-                    HourlyCost2 = c.HourlyCost2,
-                    RegisteredChildrenCount = _context.CourseEnrollments.Count(e => e.CourseID == c.CourseID && (e.Status == "Registered" || e.Status == "Confirmed")), // Count of registered children
+                    SessionCost = c.SessionCost,
+                    RegisteredChildrenCount = _context.CourseEnrollments.Count(e =>
+                        e.CourseID == c.CourseID &&
+                        e.EnrollmentID_Ref == null &&
+                        (e.Status == "Registered" || e.Status == "Confirmed")), // Count root course registrations only; exclude group-session enrollments
                     IsActive = c.IsActive
                 })
                 .OrderBy(c => c.CourseType)

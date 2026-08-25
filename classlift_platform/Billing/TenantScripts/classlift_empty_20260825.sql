@@ -29,6 +29,10 @@ CREATE TABLE `__efmigrationshistory` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `__efmigrationshistory`
+--
+
 
 --
 -- Table structure for table `activities`
@@ -61,8 +65,12 @@ CREATE TABLE `activities` (
   CONSTRAINT `FK_activities_users_ContactID` FOREIGN KEY (`ContactID`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_activities_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_activities_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activities`
+--
 
 
 --
@@ -90,8 +98,12 @@ CREATE TABLE `activity_enrollments` (
   CONSTRAINT `FK_activity_enrollments_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
   CONSTRAINT `FK_activity_enrollments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_activity_enrollments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activity_enrollments`
+--
 
 
 --
@@ -121,6 +133,10 @@ CREATE TABLE `activity_feedback` (
   CONSTRAINT `FK_activity_feedback_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activity_feedback`
+--
 
 
 --
@@ -152,6 +168,10 @@ CREATE TABLE `activity_notifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `activity_notifications`
+--
+
 
 --
 -- Table structure for table `admins`
@@ -169,8 +189,12 @@ CREATE TABLE `admins` (
   PRIMARY KEY (`AdminID`),
   UNIQUE KEY `IX_admins_UserID` (`UserID`),
   CONSTRAINT `FK_admins_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `admins`
+--
 
 
 --
@@ -207,8 +231,12 @@ CREATE TABLE `child_balance` (
   CONSTRAINT `FK_child_balance_course_enrollments_EnrollmentID` FOREIGN KEY (`EnrollmentID`) REFERENCES `course_enrollments` (`EnrollmentID`),
   CONSTRAINT `FK_child_balance_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`),
   CONSTRAINT `FK_child_balance_payments_PaymentID` FOREIGN KEY (`PaymentID`) REFERENCES `payments` (`PaymentID`)
-) ENGINE=InnoDB AUTO_INCREMENT=332 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=336 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `child_balance`
+--
 
 
 --
@@ -237,6 +265,10 @@ CREATE TABLE `children` (
   `UpdatedBy` int DEFAULT NULL,
   `CreatedDate` datetime(6) DEFAULT NULL,
   `UpdatedDate` datetime(6) DEFAULT NULL,
+  `Phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `WeChat` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `WhatsApp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `PostCode` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`ChildID`),
   UNIQUE KEY `IX_children_UserID` (`UserID`),
   KEY `IX_children_CityID` (`CityID`),
@@ -246,8 +278,12 @@ CREATE TABLE `children` (
   CONSTRAINT `FK_children_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_children_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_children_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=174 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `children`
+--
 
 
 --
@@ -264,13 +300,20 @@ CREATE TABLE `cities` (
   `UpdatedBy` int DEFAULT NULL,
   `CreatedDate` timestamp NULL DEFAULT NULL,
   `UpdatedDate` timestamp NULL DEFAULT NULL,
+  `ProvinceID` int DEFAULT NULL,
   PRIMARY KEY (`CityID`),
   KEY `IX_cities_CreatedBy` (`CreatedBy`),
   KEY `IX_cities_UpdatedBy` (`UpdatedBy`),
+  KEY `IX_cities_ProvinceID` (`ProvinceID`),
+  CONSTRAINT `FK_cities_provinces_ProvinceID` FOREIGN KEY (`ProvinceID`) REFERENCES `provinces` (`ProvinceID`) ON DELETE RESTRICT,
   CONSTRAINT `FK_cities_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_cities_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cities`
+--
 
 
 --
@@ -301,6 +344,10 @@ CREATE TABLE `coach_income` (
 ) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `coach_income`
+--
+
 
 --
 -- Table structure for table `coach_specialty`
@@ -318,6 +365,10 @@ CREATE TABLE `coach_specialty` (
   CONSTRAINT `coach_specialty_ibfk_2` FOREIGN KEY (`SpecialtyID`) REFERENCES `specialties` (`SpecialtyID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coach_specialty`
+--
 
 
 --
@@ -343,20 +394,25 @@ CREATE TABLE `coaches` (
   `Bank` int DEFAULT NULL,
   `Transit` int DEFAULT NULL,
   `Account` int DEFAULT NULL,
-  `Status` enum('Citizen','PR','WP','SP','Unknown') DEFAULT 'Unknown',
+  `Status` enum('Active','InActive') DEFAULT 'Active',
   `Avalibility` varchar(255) DEFAULT NULL,
   `PhotoConsent` tinyint(1) DEFAULT '1',
   `CreatedBy` int DEFAULT NULL,
   `UpdatedBy` int DEFAULT NULL,
   `CreatedDate` datetime(6) DEFAULT NULL,
   `UpdatedDate` datetime(6) DEFAULT NULL,
+  `WhatsApp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`CoachID`),
   UNIQUE KEY `IX_coaches_UserID` (`UserID`),
   KEY `IX_coaches_CityID` (`CityID`),
   CONSTRAINT `FK_coaches_cities_CityID` FOREIGN KEY (`CityID`) REFERENCES `cities` (`CityID`) ON DELETE CASCADE,
   CONSTRAINT `FK_coaches_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=143 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=146 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coaches`
+--
 
 
 --
@@ -394,8 +450,12 @@ CREATE TABLE `course_enrollments` (
   CONSTRAINT `FK_course_enrollments_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`) ON DELETE CASCADE,
   CONSTRAINT `FK_course_enrollments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_course_enrollments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1128 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1244 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `course_enrollments`
+--
 
 
 --
@@ -428,6 +488,10 @@ CREATE TABLE `course_notifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `course_notifications`
+--
+
 
 --
 -- Table structure for table `courses`
@@ -443,8 +507,8 @@ CREATE TABLE `courses` (
   `CourseType` varchar(45) DEFAULT NULL,
   `MaxCapacity` int DEFAULT NULL,
   `SessionCount` int DEFAULT NULL,
-  `HourlyCost` decimal(10,2) NOT NULL,
-  `HourlyCost2` decimal(10,2) DEFAULT NULL,
+  `HourlyCost` decimal(10,2) DEFAULT NULL,
+  `SessionCost` decimal(10,2) DEFAULT NULL,
   `IsActive` tinyint(1) NOT NULL,
   `CoachID` int DEFAULT NULL,
   `SpecialtyID` int NOT NULL,
@@ -461,8 +525,12 @@ CREATE TABLE `courses` (
   CONSTRAINT `FK_courses_specialties_SpecialtyID` FOREIGN KEY (`SpecialtyID`) REFERENCES `specialties` (`SpecialtyID`),
   CONSTRAINT `FK_courses_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_courses_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `courses`
+--
 
 
 --
@@ -491,6 +559,10 @@ CREATE TABLE `emergency_contacts` (
   CONSTRAINT `emergency_contacts_ibfk_2` FOREIGN KEY (`CoachID`) REFERENCES `coaches` (`CoachID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `emergency_contacts`
+--
 
 
 --
@@ -523,8 +595,12 @@ CREATE TABLE `fees` (
   CONSTRAINT `FK_fee_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_fee_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `chk_only_one` CHECK ((((`CourseEnrollmentID` is not null) and (`ActivityEnrollmentID` is null)) or ((`CourseEnrollmentID` is null) and (`ActivityEnrollmentID` is not null))))
-) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `fees`
+--
 
 
 --
@@ -548,8 +624,12 @@ CREATE TABLE `parent_child` (
   KEY `IX_parent_child_ParentID` (`ParentID`),
   CONSTRAINT `FK_parent_child_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
   CONSTRAINT `FK_parent_child_parents_ParentID` FOREIGN KEY (`ParentID`) REFERENCES `parents` (`ParentID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `parent_child`
+--
 
 
 --
@@ -569,13 +649,18 @@ CREATE TABLE `parents` (
   `UpdatedBy` int DEFAULT NULL,
   `CreatedDate` datetime(6) DEFAULT NULL,
   `UpdatedDate` datetime(6) DEFAULT NULL,
+  `WhatsApp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`ParentID`),
   KEY `IX_parents_CreatedBy` (`CreatedBy`),
   KEY `IX_parents_UpdatedBy` (`UpdatedBy`),
   CONSTRAINT `FK_parents_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
   CONSTRAINT `FK_parents_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `parents`
+--
 
 
 --
@@ -599,6 +684,10 @@ CREATE TABLE `payment_package` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `payment_package`
+--
+
 
 --
 -- Table structure for table `payments`
@@ -609,7 +698,6 @@ DROP TABLE IF EXISTS `payments`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `payments` (
   `PaymentID` int NOT NULL AUTO_INCREMENT,
-  `ParentID` int NOT NULL,
   `PaymentPackageID` int DEFAULT NULL,
   `FeeID` int DEFAULT NULL,
   `Amount` decimal(10,2) DEFAULT NULL,
@@ -624,16 +712,45 @@ CREATE TABLE `payments` (
   PRIMARY KEY (`PaymentID`),
   KEY `IX_payments_ChildID` (`ChildID`),
   KEY `IX_payments_CreatedBy` (`CreatedBy`),
-  KEY `IX_payments_ParentID` (`ParentID`),
   KEY `IX_payments_PaymentPackageID` (`PaymentPackageID`),
   KEY `IX_payments_UpdatedBy` (`UpdatedBy`),
   CONSTRAINT `FK_payments_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
-  CONSTRAINT `FK_payments_parents_ParentID` FOREIGN KEY (`ParentID`) REFERENCES `parents` (`ParentID`) ON DELETE CASCADE,
   CONSTRAINT `FK_payments_payment_package_PaymentPackageID` FOREIGN KEY (`PaymentPackageID`) REFERENCES `payment_package` (`PackageID`),
   CONSTRAINT `FK_payments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_payments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payments`
+--
+
+
+--
+-- Table structure for table `provinces`
+--
+
+DROP TABLE IF EXISTS `provinces`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `provinces` (
+  `ProvinceID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` timestamp NULL DEFAULT NULL,
+  `UpdatedDate` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`ProvinceID`),
+  KEY `IX_provinces_CreatedBy` (`CreatedBy`),
+  KEY `IX_provinces_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_provinces_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_provinces_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `provinces`
+--
 
 
 --
@@ -654,6 +771,10 @@ CREATE TABLE `roleclaims` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `roleclaims`
+--
+
 
 --
 -- Table structure for table `roles`
@@ -671,6 +792,10 @@ CREATE TABLE `roles` (
   UNIQUE KEY `RoleNameIndex` (`NormalizedName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roles`
+--
 
 
 --
@@ -693,8 +818,12 @@ CREATE TABLE `specialties` (
   KEY `IX_specialties_UpdatedBy` (`UpdatedBy`),
   CONSTRAINT `FK_specialties_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_specialties_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `specialties`
+--
 
 
 --
@@ -715,6 +844,10 @@ CREATE TABLE `staff` (
   CONSTRAINT `FK_staff_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `staff`
+--
 
 
 --
@@ -747,6 +880,10 @@ CREATE TABLE `tenant_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `tenant_settings`
+--
+
 
 --
 -- Table structure for table `userclaims`
@@ -765,6 +902,10 @@ CREATE TABLE `userclaims` (
   CONSTRAINT `FK_userclaims_users_UserId` FOREIGN KEY (`UserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userclaims`
+--
 
 
 --
@@ -785,6 +926,10 @@ CREATE TABLE `userlogins` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `userlogins`
+--
+
 
 --
 -- Table structure for table `userroles`
@@ -802,6 +947,10 @@ CREATE TABLE `userroles` (
   CONSTRAINT `FK_userroles_users_UserId` FOREIGN KEY (`UserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userroles`
+--
 
 
 --
@@ -836,8 +985,12 @@ CREATE TABLE `users` (
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UserNameIndex` (`NormalizedUserName`),
   KEY `EmailIndex` (`NormalizedEmail`)
-) ENGINE=InnoDB AUTO_INCREMENT=345 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=353 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
 
 
 --
@@ -857,6 +1010,10 @@ CREATE TABLE `usertokens` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `usertokens`
+--
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -867,4 +1024,4 @@ CREATE TABLE `usertokens` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-11 18:20:39
+-- Dump completed on 2026-08-25  0:23:08

@@ -15,7 +15,8 @@ namespace Billing.Services.Provisioning
         string connectionString,
         string email,
         string password,
-        string role)
+        string role,
+        string? name = null)
         {
             var services = new ServiceCollection();
 
@@ -43,6 +44,8 @@ namespace Billing.Services.Provisioning
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+            var dbContext = scope.ServiceProvider.GetRequiredService<ManagementDBContext>();
 
             string[] roles =
             {
@@ -95,6 +98,28 @@ namespace Billing.Services.Provisioning
             if (!await userManager.IsInRoleAsync(user, role))
             {
                 EnsureSucceeded(await userManager.AddToRoleAsync(user, role));
+            }
+
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                var admin = await dbContext.Admins
+                    .SingleOrDefaultAsync(existingAdmin => existingAdmin.UserId == user.Id);
+
+                if (admin == null)
+                {
+                    dbContext.Admins.Add(new Admin
+                    {
+                        UserId = user.Id,
+                        Name = string.IsNullOrWhiteSpace(name) ? email : name.Trim()
+                    });
+                }
+                else if (!string.IsNullOrWhiteSpace(name) &&
+                         !string.Equals(admin.Name, name.Trim(), StringComparison.Ordinal))
+                {
+                    admin.Name = name.Trim();
+                }
+
+                await dbContext.SaveChangesAsync();
             }
         }
 

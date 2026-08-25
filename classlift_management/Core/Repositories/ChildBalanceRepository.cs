@@ -121,8 +121,8 @@ namespace Core.Repositories
                 Balance = latestBalance - cost,
                 TransactionType = "Course",
                 CreatedDate = DateTime.UtcNow,
-                //CreatedBy = createdBy,
-                //UpdatedBy = createdBy,
+                CreatedBy = createdBy,
+                UpdatedBy = createdBy,
                 UpdatedDate = DateTime.UtcNow
             };
 
@@ -166,8 +166,8 @@ namespace Core.Repositories
                 Balance = latestBalance - cost,
                 CreatedDate = DateTime.UtcNow,
                 TransactionType = "Course",
-                //CreatedBy = createdBy,
-                //UpdatedBy = createdBy,
+                CreatedBy = createdBy,
+                UpdatedBy = createdBy,
                 UpdatedDate = DateTime.UtcNow
             };
 

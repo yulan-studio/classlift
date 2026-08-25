@@ -7,7 +7,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/cities.js"></script>
+<script src="/js/cities.js" asp-append-version="true"></script>
 
 @* <h1>Manage Cities</h1>
 
@@ -47,12 +47,25 @@
 
 <h1>Manage Cities</h1>
 
-<a href="#" onclick="loadAddForm()" style="display: inline-block; margin-bottom: 20px;  text-decoration: none;">Add City</a>
+<a href="#" onclick="loadAddProvinceForm(); return false;" style="display: inline-block; margin-bottom: 20px; margin-right: 20px; text-decoration: none;">Add Province</a>
+<a href="#" onclick="loadAddForm(); return false;" style="display: inline-block; margin-bottom: 20px; text-decoration: none;">Add City</a>
 
 <table style="border-collapse: collapse; width: 50%; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; border: 1px solid #ddd;">#</th>
+            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["ProvinceNameParm"]" style="color: black; text-decoration: none;">
+                    Province Name
+                    @if ((string)ViewData["ProvinceNameParm"] == "province")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["ProvinceNameParm"] == "province_desc")
+                    {
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["CityNameParm"]" style="color: black; text-decoration: none; ">
                     City Name
@@ -72,11 +85,10 @@
     </thead>
     <tbody>
         @{
-        int index = 1;
         foreach (var city in Model.Cities)
         {
             <tr id="row-@city.CityID">
-                <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@(city.Province?.Name ?? "Not assigned")</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@city.Name</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">
                     <a href="#" onclick="loadEditForm(@city.CityID)" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
@@ -87,7 +99,6 @@
                     }
                 </td>
             </tr>
-            index++;
         }
         }
 
