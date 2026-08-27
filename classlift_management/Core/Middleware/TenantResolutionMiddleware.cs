@@ -37,13 +37,15 @@ namespace Core.Middleware
             _logger.LogInformation("Middleware run");
                   
 
-            // Ignore localhost
-            if (host is "localhost" or "127.0.0.1")
+            // Local development should not depend on platform plan data. The
+            // loopback tenant can use every feature in both views and filters.
+            if (host is "localhost" or "127.0.0.1" or "::1")
             {
                 currentTenant.Subdomain = "classlift";
                 currentTenant.DatabaseName = LocalDatabaseName;
                 currentTenant.ConnectionString =
                     connectionFactory.BuildConnectionString(LocalDatabaseName);
+                currentTenant.AreAllFeaturesEnabled = true;
 
                 context.Items["CurrentTenant"] = currentTenant;
                 currentTenant.Terminology = await terminologyService.GetAsync(LocalDatabaseName);

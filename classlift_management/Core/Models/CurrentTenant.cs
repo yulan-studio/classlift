@@ -23,6 +23,12 @@ namespace Core.Models
         public IReadOnlySet<string> EnabledFeatures { get; set; }
             = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Bypasses plan-based feature checks for the local development tenant.
+        /// This must only be enabled while resolving a loopback host.
+        /// </summary>
+        public bool AreAllFeaturesEnabled { get; set; }
+
         public OrganizationTerminology Terminology { get; set; } = new();
 
         /// <summary>
@@ -31,7 +37,7 @@ namespace Core.Models
         /// </summary>
         public bool HasFeature(string featureKey) =>
             !string.IsNullOrWhiteSpace(featureKey) &&
-            EnabledFeatures.Contains(featureKey);
+            (AreAllFeaturesEnabled || EnabledFeatures.Contains(featureKey));
 
         public bool IsResolved =>
             !string.IsNullOrWhiteSpace(DatabaseName) &&
