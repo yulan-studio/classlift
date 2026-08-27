@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Feature unavailable";
+    var featureKey = ViewBag.FeatureKey as string;
+    var planName = ViewBag.PlanName as string;
+}
+
+<div class="mx-auto text-center" style="max-width: 680px; padding: 3rem 1rem;">
+    <h1 class="h3 mb-3">This feature is not available</h1>
+
+    @if (!string.IsNullOrWhiteSpace(planName))
+    {
+        <p class="text-muted">
+            The <strong>@planName</strong> plan does not include this feature.
+        </p>
+    }
+    else
+    {
+        <p class="text-muted">
+            Your organization does not currently have access to this feature.
+        </p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(featureKey))
+    {
+        <p class="small text-muted">Feature: @featureKey</p>
+    }
+
+    <a class="btn btn-primary mt-3" asp-controller="Home" asp-action="Index">
+        Return to dashboard
+    </a>
+</div>

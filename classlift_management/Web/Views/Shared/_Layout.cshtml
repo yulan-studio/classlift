@@ -203,7 +203,10 @@
                         <li class="nav-item"><a class="nav-link" href="/Admin/List">Admins</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Staff/List">Staff</a></li>
                         <li class="nav-item"><a class="nav-link" href="/PaymentPackage/List">Packages</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Report/Index">Reports</a></li>
+                        @if (CurrentTenant.HasFeature(FeatureCodes.StandardReporting))
+                        {
+                            <li class="nav-item"><a class="nav-link" href="/Report/Index">Reports</a></li>
+                        }
                     }
                     @if (User.IsInRole("Staff"))
                     {
