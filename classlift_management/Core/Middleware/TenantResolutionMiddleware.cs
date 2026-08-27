@@ -27,7 +27,8 @@ namespace Core.Middleware
             HttpContext context,
             ITenantConnectionStringFactory connectionFactory,
             CurrentTenant currentTenant,
-            OrganizationTerminologyService terminologyService)
+            OrganizationTerminologyService terminologyService,
+            IFeatureService featureService)
         {
             var host = context.Request.Host.Host
                 .Trim()
@@ -110,6 +111,18 @@ namespace Core.Middleware
             currentTenant.Subdomain = tenant.Subdomain;
             currentTenant.DatabaseName = tenant.DatabaseName;
             currentTenant.ConnectionString = tenantConnectionString;
+
+            // Resolve entitlements once per request and expose them through
+            // CurrentTenant so controllers and Razor views do not query the
+            // platform database independently.
+            var tenantFeatures = await featureService.GetFeaturesAsync(
+                tenant.OrganizationId,
+                context.RequestAborted);
+
+            currentTenant.PlanId = tenantFeatures.PlanId;
+            currentTenant.PlanName = tenantFeatures.PlanName;
+            currentTenant.EnabledFeatures = tenantFeatures.EnabledFeatures;
+
             _logger.LogInformation("tenant was found for host {Host}", host);
             // Optional backward compatibility for existing code.
             context.Items["CurrentTenant"] = currentTenant;

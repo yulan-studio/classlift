@@ -62,6 +62,9 @@ builder.Services.AddDbContext<BillingDbContext>(options =>
 });
 
 builder.Services.AddScoped<Core.Models.CurrentTenant>();
+// FeatureService uses the request-scoped BillingDbContext and supplies the
+// effective plan features to TenantResolutionMiddleware.
+builder.Services.AddScoped<IFeatureService, FeatureService>();
 
 //It preserves the server, username, password, and other settings while replacing the database name
 //AddSingleton creates one instance for the entire application lifetime.

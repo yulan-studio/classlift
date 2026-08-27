@@ -16,7 +16,22 @@ namespace Core.Models
 
         public string? ConnectionString { get; set; }
 
+        public int? PlanId { get; set; }
+
+        public string? PlanName { get; set; }
+
+        public IReadOnlySet<string> EnabledFeatures { get; set; }
+            = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         public OrganizationTerminology Terminology { get; set; } = new();
+
+        /// <summary>
+        /// Checks the feature set loaded during tenant resolution.
+        /// Feature keys are compared case-insensitively.
+        /// </summary>
+        public bool HasFeature(string featureKey) =>
+            !string.IsNullOrWhiteSpace(featureKey) &&
+            EnabledFeatures.Contains(featureKey);
 
         public bool IsResolved =>
             !string.IsNullOrWhiteSpace(DatabaseName) &&
