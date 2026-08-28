@@ -61,15 +61,17 @@ namespace Web.Controllers.Courses
                 .Select(enrollment => new CourseRegisteredStudentViewModel
                 {
                     ChildID = enrollment.ChildID!.Value,
-                    Name = enrollment.Child.Name
+                    Name = enrollment.Child.Name,
+                    Status = "Registered"
                 })
                 .Concat(confirmed.Select(child => new CourseRegisteredStudentViewModel
                 {
                     ChildID = child.ChildID,
-                    Name = child.Name
+                    Name = child.Name,
+                    Status = "Confirmed"
                 }))
                 .GroupBy(student => student.ChildID)
-                .Select(group => group.First())
+                .Select(group => group.OrderByDescending(student => student.Status == "Confirmed").First())
                 .OrderBy(student => student.Name)
                 .ToList();
 

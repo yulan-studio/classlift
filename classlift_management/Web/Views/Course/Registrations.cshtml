@@ -17,6 +17,7 @@
         <tr>
             <th>#</th>
             <th>@CurrentTenant.Terminology.ParticipantSingular</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -30,13 +31,14 @@
                     <td>
                         <a href="/Child/MoreInfo/@student.ChildID">@student.Name</a>
                     </td>
+                    <td>@student.Status</td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="2" class="text-center">No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant().</td>
+                <td colspan="3" class="text-center">No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant().</td>
             </tr>
         }
     </tbody>
