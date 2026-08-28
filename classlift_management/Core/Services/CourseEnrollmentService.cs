@@ -87,6 +87,39 @@ namespace Core.Services
             return enrollments.Any(e => e.EnrollmentID_Ref == enrollmentId_Ref && e.Status != "Deleted");
         }
 
+        private async Task<int> GetRegisteredStudentCountAsync(int courseId)
+        {
+            var registeredEnrollments = await _enrollmentRepository
+                .GetEnrollmentsByCourseAsync(courseId, "Registered");
+            var confirmedEnrollments = await _enrollmentRepository
+                .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
+
+            return registeredEnrollments
+                .Concat(confirmedEnrollments)
+                .Select(e => e.ChildID)
+                .Distinct()
+                .Count();
+        }
+
+        private async Task SyncGroupCourseAvailabilityAsync(Course course)
+        {
+            if (!string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase)
+                || !course.MaxCapacity.HasValue)
+            {
+                return;
+            }
+
+            var registeredStudentCount = await GetRegisteredStudentCountAsync(course.CourseID);
+            var shouldBeActive = registeredStudentCount < course.MaxCapacity.Value;
+
+            if (course.IsActive != shouldBeActive)
+            {
+                course.IsActive = shouldBeActive;
+                if (!await _courseRepository.UpdateAsync(course))
+                    throw new InvalidOperationException("The course availability could not be updated.");
+            }
+        }
+
 
 
         //Register course to child
@@ -102,11 +135,17 @@ namespace Core.Services
             if (child == null || course == null)
                 throw new ArgumentException("Invalid child or course.");
 
-
-
-
             if(await IsChildEnrolledInCourse(child.ChildID, courseId))
                 throw new ArgumentException("This course has already been registered.");
+
+            if (string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase)
+                && course.MaxCapacity.HasValue)
+            {
+                var registeredStudentCount = await GetRegisteredStudentCountAsync(courseId);
+
+                if (registeredStudentCount >= course.MaxCapacity.Value)
+                    throw new ArgumentException("The course is full.");
+            }
 
 
             try
@@ -123,7 +162,10 @@ namespace Core.Services
                     Status = status
                 };
 
-                await _enrollmentRepository.AddAsync(enrollment);
+                if (!await _enrollmentRepository.AddAsync(enrollment))
+                    throw new InvalidOperationException("The course registration could not be added.");
+
+                await SyncGroupCourseAvailabilityAsync(course);
                 return enrollment.EnrollmentID;
             }
             catch (Exception ex)
@@ -156,7 +198,15 @@ namespace Core.Services
                 }
 
             }
-            return await _enrollmentRepository.RemoveAsync(enrollmentId);
+            var removed = await _enrollmentRepository.RemoveAsync(enrollmentId);
+            if (removed)
+            {
+                var course = await _courseRepository.GetAsync(courseId);
+                if (course != null)
+                    await SyncGroupCourseAvailabilityAsync(course);
+            }
+
+            return removed;
         }
 
 
@@ -194,6 +244,7 @@ namespace Core.Services
                     ScheduledLocalTime = sourceSession?.ScheduledLocalTime,
                     ScheduledTimeZoneId = sourceSession?.ScheduledTimeZoneId,
                     Location = location,
+                    StaffNote = sourceSession?.StaffNote,
                     EnrollmentID_Ref = enrollmentId_Ref,
                     CreatedBy = user.Id,
                     CreatedDate = DateTime.UtcNow,
@@ -329,6 +380,9 @@ namespace Core.Services
             {
                 var scheduled = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Scheduled");
                 var requestToReschedule = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "RequestToReschedule");
+                var requestToLeave = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "RequestToLeave");
+                var onLeave = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "OnLeave");
+                var canceled = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Canceled");
                 var completed = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Completed");
                 var deleted = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Deleted");
 
@@ -342,6 +396,8 @@ namespace Core.Services
                     BirthDate = e.Child.BirthDate,
                     RegisteredDate = e.CreatedDate,
                     Scheduled = scheduled.Count(),
+                    Leave = requestToLeave.Count() + onLeave.Count(),
+                    Canceled = canceled.Count(),
                     RequestToReschedule = requestToReschedule.Count(),
                     Deleted = deleted.Count(),
                     Completed = completed.Count()
@@ -413,7 +469,44 @@ namespace Core.Services
 
             try
             {
-                return await _enrollmentRepository.AddAsync(newSession);
+                if (!await _enrollmentRepository.AddAsync(newSession))
+                    return false;
+
+                var registeredStudents = await _enrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Registered");
+                var confirmedStudents = await _enrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
+
+                var studentRegistrations = registeredStudents
+                    .Concat(confirmedStudents)
+                    .Where(enrollment => enrollment.ChildID.HasValue)
+                    .GroupBy(enrollment => enrollment.ChildID!.Value)
+                    .Select(group => group
+                        .OrderByDescending(enrollment => enrollment.Status == "Confirmed")
+                        .First());
+
+                foreach (var registration in studentRegistrations)
+                {
+                    var sessionStatus = registration.Status == "Confirmed"
+                        ? "Scheduled"
+                        : "Registered";
+
+                    var added = await AddSessionRegisteredEnrollmentAsync(
+                        registration.ChildID!.Value,
+                        courseId,
+                        newSession.ScheduledAt,
+                        newSession.ScheduledHours,
+                        newSession.Location,
+                        newSession.EnrollmentID,
+                        sessionStatus,
+                        user);
+
+                    if (!added)
+                        throw new InvalidOperationException(
+                            $"The new session could not be added for {registration.Child.Name}.");
+                }
+
+                return true;
             }
 
             catch (Exception ex)
@@ -434,6 +527,9 @@ namespace Core.Services
             existingSession.StaffNote = session.StaffNote;
             existingSession.ParentNote = session.ParentNote;
             existingSession.Location = session.Location;
+
+            if (existingSession.ChildID == null)
+                return await _enrollmentRepository.UpdateSessionAndChildStaffNotesAsync(existingSession);
 
             return await _enrollmentRepository.UpdateAsync(existingSession);
         }

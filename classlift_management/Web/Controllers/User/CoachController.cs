@@ -114,18 +114,22 @@ namespace Web.Controllers.User
         // POST: Add Staff Action
         [HttpPost("Add")]
         //[HttpPost]
-        public async Task<IActionResult> Add(string name, string email, string password, List<int> specialtyIds, string gender, string phone, int cityId)
+        public async Task<IActionResult> Add(string name, string email, string password, List<int> specialtyIds, string gender, string phone, int? provinceId, int? cityId)
         {
+            if (!provinceId.HasValue)
+                ModelState.AddModelError(nameof(provinceId), "Please select a province.");
+            if (!cityId.HasValue)
+                ModelState.AddModelError(nameof(cityId), "Please select a city.");
+            if (provinceId.HasValue && cityId.HasValue)
+            {
+                var selectedCity = await _cityService.GetAsync(cityId.Value);
+                if (selectedCity?.ProvinceID != provinceId.Value)
+                    ModelState.AddModelError(nameof(cityId), "The selected city does not belong to the selected province.");
+            }
 
-           
             if (!ModelState.IsValid)
             {
-                var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-                ViewBag.CityList = cities.Select(c => new SelectListItem
-                {
-                    Value = c.CityID.ToString(),
-                    Text = c.Name
-                }).ToList();
+                await PopulateLocationListsAsync(provinceId, cityId);
 
                 var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
                 ViewBag.SpecialtyList = specialties.Select(c => new SelectListItem
@@ -140,7 +144,7 @@ namespace Web.Controllers.User
             {
                 var user = await _userManager.GetUserAsync(User);
                 
-                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, cityId, user);
+                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, cityId!.Value, user);
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, $"Failed to add the {ProviderNameLower} information.");
@@ -148,12 +152,7 @@ namespace Web.Controllers.User
                    
                     // Repopulate CityList for the dropdown if validation fails
 
-                    var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-                    ViewBag.CityList = cities.Select(c => new SelectListItem
-                    {
-                        Value = c.CityID.ToString(),
-                        Text = c.Name
-                    }).ToList();
+                    await PopulateLocationListsAsync(provinceId, cityId);
 
                     var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
                     ViewBag.SpecialtyList = specialties.Select(c => new SelectListItem
@@ -176,12 +175,7 @@ namespace Web.Controllers.User
                 
                 // Repopulate CityList for the dropdown if validation fails
 
-                var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-                ViewBag.CityList = cities.Select(c => new SelectListItem
-                {
-                    Value = c.CityID.ToString(),
-                    Text = c.Name
-                }).ToList();
+                await PopulateLocationListsAsync(provinceId, cityId);
 
                 var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
                 ViewBag.SpecialtyList = specialties.Select(c => new SelectListItem
@@ -205,12 +199,7 @@ namespace Web.Controllers.User
         //[HttpGet]
         public async Task<IActionResult> AddAsync()
         {
-            var cities = await _cityService.GetAllAsync(); // Replace with your data fetching logic
-            ViewBag.CityList = cities.Select(c => new SelectListItem
-            {
-                Value = c.CityID.ToString(),
-                Text = c.Name
-            }).ToList();
+            await PopulateLocationListsAsync(null, null);
 
             var specialties = await _specialtyService.GetAllAsync(); // Replace with your data fetching logic
             ViewBag.SpecialtyList = specialties.Select(c => new SelectListItem

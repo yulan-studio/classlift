@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Core.Interfaces;
 using Core;
+using Web.Filters;
 
 namespace Web.Controllers.Report
 {
     [Route("Report")]
-
+    [Authorize(Roles = "Admin")]
+    [RequiresFeature(FeatureCodes.StandardReporting)]
     public class ReportController : Controller
     {
         //private readonly ICourseEnrollmentService _courseEnrollmentService;

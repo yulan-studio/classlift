@@ -116,7 +116,7 @@ The launch profiles normally expose:
 - `http://localhost:5026`
 - `https://localhost:7225`
 
-The current tenant middleware recognizes `localhost` and `127.0.0.1` and connects `AppDbContext` to the local `classlift` database. It does not construct `BillingDbContext` on those request paths.
+The current tenant middleware recognizes `localhost` and `127.0.0.1` and connects `AppDbContext` to the local `classlift` database. It does not query the platform database for plan features on those request paths, so local feature entitlements default to an empty set.
 
 The health endpoint is:
 
@@ -163,6 +163,8 @@ Production tenant resolution works as follows:
 `BillingDbContext` is not one context per tenant. It is a short-lived EF context for the single platform registry database. `AppDbContext` is the tenant-scoped application context. Neither context should be registered as a singleton.
 
 See the authoritative [tenant connection-string guide](Docs/tenant-connection-strings.md) for deeper background. Tenant behavior is security-sensitive, so still verify the guide against current code when making changes.
+
+See the [Feature control implementation and maintenance guide](Docs/feature-control.md) for the platform schema, runtime entitlement flow, Razor visibility checks, backend enforcement, 403 behavior, testing, and instructions for adding new features.
 
 ## Background processing
 

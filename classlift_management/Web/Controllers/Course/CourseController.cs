@@ -48,6 +48,41 @@ namespace Web.Controllers.Courses
             _currentTenant = currentTenant;
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("Registrations/{courseId:int}")]
+        public async Task<IActionResult> Registrations(int courseId)
+        {
+            var course = await _courseService.GetAsync(courseId);
+            var registered = await _courseEnrollmentService.GetRegisteredEnrollmentsByCourseAsync(courseId);
+            var confirmed = await _courseEnrollmentService.GetRegisterationByCourseAsync(courseId);
+
+            var students = registered
+                .Where(enrollment => enrollment.ChildID.HasValue)
+                .Select(enrollment => new CourseRegisteredStudentViewModel
+                {
+                    ChildID = enrollment.ChildID!.Value,
+                    Name = enrollment.Child.Name,
+                    Status = "Registered"
+                })
+                .Concat(confirmed.Select(child => new CourseRegisteredStudentViewModel
+                {
+                    ChildID = child.ChildID,
+                    Name = child.Name,
+                    Status = "Confirmed"
+                }))
+                .GroupBy(student => student.ChildID)
+                .Select(group => group.OrderByDescending(student => student.Status == "Confirmed").First())
+                .OrderBy(student => student.Name)
+                .ToList();
+
+            return View(new CourseRegistrationsViewModel
+            {
+                CourseID = course.CourseID,
+                CourseTitle = course.Title,
+                Students = students
+            });
+        }
+
 
 
         [Authorize(Roles = "Staff")]
@@ -226,6 +261,15 @@ namespace Web.Controllers.Courses
         [HttpPost("Add")]
         public async Task<IActionResult> Add(AddCourseViewModel model)
         {
+            var hasCreditTracking = _currentTenant.HasFeature(Core.FeatureCodes.CreditTracking);
+
+            // Hourly charging deducts from the child's tracked balance. Ignore
+            // crafted values when that capability is not included in the plan.
+            if (!hasCreditTracking)
+            {
+                model.HourlyCost = null;
+            }
+
             if (model.CourseType == "Private")
             {
                 if (model.SessionCount.HasValue && !model.SessionCost.HasValue)
@@ -233,6 +277,12 @@ namespace Web.Controllers.Courses
                     ModelState.AddModelError(
                         nameof(model.SessionCost),
                         "Session Cost is required when Session Count is provided for a private course.");
+                }
+                else if (!model.SessionCount.HasValue && !hasCreditTracking)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCount),
+                        "Session Count is required when Credit Tracking is not available.");
                 }
                 else if (!model.SessionCount.HasValue && !model.HourlyCost.HasValue)
                 {

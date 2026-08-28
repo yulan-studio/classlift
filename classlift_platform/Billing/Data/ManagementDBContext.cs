@@ -9,6 +9,7 @@ namespace Billing.Data;
 public partial class ManagementDBContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public DbSet<Admin> Admins => Set<Admin>();
+    public DbSet<Staff> Staff => Set<Staff>();
 
     
     public ManagementDBContext(DbContextOptions<ManagementDBContext> options)
@@ -40,6 +41,22 @@ public partial class ManagementDBContext : IdentityDbContext<User, IdentityRole<
             entity.HasOne<User>()
                 .WithOne()
                 .HasForeignKey<Admin>(admin => admin.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Staff>(entity =>
+        {
+            entity.ToTable("staff");
+            entity.HasKey(staff => staff.StaffId);
+            entity.Property(staff => staff.StaffId).HasColumnName("StaffID");
+            entity.Property(staff => staff.UserId).HasColumnName("UserID");
+            entity.Property(staff => staff.Name).HasMaxLength(255);
+            entity.Property(staff => staff.Phone).HasMaxLength(50);
+            entity.Property(staff => staff.Wechat).HasMaxLength(100);
+            entity.HasIndex(staff => staff.UserId).IsUnique();
+            entity.HasOne<User>()
+                .WithOne()
+                .HasForeignKey<Staff>(staff => staff.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

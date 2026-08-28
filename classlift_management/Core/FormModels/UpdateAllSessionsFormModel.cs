@@ -11,13 +11,13 @@ namespace Core.FormModels
     {
         public int ChildID { get; set; }
         public int CourseID { get; set; }
-        public List<SessionItemFormModel> AllSessions { get; set; }
+        public List<SessionItemFormModel> AllSessions { get; set; } = new();
     }
 
     public class SessionItemFormModel
     {
         public int EnrollmentID { get; set; }
-        public string Status { get; set; }
-        public string StaffNote { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string? StaffNote { get; set; }
     }
 }

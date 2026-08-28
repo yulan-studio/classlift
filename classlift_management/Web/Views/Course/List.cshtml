@@ -187,7 +187,11 @@
                     <th style="padding: 8px; border: 1px solid #ddd;">@course.SessionCount</th>
                     @*  <td style="padding: 8px; border: 1px solid #ddd;">@course.HourlyCost</td>*@
         
-                    <td style="padding: 8px; border: 1px solid #ddd;">@course.RegisteredChildrenCount</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <a asp-action="Registrations" asp-route-courseId="@course.CourseID">
+                            @course.RegisteredChildrenCount
+                        </a>
+                    </td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@course.IsActive</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">
                        
