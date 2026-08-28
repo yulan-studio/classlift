@@ -115,7 +115,7 @@ namespace Billing.Services.Provisioning
                 EnsureSucceeded(await userManager.AddToRoleAsync(user, role));
             }
 
-            // Exclusion affects only domain profiles; the user and role memberships
+            // Exclusion affects only domain profiles - Admin table and Staff table; the user and role memberships
             // above are still seeded for the configured bootstrap accounts.
             var shouldCreateProfile = !_profileExcludedEmails.Contains(email.Trim());
 
