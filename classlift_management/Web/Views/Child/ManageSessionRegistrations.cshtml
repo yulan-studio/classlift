@@ -96,6 +96,11 @@
                                     <option value="RequestToLeave" selected>Request To Leave</option>
                                     <option value="OnLeave">On Leave</option>
                                 }
+                                else if (Model.AllSessions[i].Status == "RequestToReschedule")
+                                {
+                                    <option value="RequestToReschedule" selected>Request To Reschedule</option>
+                                    <option value="Scheduled">Scheduled</option>
+                                }
                                 else if (Model.AllSessions[i].Status == "Completed")
                                 {
                                     <option value="Completed" selected>Completed</option>
@@ -107,7 +112,11 @@
                                 }
                                 else if (Model.AllSessions[i].Status == "OnLeave")
                                 {
-                                    <option value="OnLeave">On Leave</option>
+                                    <option value="OnLeave" selected>On Leave</option>
+                                }
+                                else
+                                {
+                                    <option value="@Model.AllSessions[i].Status" selected>@Model.AllSessions[i].Status</option>
                                 }
                                
                                
