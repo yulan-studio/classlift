@@ -66,6 +66,29 @@ namespace Core.Repositories
             }
         }
 
+        public async Task<bool> UpdateSessionAndChildStaffNotesAsync(CourseEnrollment session)
+        {
+            var existingSession = await _context.CourseEnrollments
+                .FirstOrDefaultAsync(e => e.EnrollmentID == session.EnrollmentID);
+            if (existingSession == null)
+                return false;
+
+            existingSession.Status = session.Status;
+            existingSession.StaffNote = session.StaffNote;
+            existingSession.ParentNote = session.ParentNote;
+            existingSession.Location = session.Location;
+
+            var childSessions = await _context.CourseEnrollments
+                .Where(e => e.EnrollmentID_Ref == session.EnrollmentID)
+                .ToListAsync();
+
+            foreach (var childSession in childSessions)
+                childSession.StaffNote = session.StaffNote;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
 
         public async Task<bool> DeleteAsync(CourseEnrollment entity)
         {

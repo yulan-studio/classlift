@@ -528,6 +528,9 @@ namespace Core.Services
             existingSession.ParentNote = session.ParentNote;
             existingSession.Location = session.Location;
 
+            if (existingSession.ChildID == null)
+                return await _enrollmentRepository.UpdateSessionAndChildStaffNotesAsync(existingSession);
+
             return await _enrollmentRepository.UpdateAsync(existingSession);
         }
 
