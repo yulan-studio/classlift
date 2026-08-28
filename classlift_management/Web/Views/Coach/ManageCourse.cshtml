@@ -131,8 +131,16 @@
                         @* <th class="desktop-only">Birthday</th> *@
                         <th class="desktop-only">Registration Date</th>
                         <th class="desktop-only">Scheduled</th>
-                        <th>Request to Reschedule</th>
-                        <th class="desktop-only">Deleted</th>
+                        @if (course.CourseType == "Group")
+                        {
+                            <th>Leave</th>
+                            <th>Canceled</th>
+                        }
+                        else
+                        {
+                            <th>Request to Reschedule</th>
+                            <th class="desktop-only">Deleted</th>
+                        }
                         <th>Completed</th>
 
                         @if (course.CourseType != "Group")
@@ -159,11 +167,19 @@
                                     @child.RegisteredDate.ToString("yyyy-MM-dd")
                                 </td>
                                 <td class="desktop-only" data-label="Scheduled">@child.Scheduled</td>
-                                <td data-label="Request to Reschedule"
-                                    style="background-color:@(child.RequestToReschedule > 0 ? "#FFDBF6" : "transparent")">
-                                    @child.RequestToReschedule
-                                </td>
-                                <td class="desktop-only" data-label="Deleted">@child.Deleted</td>
+                                @if (course.CourseType == "Group")
+                                {
+                                    <td data-label="Leave">@child.Leave</td>
+                                    <td data-label="Canceled">@child.Canceled</td>
+                                }
+                                else
+                                {
+                                    <td data-label="Request to Reschedule"
+                                        style="background-color:@(child.RequestToReschedule > 0 ? "#FFDBF6" : "transparent")">
+                                        @child.RequestToReschedule
+                                    </td>
+                                    <td class="desktop-only" data-label="Deleted">@child.Deleted</td>
+                                }
                                 <td data-label="Completed">@child.Completed</td>
 
                                 @if (course.CourseType != "Group")
@@ -185,7 +201,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="11" class="text-center fw-bold bg-light">
+                            <td colspan="@(course.CourseType == "Group" ? 8 : 10)" class="text-center fw-bold bg-light">
                                 No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant() for this course.
                             </td>
                         </tr>

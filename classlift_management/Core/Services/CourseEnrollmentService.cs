@@ -343,6 +343,9 @@ namespace Core.Services
             {
                 var scheduled = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Scheduled");
                 var requestToReschedule = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "RequestToReschedule");
+                var requestToLeave = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "RequestToLeave");
+                var onLeave = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "OnLeave");
+                var canceled = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Canceled");
                 var completed = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Completed");
                 var deleted = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Deleted");
 
@@ -356,6 +359,8 @@ namespace Core.Services
                     BirthDate = e.Child.BirthDate,
                     RegisteredDate = e.CreatedDate,
                     Scheduled = scheduled.Count(),
+                    Leave = requestToLeave.Count() + onLeave.Count(),
+                    Canceled = canceled.Count(),
                     RequestToReschedule = requestToReschedule.Count(),
                     Deleted = deleted.Count(),
                     Completed = completed.Count()
