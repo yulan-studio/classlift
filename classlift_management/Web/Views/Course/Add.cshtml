@@ -108,22 +108,27 @@
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
-                <label style="font-size:0.7em; color:darkslategray"> - Enter the number of sessions if each session has a fixed duration and full payment is required.<br/>
-                    - Leave blank if each session fee will be deducted from the balance later.
+                <label style="font-size:0.7em; color:darkslategray"> - Enter the number of sessions if each session has a fixed duration and full payment is required.
+                    @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
+                    {
+                        <br/><text>- Leave blank if each session fee will be deducted from the balance later.</text>
+                    }
                 </label>
             </td>
         </tr>
 
-        <tr>
-            <td style="padding: 8px;"><label for="HourlyCost">Hourly Cost:</label></td>
-            <td style="padding: 8px;">
-                <input id="HourlyCost" name="HourlyCost" type="number" step="1" min="0" placeholder="Enter hourly cost" style="width: 100%;" />
-                
-            </td>
-            <td style="width:55%; padding-left: 30px;">
-                <label style="font-size:0.7em; color:darkslategray"> - Deduct the session fee from the balance after each session. Each session may have a different duration.</label>
-            </td>
-        </tr>
+        @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
+        {
+            <tr>
+                <td style="padding: 8px;"><label for="HourlyCost">Hourly Cost:</label></td>
+                <td style="padding: 8px;">
+                    <input id="HourlyCost" name="HourlyCost" type="number" step="1" min="0" placeholder="Enter hourly cost" style="width: 100%;" />
+                </td>
+                <td style="width:55%; padding-left: 30px;">
+                    <label style="font-size:0.7em; color:darkslategray"> - Deduct the session fee from the balance after each session. Each session may have a different duration.</label>
+                </td>
+            </tr>
+        }
 
         <tr>
             <td style="padding: 8px;"><label for="SessionCost">Session Cost:</label></td>

@@ -226,6 +226,15 @@ namespace Web.Controllers.Courses
         [HttpPost("Add")]
         public async Task<IActionResult> Add(AddCourseViewModel model)
         {
+            var hasCreditTracking = _currentTenant.HasFeature(Core.FeatureCodes.CreditTracking);
+
+            // Hourly charging deducts from the child's tracked balance. Ignore
+            // crafted values when that capability is not included in the plan.
+            if (!hasCreditTracking)
+            {
+                model.HourlyCost = null;
+            }
+
             if (model.CourseType == "Private")
             {
                 if (model.SessionCount.HasValue && !model.SessionCost.HasValue)
@@ -233,6 +242,12 @@ namespace Web.Controllers.Courses
                     ModelState.AddModelError(
                         nameof(model.SessionCost),
                         "Session Cost is required when Session Count is provided for a private course.");
+                }
+                else if (!model.SessionCount.HasValue && !hasCreditTracking)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCount),
+                        "Session Count is required when Credit Tracking is not available.");
                 }
                 else if (!model.SessionCount.HasValue && !model.HourlyCost.HasValue)
                 {
