@@ -11,6 +11,20 @@ namespace Billing.Services.Provisioning
 {
     public class TenantIdentitySeeder : ITenantIdentitySeeder
     {
+        // Bootstrap accounts need Identity access in every tenant, but they are not
+        // organization members and therefore must not have Admin or Staff profiles.
+        private readonly HashSet<string> _profileExcludedEmails;
+
+        public TenantIdentitySeeder(IConfiguration configuration)
+        {
+            _profileExcludedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Environment variables TenantAdmin__Email and TenantStaff__Email are
+            // exposed by .NET configuration using ':' as the section separator.
+            AddConfiguredEmail(configuration["TenantAdmin:Email"]);
+            AddConfiguredEmail(configuration["TenantStaff:Email"]);
+        }
+
         public async Task SeedUserAsync(
         string connectionString,
         string email,
@@ -101,7 +115,12 @@ namespace Billing.Services.Provisioning
                 EnsureSucceeded(await userManager.AddToRoleAsync(user, role));
             }
 
-            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            // Exclusion affects only domain profiles; the user and role memberships
+            // above are still seeded for the configured bootstrap accounts.
+            var shouldCreateProfile = !_profileExcludedEmails.Contains(email.Trim());
+
+            if (shouldCreateProfile &&
+                string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
             {
                 var admin = await dbContext.Admins
                     .SingleOrDefaultAsync(existingAdmin => existingAdmin.UserId == user.Id);
@@ -130,24 +149,27 @@ namespace Billing.Services.Provisioning
                     EnsureSucceeded(await userManager.AddToRoleAsync(user, "Staff"));
                 }
 
-                var staff = await dbContext.Staff
-                    .SingleOrDefaultAsync(existingStaff => existingStaff.UserId == user.Id);
-
-                if (staff == null)
+                if (shouldCreateProfile)
                 {
-                    dbContext.Staff.Add(new Staff
+                    var staff = await dbContext.Staff
+                        .SingleOrDefaultAsync(existingStaff => existingStaff.UserId == user.Id);
+
+                    if (staff == null)
                     {
-                        UserId = user.Id,
-                        Name = string.IsNullOrWhiteSpace(name) ? email : name.Trim()
-                    });
-                }
-                else if (!string.IsNullOrWhiteSpace(name) &&
-                         !string.Equals(staff.Name, name.Trim(), StringComparison.Ordinal))
-                {
-                    staff.Name = name.Trim();
-                }
+                        dbContext.Staff.Add(new Staff
+                        {
+                            UserId = user.Id,
+                            Name = string.IsNullOrWhiteSpace(name) ? email : name.Trim()
+                        });
+                    }
+                    else if (!string.IsNullOrWhiteSpace(name) &&
+                             !string.Equals(staff.Name, name.Trim(), StringComparison.Ordinal))
+                    {
+                        staff.Name = name.Trim();
+                    }
 
-                await dbContext.SaveChangesAsync();
+                    await dbContext.SaveChangesAsync();
+                }
             }
         }
 
@@ -157,6 +179,14 @@ namespace Billing.Services.Provisioning
             {
                 throw new InvalidOperationException(
                     string.Join(", ", result.Errors.Select(error => error.Description)));
+            }
+        }
+
+        private void AddConfiguredEmail(string? email)
+        {
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                _profileExcludedEmails.Add(email.Trim());
             }
         }
     }
