@@ -11,11 +11,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Core;
+using Web.Filters;
 
 
 namespace Web.Controllers.Payment
 {
     [Route("PaymentPackage")]
+    [RequiresFeature(FeatureCodes.CreditTracking)]
     public class PaymentPackageController: Controller
     {
         private readonly IPaymentPackageService _paymentPackageService;
