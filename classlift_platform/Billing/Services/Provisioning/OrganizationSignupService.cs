@@ -90,7 +90,8 @@ namespace Billing.Services.Provisioning
                 request.AdminEmail,
                 request.AdminPassword,
                 "Admin",
-                request.AdminName);
+                request.AdminName,
+                createStaffProfile: true);
 
             // 9. Return tenant URL
 

@@ -16,7 +16,8 @@ namespace Billing.Services.Provisioning
         string email,
         string password,
         string role,
-        string? name = null)
+        string? name = null,
+        bool createStaffProfile = false)
         {
             var services = new ServiceCollection();
 
@@ -117,6 +118,28 @@ namespace Billing.Services.Provisioning
                          !string.Equals(admin.Name, name.Trim(), StringComparison.Ordinal))
                 {
                     admin.Name = name.Trim();
+                }
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            if (createStaffProfile)
+            {
+                var staff = await dbContext.Staff
+                    .SingleOrDefaultAsync(existingStaff => existingStaff.UserId == user.Id);
+
+                if (staff == null)
+                {
+                    dbContext.Staff.Add(new Staff
+                    {
+                        UserId = user.Id,
+                        Name = string.IsNullOrWhiteSpace(name) ? email : name.Trim()
+                    });
+                }
+                else if (!string.IsNullOrWhiteSpace(name) &&
+                         !string.Equals(staff.Name, name.Trim(), StringComparison.Ordinal))
+                {
+                    staff.Name = name.Trim();
                 }
 
                 await dbContext.SaveChangesAsync();
