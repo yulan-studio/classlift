@@ -55,15 +55,28 @@
             </td>
         </tr>
         <tr>
-            <td style="padding: 8px;"><label for="cityId">City:</label></td>
+            <td style="padding: 8px;"><label for="provinceId">Province:</label></td>
             <td style="padding: 8px;">
-                <select name="cityId" class="form-control" style="width: 100%;" required>
-                    <option value="" selected>-- Select City --</option>
-                    @foreach (var city in ViewBag.CityList)
+                <select name="provinceId" id="provinceId" class="form-control" style="width: 100%;" required>
+                    <option value="">-- Select Province --</option>
+                    @foreach (var province in ViewBag.ProvinceList)
                     {
-                        <option value="@city.Value">@city.Text</option>
+                        <option value="@province.Value" selected="@(province.Selected ? "selected" : null)">@province.Text</option>
                     }
                 </select>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 8px;"><label for="cityId">City:</label></td>
+            <td style="padding: 8px;">
+                <select name="cityId" id="cityId" class="form-control" style="width: 100%;" required @(ViewBag.CityList.Count == 0 ? "disabled" : null)>
+                    <option value="">-- Select City --</option>
+                    @foreach (var city in ViewBag.CityList)
+                    {
+                        <option value="@city.Value" selected="@(city.Selected ? "selected" : null)">@city.Text</option>
+                    }
+                </select>
+                <small id="cityHelp" style="display: block; color: darkslategray;">Select a province first.</small>
             </td>
         </tr>
         <tr>
@@ -101,5 +114,49 @@
     }
 
     </form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const provinceSelect = document.getElementById("provinceId");
+        const citySelect = document.getElementById("cityId");
+        const cityHelp = document.getElementById("cityHelp");
+
+        function updateCityHelp() {
+            cityHelp.textContent = provinceSelect.value ? "Select a city." : "Select a province first.";
+            cityHelp.style.display = citySelect.value ? "none" : "block";
+        }
+
+        citySelect.addEventListener("change", updateCityHelp);
+        provinceSelect.addEventListener("change", async function () {
+            citySelect.innerHTML = '<option value="">-- Select City --</option>';
+            citySelect.disabled = true;
+
+            if (!provinceSelect.value) {
+                updateCityHelp();
+                return;
+            }
+
+            cityHelp.style.display = "block";
+            cityHelp.textContent = "Loading cities...";
+            try {
+                const response = await fetch(`/Coach/CitiesByProvince/${provinceSelect.value}`);
+                if (!response.ok) throw new Error();
+                const cities = await response.json();
+                cities.forEach(function (city) {
+                    const option = document.createElement("option");
+                    option.value = city.value;
+                    option.textContent = city.text;
+                    citySelect.appendChild(option);
+                });
+                citySelect.disabled = cities.length === 0;
+                cityHelp.textContent = cities.length ? "Select a city." : "No cities are configured for this province.";
+            } catch {
+                cityHelp.textContent = "Cities could not be loaded. Please try again.";
+            }
+        });
+
+        updateCityHelp();
+    });
+</script>
 
 
