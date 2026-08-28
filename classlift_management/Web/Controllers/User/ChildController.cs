@@ -57,10 +57,11 @@ namespace Web.Controllers.User
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly Core.R2.R2StorageService _r2UploadService;
         private readonly ITimeZoneService _timeZoneService;
+        private readonly CurrentTenant _currentTenant;
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -78,6 +79,7 @@ namespace Web.Controllers.User
             _paymentService = paymentService;
             _userManager = userManager;
             _emergencyContactService = emergencyContactService;
+            _currentTenant = currentTenant;
             _emailService = emailService;
             _calendarService = calendarService;
             _timeZoneService = timeZoneService;
@@ -898,6 +900,20 @@ namespace Web.Controllers.User
                     || (course.CourseType == "Private" && course.SessionCount.HasValue);
                 var requiresTokenPayment = course.CourseType == "Private"
                     && !course.SessionCount.HasValue;
+
+                // Never trust only the hidden UI option. This also rejects a
+                // crafted Token request and courses whose setup requires Token.
+                if (!_currentTenant.HasFeature(FeatureCodes.CreditTracking)
+                    && (string.Equals(paymentModel, "Token", StringComparison.OrdinalIgnoreCase)
+                        || requiresTokenPayment))
+                {
+                    TempData["ErrorMessage"] = "Token payment is not available for your plan.";
+                    return RedirectToAction("Participation", new
+                    {
+                        childId,
+                        tab = "ManageRegistrations"
+                    });
+                }
 
                 if (requiresTokenPayment)
                 {
