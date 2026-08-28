@@ -23,6 +23,7 @@ using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using X.PagedList;
+using Web.Filters;
 using X.PagedList.Extensions;
 using static Core.ViewModels.ManageSessionRegistrationsViewModel;
 
@@ -1424,6 +1425,7 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Child")]
+        [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpGet("MyBalance")]
         public async Task<IActionResult> MyBalance()
         {
@@ -1460,6 +1462,7 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Staff")]
+        [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpGet("ManageBalance/{childId}")]
         public async Task<IActionResult> ManageBalance(int childId)
         {
@@ -1483,6 +1486,7 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Staff")]
+        [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpPost("FixBalance")]
         public async Task<IActionResult> FixBalance(int childId, string actionType, decimal amount, string remarks, IFormFile file)
         {
