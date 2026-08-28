@@ -8,6 +8,6 @@
             string password,
             string role,
             string? name = null,
-            bool createStaffProfile = false);
+            bool addStaffRoleAndProfile = false);
     }
 }

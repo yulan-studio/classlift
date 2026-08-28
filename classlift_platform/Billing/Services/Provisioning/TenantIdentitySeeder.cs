@@ -17,7 +17,7 @@ namespace Billing.Services.Provisioning
         string password,
         string role,
         string? name = null,
-        bool createStaffProfile = false)
+        bool addStaffRoleAndProfile = false)
         {
             var services = new ServiceCollection();
 
@@ -123,8 +123,13 @@ namespace Billing.Services.Provisioning
                 await dbContext.SaveChangesAsync();
             }
 
-            if (createStaffProfile)
+            if (addStaffRoleAndProfile)
             {
+                if (!await userManager.IsInRoleAsync(user, "Staff"))
+                {
+                    EnsureSucceeded(await userManager.AddToRoleAsync(user, "Staff"));
+                }
+
                 var staff = await dbContext.Staff
                     .SingleOrDefaultAsync(existingStaff => existingStaff.UserId == user.Id);
 
