@@ -87,6 +87,39 @@ namespace Core.Services
             return enrollments.Any(e => e.EnrollmentID_Ref == enrollmentId_Ref && e.Status != "Deleted");
         }
 
+        private async Task<int> GetRegisteredStudentCountAsync(int courseId)
+        {
+            var registeredEnrollments = await _enrollmentRepository
+                .GetEnrollmentsByCourseAsync(courseId, "Registered");
+            var confirmedEnrollments = await _enrollmentRepository
+                .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
+
+            return registeredEnrollments
+                .Concat(confirmedEnrollments)
+                .Select(e => e.ChildID)
+                .Distinct()
+                .Count();
+        }
+
+        private async Task SyncGroupCourseAvailabilityAsync(Course course)
+        {
+            if (!string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase)
+                || !course.MaxCapacity.HasValue)
+            {
+                return;
+            }
+
+            var registeredStudentCount = await GetRegisteredStudentCountAsync(course.CourseID);
+            var shouldBeActive = registeredStudentCount < course.MaxCapacity.Value;
+
+            if (course.IsActive != shouldBeActive)
+            {
+                course.IsActive = shouldBeActive;
+                if (!await _courseRepository.UpdateAsync(course))
+                    throw new InvalidOperationException("The course availability could not be updated.");
+            }
+        }
+
 
 
         //Register course to child
@@ -108,15 +141,7 @@ namespace Core.Services
             if (string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase)
                 && course.MaxCapacity.HasValue)
             {
-                var registeredEnrollments = await _enrollmentRepository
-                    .GetEnrollmentsByCourseAsync(courseId, "Registered");
-                var confirmedEnrollments = await _enrollmentRepository
-                    .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
-                var registeredStudentCount = registeredEnrollments
-                    .Concat(confirmedEnrollments)
-                    .Select(e => e.ChildID)
-                    .Distinct()
-                    .Count();
+                var registeredStudentCount = await GetRegisteredStudentCountAsync(courseId);
 
                 if (registeredStudentCount >= course.MaxCapacity.Value)
                     throw new ArgumentException("The course is full.");
@@ -137,7 +162,10 @@ namespace Core.Services
                     Status = status
                 };
 
-                await _enrollmentRepository.AddAsync(enrollment);
+                if (!await _enrollmentRepository.AddAsync(enrollment))
+                    throw new InvalidOperationException("The course registration could not be added.");
+
+                await SyncGroupCourseAvailabilityAsync(course);
                 return enrollment.EnrollmentID;
             }
             catch (Exception ex)
@@ -170,7 +198,15 @@ namespace Core.Services
                 }
 
             }
-            return await _enrollmentRepository.RemoveAsync(enrollmentId);
+            var removed = await _enrollmentRepository.RemoveAsync(enrollmentId);
+            if (removed)
+            {
+                var course = await _courseRepository.GetAsync(courseId);
+                if (course != null)
+                    await SyncGroupCourseAvailabilityAsync(course);
+            }
+
+            return removed;
         }
 
 
