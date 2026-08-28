@@ -7,6 +7,7 @@
             string email,
             string password,
             string role,
-            string? name = null);
+            string? name = null,
+            bool addStaffRoleAndProfile = false);
     }
 }

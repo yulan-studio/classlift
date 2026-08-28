@@ -18,22 +18,22 @@ namespace Core.Models
 
         public string? ContactPhone { get; set; }
 
-        //public int? CurrentPlanId { get; set; }
+        public int? CurrentPlanId { get; set; }
 
-        //public bool? IsActive { get; set; }
+        public bool IsActive { get; set; }
 
-        //public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        //public DateTime? UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
-        //public virtual Subscriptionplan? CurrentPlan { get; set; }
+        public string? CreatedBy { get; set; }
 
-        //public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public virtual SubscriptionPlan? CurrentPlan { get; set; }
 
-        //public virtual ICollection<OrganizationSubscription> OrganizationSubscriptions { get; set; } = new List<OrganizationSubscription>();
+        public virtual ICollection<OrganizationSubscription> OrganizationSubscriptions { get; set; } = new List<OrganizationSubscription>();
 
         //public virtual ICollection<SubscriptionEvent> SubscriptionEvents { get; set; } = new List<SubscriptionEvent>();
 
-        //public virtual ICollection<Tenantregistry> Tenantregistries { get; set; } = new List<Tenantregistry>();
+        public virtual ICollection<TenantRegistry> TenantRegistries { get; set; } = new List<TenantRegistry>();
     }
 }

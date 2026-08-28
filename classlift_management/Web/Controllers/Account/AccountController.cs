@@ -130,6 +130,19 @@ namespace Web.Controllers.Account
             return View();
         }
 
+        // Shown when the signed-in user's organization does not have a
+        // feature included in its current subscription plan.
+        [Authorize]
+        [HttpGet("FeatureUnavailable")]
+        public IActionResult FeatureUnavailable(string? featureKey, string? planName)
+        {
+            Response.StatusCode = StatusCodes.Status403Forbidden;
+            ViewBag.FeatureKey = featureKey;
+            ViewBag.PlanName = planName;
+
+            return View();
+        }
+
         [Authorize]
         [HttpGet("Settings")]
         public IActionResult Settings(string tab = "TimeZone")

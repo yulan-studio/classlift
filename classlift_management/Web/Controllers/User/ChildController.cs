@@ -23,6 +23,7 @@ using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using X.PagedList;
+using Web.Filters;
 using X.PagedList.Extensions;
 using static Core.ViewModels.ManageSessionRegistrationsViewModel;
 
@@ -56,10 +57,11 @@ namespace Web.Controllers.User
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly Core.R2.R2StorageService _r2UploadService;
         private readonly ITimeZoneService _timeZoneService;
+        private readonly CurrentTenant _currentTenant;
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -77,6 +79,7 @@ namespace Web.Controllers.User
             _paymentService = paymentService;
             _userManager = userManager;
             _emergencyContactService = emergencyContactService;
+            _currentTenant = currentTenant;
             _emailService = emailService;
             _calendarService = calendarService;
             _timeZoneService = timeZoneService;
@@ -898,6 +901,20 @@ namespace Web.Controllers.User
                 var requiresTokenPayment = course.CourseType == "Private"
                     && !course.SessionCount.HasValue;
 
+                // Never trust only the hidden UI option. This also rejects a
+                // crafted Token request and courses whose setup requires Token.
+                if (!_currentTenant.HasFeature(FeatureCodes.CreditTracking)
+                    && (string.Equals(paymentModel, "Token", StringComparison.OrdinalIgnoreCase)
+                        || requiresTokenPayment))
+                {
+                    TempData["ErrorMessage"] = "Token payment is not available for your plan.";
+                    return RedirectToAction("Participation", new
+                    {
+                        childId,
+                        tab = "ManageRegistrations"
+                    });
+                }
+
                 if (requiresTokenPayment)
                 {
                     paymentModel = "Token";
@@ -1104,8 +1121,11 @@ namespace Web.Controllers.User
                 Child = child
             };
 
-            // ✅ Fetch all active payment packages
-            var packages = await _paymentService.GetAllActivePackagesAsync();
+            // Package payments belong to Credit Tracking. Avoid loading or
+            // exposing packages when the tenant's plan does not include it.
+            var packages = _currentTenant.HasFeature(FeatureCodes.CreditTracking)
+                ? await _paymentService.GetAllActivePackagesAsync()
+                : Enumerable.Empty<PaymentPackage>();
 
             // ✅ Populate ViewBag for dropdown
             ViewBag.PaymentPackages = packages.Select(p => new SelectListItem
@@ -1124,6 +1144,19 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> AddPayment(int childId, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
         {
+
+            // Hiding Token Payment in the view is not sufficient protection;
+            // reject a crafted package-payment request before uploading files.
+            if (packageId.HasValue
+                && !_currentTenant.HasFeature(FeatureCodes.CreditTracking))
+            {
+                TempData["ErrorMessage"] = "Token payment is not available for your plan.";
+                return RedirectToAction("Participation", new
+                {
+                    childId,
+                    tab = "ManagePayments"
+                });
+            }
 
             try
             {
@@ -1424,6 +1457,7 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Child")]
+        [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpGet("MyBalance")]
         public async Task<IActionResult> MyBalance()
         {
@@ -1460,6 +1494,7 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Staff")]
+        [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpGet("ManageBalance/{childId}")]
         public async Task<IActionResult> ManageBalance(int childId)
         {
@@ -1483,6 +1518,7 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Staff")]
+        [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpPost("FixBalance")]
         public async Task<IActionResult> FixBalance(int childId, string actionType, decimal amount, string remarks, IFormFile file)
         {
@@ -1593,90 +1629,69 @@ namespace Web.Controllers.User
         [HttpPost("UpdateAllSessions")]
         public async Task<IActionResult> UpdateAllSessions(UpdateAllSessionsFormModel formModel)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
-            //var child = await _childService.GetByIdAsync(user.Id);
-
-            var course = await _courseService.GetAsync(formModel.CourseID);
-            var child = await _childService.GetAsync(formModel.ChildID);
-
-           
-
-                //if (child == null)
-                //    return NotFound("Child not found.");
-
             if (formModel.AllSessions == null || !formModel.AllSessions.Any())
             {
                 TempData["ErrorMessage"] = "No sessions submitted.";
                 return RedirectToAction("ManageSessionRegistrations", new { courseId = formModel.CourseID, childId = formModel.ChildID });
             }
 
-            bool hasConfirmed = true;
-
-            foreach (var session in formModel.AllSessions)
+            try
             {
-                if (session.Status == "Registered")
-                {
-                    hasConfirmed = false;
-                    break;
-                }
-            }
+                var course = await _courseService.GetAsync(formModel.CourseID);
+                var child = await _childService.GetAsync(formModel.ChildID);
 
-            foreach (var session in formModel.AllSessions)
-            {
-                // Example pseudo-code for updating session in database
-                //var existingSession = _dbContext.CourseEnrollments.FirstOrDefault(e => e.EnrollmentID == session.EnrollmentID);
-                var existingSession = await _courseEnrollmentService.GetAsync(session.EnrollmentID);
-                if (existingSession != null)
+                foreach (var session in formModel.AllSessions)
                 {
+                    if (string.IsNullOrWhiteSpace(session.Status))
+                        throw new ArgumentException("A session status is required.");
+
+                    var existingSession = await _courseEnrollmentService.GetAsync(session.EnrollmentID);
+                    if (existingSession.CourseID != formModel.CourseID
+                        || existingSession.ChildID != formModel.ChildID
+                        || existingSession.EnrollmentID_Ref == null)
+                    {
+                        throw new ArgumentException("A submitted session does not belong to this registration.");
+                    }
+
                     existingSession.Status = session.Status;
                     existingSession.StaffNote = session.StaffNote;
-                    var result = await _courseEnrollmentService.UpdateSessionAsync(existingSession);
-
-
+                    var updated = await _courseEnrollmentService.UpdateSessionAsync(existingSession);
+                    if (!updated)
+                        throw new InvalidOperationException("A session could not be updated.");
                 }
 
+                var hasConfirmed = formModel.AllSessions.All(session => session.Status != "Registered");
+                var subject = hasConfirmed
+                    ? "Please Review Your Child’s Updated Course Schedule"
+                    : "Please Confirm Your Child’s Course";
+                var portalPath = hasConfirmed ? "MySchedules" : "MyConfirmations";
+                var actionText = hasConfirmed ? "review the changes" : "confirm the course";
+                var htmlMessage =
+                    "<p>Hello,</p>" +
+                    $"<p>We’ve updated the course schedule for <strong>{WebUtility.HtmlEncode(child.Name)}</strong> in " +
+                    $"<strong>\"{WebUtility.HtmlEncode(course.Title)}\"</strong>.</p>" +
+                    $"<p>Please log in to your portal to {actionText}:</p>" +
+                    $"<p><a href=\"https://me.nsns.ca/Child/{portalPath}\">https://me.nsns.ca/Child/{portalPath}</a></p>" +
+                    "<p>If you have any questions or need assistance, please feel free to contact us.</p>" +
+                    "<p>Thank you,<br/>NSNS Support Team</p>";
+
+                try
+                {
+                    await _emailService.SendEmailAsync(child.User.Email!, subject, htmlMessage);
+                }
+                catch
+                {
+                    TempData["ErrorMessage"] = "Session updates were saved, but the notification email could not be sent.";
+                    return RedirectToAction("ManageSessionRegistrations", new { childId = formModel.ChildID, courseId = formModel.CourseID });
+                }
+
+                TempData["SuccessMessage"] = "Session updates saved successfully.";
             }
-
-
-            //_dbContext.SaveChanges();
-            var subject = "";
-            var htmlMessage = "";
-
-            if (hasConfirmed)
+            catch (Exception ex)
             {
-                subject = "Please Review Your Child’s Updated Course Schedule";
-
-                htmlMessage =
-            "<p>Hello,</p>" +
-            $"<p>We’ve updated the course schedule for your child <strong>{child.Name}</strong> in " +
-            $"<strong>\"{WebUtility.HtmlEncode(course.Title)}\"</strong>.</p>" +
-            "<p>Please log in to your parent portal to review the changes:</p>" +
-            "<p><a href=\"https://me.nsns.ca/Child/MySchedules\">https://me.nsns.ca/Child/MySchedules</a></p>" +
-    
-            "<p>If you have any questions or need assistance, please feel free to contact us.</p>" +
-            "<p>Thank you,<br/>NSNS Support Team</p>";
-            }
-            else
-            {
-                subject = "Please Confirm Your Child’s Course";
-                htmlMessage =
-            "<p>Hello,</p>" +
-            $"<p>We’ve added the course schedule for your child <strong>{child.Name}</strong> in " +
-            $"<strong>\"{WebUtility.HtmlEncode(course.Title)}\"</strong>.</p>" +
-            "<p>Please log in to your parent portal to confirm the course:</p>" +
-            "<p><a href=\"https://me.nsns.ca/Child/MyConfirmations\">https://me.nsns.ca/Child/MyConfirmations</a></p>" +
-            "<p>If you have any questions or need assistance, please feel free to contact us.</p>" +
-            "<p>Thank you,<br/>NSNS Support Team</p>";
+                TempData["ErrorMessage"] = $"Session updates could not be saved: {ex.Message}";
             }
 
-                
-
-            
-
-
-            await _emailService.SendEmailAsync(child.User.Email, subject, htmlMessage);
-
-            TempData["SuccessMessage"] = "Session updates saved successfully.";
             return RedirectToAction("ManageSessionRegistrations", new { childId = formModel.ChildID, courseId = formModel.CourseID });
 
             //try

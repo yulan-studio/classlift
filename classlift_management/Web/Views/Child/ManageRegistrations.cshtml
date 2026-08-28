@@ -123,7 +123,7 @@
         else
         {
             <tr>
-                <td colspan="13" style="text-align: center; padding: 10px;">No private courses enrolled.</td>
+                <td colspan="13" style="text-align: center; padding: 10px;">No courses enrolled.</td>
             </tr>
         }
 
@@ -207,11 +207,17 @@
             <select id="paymentModel" name="paymentModel" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
             <option value="">-- Select Payment Model --</option>
             <option value="Direct">Direct</option>
-            <option value="Token">Token</option>
+            @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
+            {
+                <option value="Token">Token</option>
+            }
             @* <option value="OAP">OAP</option> *@
         </select>
 
-            <label style="font-size:0.9em; color:darkslategray"> - If there is enough balance, choose 'Token'.</label>
+            @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
+            {
+                <label style="font-size:0.9em; color:darkslategray"> - If there is enough balance, choose 'Token'.</label>
+            }
 
         <!-- Fee Input (visible conditionally) -->
         <span id="feeSection" style="display:none; margin-top:10px;">

@@ -27,7 +27,8 @@ namespace Core.Middleware
             HttpContext context,
             ITenantConnectionStringFactory connectionFactory,
             CurrentTenant currentTenant,
-            OrganizationTerminologyService terminologyService)
+            OrganizationTerminologyService terminologyService,
+            IFeatureService featureService)
         {
             var host = context.Request.Host.Host
                 .Trim()
@@ -36,13 +37,15 @@ namespace Core.Middleware
             _logger.LogInformation("Middleware run");
                   
 
-            // Ignore localhost
-            if (host is "localhost" or "127.0.0.1")
+            // Local development should not depend on platform plan data. The
+            // loopback tenant can use every feature in both views and filters.
+            if (host is "localhost" or "127.0.0.1" or "::1")
             {
                 currentTenant.Subdomain = "classlift";
                 currentTenant.DatabaseName = LocalDatabaseName;
                 currentTenant.ConnectionString =
                     connectionFactory.BuildConnectionString(LocalDatabaseName);
+                currentTenant.AreAllFeaturesEnabled = true;
 
                 context.Items["CurrentTenant"] = currentTenant;
                 currentTenant.Terminology = await terminologyService.GetAsync(LocalDatabaseName);
@@ -110,6 +113,18 @@ namespace Core.Middleware
             currentTenant.Subdomain = tenant.Subdomain;
             currentTenant.DatabaseName = tenant.DatabaseName;
             currentTenant.ConnectionString = tenantConnectionString;
+
+            // Resolve entitlements once per request and expose them through
+            // CurrentTenant so controllers and Razor views do not query the
+            // platform database independently.
+            var tenantFeatures = await featureService.GetFeaturesAsync(
+                tenant.OrganizationId,
+                context.RequestAborted);
+
+            currentTenant.PlanId = tenantFeatures.PlanId;
+            currentTenant.PlanName = tenantFeatures.PlanName;
+            currentTenant.EnabledFeatures = tenantFeatures.EnabledFeatures;
+
             _logger.LogInformation("tenant was found for host {Host}", host);
             // Optional backward compatibility for existing code.
             context.Items["CurrentTenant"] = currentTenant;
