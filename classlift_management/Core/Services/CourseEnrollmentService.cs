@@ -468,7 +468,44 @@ namespace Core.Services
 
             try
             {
-                return await _enrollmentRepository.AddAsync(newSession);
+                if (!await _enrollmentRepository.AddAsync(newSession))
+                    return false;
+
+                var registeredStudents = await _enrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Registered");
+                var confirmedStudents = await _enrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
+
+                var studentRegistrations = registeredStudents
+                    .Concat(confirmedStudents)
+                    .Where(enrollment => enrollment.ChildID.HasValue)
+                    .GroupBy(enrollment => enrollment.ChildID!.Value)
+                    .Select(group => group
+                        .OrderByDescending(enrollment => enrollment.Status == "Confirmed")
+                        .First());
+
+                foreach (var registration in studentRegistrations)
+                {
+                    var sessionStatus = registration.Status == "Confirmed"
+                        ? "Scheduled"
+                        : "Registered";
+
+                    var added = await AddSessionRegisteredEnrollmentAsync(
+                        registration.ChildID!.Value,
+                        courseId,
+                        newSession.ScheduledAt,
+                        newSession.ScheduledHours,
+                        newSession.Location,
+                        newSession.EnrollmentID,
+                        sessionStatus,
+                        user);
+
+                    if (!added)
+                        throw new InvalidOperationException(
+                            $"The new session could not be added for {registration.Child.Name}.");
+                }
+
+                return true;
             }
 
             catch (Exception ex)
