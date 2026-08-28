@@ -1,0 +1,41 @@
+@model Core.ViewModels.CourseRegistrationsViewModel
+
+@{
+    ViewData["Title"] = "Course Registrations";
+}
+
+<h2>Course Registrations</h2>
+
+<p><strong>Course:</strong> @Model.CourseTitle</p>
+
+<a asp-action="List" class="btn btn-secondary mb-3">Back to Courses</a>
+
+<table class="table table-bordered" style="max-width: 700px;">
+    <thead class="table-primary">
+        <tr>
+            <th>#</th>
+            <th>@CurrentTenant.Terminology.ParticipantSingular</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Students.Any())
+        {
+            for (var index = 0; index < Model.Students.Count; index++)
+            {
+                var student = Model.Students[index];
+                <tr>
+                    <td>@(index + 1)</td>
+                    <td>
+                        <a href="/Child/MoreInfo/@student.ChildID">@student.Name</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="2" class="text-center">No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant().</td>
+            </tr>
+        }
+    </tbody>
+</table>

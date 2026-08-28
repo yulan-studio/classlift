@@ -48,6 +48,39 @@ namespace Web.Controllers.Courses
             _currentTenant = currentTenant;
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("Registrations/{courseId:int}")]
+        public async Task<IActionResult> Registrations(int courseId)
+        {
+            var course = await _courseService.GetAsync(courseId);
+            var registered = await _courseEnrollmentService.GetRegisteredEnrollmentsByCourseAsync(courseId);
+            var confirmed = await _courseEnrollmentService.GetRegisterationByCourseAsync(courseId);
+
+            var students = registered
+                .Where(enrollment => enrollment.ChildID.HasValue)
+                .Select(enrollment => new CourseRegisteredStudentViewModel
+                {
+                    ChildID = enrollment.ChildID!.Value,
+                    Name = enrollment.Child.Name
+                })
+                .Concat(confirmed.Select(child => new CourseRegisteredStudentViewModel
+                {
+                    ChildID = child.ChildID,
+                    Name = child.Name
+                }))
+                .GroupBy(student => student.ChildID)
+                .Select(group => group.First())
+                .OrderBy(student => student.Name)
+                .ToList();
+
+            return View(new CourseRegistrationsViewModel
+            {
+                CourseID = course.CourseID,
+                CourseTitle = course.Title,
+                Students = students
+            });
+        }
+
 
 
         [Authorize(Roles = "Staff")]
