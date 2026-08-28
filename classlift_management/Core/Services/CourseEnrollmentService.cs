@@ -102,11 +102,25 @@ namespace Core.Services
             if (child == null || course == null)
                 throw new ArgumentException("Invalid child or course.");
 
-
-
-
             if(await IsChildEnrolledInCourse(child.ChildID, courseId))
                 throw new ArgumentException("This course has already been registered.");
+
+            if (string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase)
+                && course.MaxCapacity.HasValue)
+            {
+                var registeredEnrollments = await _enrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Registered");
+                var confirmedEnrollments = await _enrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
+                var registeredStudentCount = registeredEnrollments
+                    .Concat(confirmedEnrollments)
+                    .Select(e => e.ChildID)
+                    .Distinct()
+                    .Count();
+
+                if (registeredStudentCount >= course.MaxCapacity.Value)
+                    throw new ArgumentException("The course is full.");
+            }
 
 
             try
