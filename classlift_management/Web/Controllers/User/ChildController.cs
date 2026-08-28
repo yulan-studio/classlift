@@ -1121,8 +1121,11 @@ namespace Web.Controllers.User
                 Child = child
             };
 
-            // ✅ Fetch all active payment packages
-            var packages = await _paymentService.GetAllActivePackagesAsync();
+            // Package payments belong to Credit Tracking. Avoid loading or
+            // exposing packages when the tenant's plan does not include it.
+            var packages = _currentTenant.HasFeature(FeatureCodes.CreditTracking)
+                ? await _paymentService.GetAllActivePackagesAsync()
+                : Enumerable.Empty<PaymentPackage>();
 
             // ✅ Populate ViewBag for dropdown
             ViewBag.PaymentPackages = packages.Select(p => new SelectListItem
@@ -1141,6 +1144,19 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> AddPayment(int childId, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
         {
+
+            // Hiding Token Payment in the view is not sufficient protection;
+            // reject a crafted package-payment request before uploading files.
+            if (packageId.HasValue
+                && !_currentTenant.HasFeature(FeatureCodes.CreditTracking))
+            {
+                TempData["ErrorMessage"] = "Token payment is not available for your plan.";
+                return RedirectToAction("Participation", new
+                {
+                    childId,
+                    tab = "ManagePayments"
+                });
+            }
 
             try
             {
