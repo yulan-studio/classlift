@@ -244,6 +244,7 @@ namespace Core.Services
                     ScheduledLocalTime = sourceSession?.ScheduledLocalTime,
                     ScheduledTimeZoneId = sourceSession?.ScheduledTimeZoneId,
                     Location = location,
+                    StaffNote = sourceSession?.StaffNote,
                     EnrollmentID_Ref = enrollmentId_Ref,
                     CreatedBy = user.Id,
                     CreatedDate = DateTime.UtcNow,
