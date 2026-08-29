@@ -24,16 +24,13 @@
 
 <a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
 
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
-    <p><strong>Course:</strong> @Model.Course.Title</p>
-
-    @if (Model.Course.SessionCount.HasValue)
-    {
-        <p><strong>Session Count:</strong> @Model.Course.SessionCount</p>
-    }
+<div class="p-3 mb-4 bg-light border rounded">
+     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
+    <strong>Session Count:</strong> @Model.Course.SessionCount <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
     <strong>Gender:</strong> @Model.Child.Gender <br />
-    <strong>City:</strong> @Model.Child.City.Name <br />
+    @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
+    <strong>City:</strong> @Model.Child.City.Name
 
 
 
