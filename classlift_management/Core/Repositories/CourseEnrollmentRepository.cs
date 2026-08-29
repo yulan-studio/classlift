@@ -568,6 +568,35 @@ namespace Core.Repositories
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        // For fixed-session private courses, complete each scheduled session after it ends.
+        // EnrollmentID_Ref keeps the session associated with the specific registration period.
+        public async Task UpdatePrivateCompletedSessionsAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            DateTime now = DateTime.UtcNow;
+
+            var sessionsToUpdate = await dbContext.CourseEnrollments
+                .Include(e => e.Course)
+                .Where(e => e.Course.CourseType == "Private"
+                            && e.Course.SessionCount != null
+                            && e.EnrollmentID_Ref != null
+                            && e.Status == "Scheduled"
+                            && e.ScheduledAt != null
+                            && e.ScheduledHours != null
+                            && e.ScheduledAt.Value.AddHours((double)e.ScheduledHours.Value) <= now)
+                .ToListAsync(cancellationToken);
+
+            foreach (var session in sessionsToUpdate)
+            {
+                session.Status = "Completed";
+                session.ActualHours = session.ScheduledHours;
+            }
+
+            if (sessionsToUpdate.Count > 0)
+            {
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+
 
 
 

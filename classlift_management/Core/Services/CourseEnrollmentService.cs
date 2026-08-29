@@ -570,6 +570,12 @@ namespace Core.Services
             await _enrollmentRepository.UpdateChildCompletedSessionsAsync(dbContext, courseId, cancellationToken);
         }
 
+        // Automatically complete elapsed sessions for fixed-session private courses.
+        public async Task UpdatePrivateCompletedSessionsAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            await _enrollmentRepository.UpdatePrivateCompletedSessionsAsync(dbContext, cancellationToken);
+        }
+
 
         //Set Session status to be completed after the session past the scheduled time for group course
         public async Task UpdateCompletedSessionsAsync(int courseId)

@@ -75,6 +75,8 @@ namespace Core.Interfaces
 
         Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
 
+        Task UpdatePrivateCompletedSessionsAsync(AppDbContext dbContext, CancellationToken cancellationToken);
+
         Task UpdateCompletedSessionsAsync(int courseId);
 
         Task UpdateCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
