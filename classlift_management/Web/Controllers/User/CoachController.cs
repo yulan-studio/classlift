@@ -964,6 +964,38 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Coach")]
+        [HttpGet("ViewEnrollments/{childId}")]
+        public async Task<IActionResult> ViewEnrollments(int childId, [FromQuery] int courseId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var course = await _courseService.GetAsync(courseId);
+            if (coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+
+            var child = await _childService.GetAsync(childId);
+
+            if (child == null)
+                return NotFound("Child not found.");
+
+            var model = new ManageEnrollmentsViewModel
+            {
+                Course = course,
+                Child = child,
+                WaitToCompleteEnrollments = new List<CourseEnrollment>(),
+                CompletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService
+                    .GetCompletesByCourseChildAsync(course.CourseID, childId),
+                DeletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService
+                    .GetDeletedByCourseChildAsync(course.CourseID, childId)
+            };
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Coach")]
         [HttpPost("CompleteSession")]
         public async Task<IActionResult> CompleteSession(int enrollmentId, int childId, int courseId, decimal? actualHours, string? coachNote)
         {

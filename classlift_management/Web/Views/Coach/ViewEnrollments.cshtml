@@ -1,0 +1,106 @@
+@model Core.ViewModels.ManageEnrollmentsViewModel
+
+<style>
+    table.mobile-stack {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.mobile-stack th,
+    table.mobile-stack td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    @@media (max-width: 767px) {
+        .desktop-only {
+            display: none !important;
+        }
+    }
+</style>
+
+<h2 class="mb-4">View Enrollments</h2>
+
+<a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
+
+<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+    <p><strong>Course:</strong> @Model.Course.Title</p>
+    <p><strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name</p>
+    @if (Model.Course.SessionCount.HasValue)
+    {
+        <p><strong>Session Count:</strong> @Model.Course.SessionCount</p>
+    }
+</div>
+
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Completed Sessions</h5></div>
+
+<table class="mobile-stack table table-bordered mt-3">
+    <thead class="table-primary">
+        <tr>
+            <th>Scheduled At</th>
+            <th>Scheduled Hours</th>
+            <th>Actual Hours</th>
+            <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
+            <th class="desktop-only">My Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CompletedEnrollments.Any())
+        {
+            foreach (var completed in Model.CompletedEnrollments)
+            {
+                <tr>
+                    <td>@(completed.ScheduledAt.HasValue ? completed.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
+                    <td>@completed.ScheduledHours</td>
+                    <td>@completed.ActualHours</td>
+                    <td class="desktop-only">@completed.ParentNote</td>
+                    <td class="desktop-only">@completed.CoachNote</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">No completed sessions.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="padding-top: 30px"></div>
+
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Deleted Sessions</h5></div>
+
+<table class="mobile-stack table table-bordered mt-3">
+    <thead class="table-primary">
+        <tr>
+            <th>Scheduled At</th>
+            <th>Scheduled Hours</th>
+            <th class="desktop-only">Actual Hours</th>
+            <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
+            <th class="desktop-only">My Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.DeletedEnrollments.Any())
+        {
+            foreach (var deleted in Model.DeletedEnrollments)
+            {
+                <tr>
+                    <td>@(deleted.ScheduledAt.HasValue ? deleted.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
+                    <td>@deleted.ScheduledHours</td>
+                    <td class="desktop-only">@deleted.ActualHours</td>
+                    <td>@deleted.ParentNote</td>
+                    <td class="desktop-only">@deleted.CoachNote</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">No deleted sessions.</td>
+            </tr>
+        }
+    </tbody>
+</table>
