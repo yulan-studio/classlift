@@ -2,9 +2,7 @@
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Processing;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -106,45 +104,61 @@ namespace Core.R2
             }
 
             await using var source = file.OpenReadStream();
-            using var image = await Image.LoadAsync(source);
-            image.Mutate(operation => operation.AutoOrient());
+            using var original = SKBitmap.Decode(source)
+                ?? throw new InvalidOperationException("The uploaded image is invalid.");
+            var current = ResizeToFit(original, MaximumImageDimension);
 
-            if (image.Width > MaximumImageDimension || image.Height > MaximumImageDimension)
+            try
             {
-                image.Mutate(operation => operation.Resize(new ResizeOptions
+                while (true)
                 {
-                    Mode = ResizeMode.Max,
-                    Size = new Size(MaximumImageDimension, MaximumImageDimension)
-                }));
-            }
-
-            while (true)
-            {
-                for (var quality = 85; quality >= 20; quality -= 5)
-                {
-                    var output = new MemoryStream();
-                    await image.SaveAsWebpAsync(output, new WebpEncoder
+                    for (var quality = 85; quality >= 20; quality -= 5)
                     {
-                        Quality = quality,
-                        FileFormat = WebpFileFormatType.Lossy
-                    });
+                        using var encoded = current.Encode(SKEncodedImageFormat.Webp, quality)
+                            ?? throw new InvalidOperationException("The image could not be encoded.");
 
-                    if (output.Length <= MaximumImageBytes)
-                    {
-                        output.Position = 0;
-                        return new PreparedUpload(output, "image/webp", ".webp");
+                        if (encoded.Size <= MaximumImageBytes)
+                        {
+                            var output = new MemoryStream(encoded.ToArray(), writable: false);
+                            return new PreparedUpload(output, "image/webp", ".webp");
+                        }
                     }
 
-                    await output.DisposeAsync();
+                    if (current.Width <= MinimumImageDimension && current.Height <= MinimumImageDimension)
+                        throw new InvalidOperationException("The image could not be compressed below 100 KB.");
+
+                    var nextWidth = Math.Max(MinimumImageDimension, (int)(current.Width * 0.8));
+                    var nextHeight = Math.Max(MinimumImageDimension, (int)(current.Height * 0.8));
+                    var resized = current.Resize(
+                        new SKImageInfo(nextWidth, nextHeight),
+                        new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.None))
+                        ?? throw new InvalidOperationException("The image could not be resized.");
+
+                    current.Dispose();
+                    current = resized;
                 }
-
-                if (image.Width <= MinimumImageDimension && image.Height <= MinimumImageDimension)
-                    throw new InvalidOperationException("The image could not be compressed below 100 KB.");
-
-                var nextWidth = Math.Max(MinimumImageDimension, (int)(image.Width * 0.8));
-                var nextHeight = Math.Max(MinimumImageDimension, (int)(image.Height * 0.8));
-                image.Mutate(operation => operation.Resize(nextWidth, nextHeight));
             }
+            finally
+            {
+                current.Dispose();
+            }
+        }
+
+        private static SKBitmap ResizeToFit(SKBitmap source, int maximumDimension)
+        {
+            if (source.Width <= maximumDimension && source.Height <= maximumDimension)
+                return source.Copy();
+
+            var scale = Math.Min(
+                (double)maximumDimension / source.Width,
+                (double)maximumDimension / source.Height);
+            var width = Math.Max(1, (int)Math.Round(source.Width * scale));
+            var height = Math.Max(1, (int)Math.Round(source.Height * scale));
+
+            return source.Resize(
+                new SKImageInfo(width, height),
+                new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.None))
+                ?? throw new InvalidOperationException("The image could not be resized.");
         }
 
         private sealed record PreparedUpload(
