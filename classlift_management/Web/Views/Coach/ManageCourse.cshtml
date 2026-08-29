@@ -191,7 +191,9 @@
                                     </td>
                                     <td data-label="Enrollments">
                                         <a href="/Coach/ManageEnrollments/@child.ChildID?courseId=@course.CourseID">
-                                            Manage
+                                            @(course.CourseType == "Private" && course.SessionCount.HasValue
+                                                ? "View"
+                                                : "Manage")
                                         </a>
                                     </td>
                                 }
