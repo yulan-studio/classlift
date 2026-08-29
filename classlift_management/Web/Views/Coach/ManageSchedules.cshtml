@@ -119,7 +119,13 @@
 
 
 
-<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB;"><h4>Upcoming Sessions</h4></div>
+<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <h4 style="margin: 0;">Upcoming Sessions</h4>
+    @if (Model.Course.CourseType == "Private" && Model.Course.SessionCount.HasValue)
+    {
+        <a href="/Coach/ViewEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+    }
+</div>
 
 <table class="mobile-stack table table-bordered mt-2" @* class="mobile-stack mt-3" *@>
     <thead class="table-primary">

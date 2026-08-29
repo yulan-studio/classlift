@@ -29,6 +29,12 @@ namespace Core.Interfaces
         Task<IEnumerable<CourseEnrollment>> GetEnrollments2ByCourseChildAsync(int courseId, int childId);
 
         Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByCourseChildAsync(int courseId, int childId);
+        Task<IEnumerable<CourseEnrollment>> GetSchedulesByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetWaitToCompleteByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetCompletesByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetDeletedByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetUpcomingByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<int> GetCountedSessionCountByRootEnrollmentAsync(int rootEnrollmentId);
 
         Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByChildAsync(int childId);
 

@@ -192,11 +192,11 @@
                                     <td data-label="Enrollments">
                                         @if (course.CourseType == "Private" && course.SessionCount.HasValue)
                                         {
-                                            <a href="/Coach/ViewEnrollments/@child.ChildID?courseId=@course.CourseID">View</a>
+                                            <a href="/Coach/ViewEnrollments/@child.ChildID?courseId=@course.CourseID&enrollmentId=@child.EnrollmentID">View</a>
                                         }
                                         else
                                         {
-                                            <a href="/Coach/ManageEnrollments/@child.ChildID?courseId=@course.CourseID">Manage</a>
+                                            <a href="/Coach/ManageEnrollments/@child.ChildID?courseId=@course.CourseID&enrollmentId=@child.EnrollmentID">Manage</a>
                                         }
                                     </td>
                                 }
