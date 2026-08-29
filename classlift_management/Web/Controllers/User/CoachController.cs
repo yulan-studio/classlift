@@ -1169,9 +1169,16 @@ namespace Web.Controllers.User
 
             //ViewBag.TotalIncome = viewModel.LastOrDefault()?.TotalIncomeSoFar ?? 0;
 
-            var incomeRecords = await _incomeService.GetCoachMonthlyIncomeAsync(coach.CoachID);
-
-            return View(incomeRecords.ToList());
+            try
+            {
+                var incomeRecords = await _incomeService.GetCoachMonthlyIncomeAsync(coach.CoachID);
+                return View(incomeRecords.ToList());
+            }
+            catch (Exception)
+            {
+                ViewBag.HoursError = "Your hours could not be loaded. Please try again later or contact support.";
+                return View(new List<Core.DTOs.CoachMonthlyIncome>());
+            }
         }
 
         

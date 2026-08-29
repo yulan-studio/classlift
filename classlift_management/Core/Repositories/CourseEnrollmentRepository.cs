@@ -585,10 +585,37 @@ namespace Core.Repositories
                             && e.ScheduledAt.Value.AddHours((double)e.ScheduledHours.Value) <= now)
                 .ToListAsync(cancellationToken);
 
+            var sessionIds = sessionsToUpdate
+                .Select(session => session.EnrollmentID)
+                .ToList();
+
+            var existingIncomeEnrollmentIds = sessionIds.Count == 0
+                ? new HashSet<int>()
+                : (await dbContext.CoachIncomes
+                    .Where(income => sessionIds.Contains(income.EnrollmentID))
+                    .Select(income => income.EnrollmentID)
+                    .ToListAsync(cancellationToken))
+                    .ToHashSet();
+
             foreach (var session in sessionsToUpdate)
             {
                 session.Status = "Completed";
                 session.ActualHours = session.ScheduledHours;
+
+                if (!existingIncomeEnrollmentIds.Contains(session.EnrollmentID)
+                    && session.Course.CoachID.HasValue)
+                {
+                    dbContext.CoachIncomes.Add(new CoachIncome
+                    {
+                        CoachID = session.Course.CoachID.Value,
+                        CourseID = session.CourseID,
+                        EnrollmentID = session.EnrollmentID,
+                        CreatedDate = now,
+                        CreatedBy = 0
+                    });
+
+                    existingIncomeEnrollmentIds.Add(session.EnrollmentID);
+                }
             }
 
             if (sessionsToUpdate.Count > 0)

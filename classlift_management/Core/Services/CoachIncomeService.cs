@@ -40,29 +40,13 @@ namespace Core.Services
 
         public async Task<IEnumerable<CoachIncome>> GetCoachIncomeAsync(int coachId)
         {
-            try
-            {
-                IEnumerable<CoachIncome> incomes = await _coachIncomeRepository.GetCoachIncomeAsync(coachId);
-                return incomes;
-            }
-            catch (Exception ex)
-            {
-                return Enumerable.Empty<CoachIncome>();
-            }
+            return await _coachIncomeRepository.GetCoachIncomeAsync(coachId);
         }
 
 
         public async Task<IEnumerable<CoachMonthlyIncome>> GetCoachMonthlyIncomeAsync(int coachId)
         {
-            try
-            {
-                IEnumerable<CoachMonthlyIncome> incomes = await _coachIncomeRepository.GetCoachMonthlyIncomeAsync(coachId);
-                return incomes;
-            }
-            catch (Exception ex)
-            {
-                return Enumerable.Empty<CoachMonthlyIncome>();
-            }
+            return await _coachIncomeRepository.GetCoachMonthlyIncomeAsync(coachId);
         }
     }
 }
