@@ -398,13 +398,14 @@ namespace Web.Controllers.Courses
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                var existingCourse = await _courseService.GetAsync(courseId);
 
                 var enrollments = await _courseEnrollmentService.GetScheduledEnrollmentsByCourseAsync(courseId);
-                if (enrollments != null && enrollments.Any() && isActive == false)
-                {
-                    TempData["ErrorMessage"] = "This course cannot be set to inactive because it has scheduled sessions.  Please wait until all scheduled sessions completed or deleted all scheduled sessions before deactivating the course.";
-                    return RedirectToAction("List");
-                }
+                //if (enrollments != null && enrollments.Any() && existingCourse.IsActive && isActive == false)
+                //{
+                //    TempData["ErrorMessage"] = "This course cannot be set to inactive because it has scheduled sessions.  Please wait until all scheduled sessions completed or deleted all scheduled sessions before deactivating the course.";
+                //    return RedirectToAction("List");
+                //}
 
                
 
