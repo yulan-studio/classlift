@@ -378,13 +378,26 @@ namespace Core.Services
 
             foreach (var e in course_enrollments)
             {
-                var scheduled = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Scheduled");
-                var requestToReschedule = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "RequestToReschedule");
-                var requestToLeave = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "RequestToLeave");
-                var onLeave = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "OnLeave");
-                var canceled = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Canceled");
-                var completed = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Completed");
-                var deleted = await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(e.CourseID, (int)e.ChildID, "Deleted");
+                var isPrivateRegistration = string.Equals(
+                    e.Course.CourseType,
+                    "Private",
+                    StringComparison.OrdinalIgnoreCase);
+
+                async Task<IEnumerable<CourseEnrollment>> GetSessionsAsync(string status) =>
+                    isPrivateRegistration
+                        ? await _enrollmentRepository.GetSessionsByRootEnrollmentAsync(e.EnrollmentID, status)
+                        : await _enrollmentRepository.GetEnrollmentsByCourseChildAsync(
+                            e.CourseID,
+                            (int)e.ChildID,
+                            status);
+
+                var scheduled = await GetSessionsAsync("Scheduled");
+                var requestToReschedule = await GetSessionsAsync("RequestToReschedule");
+                var requestToLeave = await GetSessionsAsync("RequestToLeave");
+                var onLeave = await GetSessionsAsync("OnLeave");
+                var canceled = await GetSessionsAsync("Canceled");
+                var completed = await GetSessionsAsync("Completed");
+                var deleted = await GetSessionsAsync("Deleted");
 
                 children.Add(new ChildViewModel
                 {
@@ -418,6 +431,16 @@ namespace Core.Services
             if(coach == null)
                 throw new ArgumentException("Invalid coach.");
             Course course = await _courseRepository.GetAsync(courseId);
+            var rootEnrollment = await _enrollmentRepository.GetAsync(enrollmentId_Ref);
+            if (rootEnrollment == null
+                || rootEnrollment.EnrollmentID_Ref != null
+                || rootEnrollment.ChildID != childId
+                || rootEnrollment.CourseID != courseId
+                || rootEnrollment.Status is not ("Registered" or "Confirmed"))
+            {
+                throw new ArgumentException("The selected course registration is invalid or no longer active.");
+            }
+
             var enrollment = new CourseEnrollment
             {
                 //UserID = userId,
@@ -545,6 +568,12 @@ namespace Core.Services
         public async Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken)
         {
             await _enrollmentRepository.UpdateChildCompletedSessionsAsync(dbContext, courseId, cancellationToken);
+        }
+
+        // Automatically complete elapsed sessions for fixed-session private courses.
+        public async Task UpdatePrivateCompletedSessionsAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            await _enrollmentRepository.UpdatePrivateCompletedSessionsAsync(dbContext, cancellationToken);
         }
 
 
@@ -729,6 +758,24 @@ namespace Core.Services
 
         }
 
+        public async Task<IEnumerable<CourseEnrollment>> GetSchedulesByRootEnrollmentAsync(int rootEnrollmentId) =>
+            await _enrollmentRepository.GetSessionsByRootEnrollmentAsync(rootEnrollmentId, "Scheduled");
+
+        public async Task<IEnumerable<CourseEnrollment>> GetWaitToCompleteByRootEnrollmentAsync(int rootEnrollmentId) =>
+            await _enrollmentRepository.GetOverdueSessionsByRootEnrollmentAsync(rootEnrollmentId, "Scheduled");
+
+        public async Task<IEnumerable<CourseEnrollment>> GetCompletesByRootEnrollmentAsync(int rootEnrollmentId) =>
+            await _enrollmentRepository.GetSessionsByRootEnrollmentAsync(rootEnrollmentId, "Completed");
+
+        public async Task<IEnumerable<CourseEnrollment>> GetDeletedByRootEnrollmentAsync(int rootEnrollmentId) =>
+            await _enrollmentRepository.GetSessionsByRootEnrollmentAsync(rootEnrollmentId, "Deleted");
+
+        public async Task<IEnumerable<CourseEnrollment>> GetUpcomingByRootEnrollmentAsync(int rootEnrollmentId) =>
+            await _enrollmentRepository.GetUpcomingSessionsByRootEnrollmentAsync(rootEnrollmentId);
+
+        public async Task<int> GetCountedSessionCountByRootEnrollmentAsync(int rootEnrollmentId) =>
+            await _enrollmentRepository.GetCountedSessionCountByRootEnrollmentAsync(rootEnrollmentId);
+
 
         public async Task<bool> CompleteSessionAsync(int enrollmentId, decimal actualHours, string coachNote)
         {
@@ -765,6 +812,18 @@ namespace Core.Services
             {
                 throw new Exception(ex.Message, ex.InnerException);
             }
+        }
+
+        public async Task<bool> UpdateCoachNoteAsync(int enrollmentId, string? coachNote)
+        {
+            var enrollment = await _enrollmentRepository.GetAsync(enrollmentId);
+            if (enrollment == null)
+                throw new KeyNotFoundException("Session not found.");
+
+            enrollment.CoachNote = coachNote?.Trim();
+            enrollment.UpdatedDate = DateTime.UtcNow;
+
+            return await _enrollmentRepository.UpdateAsync(enrollment);
         }
 
 

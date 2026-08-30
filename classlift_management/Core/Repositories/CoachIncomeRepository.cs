@@ -34,6 +34,9 @@ namespace Core.Repositories
             if (enrollment == null || enrollment.Status != "Completed")
                 return false;
 
+            if (await _context.CoachIncomes.AnyAsync(i => i.EnrollmentID == enrollmentId))
+                return true;
+
             var coachId = enrollment.Course.CoachID;
             var courseId = enrollment.Course.CourseID;
 

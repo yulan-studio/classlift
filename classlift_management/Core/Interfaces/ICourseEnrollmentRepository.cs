@@ -50,6 +50,10 @@ namespace Core.Interfaces
 
         Task<IEnumerable<CourseEnrollment>> GetEnrollments2ByCourseChildAsync(int courseId, int childId);
         Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByCourseChildAsync(int courseId, int childId);
+        Task<IEnumerable<CourseEnrollment>> GetSessionsByRootEnrollmentAsync(int rootEnrollmentId, string status);
+        Task<IEnumerable<CourseEnrollment>> GetOverdueSessionsByRootEnrollmentAsync(int rootEnrollmentId, string status);
+        Task<IEnumerable<CourseEnrollment>> GetUpcomingSessionsByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<int> GetCountedSessionCountByRootEnrollmentAsync(int rootEnrollmentId);
 
         Task<IEnumerable<CourseEnrollment>> GetEnrollmentsByCourseAsync(int courseId, string status);  //yes
 
@@ -64,6 +68,8 @@ namespace Core.Interfaces
         Task UpdateChildCompletedSessionsAsync(int courseId);
 
         Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
+
+        Task UpdatePrivateCompletedSessionsAsync(AppDbContext dbContext, CancellationToken cancellationToken);
 
 
         Task UpdateCompletedSessionsAsync(int courseId);

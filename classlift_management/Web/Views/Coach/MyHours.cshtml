@@ -41,6 +41,12 @@
 
 <h2>My Hours</h2>
 
+@if (ViewBag.HoursError != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.HoursError
+    </div>
+}
 
 
     @foreach (var month in Model)

@@ -39,7 +39,7 @@ namespace Core.BackendService
     public class TenantStatusUpdater : BackgroundService
     {
         private const string LocalDatabaseName = "classlift";
-        private static readonly TimeSpan Interval = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan Interval = TimeSpan.FromMinutes(20);
 
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<TenantStatusUpdater> _logger;
@@ -290,6 +290,11 @@ namespace Core.BackendService
                         course.CourseID,
                         cancellationToken);
             }
+
+            // Fixed-session private courses use the same elapsed-time completion rule.
+            await courseEnrollmentService.UpdatePrivateCompletedSessionsAsync(
+                dbContext,
+                cancellationToken);
 
 
 
