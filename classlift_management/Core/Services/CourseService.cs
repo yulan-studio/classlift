@@ -24,13 +24,15 @@ namespace Core.Services
     public class CourseService : ICourseService
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly ICourseEnrollmentRepository _courseEnrollmentRepository;
         private readonly ICoachRepository _coachRepository;
         private readonly IUserRepository<User> _userRepository;
         private readonly ISpecialtyRepository _specialtyRepository;
 
-        public CourseService(ICourseRepository courseRepository, ICoachRepository coachRepository, ISpecialtyRepository specialtyRepository, IUserRepository<User> userRepository)
+        public CourseService(ICourseRepository courseRepository, ICourseEnrollmentRepository courseEnrollmentRepository, ICoachRepository coachRepository, ISpecialtyRepository specialtyRepository, IUserRepository<User> userRepository)
         {
             _courseRepository = courseRepository;
+            _courseEnrollmentRepository = courseEnrollmentRepository;
             _coachRepository = coachRepository;
             _specialtyRepository = specialtyRepository;
             _userRepository = userRepository;
@@ -165,6 +167,26 @@ namespace Core.Services
             if (existingCourse == null)
             {
                 throw new KeyNotFoundException($"Course with ID {courseId} not found.");
+            }
+
+            var maxCapacityChanged = existingCourse.MaxCapacity != maxCapatcity;
+
+            if (string.Equals(courseType, "Group", StringComparison.OrdinalIgnoreCase)
+                && maxCapacityChanged
+                && maxCapatcity.HasValue)
+            {
+                var registeredEnrollments = await _courseEnrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Registered");
+                var confirmedEnrollments = await _courseEnrollmentRepository
+                    .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
+                var registeredStudentCount = registeredEnrollments
+                    .Concat(confirmedEnrollments)
+                    .Where(enrollment => enrollment.ChildID.HasValue)
+                    .Select(enrollment => enrollment.ChildID!.Value)
+                    .Distinct()
+                    .Count();
+
+                isActive = registeredStudentCount < maxCapatcity.Value;
             }
 
             // Check if the Coach ID is valid (Optional: If repository has a method for coach validation)

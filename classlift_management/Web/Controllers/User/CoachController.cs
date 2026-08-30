@@ -736,13 +736,23 @@ namespace Web.Controllers.User
                 //var course = await _courseService.GetActiveCourseByCoachAsync(coachId);
                 //int courseId = 2; //need to change later
                 var course = await _courseService.GetAsync(courseId);
+                if (course.CoachID != coachId)
+                    return Forbid();
+
+                var rootEnrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
+                if (rootEnrollment.EnrollmentID_Ref != null
+                    || rootEnrollment.ChildID != childId
+                    || rootEnrollment.CourseID != courseId)
+                {
+                    return BadRequest("The registration does not match the selected child and course.");
+                }
 
                 // ✅ Get schedules for the child and course
-                List<CourseEnrollment> schedules = (List<CourseEnrollment>)await _courseEnrollmentService.GetUpcomingEnrollmentsByCourseChildAsync(course.CourseID, childId);
+                List<CourseEnrollment> schedules = (List<CourseEnrollment>)await _courseEnrollmentService.GetUpcomingByRootEnrollmentAsync(enrollmentId);
 
-                List<CourseEnrollment> completed = (List<CourseEnrollment>)await _courseEnrollmentService.GetCompletesByCourseChildAsync(courseId, childId);
+                List<CourseEnrollment> completed = (List<CourseEnrollment>)await _courseEnrollmentService.GetCompletesByRootEnrollmentAsync(enrollmentId);
 
-                List<CourseEnrollment> scheduled = (List<CourseEnrollment>)await _courseEnrollmentService.GetSchedulesByCourseChildAsync(courseId, childId);
+                List<CourseEnrollment> scheduled = (List<CourseEnrollment>)await _courseEnrollmentService.GetSchedulesByRootEnrollmentAsync(enrollmentId);
                 ViewBag.UserTimeZoneId = user.TimeZoneId;
                 ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
@@ -798,6 +808,9 @@ namespace Web.Controllers.User
                     return RedirectToAction("ManageSchedules", new { childId, courseId = courseId, enrollmentId = enrollmentId_Ref });
                 }
 
+                if (course.CoachID != coachId)
+                    return Forbid();
+
 
                 bool allSuccess = true;
 
@@ -817,10 +830,10 @@ namespace Web.Controllers.User
 
                 if (course.SessionCount != null)
                 {
-                    var scheduledCount = (await _courseEnrollmentService.GetSchedulesByCourseChildAsync(courseId, childId)).Count();
-                    var completedCount = (await _courseEnrollmentService.GetCompletesByCourseChildAsync(courseId, childId)).Count();
+                    var countedSessionCount = await _courseEnrollmentService
+                        .GetCountedSessionCountByRootEnrollmentAsync(enrollmentId_Ref);
 
-                    if (scheduledCount + completedCount + totalToSchedule > course.SessionCount)
+                    if (countedSessionCount + totalToSchedule > course.SessionCount)
                     {
                         TempData["ErrorMessage"] = "The maximum number of sessions for this course has been reached.";
                         return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
@@ -928,7 +941,10 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Coach")]
         [HttpGet("ManageEnrollments/{childId}")]
-        public async Task<IActionResult> ManageEnrollments(int childId, [FromQuery] int courseId)
+        public async Task<IActionResult> ManageEnrollments(
+            int childId,
+            [FromQuery] int courseId,
+            [FromQuery] int enrollmentId)
         {
             var user = await _userManager.GetUserAsync(User);
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
@@ -941,6 +957,9 @@ namespace Web.Controllers.User
             //var course = await _courseService.GetActiveCourseByCoachAsync(coachId);
             //int courseId = 2;  //need to change later
             var course = await _courseService.GetAsync(courseId);
+            if (course.CoachID != coachId)
+                return Forbid();
+
             Child? child = await _childService.GetAsync(childId);
 
             if (child == null)
@@ -948,19 +967,117 @@ namespace Web.Controllers.User
                 throw new ArgumentException("Child not found");
             }
 
+            var rootEnrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
+            if (rootEnrollment.EnrollmentID_Ref != null
+                || rootEnrollment.ChildID != childId
+                || rootEnrollment.CourseID != courseId)
+            {
+                return BadRequest("The registration does not match the selected child and course.");
+            }
+
             var model = new ManageEnrollmentsViewModel
             {
+                EnrollmentID = enrollmentId,
                 Course = course,
                 Child = child,
                 //ScheduledEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService.GetSchedulesByCourseChildAsync(course.CourseID, childId),
                 
                 
-                WaitToCompleteEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService.GetWaitToCompleteByCourseChildAsync(course.CourseID, childId),
-                CompletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService.GetCompletesByCourseChildAsync(course.CourseID, childId),
-                DeletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService.GetDeletedByCourseChildAsync(course.CourseID, childId)
+                WaitToCompleteEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService.GetWaitToCompleteByRootEnrollmentAsync(enrollmentId),
+                CompletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService.GetCompletesByRootEnrollmentAsync(enrollmentId),
+                DeletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService.GetDeletedByRootEnrollmentAsync(enrollmentId)
             };
 
             return View(model);
+        }
+
+        [Authorize(Roles = "Coach")]
+        [HttpGet("ViewEnrollments/{childId}")]
+        public async Task<IActionResult> ViewEnrollments(
+            int childId,
+            [FromQuery] int courseId,
+            [FromQuery] int enrollmentId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var course = await _courseService.GetAsync(courseId);
+            if (coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+
+            var child = await _childService.GetAsync(childId);
+
+            if (child == null)
+                return NotFound("Child not found.");
+
+            var rootEnrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
+            if (rootEnrollment.EnrollmentID_Ref != null
+                || rootEnrollment.ChildID != childId
+                || rootEnrollment.CourseID != courseId)
+            {
+                return BadRequest("The registration does not match the selected child and course.");
+            }
+
+            var model = new ManageEnrollmentsViewModel
+            {
+                EnrollmentID = enrollmentId,
+                Course = course,
+                Child = child,
+                WaitToCompleteEnrollments = new List<CourseEnrollment>(),
+                CompletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService
+                    .GetCompletesByRootEnrollmentAsync(enrollmentId),
+                DeletedEnrollments = (List<CourseEnrollment>)await _courseEnrollmentService
+                    .GetDeletedByRootEnrollmentAsync(enrollmentId)
+            };
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Coach")]
+        [HttpPost("UpdateCoachNote")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateCoachNote(
+            int enrollmentId,
+            int childId,
+            int courseId,
+            int rootEnrollmentId,
+            string? coachNote)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var course = await _courseService.GetAsync(courseId);
+            if (coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+
+            var rootEnrollment = await _courseEnrollmentService.GetAsync(rootEnrollmentId);
+            var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
+            if (rootEnrollment.EnrollmentID_Ref != null
+                || rootEnrollment.ChildID != childId
+                || rootEnrollment.CourseID != courseId
+                || enrollment.EnrollmentID_Ref != rootEnrollmentId
+                || enrollment.ChildID != childId
+                || enrollment.CourseID != courseId
+                || (enrollment.Status != "Completed" && enrollment.Status != "Deleted"))
+            {
+                return BadRequest("The session does not match the selected registration.");
+            }
+
+            var saved = await _courseEnrollmentService.UpdateCoachNoteAsync(enrollmentId, coachNote);
+            TempData[saved ? "SuccessMessage" : "ErrorMessage"] = saved
+                ? "Coach note saved successfully."
+                : "Failed to save the coach note.";
+
+            return RedirectToAction(nameof(ViewEnrollments), new
+            {
+                childId,
+                courseId,
+                enrollmentId = rootEnrollmentId
+            });
         }
 
         [Authorize(Roles = "Coach")]
@@ -1062,7 +1179,12 @@ namespace Web.Controllers.User
                 TempData["ErrorMessage"] = $"{ex.Message}";
             }
 
-            return RedirectToAction("ManageEnrollments", new { childId, courseId = courseId});
+            return RedirectToAction("ManageEnrollments", new
+            {
+                childId,
+                courseId,
+                enrollmentId = courseEnrollment.EnrollmentID_Ref
+            });
         }
 
         [Authorize(Roles = "Coach")]
@@ -1092,9 +1214,16 @@ namespace Web.Controllers.User
 
             //ViewBag.TotalIncome = viewModel.LastOrDefault()?.TotalIncomeSoFar ?? 0;
 
-            var incomeRecords = await _incomeService.GetCoachMonthlyIncomeAsync(coach.CoachID);
-
-            return View(incomeRecords.ToList());
+            try
+            {
+                var incomeRecords = await _incomeService.GetCoachMonthlyIncomeAsync(coach.CoachID);
+                return View(incomeRecords.ToList());
+            }
+            catch (Exception)
+            {
+                ViewBag.HoursError = "Your hours could not be loaded. Please try again later or contact support.";
+                return View(new List<Core.DTOs.CoachMonthlyIncome>());
+            }
         }
 
         

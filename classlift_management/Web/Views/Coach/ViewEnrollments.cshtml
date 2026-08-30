@@ -1,0 +1,165 @@
+@model Core.ViewModels.ManageEnrollmentsViewModel
+
+<style>
+    table.mobile-stack {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.mobile-stack th,
+    table.mobile-stack td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    @@media (max-width: 767px) {
+        .desktop-only {
+            display: none !important;
+        }
+    }
+</style>
+
+<h2 class="mb-4">View Enrollments</h2>
+
+<a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
+
+
+
+<div class="p-3 mb-4 bg-light border rounded">
+     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
+    <strong>Session Count:</strong> @Model.Course.SessionCount <br />
+    <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
+    <strong>Gender:</strong> @Model.Child.Gender <br />
+    @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
+    <strong>City:</strong> @Model.Child.City.Name
+
+
+
+</div>
+
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <h4 style="margin: 0;">Completed Sessions</h4>
+    @if (Model.Course.CourseType == "Private" && Model.Course.SessionCount.HasValue)
+    {
+        <a href="/Coach/ManageSchedules/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Upcoming Sessions</a>
+    }
+</div>
+
+
+
+<table class="mobile-stack table table-bordered mt-3">
+    <thead class="table-primary">
+        <tr>
+            <th>Scheduled At</th>
+            <th>Scheduled Hours</th>
+            <th>Actual Hours</th>
+            <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
+            <th class="desktop-only">My Note</th>
+            <th class="desktop-only">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CompletedEnrollments.Any())
+        {
+            foreach (var completed in Model.CompletedEnrollments)
+            {
+                <tr>
+                    <td>@(completed.ScheduledAt.HasValue ? completed.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
+                    <td>@completed.ScheduledHours</td>
+                    <td>@completed.ActualHours</td>
+                    <td class="desktop-only">@completed.ParentNote</td>
+                    <td class="desktop-only">
+                        <span id="coach-note-view-@completed.EnrollmentID">@completed.CoachNote</span>
+                        <textarea id="coach-note-edit-@completed.EnrollmentID" name="coachNote" form="coach-note-@completed.EnrollmentID" class="form-control" style="display: none;">@completed.CoachNote</textarea>
+                    </td>
+                    <td class="desktop-only">
+                        <form id="coach-note-@completed.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="enrollmentId" value="@completed.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+                            <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+                            <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
+                            <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Edit</a>
+                            <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn btn-primary" style="display: none;">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">No completed sessions.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div style="padding-top: 30px"></div>
+
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h4>Deleted Sessions</h4></div>
+
+<table class="mobile-stack table table-bordered mt-3">
+    <thead class="table-primary">
+        <tr>
+            <th>Scheduled At</th>
+            <th>Scheduled Hours</th>
+            <th class="desktop-only">Actual Hours</th>
+            <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
+            <th class="desktop-only">My Note</th>
+            <th class="desktop-only">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.DeletedEnrollments.Any())
+        {
+            foreach (var deleted in Model.DeletedEnrollments)
+            {
+                <tr>
+                    <td>@(deleted.ScheduledAt.HasValue ? deleted.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
+                    <td>@deleted.ScheduledHours</td>
+                    <td class="desktop-only">@deleted.ActualHours</td>
+                    <td>@deleted.ParentNote</td>
+                    <td class="desktop-only">
+                        <span id="coach-note-view-@deleted.EnrollmentID">@deleted.CoachNote</span>
+                        <textarea id="coach-note-edit-@deleted.EnrollmentID" name="coachNote" form="coach-note-@deleted.EnrollmentID" class="form-control" style="display: none;">@deleted.CoachNote</textarea>
+                    </td>
+                    <td class="desktop-only">
+                        <form id="coach-note-@deleted.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="enrollmentId" value="@deleted.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+                            <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+                            <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
+                            <a id="coach-note-edit-link-@deleted.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@deleted.EnrollmentID)">Edit</a>
+                            <button id="coach-note-save-@deleted.EnrollmentID" type="submit" class="btn btn-primary" style="display: none;">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">No deleted sessions.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function editCoachNote(enrollmentId) {
+        const noteView = document.getElementById(`coach-note-view-${enrollmentId}`);
+        const noteEdit = document.getElementById(`coach-note-edit-${enrollmentId}`);
+        const editLink = document.getElementById(`coach-note-edit-link-${enrollmentId}`);
+        const saveButton = document.getElementById(`coach-note-save-${enrollmentId}`);
+
+        noteView.style.display = 'none';
+        noteEdit.style.display = 'block';
+        editLink.style.display = 'none';
+        saveButton.style.display = 'inline-block';
+        noteEdit.focus();
+    }
+</script>

@@ -119,9 +119,15 @@
 
 
 
-<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB;"><h4>Upcoming Sessions</h4></div>
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <h4 style="margin: 0;">Upcoming Sessions</h4>
+    @if (Model.Course.CourseType == "Private" && Model.Course.SessionCount.HasValue)
+    {
+        <a href="/Coach/ViewEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+    }
+</div>
 
-<table class="mobile-stack table table-bordered mt-2" @* class="mobile-stack mt-3" *@>
+<table class="mobile-stack table table-bordered mt-3">
     <thead class="table-primary">
         <tr>
             <th>Date</th>
@@ -197,6 +203,7 @@
                     
                     <label style="font-size:0.9em; color:darkslategray"> - If a session is added by mistake and should be deleted, please type <strong>MISTAKE</strong> in @CurrentTenant.Terminology.ProviderSingular Note before clicking the 'Remove' button.</label><br />
                     <label style="font-size:0.9em; color:darkslategray"> - If a session needs to be rescheduled (requested by the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() or @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant()), please type <strong>RESCHEDULED</strong> in @CurrentTenant.Terminology.ProviderSingular Note before clicking the 'Remove' button.</label>
+                    <label style="font-size:0.9em; color:darkslategray"> - A session cannot be removed/rescheduled within 24 hours of its scheduled start time.</label>
                 </td>
             </tr>
             
@@ -214,7 +221,7 @@
 {
 <form method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
 
-<div style="margin: 0; padding: 30px 0 8px; color: #1B7BAB;"><h5>Schedule Sessions</h5></div>
+<div style="margin: 0; padding: 30px 0 15px; color: #1B7BAB;"><h4>Schedule Sessions</h4></div>
 
 <div class="mb-3">
     <strong>Schedule Type</strong><br />

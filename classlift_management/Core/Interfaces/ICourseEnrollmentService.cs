@@ -29,6 +29,12 @@ namespace Core.Interfaces
         Task<IEnumerable<CourseEnrollment>> GetEnrollments2ByCourseChildAsync(int courseId, int childId);
 
         Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByCourseChildAsync(int courseId, int childId);
+        Task<IEnumerable<CourseEnrollment>> GetSchedulesByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetWaitToCompleteByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetCompletesByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetDeletedByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>> GetUpcomingByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<int> GetCountedSessionCountByRootEnrollmentAsync(int rootEnrollmentId);
 
         Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByChildAsync(int childId);
 
@@ -69,6 +75,8 @@ namespace Core.Interfaces
 
         Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
 
+        Task UpdatePrivateCompletedSessionsAsync(AppDbContext dbContext, CancellationToken cancellationToken);
+
         Task UpdateCompletedSessionsAsync(int courseId);
 
         Task UpdateCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
@@ -95,6 +103,8 @@ namespace Core.Interfaces
 
         //Manually set session to be completed by Coach
         Task<bool> CompleteSessionAsync(int enrollmentId, Decimal actualHours, string coachNote);
+
+        Task<bool> UpdateCoachNoteAsync(int enrollmentId, string? coachNote);
 
         Task<bool> UpdateCompletedCoursesAsync();
 

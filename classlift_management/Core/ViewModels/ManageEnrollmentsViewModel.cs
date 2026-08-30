@@ -12,6 +12,7 @@ namespace Core.ViewModels
 {
     public class ManageEnrollmentsViewModel
     {
+        public int EnrollmentID { get; set; }
         public Child Child { get; set; }
         public Course Course { get; set; }
         public List<CourseEnrollment> WaitToCompleteEnrollments { get; set; }
