@@ -1036,6 +1036,51 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Coach")]
+        [HttpPost("UpdateCoachNote")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateCoachNote(
+            int enrollmentId,
+            int childId,
+            int courseId,
+            int rootEnrollmentId,
+            string? coachNote)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var course = await _courseService.GetAsync(courseId);
+            if (coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+
+            var rootEnrollment = await _courseEnrollmentService.GetAsync(rootEnrollmentId);
+            var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
+            if (rootEnrollment.EnrollmentID_Ref != null
+                || rootEnrollment.ChildID != childId
+                || rootEnrollment.CourseID != courseId
+                || enrollment.EnrollmentID_Ref != rootEnrollmentId
+                || enrollment.ChildID != childId
+                || enrollment.CourseID != courseId
+                || (enrollment.Status != "Completed" && enrollment.Status != "Deleted"))
+            {
+                return BadRequest("The session does not match the selected registration.");
+            }
+
+            var saved = await _courseEnrollmentService.UpdateCoachNoteAsync(enrollmentId, coachNote);
+            TempData[saved ? "SuccessMessage" : "ErrorMessage"] = saved
+                ? "Coach note saved successfully."
+                : "Failed to save the coach note.";
+
+            return RedirectToAction(nameof(ViewEnrollments), new
+            {
+                childId,
+                courseId,
+                enrollmentId = rootEnrollmentId
+            });
+        }
+
+        [Authorize(Roles = "Coach")]
         [HttpPost("CompleteSession")]
         public async Task<IActionResult> CompleteSession(int enrollmentId, int childId, int courseId, decimal? actualHours, string? coachNote)
         {

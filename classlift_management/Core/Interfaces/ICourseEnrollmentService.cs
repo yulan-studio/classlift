@@ -104,6 +104,8 @@ namespace Core.Interfaces
         //Manually set session to be completed by Coach
         Task<bool> CompleteSessionAsync(int enrollmentId, Decimal actualHours, string coachNote);
 
+        Task<bool> UpdateCoachNoteAsync(int enrollmentId, string? coachNote);
+
         Task<bool> UpdateCompletedCoursesAsync();
 
         Task<bool> UpdateCompletedCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken);

@@ -814,6 +814,18 @@ namespace Core.Services
             }
         }
 
+        public async Task<bool> UpdateCoachNoteAsync(int enrollmentId, string? coachNote)
+        {
+            var enrollment = await _enrollmentRepository.GetAsync(enrollmentId);
+            if (enrollment == null)
+                throw new KeyNotFoundException("Session not found.");
+
+            enrollment.CoachNote = coachNote?.Trim();
+            enrollment.UpdatedDate = DateTime.UtcNow;
+
+            return await _enrollmentRepository.UpdateAsync(enrollment);
+        }
+
 
         //Update course to be completed for private and group course
         public async Task<bool> UpdateCompletedCoursesAsync()

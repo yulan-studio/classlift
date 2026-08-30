@@ -24,6 +24,8 @@
 
 <a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
 
+
+
 <div class="p-3 mb-4 bg-light border rounded">
      <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
@@ -44,6 +46,15 @@
     }
 </div>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
 <table class="mobile-stack table table-bordered mt-3">
     <thead class="table-primary">
         <tr>
@@ -52,6 +63,7 @@
             <th>Actual Hours</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th class="desktop-only">My Note</th>
+            <th class="desktop-only">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -64,14 +76,26 @@
                     <td>@completed.ScheduledHours</td>
                     <td>@completed.ActualHours</td>
                     <td class="desktop-only">@completed.ParentNote</td>
-                    <td class="desktop-only">@completed.CoachNote</td>
+                    <td class="desktop-only">
+                        <textarea name="coachNote" form="coach-note-@completed.EnrollmentID" class="form-control">@completed.CoachNote</textarea>
+                    </td>
+                    <td class="desktop-only">
+                        <form id="coach-note-@completed.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="enrollmentId" value="@completed.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+                            <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+                            <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="5" class="text-center">No completed sessions.</td>
+                <td colspan="6" class="text-center">No completed sessions.</td>
             </tr>
         }
     </tbody>
@@ -89,6 +113,7 @@
             <th class="desktop-only">Actual Hours</th>
             <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th class="desktop-only">My Note</th>
+            <th class="desktop-only">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -101,14 +126,26 @@
                     <td>@deleted.ScheduledHours</td>
                     <td class="desktop-only">@deleted.ActualHours</td>
                     <td>@deleted.ParentNote</td>
-                    <td class="desktop-only">@deleted.CoachNote</td>
+                    <td class="desktop-only">
+                        <textarea name="coachNote" form="coach-note-@deleted.EnrollmentID" class="form-control">@deleted.CoachNote</textarea>
+                    </td>
+                    <td class="desktop-only">
+                        <form id="coach-note-@deleted.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="enrollmentId" value="@deleted.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+                            <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+                            <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="5" class="text-center">No deleted sessions.</td>
+                <td colspan="6" class="text-center">No deleted sessions.</td>
             </tr>
         }
     </tbody>
