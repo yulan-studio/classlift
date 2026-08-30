@@ -45,7 +45,6 @@
         <a href="/Coach/ManageSchedules/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Upcoming Sessions</a>
     }
 </div>
-
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success">@TempData["SuccessMessage"]</div>
@@ -54,6 +53,8 @@
 {
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
+
+
 
 <table class="mobile-stack table table-bordered mt-3">
     <thead class="table-primary">
@@ -77,7 +78,8 @@
                     <td>@completed.ActualHours</td>
                     <td class="desktop-only">@completed.ParentNote</td>
                     <td class="desktop-only">
-                        <textarea name="coachNote" form="coach-note-@completed.EnrollmentID" class="form-control">@completed.CoachNote</textarea>
+                        <span id="coach-note-view-@completed.EnrollmentID">@completed.CoachNote</span>
+                        <textarea id="coach-note-edit-@completed.EnrollmentID" name="coachNote" form="coach-note-@completed.EnrollmentID" class="form-control" style="display: none;">@completed.CoachNote</textarea>
                     </td>
                     <td class="desktop-only">
                         <form id="coach-note-@completed.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
@@ -86,7 +88,8 @@
                             <input type="hidden" name="childId" value="@Model.Child.ChildID" />
                             <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
                             <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Edit</a>
+                            <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn btn-primary" style="display: none;">Save</button>
                         </form>
                     </td>
                 </tr>
@@ -100,6 +103,7 @@
         }
     </tbody>
 </table>
+
 
 <div style="padding-top: 30px"></div>
 
@@ -127,7 +131,8 @@
                     <td class="desktop-only">@deleted.ActualHours</td>
                     <td>@deleted.ParentNote</td>
                     <td class="desktop-only">
-                        <textarea name="coachNote" form="coach-note-@deleted.EnrollmentID" class="form-control">@deleted.CoachNote</textarea>
+                        <span id="coach-note-view-@deleted.EnrollmentID">@deleted.CoachNote</span>
+                        <textarea id="coach-note-edit-@deleted.EnrollmentID" name="coachNote" form="coach-note-@deleted.EnrollmentID" class="form-control" style="display: none;">@deleted.CoachNote</textarea>
                     </td>
                     <td class="desktop-only">
                         <form id="coach-note-@deleted.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
@@ -136,7 +141,8 @@
                             <input type="hidden" name="childId" value="@Model.Child.ChildID" />
                             <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
                             <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <a id="coach-note-edit-link-@deleted.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@deleted.EnrollmentID)">Edit</a>
+                            <button id="coach-note-save-@deleted.EnrollmentID" type="submit" class="btn btn-primary" style="display: none;">Save</button>
                         </form>
                     </td>
                 </tr>
@@ -150,3 +156,18 @@
         }
     </tbody>
 </table>
+
+<script>
+    function editCoachNote(enrollmentId) {
+        const noteView = document.getElementById(`coach-note-view-${enrollmentId}`);
+        const noteEdit = document.getElementById(`coach-note-edit-${enrollmentId}`);
+        const editLink = document.getElementById(`coach-note-edit-link-${enrollmentId}`);
+        const saveButton = document.getElementById(`coach-note-save-${enrollmentId}`);
+
+        noteView.style.display = 'none';
+        noteEdit.style.display = 'block';
+        editLink.style.display = 'none';
+        saveButton.style.display = 'inline-block';
+        noteEdit.focus();
+    }
+</script>
