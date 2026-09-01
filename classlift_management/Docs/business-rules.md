@@ -14,7 +14,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Group-course registration
 
 1. A newly created Group-course registration remains pending until it is confirmed.
-2. If the root registration is still unconfirmed when the first Group session starts:
+2. If the root registration is still unconfirmed at midnight three calendar days after the first Group session date, using the first session's local time zone:
    - cancel the root registration;
    - cancel all of its non-terminal child-session registrations;
    - preserve Completed and Deleted session history; and
@@ -28,4 +28,4 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Open questions
 
-- Should the unconfirmed Group-registration deadline be the beginning of the first session's local calendar day, or the exact scheduled start time? The current implementation uses the exact scheduled start time.
+- None currently.

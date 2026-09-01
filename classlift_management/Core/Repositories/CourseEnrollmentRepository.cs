@@ -630,9 +630,9 @@ namespace Core.Repositories
         {
             var now = DateTime.UtcNow;
             const string cancellationNote =
-                "Automatically canceled because the registration was not confirmed before the first session.";
+                "Automatically canceled because the registration was not confirmed within three days after the first session date.";
 
-            var startedCourseIds = await dbContext.CourseEnrollments
+            var groupSessions = await dbContext.CourseEnrollments
                 .Where(enrollment =>
                     enrollment.Course.CourseType == "Group"
                     && enrollment.ChildID == null
@@ -640,10 +640,24 @@ namespace Core.Repositories
                     && enrollment.ScheduledAt.HasValue
                     && enrollment.Status != "Canceled"
                     && enrollment.Status != "Deleted")
-                .GroupBy(enrollment => enrollment.CourseID)
-                .Where(group => group.Min(enrollment => enrollment.ScheduledAt!.Value) <= now)
-                .Select(group => group.Key)
+                .Select(enrollment => new
+                {
+                    enrollment.CourseID,
+                    ScheduledAt = enrollment.ScheduledAt!.Value,
+                    enrollment.ScheduledLocalTime,
+                    enrollment.ScheduledTimeZoneId
+                })
                 .ToListAsync(cancellationToken);
+
+            var startedCourseIds = groupSessions
+                .GroupBy(session => session.CourseID)
+                .Select(group => group.OrderBy(session => session.ScheduledAt).First())
+                .Where(firstSession => GetCancellationDeadlineUtc(
+                    firstSession.ScheduledAt,
+                    firstSession.ScheduledLocalTime,
+                    firstSession.ScheduledTimeZoneId) <= now)
+                .Select(session => session.CourseID)
+                .ToList();
 
             if (startedCourseIds.Count == 0)
                 return;
@@ -724,6 +738,27 @@ namespace Core.Repositories
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            static DateTime GetCancellationDeadlineUtc(
+                DateTime scheduledAtUtc,
+                DateTime? scheduledLocalTime,
+                string? timeZoneId)
+            {
+                if (scheduledLocalTime.HasValue
+                    && !string.IsNullOrWhiteSpace(timeZoneId)
+                    && TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out var zone))
+                {
+                    var localDeadline = DateTime.SpecifyKind(
+                        scheduledLocalTime.Value.Date.AddDays(3),
+                        DateTimeKind.Unspecified);
+
+                    if (!zone.IsInvalidTime(localDeadline))
+                        return TimeZoneInfo.ConvertTimeToUtc(localDeadline, zone);
+                }
+
+                // Legacy sessions may not have local-time metadata.
+                return DateTime.SpecifyKind(scheduledAtUtc.Date.AddDays(3), DateTimeKind.Utc);
+            }
         }
 
 
