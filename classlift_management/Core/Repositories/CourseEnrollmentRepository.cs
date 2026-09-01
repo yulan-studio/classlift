@@ -624,6 +624,108 @@ namespace Core.Repositories
             }
         }
 
+        public async Task CancelUnconfirmedGroupRegistrationsAsync(
+            AppDbContext dbContext,
+            CancellationToken cancellationToken)
+        {
+            var now = DateTime.UtcNow;
+            const string cancellationNote =
+                "Automatically canceled because the registration was not confirmed before the first session.";
+
+            var startedCourseIds = await dbContext.CourseEnrollments
+                .Where(enrollment =>
+                    enrollment.Course.CourseType == "Group"
+                    && enrollment.ChildID == null
+                    && enrollment.EnrollmentID_Ref == null
+                    && enrollment.ScheduledAt.HasValue
+                    && enrollment.Status != "Canceled"
+                    && enrollment.Status != "Deleted")
+                .GroupBy(enrollment => enrollment.CourseID)
+                .Where(group => group.Min(enrollment => enrollment.ScheduledAt!.Value) <= now)
+                .Select(group => group.Key)
+                .ToListAsync(cancellationToken);
+
+            if (startedCourseIds.Count == 0)
+                return;
+
+            var rootsToCancel = await dbContext.CourseEnrollments
+                .Where(enrollment =>
+                    startedCourseIds.Contains(enrollment.CourseID)
+                    && enrollment.EnrollmentID_Ref == null
+                    && enrollment.ChildID != null
+                    && enrollment.ScheduledAt == null
+                    && enrollment.Status == "Registered")
+                .ToListAsync(cancellationToken);
+
+            if (rootsToCancel.Count == 0)
+                return;
+
+            var registrationKeys = rootsToCancel
+                .Select(root => (root.CourseID, ChildID: root.ChildID!.Value))
+                .ToHashSet();
+            var affectedCourseIds = registrationKeys
+                .Select(registration => registration.CourseID)
+                .Distinct()
+                .ToList();
+            var affectedChildIds = registrationKeys
+                .Select(registration => registration.ChildID)
+                .Distinct()
+                .ToList();
+
+            var possibleChildSessions = await dbContext.CourseEnrollments
+                .Where(enrollment =>
+                    affectedCourseIds.Contains(enrollment.CourseID)
+                    && enrollment.ChildID.HasValue
+                    && affectedChildIds.Contains(enrollment.ChildID.Value)
+                    && enrollment.EnrollmentID_Ref != null
+                    && enrollment.Status != "Canceled"
+                    && enrollment.Status != "Deleted"
+                    && enrollment.Status != "Completed")
+                .ToListAsync(cancellationToken);
+
+            var childSessionsToCancel = possibleChildSessions
+                .Where(session => registrationKeys.Contains(
+                    (session.CourseID, session.ChildID!.Value)))
+                .ToList();
+
+            foreach (var root in rootsToCancel)
+            {
+                root.Status = "Canceled";
+                root.StaffNote = cancellationNote;
+                root.UpdatedDate = now;
+            }
+
+            foreach (var session in childSessionsToCancel)
+            {
+                session.Status = "Canceled";
+                session.StaffNote = cancellationNote;
+                session.UpdatedDate = now;
+            }
+
+            var affectedCourses = await dbContext.Courses
+                .Where(course => affectedCourseIds.Contains(course.CourseID)
+                                 && course.MaxCapacity.HasValue)
+                .ToListAsync(cancellationToken);
+
+            foreach (var course in affectedCourses)
+            {
+                var activeRegistrationCount = await dbContext.CourseEnrollments.CountAsync(
+                    enrollment => enrollment.CourseID == course.CourseID
+                                  && enrollment.EnrollmentID_Ref == null
+                                  && enrollment.ChildID != null
+                                  && (enrollment.Status == "Registered"
+                                      || enrollment.Status == "Confirmed"),
+                    cancellationToken);
+
+                var canceledRegistrationCount = rootsToCancel.Count(
+                    root => root.CourseID == course.CourseID);
+                course.IsActive = activeRegistrationCount - canceledRegistrationCount
+                                  < course.MaxCapacity!.Value;
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
 
 
 

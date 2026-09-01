@@ -77,6 +77,8 @@ namespace Core.Interfaces
 
         Task UpdatePrivateCompletedSessionsAsync(AppDbContext dbContext, CancellationToken cancellationToken);
 
+        Task CancelUnconfirmedGroupRegistrationsAsync(AppDbContext dbContext, CancellationToken cancellationToken);
+
         Task UpdateCompletedSessionsAsync(int courseId);
 
         Task UpdateCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);
