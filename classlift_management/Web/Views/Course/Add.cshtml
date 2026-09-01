@@ -76,7 +76,7 @@
                     - Private XXX course by XXX <br />
                     @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                     {
-                        <text>- Private XXX course by XXX(No fixed session count) <br /></text>
+                        <text>- Private XXX course by XXX(flexible course) <br /></text>
                     }
                     - Group XXX course by XXX<br />
                 </label>
@@ -91,7 +91,7 @@
                 <label style="font-size:0.7em; color:darkslategray"> - XX min/session </label>
                 @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                 {
-                    <label style="font-size:0.7em; color:darkslategray"> (Optional for course with no fixed session count) </label>
+                    <label style="font-size:0.7em; color:darkslategray"> (Optional for flexible course) </label>
                 }
             </td>
             
