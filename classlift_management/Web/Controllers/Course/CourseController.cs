@@ -270,6 +270,13 @@ namespace Web.Controllers.Courses
                 model.HourlyCost = null;
             }
 
+            // Fixed-session courses use Session Cost, never Hourly Cost.
+            // Enforce this for direct posts as well as through the UI.
+            if (model.SessionCount.HasValue)
+            {
+                model.HourlyCost = null;
+            }
+
             if (model.CourseType == "Private")
             {
                 if (model.SessionCount.HasValue && !model.SessionCost.HasValue)

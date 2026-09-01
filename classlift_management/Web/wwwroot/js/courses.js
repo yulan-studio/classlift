@@ -38,14 +38,20 @@ window.addEventListener('DOMContentLoaded', function () {
             sessionCost.value = "";
         }
 
+        if (hasSessionCount && hourlyCost) {
+            hourlyCost.value = "";
+        }
+
         if (isPrivate) {
             maxCapacity.value = "";
         }
 
         maxCapacity.disabled = isPrivate;
         sessionCount.required = isGroup;
+        
         hourlyCost.disabled = !isPrivate || hasSessionCount;
         hourlyCost.required = isPrivate && !hasSessionCount;
+        
         sessionCost.disabled = isPrivate && !hasSessionCount;
         sessionCost.required = isGroup || (isPrivate && hasSessionCount);
     }
