@@ -26,6 +26,12 @@ This file is the concise, canonical record of business rules confirmed by the pr
 2. Private sessions without a fixed Session Count are completed manually by the coach using actual hours.
 3. Standard course reports include completed child sessions that have Actual Hours recorded.
 
+## Accounts and user manual
+
+1. Parents use one shared account for the participant portal rather than separate parent accounts.
+2. The initial user manual will be written in English.
+3. The initial user manual will be one combined manual covering all roles.
+
 ## Open questions
 
 - None currently.
