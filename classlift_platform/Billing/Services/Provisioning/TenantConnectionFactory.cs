@@ -5,6 +5,8 @@ namespace Billing.Services.Provisioning;
 
 public class TenantConnectionFactory : ITenantConnectionStringFactory
 {
+    private const uint TenantMaximumPoolSize = 5;
+    private const uint ServerMaximumPoolSize = 5;
     private readonly IConfiguration _configuration;
 
     public TenantConnectionFactory(IConfiguration configuration)
@@ -20,7 +22,16 @@ public class TenantConnectionFactory : ITenantConnectionStringFactory
             Port = uint.Parse(_configuration["TenantDatabase:Port"] ?? "3306"),
             UserID = _configuration["TenantDatabase:User"],
             Password = _configuration["TenantDatabase:Password"],
-            Database = databaseName
+            Database = databaseName,
+
+            // Each database name creates a distinct MySqlConnector pool. Keep every
+            // tenant pool small so their combined size stays below MySQL's limit.
+            Pooling = true,
+            MinimumPoolSize = 0,
+            MaximumPoolSize = TenantMaximumPoolSize,
+            ConnectionIdleTimeout = 60,
+            ConnectionLifeTime = 300,
+            ConnectionTimeout = 15
         };
 
         return builder.ConnectionString;
@@ -33,7 +44,13 @@ public class TenantConnectionFactory : ITenantConnectionStringFactory
             Server = _configuration["TenantDatabase:Host"],
             Port = uint.Parse(_configuration["TenantDatabase:Port"] ?? "3306"),
             UserID = _configuration["TenantDatabase:User"],
-            Password = _configuration["TenantDatabase:Password"]
+            Password = _configuration["TenantDatabase:Password"],
+            Pooling = true,
+            MinimumPoolSize = 0,
+            MaximumPoolSize = ServerMaximumPoolSize,
+            ConnectionIdleTimeout = 60,
+            ConnectionLifeTime = 300,
+            ConnectionTimeout = 15
         };
 
         return builder.ConnectionString;

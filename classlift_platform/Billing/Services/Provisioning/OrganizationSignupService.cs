@@ -18,6 +18,7 @@ namespace Billing.Services.Provisioning
         private readonly EmailService _emailService;
         private readonly ILogger<OrganizationSignupService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration _configuration;
 
         public OrganizationSignupService(
         TenantProvisioningService tenantProvisioningService,
@@ -26,7 +27,8 @@ namespace Billing.Services.Provisioning
         ITenantIdentitySeeder tenantIdentitySeeder,
         EmailService emailService,
         ILogger<OrganizationSignupService> logger,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IConfiguration configuration)
         {
             _tenantProvisioningService = tenantProvisioningService;
             _connectionFactory = connectionFactory;
@@ -35,6 +37,7 @@ namespace Billing.Services.Provisioning
             _emailService = emailService;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
         }
 
 
@@ -93,6 +96,11 @@ namespace Billing.Services.Provisioning
                 request.AdminName,
                 addStaffRoleAndProfile: true);
 
+            // Shared support accounts are provisioned once, together with this new
+            // tenant. Application startup must not enumerate and connect to every
+            // existing tenant database.
+            await SeedSharedAccountsAsync(tenantConnectionString, tenant.DatabaseName);
+
             // 9. Return tenant URL
 
             //make TenantUrl to differenciate between dev, staging and production environment
@@ -131,6 +139,57 @@ namespace Billing.Services.Provisioning
                 Message = "Organization created successfully.",
                 TenantUrl = tenantUrl
             };
+        }
+
+        private async Task SeedSharedAccountsAsync(
+            string tenantConnectionString,
+            string databaseName)
+        {
+            var adminEmail = _configuration["TenantAdmin:Email"];
+            var adminPassword = _configuration["TenantAdmin:Password"];
+            var staffEmail = _configuration["TenantStaff:Email"];
+            var staffPassword = _configuration["TenantStaff:Password"];
+
+            if (string.IsNullOrWhiteSpace(adminEmail) &&
+                string.IsNullOrWhiteSpace(adminPassword) &&
+                string.IsNullOrWhiteSpace(staffEmail) &&
+                string.IsNullOrWhiteSpace(staffPassword))
+            {
+                _logger.LogInformation(
+                    "Shared tenant account configuration is not set; account provisioning is skipped for {DatabaseName}.",
+                    databaseName);
+                return;
+            }
+
+            EnsureComplete("shared tenant admin configuration", adminEmail, adminPassword);
+            EnsureComplete("shared tenant staff configuration", staffEmail, staffPassword);
+
+            await _tenantIdentitySeeder.SeedUserAsync(
+                tenantConnectionString,
+                adminEmail!,
+                adminPassword!,
+                "Admin");
+
+            await _tenantIdentitySeeder.SeedUserAsync(
+                tenantConnectionString,
+                staffEmail!,
+                staffPassword!,
+                "Staff");
+
+            _logger.LogInformation(
+                "Shared tenant admin {AdminEmail} and staff {StaffEmail} are ready in {DatabaseName}.",
+                adminEmail,
+                staffEmail,
+                databaseName);
+        }
+
+        private static void EnsureComplete(string source, params string?[] values)
+        {
+            if (values.Any(string.IsNullOrWhiteSpace))
+            {
+                throw new InvalidOperationException(
+                    $"Both email and password must be provided in {source}.");
+            }
         }
 
 
