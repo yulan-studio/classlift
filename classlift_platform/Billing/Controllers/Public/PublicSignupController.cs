@@ -2,6 +2,7 @@
 using Billing.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Billing.Controllers.Public
 {
@@ -24,6 +25,7 @@ namespace Billing.Controllers.Public
         }
 
         [HttpPost]
+        [EnableRateLimiting("public-signup")]
         public async Task<IActionResult> Signup([FromBody] PublicSignupRequest request)
         {
             _logger.LogInformation("Received signup request for organization: {OrganizationName}", request.OrganizationName);
