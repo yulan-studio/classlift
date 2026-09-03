@@ -63,19 +63,32 @@ Console.WriteLine("DB HOST: " + builder.Configuration["TenantDatabase:Host"]);
 Console.WriteLine("DB PORT: " + builder.Configuration["TenantDatabase:Port"]);
 Console.WriteLine("DB USER: " + builder.Configuration["TenantDatabase:User"]);
 
-string masterConnectionString =
-        $"Server={dbHost};" +
-        $"Port={dbPort};" +
-        $"Database=classlift_platform;" +
-        $"User={dbUser};" +
-        $"Password={dbPassword};";
+var masterConnectionString = new MySqlConnectionStringBuilder
+{
+    Server = dbHost,
+    Port = uint.Parse(dbPort ?? "3306"),
+    Database = "classlift_platform",
+    UserID = dbUser,
+    Password = dbPassword,
+    Pooling = true,
+    MinimumPoolSize = 0,
+    MaximumPoolSize = 15,
+    ConnectionIdleTimeout = 60,
+    ConnectionLifeTime = 300,
+    ConnectionTimeout = 15
+}.ConnectionString;
+
+// Railway currently runs this application against MySQL 8.4.8. Keeping the
+// version explicit avoids opening a discovery connection for every DbContext.
+var mysqlServerVersion = ServerVersion.Parse(
+    builder.Configuration["TenantDatabase:ServerVersion"] ?? "8.4.8-mysql");
 
 
 
 builder.Services.AddDbContext<BillingDbContext>(options =>
     options.UseMySql(
         masterConnectionString,
-        ServerVersion.AutoDetect(masterConnectionString)
+        mysqlServerVersion
     ));
 
 
@@ -119,7 +132,10 @@ builder.Services.AddHangfire(config =>
             new MySqlStorageOptions()
         )));
 
-builder.Services.AddHangfireServer();
+builder.Services.AddHangfireServer(options =>
+{
+    options.WorkerCount = 2;
+});
 
 //Allow CORS from your marketing site only
 builder.Services.AddCors(options =>
