@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Core.BackendService;
 using Core.Contexts;
+using Core.ConnectionStrings;
 using Core.Interfaces;
 using Core.Middleware;
 using Core.Models;
@@ -9,7 +10,6 @@ using Core.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 //using System.IdentityModel.Tokens.Jwt;
 //using Microsoft.AspNetCore.Authentication.JwtBearer;
 //using Microsoft.IdentityModel.Tokens;
@@ -27,28 +27,12 @@ using MySqlConnector;
 var builder = WebApplication.CreateBuilder(args);
 
 
-var baseConnectionString =
-    builder.Configuration["ServerConnection"]
-    ?? builder.Configuration.GetConnectionString("ServerConnection")
-    ?? throw new InvalidOperationException(
-        "ServerConnection is missing. Configure the Railway environment variable "
-        + "'ServerConnection' or the configuration key "
-        + "'ConnectionStrings:ServerConnection'.");
-
-var platformConnectionBuilder =
-    new MySqlConnectionStringBuilder(baseConnectionString)
-    {
-        Database = "classlift_platform"
-    };
-
-
-var platformConnectionString =
-    platformConnectionBuilder.ConnectionString;
-var localAppConnectionBuilder = new MySqlConnectionStringBuilder(baseConnectionString)
-{
-    Database = "classlift"
-};
-var localAppConnectionString = localAppConnectionBuilder.ConnectionString;
+var platformConnectionString = MySqlConnectionStringFactory
+    .CreateBuilder(builder.Configuration, "classlift_platform")
+    .ConnectionString;
+var localAppConnectionString = MySqlConnectionStringFactory
+    .CreateBuilder(builder.Configuration, "classlift")
+    .ConnectionString;
 var mySqlServerVersion = new MySqlServerVersion(new Version(8, 0, 0));
 
 //Register the fixed platform BillingDbContext

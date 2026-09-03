@@ -576,6 +576,11 @@ namespace Core.Services
             await _enrollmentRepository.UpdatePrivateCompletedSessionsAsync(dbContext, cancellationToken);
         }
 
+        public async Task CancelUnconfirmedGroupRegistrationsAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+        {
+            await _enrollmentRepository.CancelUnconfirmedGroupRegistrationsAsync(dbContext, cancellationToken);
+        }
+
 
         //Set Session status to be completed after the session past the scheduled time for group course
         public async Task UpdateCompletedSessionsAsync(int courseId)

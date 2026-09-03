@@ -29,6 +29,10 @@ window.addEventListener('DOMContentLoaded', function () {
     const hourlyCost = document.getElementById("HourlyCost");
     const sessionCost = document.getElementById("SessionCost");
 
+    if (!courseType || !sessionCount || !maxCapacity || !sessionCost) {
+        return;
+    }
+
     function updateCostFields() {
         const isPrivate = courseType.value === "Private";
         const isGroup = courseType.value === "Group";
@@ -44,8 +48,15 @@ window.addEventListener('DOMContentLoaded', function () {
 
         maxCapacity.disabled = isPrivate;
         sessionCount.required = isGroup;
-        hourlyCost.disabled = !isPrivate || hasSessionCount;
-        hourlyCost.required = isPrivate && !hasSessionCount;
+        if (hourlyCost) {
+            if (hasSessionCount) {
+                hourlyCost.value = "";
+            }
+
+            hourlyCost.disabled = !isPrivate || hasSessionCount;
+            hourlyCost.required = isPrivate && !hasSessionCount;
+        }
+        
         sessionCost.disabled = isPrivate && !hasSessionCount;
         sessionCost.required = isGroup || (isPrivate && hasSessionCount);
     }

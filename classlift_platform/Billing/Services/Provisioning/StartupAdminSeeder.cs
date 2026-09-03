@@ -2,10 +2,8 @@ using Billing.Configuration;
 using Billing.Data;
 using Billing.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
-using System.Data.SqlClient;
 
 namespace Billing.Services.Provisioning;
 
@@ -15,7 +13,6 @@ public sealed class StartupAdminSeeder
     private const string LocalDatabaseName = "classlift";
     private readonly UserManager<IdentityUser> _localUserManager;
     private readonly RoleManager<IdentityRole> _localRoleManager;
-    private readonly BillingDbContext _billingDbContext;
     private readonly ITenantConnectionStringFactory _connectionStringFactory;
     private readonly ITenantIdentitySeeder _tenantIdentitySeeder;
     private readonly PlatformAdminOptions _platformAdminOptions;
@@ -26,7 +23,6 @@ public sealed class StartupAdminSeeder
     public StartupAdminSeeder(
         UserManager<IdentityUser> localUserManager,
         RoleManager<IdentityRole> localRoleManager,
-        BillingDbContext billingDbContext,
         ITenantConnectionStringFactory connectionStringFactory,
         ITenantIdentitySeeder tenantIdentitySeeder,
         IOptions<PlatformAdminOptions> platformAdminOptions,
@@ -36,7 +32,6 @@ public sealed class StartupAdminSeeder
     {
         _localUserManager = localUserManager;
         _localRoleManager = localRoleManager;
-        _billingDbContext = billingDbContext;
         _connectionStringFactory = connectionStringFactory;
         _tenantIdentitySeeder = tenantIdentitySeeder;
         _platformAdminOptions = platformAdminOptions.Value;
@@ -54,7 +49,6 @@ public sealed class StartupAdminSeeder
             await SeedLocalAdminStaffAsync();
         }
 
-        await SeedTenantAdminStaffAsync();
     }
 
     private async Task SeedPlatformAdminAsync()
@@ -130,68 +124,6 @@ public sealed class StartupAdminSeeder
             _logger.LogWarning(
                 "Local database {DatabaseName} does not exist; account seeding is skipped.",
                 LocalDatabaseName);
-        }
-    }
-
-    private async Task SeedTenantAdminStaffAsync()
-    {
-        var adminEmail = _configuration["TenantAdmin:Email"];
-        var adminPassword = _configuration["TenantAdmin:Password"];
-        var staffEmail = _configuration["TenantStaff:Email"];
-        var staffPassword = _configuration["TenantStaff:Password"];
-
-        if (string.IsNullOrWhiteSpace(adminEmail) &&
-            string.IsNullOrWhiteSpace(adminPassword) &&
-            string.IsNullOrWhiteSpace(staffEmail) &&
-            string.IsNullOrWhiteSpace(staffPassword))
-        {
-            _logger.LogInformation("Tenant startup account configuration is not set; tenant seeding is skipped.");
-            return;
-        }
-
-        EnsureComplete("tenant startup admin configuration", adminEmail, adminPassword);
-        EnsureComplete("tenant startup staff configuration", staffEmail, staffPassword);
-
-        var databaseNames = await _billingDbContext.Tenantregistries
-            .AsNoTracking()
-            .Where(tenant => tenant.IsActive)
-            .Select(tenant => tenant.DatabaseName)
-            .ToListAsync();
-
-        foreach (var databaseName in databaseNames)
-        {
-            var connectionString = _connectionStringFactory.BuildConnectionString(databaseName);
-
-
-
-            try
-            {
-                await _tenantIdentitySeeder.SeedUserAsync(
-                    connectionString,
-                    adminEmail!,
-                    adminPassword!,
-                    "Admin");
-
-                await _tenantIdentitySeeder.SeedUserAsync(
-                    connectionString,
-                    staffEmail!,
-                    staffPassword!,
-                    "Staff");
-
-                _logger.LogInformation(
-                    "Tenant startup admin {AdminEmail} and staff {StaffEmail} are ready in {DatabaseName}.",
-                    adminEmail,
-                    staffEmail,
-                    databaseName);
-            }
-            
-
-            catch (MySqlException ex) when (ex.ErrorCode == MySqlErrorCode.UnknownDatabase)
-            {
-                _logger.LogWarning(
-                    "Tenant database {DatabaseName} does not exist; account seeding is skipped.",
-                    databaseName);
-            }
         }
     }
 

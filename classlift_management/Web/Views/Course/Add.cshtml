@@ -76,7 +76,7 @@
                     - Private XXX course by XXX <br />
                     @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                     {
-                        <text>- Private XXX course by XXX(No fixed session count) <br /></text>
+                        <text>- Private XXX course by XXX (flexible course) <br /></text>
                     }
                     - Group XXX course by XXX<br />
                 </label>
@@ -89,6 +89,10 @@
             </td>
             <td style="width:55%; padding-left: 30px;">
                 <label style="font-size:0.7em; color:darkslategray"> - XX min/session </label>
+                @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
+                {
+                    <label style="font-size:0.7em; color:darkslategray"> (optional for flexible course, required for other courses) </label>
+                }
             </td>
             
         </tr>
@@ -101,7 +105,9 @@
             <td style="padding: 8px;">
                 <input id="MaxCapacity" name="MaxCapacity" type="number" step="1" min="2" placeholder="Enter Max Capacity" style="width: 100%;" />
             </td>
-            <td></td>
+            <td style="width:55%; padding-left: 30px;">
+                <label style="font-size:0.7em; color:darkslategray"> - Optional for group course </label>
+            </td>
         </tr>
 
         <tr>
@@ -114,7 +120,7 @@
                 <label style="font-size:0.7em; color:darkslategray"> - Enter the number of sessions if each session has a fixed duration and full payment is required.
                     @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                     {
-                        <br/><text>- Leave blank if each session fee will be deducted from the balance later.</text>
+                        <br/><text>- Leave blank for flexible course (each session fee will be deducted from the balance later)</text>
                     }
                 </label>
             </td>

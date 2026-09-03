@@ -67,6 +67,8 @@ $env:ConnectionStrings__ServerConnection = "Server=localhost;Port=3306;User ID=Y
 
 Do not include a database name in this base value. The application adds `classlift` locally, `classlift_platform` for the production registry, or the selected tenant database name.
 
+Connection pooling is enabled by default and is configured through the `ConnectionPool` section in `Web/appsettings.json`. Production values can be overridden with environment variables such as `ConnectionPool__MaximumPoolSize=30`. Each distinct tenant database has its own pool, so size the maximum with the number of concurrently active tenants and the MySQL server's connection limit in mind.
+
 ### SMTP configuration
 
 Configure these keys when testing email:

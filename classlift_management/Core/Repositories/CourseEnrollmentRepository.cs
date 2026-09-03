@@ -624,6 +624,143 @@ namespace Core.Repositories
             }
         }
 
+        public async Task CancelUnconfirmedGroupRegistrationsAsync(
+            AppDbContext dbContext,
+            CancellationToken cancellationToken)
+        {
+            var now = DateTime.UtcNow;
+            const string cancellationNote =
+                "Automatically canceled because the registration was not confirmed within three days after the first session date.";
+
+            var groupSessions = await dbContext.CourseEnrollments
+                .Where(enrollment =>
+                    enrollment.Course.CourseType == "Group"
+                    && enrollment.ChildID == null
+                    && enrollment.EnrollmentID_Ref == null
+                    && enrollment.ScheduledAt.HasValue
+                    && enrollment.Status != "Canceled"
+                    && enrollment.Status != "Deleted")
+                .Select(enrollment => new
+                {
+                    enrollment.CourseID,
+                    ScheduledAt = enrollment.ScheduledAt!.Value,
+                    enrollment.ScheduledLocalTime,
+                    enrollment.ScheduledTimeZoneId
+                })
+                .ToListAsync(cancellationToken);
+
+            var startedCourseIds = groupSessions
+                .GroupBy(session => session.CourseID)
+                .Select(group => group.OrderBy(session => session.ScheduledAt).First())
+                .Where(firstSession => GetCancellationDeadlineUtc(
+                    firstSession.ScheduledAt,
+                    firstSession.ScheduledLocalTime,
+                    firstSession.ScheduledTimeZoneId) <= now)
+                .Select(session => session.CourseID)
+                .ToList();
+
+            if (startedCourseIds.Count == 0)
+                return;
+
+            var rootsToCancel = await dbContext.CourseEnrollments
+                .Where(enrollment =>
+                    startedCourseIds.Contains(enrollment.CourseID)
+                    && enrollment.EnrollmentID_Ref == null
+                    && enrollment.ChildID != null
+                    && enrollment.ScheduledAt == null
+                    && enrollment.Status == "Registered")
+                .ToListAsync(cancellationToken);
+
+            if (rootsToCancel.Count == 0)
+                return;
+
+            var registrationKeys = rootsToCancel
+                .Select(root => (root.CourseID, ChildID: root.ChildID!.Value))
+                .ToHashSet();
+            var affectedCourseIds = registrationKeys
+                .Select(registration => registration.CourseID)
+                .Distinct()
+                .ToList();
+            var affectedChildIds = registrationKeys
+                .Select(registration => registration.ChildID)
+                .Distinct()
+                .ToList();
+
+            var possibleChildSessions = await dbContext.CourseEnrollments
+                .Where(enrollment =>
+                    affectedCourseIds.Contains(enrollment.CourseID)
+                    && enrollment.ChildID.HasValue
+                    && affectedChildIds.Contains(enrollment.ChildID.Value)
+                    && enrollment.EnrollmentID_Ref != null
+                    && enrollment.Status != "Canceled"
+                    && enrollment.Status != "Deleted"
+                    && enrollment.Status != "Completed")
+                .ToListAsync(cancellationToken);
+
+            var childSessionsToCancel = possibleChildSessions
+                .Where(session => registrationKeys.Contains(
+                    (session.CourseID, session.ChildID!.Value)))
+                .ToList();
+
+            foreach (var root in rootsToCancel)
+            {
+                root.Status = "Canceled";
+                root.StaffNote = cancellationNote;
+                root.UpdatedDate = now;
+            }
+
+            foreach (var session in childSessionsToCancel)
+            {
+                session.Status = "Canceled";
+                session.StaffNote = cancellationNote;
+                session.UpdatedDate = now;
+            }
+
+            var affectedCourses = await dbContext.Courses
+                .Where(course => affectedCourseIds.Contains(course.CourseID)
+                                 && course.MaxCapacity.HasValue)
+                .ToListAsync(cancellationToken);
+
+            foreach (var course in affectedCourses)
+            {
+                var activeRegistrationCount = await dbContext.CourseEnrollments.CountAsync(
+                    enrollment => enrollment.CourseID == course.CourseID
+                                  && enrollment.EnrollmentID_Ref == null
+                                  && enrollment.ChildID != null
+                                  && (enrollment.Status == "Registered"
+                                      || enrollment.Status == "Confirmed"),
+                    cancellationToken);
+
+                var canceledRegistrationCount = rootsToCancel.Count(
+                    root => root.CourseID == course.CourseID);
+                course.IsActive = activeRegistrationCount - canceledRegistrationCount
+                                  < course.MaxCapacity!.Value;
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            static DateTime GetCancellationDeadlineUtc(
+                DateTime scheduledAtUtc,
+                DateTime? scheduledLocalTime,
+                string? timeZoneId)
+            {
+                if (scheduledLocalTime.HasValue
+                    && !string.IsNullOrWhiteSpace(timeZoneId)
+                    && TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out var zone))
+                {
+                    var localDeadline = DateTime.SpecifyKind(
+                        scheduledLocalTime.Value.Date.AddDays(3),
+                        DateTimeKind.Unspecified);
+
+                    if (!zone.IsInvalidTime(localDeadline))
+                        return TimeZoneInfo.ConvertTimeToUtc(localDeadline, zone);
+                }
+
+                // Legacy sessions may not have local-time metadata.
+                return DateTime.SpecifyKind(scheduledAtUtc.Date.AddDays(3), DateTimeKind.Utc);
+            }
+        }
+
 
 
 

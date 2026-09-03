@@ -1,4 +1,5 @@
 ﻿using Core.Contexts;
+using Core.ConnectionStrings;
 using Core.Interfaces; // Import your Activity service
 using Core.Models;
 using Core.Services;
@@ -265,6 +266,11 @@ namespace Core.BackendService
 
             var courseEnrollmentService = scope.ServiceProvider
                 .GetRequiredService<ICourseEnrollmentService>();
+
+            // Registration must be confirmed before the first group session starts.
+            await courseEnrollmentService.CancelUnconfirmedGroupRegistrationsAsync(
+                dbContext,
+                cancellationToken);
 
             var courses = await courseService.GetActiveGroupCoursesAsync(
                                                 dbContext,

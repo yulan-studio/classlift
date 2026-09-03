@@ -14,10 +14,13 @@ namespace Billing.Services.Provisioning
         // Bootstrap accounts need Identity access in every tenant, but they are not
         // organization members and therefore must not have Admin or Staff profiles.
         private readonly HashSet<string> _profileExcludedEmails;
+        private readonly ServerVersion _mysqlServerVersion;
 
         public TenantIdentitySeeder(IConfiguration configuration)
         {
             _profileExcludedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            _mysqlServerVersion = ServerVersion.Parse(
+                configuration["TenantDatabase:ServerVersion"] ?? "8.4.8-mysql");
 
             // Environment variables TenantAdmin__Email and TenantStaff__Email are
             // exposed by .NET configuration using ':' as the section separator.
@@ -40,7 +43,7 @@ namespace Billing.Services.Provisioning
             services.AddDbContext<ManagementDBContext>(options =>
                 options.UseMySql(
                 connectionString,
-                ServerVersion.AutoDetect(connectionString)));
+                _mysqlServerVersion));
 
             services
                 .AddIdentityCore<User>(options =>
