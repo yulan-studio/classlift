@@ -56,8 +56,10 @@ Request fields:
 ```
 
 The backend model also supports `planId`; when omitted it currently defaults to
-Starter (`1`). On success, the endpoint returns a `tenantUrl` and the browser
-redirects there. Failure responses normally provide a user-facing `message`.
+Starter (`1`). On success, the endpoint returns a `message`; the page asks the
+user to check their email and does not redirect. The tenant remains inactive
+until the verification link activates it and redirects the browser to the tenant
+website. Failure responses normally provide a user-facing `message`.
 
 ### Environment mapping
 
