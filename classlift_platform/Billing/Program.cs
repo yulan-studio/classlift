@@ -171,6 +171,18 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Railway runs this mode as a pre-deploy command. It applies only pending EF
+// migrations, then exits before Hangfire jobs, seeders, and the web server start.
+if (args.Contains("--migrate", StringComparer.OrdinalIgnoreCase))
+{
+    await using var migrationScope = app.Services.CreateAsyncScope();
+    var dbContext = migrationScope.ServiceProvider
+        .GetRequiredService<BillingDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+    return;
+}
+
 var jobOptions = new RecurringJobOptions
 {
     TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")

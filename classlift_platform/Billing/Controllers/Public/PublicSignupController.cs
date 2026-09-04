@@ -49,7 +49,7 @@ namespace Billing.Controllers.Public
 
                 return Ok(new
                 {
-                    tenantUrl = result.TenantUrl
+                    message = result.Message
                 });
             }
             catch(Exception ex)
@@ -63,6 +63,16 @@ namespace Billing.Controllers.Public
                     message = "An unexpected error occurred."
                 });
             }
+        }
+
+        [HttpGet("verify")]
+        public async Task<IActionResult> Verify([FromQuery] string token)
+        {
+            var result = await _signupService.ConfirmEmailAsync(token);
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+
+            return Redirect(result.TenantUrl);
         }
     }
 }
