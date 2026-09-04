@@ -6,6 +6,9 @@ using Billing.Services.Notifications;
 using Billing.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Billing.Services.Provisioning
 {
@@ -79,7 +82,8 @@ namespace Billing.Services.Provisioning
             // 1. Validate subdomain  2. Create Organization 3. Create TenantRegistry 4. Create tenant database  5. Run migrations  6. Create Subscription   7. Create SubscriptionEvent  
             var organization = await _tenantProvisioningService.CreateOrganizationAsync(
                 model,
-                createdBy: "public-signup");
+                createdBy: "public-signup",
+                tenantIsActive: false);
 
             // 8. Create Admin user
             var tenant = await _context.Tenantregistries
@@ -88,56 +92,78 @@ namespace Billing.Services.Provisioning
             var tenantConnectionString =
                 _connectionFactory.BuildConnectionString(tenant.DatabaseName);
 
+            var verificationToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
+            tenant.EmailVerificationTokenHash = HashToken(verificationToken);
+            tenant.EmailVerificationExpiresAt = DateTime.UtcNow.AddHours(24);
+            await _context.SaveChangesAsync();
+
             await _tenantIdentitySeeder.SeedUserAsync(
                 tenantConnectionString,
                 request.AdminEmail,
                 request.AdminPassword,
                 "Admin",
                 request.AdminName,
-                addStaffRoleAndProfile: true);
+                addStaffRoleAndProfile: true,
+                emailConfirmed: false);
 
             // Shared support accounts are provisioned once, together with this new
             // tenant. Application startup must not enumerate and connect to every
             // existing tenant database.
             await SeedSharedAccountsAsync(tenantConnectionString, tenant.DatabaseName);
 
-            // 9. Return tenant URL
+            var platformHost = NormalizePlatformHost(
+                _httpContextAccessor.HttpContext?.Request.Host.Value);
+            var verificationScheme = platformHost.StartsWith("localhost", StringComparison.OrdinalIgnoreCase) ||
+                                     platformHost.StartsWith("127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                ? "http"
+                : "https";
+            var verificationUrl =
+                $"{verificationScheme}://{platformHost}/api/public/signup/verify?token={Uri.EscapeDataString(verificationToken)}";
 
-            //make TenantUrl to differenciate between dev, staging and production environment
-            //If current domain is dev.classlift.ca, then TenantUrl is "https://{request.Subdomain}.dev.classlift.ca/Account/Login"
-            //If current domain is staging.classlift.ca, then TenantUrl is "https://{request.Subdomain}.staging.classlift.ca/Account/Login"
-            //If current domain is classlift.ca, then TenantUrl is "https://{request.Subdomain}.classlift.ca/Account/Login"
-            var host = _httpContextAccessor.HttpContext?.Request.Host.Host?.ToLower() ?? "";
-
-            string suffix = host switch
-            {
-                var h when h.StartsWith("dev.") => ".dev",
-                var h when h.StartsWith("staging.") => ".staging",
-                _ => ""
-            };
-
-            var tenantUrl =
-                $"https://{request.Subdomain}{suffix}.classlift.ca/Account/Login";
-
-
-
-            //try
-            //{
-            //    await _emailService.SendWelcomeEmailAsync(
-            //    request.AdminName,
-            //    request.AdminEmail,
-            //    request.OrganizationName,
-            //    tenantUrl);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError(ex, "Failed to send welcome email.");
-            //}
+            await _emailService.SendSignupVerificationEmailAsync(
+                request.AdminName,
+                request.AdminEmail,
+                request.OrganizationName,
+                verificationUrl);
             return new OrganizationSignupResult
             {
                 Success = true,
-                Message = "Organization created successfully.",
-                TenantUrl = tenantUrl
+                Message = "Organization created. Check your email to activate it."
+            };
+        }
+
+        public async Task<OrganizationSignupResult> ConfirmEmailAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return Failure("Verification link is invalid or expired.");
+
+            var tenant = await _context.Tenantregistries
+                .Include(item => item.Organization)
+                .SingleOrDefaultAsync(item =>
+                    item.EmailVerificationTokenHash == HashToken(token));
+
+            if (tenant == null ||
+                tenant.IsActive ||
+                tenant.EmailVerificationExpiresAt <= DateTime.UtcNow)
+                return Failure("Verification link is invalid or expired.");
+
+            var connectionString = _connectionFactory.BuildConnectionString(tenant.DatabaseName);
+            await _tenantIdentitySeeder.ConfirmEmailAsync(
+                connectionString,
+                tenant.Organization.ContactEmail!);
+
+            tenant.IsActive = true;
+            tenant.ActivatedAt = DateTime.UtcNow;
+            tenant.EmailVerificationTokenHash = null;
+            tenant.EmailVerificationExpiresAt = null;
+            await _context.SaveChangesAsync();
+
+            var requestHost = _httpContextAccessor.HttpContext?.Request.Host.Host;
+            return new OrganizationSignupResult
+            {
+                Success = true,
+                Message = "Email confirmed. Tenant activated.",
+                TenantUrl = BuildTenantUrl(tenant.Subdomain!, requestHost)
             };
         }
 
@@ -191,6 +217,31 @@ namespace Billing.Services.Provisioning
                     $"Both email and password must be provided in {source}.");
             }
         }
+
+        private static string HashToken(string token) =>
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+
+        private static string NormalizePlatformHost(string? host)
+        {
+            if (string.IsNullOrWhiteSpace(host)) return "classlift.ca";
+            var hostName = host.Split(':', 2)[0].ToLowerInvariant();
+            if (hostName is "dev.classlift.ca" or "staging.classlift.ca" or "classlift.ca")
+                return hostName;
+            if (hostName is "localhost" or "127.0.0.1")
+                return host;
+            return "classlift.ca";
+        }
+
+        private static string BuildTenantUrl(string subdomain, string? requestHost)
+        {
+            var host = requestHost?.ToLowerInvariant() ?? string.Empty;
+            var suffix = host.StartsWith("dev.") ? ".dev" :
+                host.StartsWith("staging.") ? ".staging" : string.Empty;
+            return $"https://{subdomain}{suffix}.classlift.ca/Account/Login";
+        }
+
+        private static OrganizationSignupResult Failure(string message) =>
+            new() { Success = false, Message = message };
 
 
         //public async Task<OrganizationSignupResult> CreateOrganizationAsync(PublicSignupRequest request)

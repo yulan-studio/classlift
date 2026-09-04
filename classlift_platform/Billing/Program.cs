@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using System.Globalization;
+using System.Threading.RateLimiting;
 
 
 
@@ -49,6 +51,22 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddAuthorization();
+
+// Protect the anonymous signup endpoint before it can create tenant resources.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("public-signup", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromHours(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+});
 
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
@@ -153,6 +171,18 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Railway runs this mode as a pre-deploy command. It applies only pending EF
+// migrations, then exits before Hangfire jobs, seeders, and the web server start.
+if (args.Contains("--migrate", StringComparer.OrdinalIgnoreCase))
+{
+    await using var migrationScope = app.Services.CreateAsyncScope();
+    var dbContext = migrationScope.ServiceProvider
+        .GetRequiredService<BillingDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+    return;
+}
+
 var jobOptions = new RecurringJobOptions
 {
     TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")
@@ -204,6 +234,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseRateLimiter();
 
 app.UseCors("Classlift");
 

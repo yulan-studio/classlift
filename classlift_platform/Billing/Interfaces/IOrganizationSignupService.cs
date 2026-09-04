@@ -7,5 +7,7 @@ namespace Billing.Interfaces
     {
         Task<OrganizationSignupResult> CreateOrganizationAsync(
             PublicSignupRequest request);
+
+        Task<OrganizationSignupResult> ConfirmEmailAsync(string token);
     }
 }

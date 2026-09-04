@@ -21,5 +21,12 @@ public partial class Tenantregistry
 
     public DateTime? UpdatedAt { get; set; }
 
+    // Public-signup tenants remain inactive until this one-time token is verified.
+    public string? EmailVerificationTokenHash { get; set; }
+
+    public DateTime? EmailVerificationExpiresAt { get; set; }
+
+    public DateTime? ActivatedAt { get; set; }
+
     public virtual Organization Organization { get; set; } = null!;
 }

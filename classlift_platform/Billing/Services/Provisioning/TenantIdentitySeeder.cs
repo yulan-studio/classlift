@@ -34,7 +34,8 @@ namespace Billing.Services.Provisioning
         string password,
         string role,
         string? name = null,
-        bool addStaffRoleAndProfile = false)
+        bool addStaffRoleAndProfile = false,
+        bool emailConfirmed = true)
         {
             var services = new ServiceCollection();
 
@@ -101,7 +102,7 @@ namespace Billing.Services.Provisioning
                 {
                     UserName = email,
                     Email = email,
-                    EmailConfirmed = true,
+                    EmailConfirmed = emailConfirmed,
                     Role = role
                 };
 
@@ -173,6 +174,29 @@ namespace Billing.Services.Provisioning
 
                     await dbContext.SaveChangesAsync();
                 }
+            }
+        }
+
+        public async Task ConfirmEmailAsync(string connectionString, string email)
+        {
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddDbContext<ManagementDBContext>(options =>
+                options.UseMySql(connectionString, _mysqlServerVersion));
+            services.AddIdentityCore<User>()
+                .AddRoles<IdentityRole<int>>()
+                .AddEntityFrameworkStores<ManagementDBContext>();
+
+            using var provider = services.BuildServiceProvider();
+            using var scope = provider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var user = await userManager.FindByEmailAsync(email)
+                ?? throw new InvalidOperationException("Tenant administrator was not found.");
+
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                EnsureSucceeded(await userManager.UpdateAsync(user));
             }
         }
 

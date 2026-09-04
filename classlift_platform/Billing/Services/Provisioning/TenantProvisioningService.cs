@@ -40,7 +40,8 @@ namespace Billing.Services.Provisioning
 
         public async Task<Organization> CreateOrganizationAsync(
             CreateOrganizationViewModel model,
-            string createdBy = "admin")
+            string createdBy = "admin",
+            bool tenantIsActive = true)
         {
 
             // 1. Create Organization (billing database)
@@ -100,7 +101,7 @@ namespace Billing.Services.Provisioning
                     DatabaseName = databaseName,
                     //ConnectionString = connectionString,
                     Subdomain = model.Subdomain,
-                    IsActive = true,
+                    IsActive = tenantIsActive,
                     CreatedAt = DateTime.UtcNow
                 };
 

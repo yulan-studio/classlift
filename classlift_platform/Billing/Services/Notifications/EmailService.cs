@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using System.Net.Mail;
 using Billing.Configuration;
+using System.Net;
 
 namespace Billing.Services.Notifications
 {
@@ -51,6 +52,25 @@ namespace Billing.Services.Notifications
                 ";
 
             await SendEmailAsync(adminEmail, subject, html);
+        }
+
+        public Task SendSignupVerificationEmailAsync(
+            string adminName,
+            string adminEmail,
+            string organizationName,
+            string verificationUrl)
+        {
+            var safeName = WebUtility.HtmlEncode(adminName);
+            var safeOrganization = WebUtility.HtmlEncode(organizationName);
+            var safeUrl = WebUtility.HtmlEncode(verificationUrl);
+            var html = $@"
+                <h2>Confirm your ClassLift email</h2>
+                <p>Hello {safeName},</p>
+                <p>Confirm your email to activate <strong>{safeOrganization}</strong>.</p>
+                <p><a href='{safeUrl}'>Confirm email and open ClassLift</a></p>
+                <p>This link expires in 24 hours.</p>";
+
+            return SendEmailAsync(adminEmail, "Confirm your ClassLift email", html);
         }
 
 

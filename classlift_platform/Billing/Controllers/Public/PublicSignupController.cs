@@ -2,6 +2,7 @@
 using Billing.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Billing.Controllers.Public
 {
@@ -24,6 +25,7 @@ namespace Billing.Controllers.Public
         }
 
         [HttpPost]
+        [EnableRateLimiting("public-signup")]
         public async Task<IActionResult> Signup([FromBody] PublicSignupRequest request)
         {
             _logger.LogInformation("Received signup request for organization: {OrganizationName}", request.OrganizationName);
@@ -47,7 +49,7 @@ namespace Billing.Controllers.Public
 
                 return Ok(new
                 {
-                    tenantUrl = result.TenantUrl
+                    message = result.Message
                 });
             }
             catch(Exception ex)
@@ -61,6 +63,16 @@ namespace Billing.Controllers.Public
                     message = "An unexpected error occurred."
                 });
             }
+        }
+
+        [HttpGet("verify")]
+        public async Task<IActionResult> Verify([FromQuery] string token)
+        {
+            var result = await _signupService.ConfirmEmailAsync(token);
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+
+            return Redirect(result.TenantUrl);
         }
     }
 }
