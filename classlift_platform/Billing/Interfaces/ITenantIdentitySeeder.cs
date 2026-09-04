@@ -8,6 +8,9 @@
             string password,
             string role,
             string? name = null,
-            bool addStaffRoleAndProfile = false);
+            bool addStaffRoleAndProfile = false,
+            bool emailConfirmed = true);
+
+        Task ConfirmEmailAsync(string connectionString, string email);
     }
 }

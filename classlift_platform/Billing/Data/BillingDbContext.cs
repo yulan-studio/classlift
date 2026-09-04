@@ -187,7 +187,6 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.UpdatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasColumnType("datetime");
-
             entity.HasOne(d => d.CurrentPlan).WithMany(p => p.Organizations)
                 .HasForeignKey(d => d.CurrentPlanId)
                 .HasConstraintName("FK_Organizations_Plans");
@@ -418,6 +417,12 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.UpdatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasColumnType("datetime");
+            entity.Property(e => e.EmailVerificationTokenHash)
+                .HasMaxLength(64)
+                .IsFixedLength();
+            entity.Property(e => e.EmailVerificationExpiresAt).HasColumnType("datetime");
+            entity.Property(e => e.ActivatedAt).HasColumnType("datetime");
+            entity.HasIndex(e => e.EmailVerificationTokenHash).IsUnique();
 
             entity.HasOne(d => d.Organization).WithMany(p => p.Tenantregistries)
                 .HasForeignKey(d => d.OrganizationId)
