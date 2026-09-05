@@ -2,6 +2,7 @@
 using Core.BackendService;
 using Core.Contexts;
 using Core.ConnectionStrings;
+using Core.Email;
 using Core.Interfaces;
 using Core.Middleware;
 using Core.Models;
@@ -10,6 +11,7 @@ using Core.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 //using System.IdentityModel.Tokens.Jwt;
 //using Microsoft.AspNetCore.Authentication.JwtBearer;
 //using Microsoft.IdentityModel.Tokens;
@@ -91,6 +93,28 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromDays(14);
     options.SlidingExpiration = true;
 });
+
+builder.Services
+    .AddOptions<EmailOptions>()
+    .Bind(builder.Configuration.GetSection(EmailOptions.SectionName))
+    .ValidateOnStart();
+builder.Services.AddSingleton<IValidateOptions<EmailOptions>>(
+    new EmailOptionsValidator(builder.Environment.IsProduction()));
+
+if (!builder.Configuration.GetValue<bool>($"{EmailOptions.SectionName}:Enabled"))
+{
+    builder.Services.AddSingleton<IEmailService, NullEmailService>();
+}
+else if (!builder.Environment.IsProduction())
+{
+    // Non-production environments capture messages and never contact an SMTP server.
+    builder.Services.AddSingleton<DevelopmentEmailStore>();
+    builder.Services.AddSingleton<IEmailService, DevelopmentEmailService>();
+}
+else
+{
+    builder.Services.AddTransient<IEmailService, SmtpEmailService>();
+}
 
 
 // Add services to the container.

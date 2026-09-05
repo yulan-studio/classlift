@@ -11,6 +11,7 @@ Production uses a database-per-tenant model. Local development uses a single MyS
 - Entity Framework Core 8 with Pomelo MySQL
 - ASP.NET Core Identity with integer user and role keys
 - Cloudflare R2 through the AWS S3 SDK
+- MailKit email infrastructure (disabled by default)
 - NUnit test project
 - Docker deployment
 
@@ -46,7 +47,7 @@ dotnet --version
 
 ## Configuration
 
-Never commit real database or R2 credentials. Environment variables should use double underscores for nested ASP.NET configuration keys.
+Never commit real database, email, or R2 credentials. Environment variables should use double underscores for nested ASP.NET configuration keys.
 
 ### Required database configuration
 
@@ -66,6 +67,28 @@ $env:ConnectionStrings__ServerConnection = "Server=localhost;Port=3306;User ID=Y
 Do not include a database name in this base value. The application adds `classlift` locally, `classlift_platform` for the production registry, or the selected tenant database name.
 
 Connection pooling is enabled by default and is configured through the `ConnectionPool` section in `Web/appsettings.json`. Production values can be overridden with environment variables such as `ConnectionPool__MaximumPoolSize=30`. Each distinct tenant database has its own pool, so size the maximum with the number of concurrently active tenants and the MySQL server's connection limit in mind.
+
+### Email configuration
+
+Email is disabled by default and is not connected to any business workflow yet. When disabled, missing SMTP settings do not prevent the application from starting.
+
+Configure production email through environment variables or a secret manager:
+
+```text
+Email__Enabled=true
+Email__Host=smtp.example.com
+Email__Port=587
+Email__Username=YOUR_SMTP_USERNAME
+Email__Password=YOUR_SMTP_PASSWORD
+Email__SenderEmail=no-reply@example.com
+Email__SenderName=ClassLift
+Email__Security=StartTls
+Email__TimeoutSeconds=30
+```
+
+Supported security values are `StartTls` and `SslOnConnect`; unencrypted SMTP is deliberately unsupported. Never commit real credentials to an appsettings file.
+
+In every non-production environment, enabling email captures up to 100 messages in memory instead of contacting SMTP and does not require SMTP credentials. The capture store has no public HTTP endpoint and is cleared when the process restarts. Only the Production environment can select the MailKit SMTP implementation; its required settings are validated at startup.
 
 ### Cloudflare R2 configuration
 
@@ -108,7 +131,7 @@ The health endpoint is:
 GET /health
 ```
 
-It reports process health only; it does not currently verify MySQL or R2 connectivity.
+It reports process health only; it does not currently verify MySQL, email, or R2 connectivity.
 
 ## Tests
 

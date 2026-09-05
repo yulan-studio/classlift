@@ -54,6 +54,7 @@ Preserve these lifetime rules:
 | Repositories/services using EF | Scoped | Must share the correct scoped tenant context |
 | `TenantConnectionStringFactory` | Singleton | Holds only immutable base configuration and builds strings locally |
 | `R2StorageService` | Singleton | Current registration; review disposal/client ownership before changing |
+| `IEmailService` | Singleton when disabled/non-production; transient for SMTP | Disabled mode is stateless; non-production stores a bounded in-memory capture; production SMTP creates a client per send |
 
 Never make an EF `DbContext` singleton. Never store a request's `CurrentTenant` inside a singleton.
 
@@ -129,6 +130,18 @@ When changing an endpoint:
 
 Do not assume authorization is inherited consistently; many attributes are action-level and some are commented out.
 
+## Email
+
+Email infrastructure lives under `Core/Email` and is not yet connected to business workflows. `Email:Enabled` defaults to false. Disabled mode performs no delivery, every non-production environment captures messages in a bounded in-memory store, and only an enabled Production environment uses MailKit SMTP with required TLS.
+
+When changing email behavior:
+
+- Never log credentials, full recipient addresses, or complete message bodies.
+- Encode user-derived HTML with `EmailHtml.Encode`.
+- Keep business operations successful when a best-effort notification fails, unless a confirmed rule explicitly makes delivery transactional.
+- Never add a public endpoint that accepts an arbitrary recipient or message body.
+- A live send is an external side effect and requires an explicitly approved recipient.
+
 ## Uploads and R2
 
 `R2StorageService` uploads using the S3-compatible API and returns a public URL. Before expanding uploads, add validation for maximum size, allowed content types, actual file signatures, safe object names, and access policy. Do not place sensitive child or payment material at permanently public URLs.
@@ -157,6 +170,7 @@ Runtime configuration keys include:
 
 - `ServerConnection` or `ConnectionStrings:ServerConnection`
 - `CloudflareR2:*`
+- `Email:*`
 - `PORT` for container hosting
 - `ASPNETCORE_ENVIRONMENT`
 
