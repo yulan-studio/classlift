@@ -411,7 +411,9 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.DatabaseName).HasMaxLength(200);
             entity.Property(e => e.IsActive)
                 .IsRequired()
-                .HasDefaultValueSql("'1'");
+                .HasDefaultValueSql("'1'")
+                // true 是数据库默认值；false 必须显式写入，供 PublicSignup 创建未激活租户。
+                .HasSentinel(true);
             entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
             entity.Property(e => e.Subdomain).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt)

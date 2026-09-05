@@ -111,14 +111,9 @@ namespace Billing.Services.Provisioning
             // existing tenant database.
             await SeedSharedAccountsAsync(tenantConnectionString, tenant.DatabaseName);
 
-            var platformHost = NormalizePlatformHost(
-                _httpContextAccessor.HttpContext?.Request.Host.Value);
-            var verificationScheme = platformHost.StartsWith("localhost", StringComparison.OrdinalIgnoreCase) ||
-                                     platformHost.StartsWith("127.0.0.1", StringComparison.OrdinalIgnoreCase)
-                ? "http"
-                : "https";
-            var verificationUrl =
-                $"{verificationScheme}://{platformHost}/api/public/signup/verify?token={Uri.EscapeDataString(verificationToken)}";
+            // Verification links must use this application's configured public URL.
+            // Never build them from the requester-controlled Host header.
+            var verificationUrl = BuildVerificationUrl(verificationToken);
 
             await _emailService.SendSignupVerificationEmailAsync(
                 request.AdminName,
@@ -221,15 +216,17 @@ namespace Billing.Services.Provisioning
         private static string HashToken(string token) =>
             Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
-        private static string NormalizePlatformHost(string? host)
+        private string BuildVerificationUrl(string verificationToken)
         {
-            if (string.IsNullOrWhiteSpace(host)) return "classlift.ca";
-            var hostName = host.Split(':', 2)[0].ToLowerInvariant();
-            if (hostName is "dev.classlift.ca" or "staging.classlift.ca" or "classlift.ca")
-                return hostName;
-            if (hostName is "localhost" or "127.0.0.1")
-                return host;
-            return "classlift.ca";
+            var configuredBaseUrl = _configuration["Platform:PublicBaseUrl"]?.TrimEnd('/');
+            if (!Uri.TryCreate(configuredBaseUrl, UriKind.Absolute, out var baseUri) ||
+                (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
+            {
+                throw new InvalidOperationException(
+                    "Platform:PublicBaseUrl must be configured as an absolute HTTP or HTTPS URL.");
+            }
+
+            return $"{configuredBaseUrl}/api/public/signup/verify?token={Uri.EscapeDataString(verificationToken)}";
         }
 
         private static string BuildTenantUrl(string subdomain, string? requestHost)

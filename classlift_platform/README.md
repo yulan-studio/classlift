@@ -68,6 +68,7 @@ Required management and tenant database settings:
 | `TenantDatabase:Port` | `TenantDatabase__Port` | MySQL server port, normally `3306` |
 | `TenantDatabase:User` | `TenantDatabase__User` | MySQL user |
 | `TenantDatabase:Password` | `TenantDatabase__Password` | MySQL password |
+| `Platform:PublicBaseUrl` | `Platform__PublicBaseUrl` | Public Billing URL used in email verification links |
 | `PORT` | `PORT` | HTTP port; defaults to `8080` |
 
 Optional email settings use the `SmtpSettings` section:
