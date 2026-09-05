@@ -1,0 +1,592 @@
+CREATE TABLE `__efmigrationshistory` (
+  `MigrationId` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ProductVersion` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`MigrationId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `organization_email_settings` (
+  `OrganizationEmailSettingsID` int NOT NULL,
+  `SenderEmail` varchar(254) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ReceiverEmail` varchar(254) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `UpdatedAtUtc` datetime(6) NOT NULL,
+  PRIMARY KEY (`OrganizationEmailSettingsID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `payment_package` (
+  `PackageID` int NOT NULL AUTO_INCREMENT,
+  `Title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Amount` decimal(10,2) DEFAULT NULL,
+  `IsActive` tinyint(1) NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  PRIMARY KEY (`PackageID`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `roles` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `NormalizedName` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `ConcurrencyStamp` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `RoleNameIndex` (`NormalizedName`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `tenant_settings` (
+  `TenantSettingsID` int NOT NULL AUTO_INCREMENT,
+  `OrganizationId` int NOT NULL,
+  `OrganizationName` varchar(200) NOT NULL,
+  `ContactName` varchar(200) DEFAULT NULL,
+  `ContactEmail` varchar(255) DEFAULT NULL,
+  `ContactPhone` varchar(50) DEFAULT NULL,
+  `Website` varchar(255) DEFAULT NULL,
+  `Subdomain` varchar(100) DEFAULT NULL,
+  `CustomDomain` varchar(255) DEFAULT NULL,
+  `LogoUrl` varchar(500) DEFAULT NULL,
+  `ThemeColor` varchar(50) DEFAULT NULL,
+  `Language` varchar(20) NOT NULL DEFAULT 'en-CA',
+  `TimeZone` varchar(100) NOT NULL DEFAULT 'America/Toronto',
+  `Currency` varchar(20) NOT NULL DEFAULT 'CAD',
+  `EmailFromName` varchar(200) DEFAULT NULL,
+  `EmailFromAddress` varchar(255) DEFAULT NULL,
+  `CreatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`TenantSettingsID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `users` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `Role` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) DEFAULT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  `UserName` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `NormalizedUserName` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `Email` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `NormalizedEmail` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `EmailConfirmed` tinyint(1) NOT NULL,
+  `PasswordHash` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `SecurityStamp` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `ConcurrencyStamp` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `PhoneNumber` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `PhoneNumberConfirmed` tinyint(1) NOT NULL,
+  `TwoFactorEnabled` tinyint(1) NOT NULL,
+  `LockoutEnd` datetime(6) DEFAULT NULL,
+  `LockoutEnabled` tinyint(1) NOT NULL,
+  `AccessFailedCount` int NOT NULL,
+  `TimeZoneId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'America/Toronto',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UserNameIndex` (`NormalizedUserName`),
+  KEY `EmailIndex` (`NormalizedEmail`)
+) ENGINE=InnoDB AUTO_INCREMENT=353 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `activities` (
+  `ActivityID` int NOT NULL AUTO_INCREMENT,
+  `Title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `Address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `MaxCapacity` int DEFAULT NULL,
+  `ScheduledAt` datetime(6) NOT NULL,
+  `ScheduledHours` decimal(4,2) DEFAULT NULL,
+  `Cost` decimal(10,2) DEFAULT NULL,
+  `Status` varchar(50) NOT NULL,
+  `ContactID` int DEFAULT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  `ScheduledLocalTime` datetime(6) DEFAULT NULL,
+  `ScheduledTimeZoneId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`ActivityID`),
+  KEY `IX_activities_ContactID` (`ContactID`),
+  KEY `IX_activities_CreatedBy` (`CreatedBy`),
+  KEY `IX_activities_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_activities_users_ContactID` FOREIGN KEY (`ContactID`) REFERENCES `users` (`Id`),
+  CONSTRAINT `FK_activities_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_activities_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `admins` (
+  `AdminID` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `Wechat` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`AdminID`),
+  UNIQUE KEY `IX_admins_UserID` (`UserID`),
+  CONSTRAINT `FK_admins_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `parents` (
+  `ParentID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `Email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `Wechat` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) DEFAULT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  `WhatsApp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`ParentID`),
+  KEY `IX_parents_CreatedBy` (`CreatedBy`),
+  KEY `IX_parents_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_parents_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
+  CONSTRAINT `FK_parents_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `provinces` (
+  `ProvinceID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` timestamp NULL DEFAULT NULL,
+  `UpdatedDate` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`ProvinceID`),
+  KEY `IX_provinces_CreatedBy` (`CreatedBy`),
+  KEY `IX_provinces_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_provinces_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_provinces_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `roleclaims` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `RoleId` int NOT NULL,
+  `ClaimType` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `ClaimValue` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`Id`),
+  KEY `IX_roleclaims_RoleId` (`RoleId`),
+  CONSTRAINT `FK_roleclaims_roles_RoleId` FOREIGN KEY (`RoleId`) REFERENCES `roles` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `specialties` (
+  `SpecialtyID` int NOT NULL AUTO_INCREMENT,
+  `Title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` timestamp NULL DEFAULT NULL,
+  `UpdatedDate` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`SpecialtyID`),
+  KEY `IX_specialties_CreatedBy` (`CreatedBy`),
+  KEY `IX_specialties_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_specialties_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_specialties_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `staff` (
+  `StaffID` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `Wechat` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`StaffID`),
+  UNIQUE KEY `IX_staff_UserID` (`UserID`),
+  CONSTRAINT `FK_staff_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `userclaims` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `UserId` int NOT NULL,
+  `ClaimType` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `ClaimValue` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`Id`),
+  KEY `IX_userclaims_UserId` (`UserId`),
+  CONSTRAINT `FK_userclaims_users_UserId` FOREIGN KEY (`UserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `userlogins` (
+  `LoginProvider` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ProviderKey` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ProviderDisplayName` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `UserId` int NOT NULL,
+  PRIMARY KEY (`LoginProvider`,`ProviderKey`),
+  KEY `IX_userlogins_UserId` (`UserId`),
+  CONSTRAINT `FK_userlogins_users_UserId` FOREIGN KEY (`UserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `userroles` (
+  `UserId` int NOT NULL,
+  `RoleId` int NOT NULL,
+  PRIMARY KEY (`UserId`,`RoleId`),
+  KEY `IX_userroles_RoleId` (`RoleId`),
+  CONSTRAINT `FK_userroles_roles_RoleId` FOREIGN KEY (`RoleId`) REFERENCES `roles` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_userroles_users_UserId` FOREIGN KEY (`UserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `usertokens` (
+  `UserId` int NOT NULL,
+  `LoginProvider` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`UserId`,`LoginProvider`,`Name`),
+  CONSTRAINT `FK_usertokens_users_UserId` FOREIGN KEY (`UserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `cities` (
+  `CityID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` timestamp NULL DEFAULT NULL,
+  `UpdatedDate` timestamp NULL DEFAULT NULL,
+  `ProvinceID` int DEFAULT NULL,
+  PRIMARY KEY (`CityID`),
+  KEY `IX_cities_CreatedBy` (`CreatedBy`),
+  KEY `IX_cities_UpdatedBy` (`UpdatedBy`),
+  KEY `IX_cities_ProvinceID` (`ProvinceID`),
+  CONSTRAINT `FK_cities_provinces_ProvinceID` FOREIGN KEY (`ProvinceID`) REFERENCES `provinces` (`ProvinceID`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_cities_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_cities_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `children` (
+  `ChildID` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `PreferedName` varchar(45) DEFAULT NULL,
+  `BirthDate` datetime(6) DEFAULT NULL,
+  `Gender` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `CityID` int DEFAULT NULL,
+  `Address` varchar(255) DEFAULT NULL,
+  `HasOAP` tinyint(1) DEFAULT NULL,
+  `OAPAmount` int DEFAULT NULL,
+  `MemberID` varchar(10) DEFAULT NULL,
+  `PrimaryDiagnosis` varchar(255) DEFAULT NULL,
+  `PhotoConsent` tinyint NOT NULL DEFAULT '0',
+  `Notes` text,
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) DEFAULT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  `Phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `WeChat` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `WhatsApp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `PostCode` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`ChildID`),
+  UNIQUE KEY `IX_children_UserID` (`UserID`),
+  KEY `IX_children_CityID` (`CityID`),
+  KEY `FK_children_users_CreatedBy` (`CreatedBy`),
+  KEY `FK_children_users_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_children_cities_CityID` FOREIGN KEY (`CityID`) REFERENCES `cities` (`CityID`),
+  CONSTRAINT `FK_children_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
+  CONSTRAINT `FK_children_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`),
+  CONSTRAINT `FK_children_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `coaches` (
+  `CoachID` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL,
+  `MemberID` varchar(10) DEFAULT NULL,
+  `Name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `PreferedName` varchar(45) DEFAULT NULL,
+  `Gender` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `BirthDate` datetime(6) DEFAULT NULL,
+  `Phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `Wechat` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `CityID` int NOT NULL,
+  `Address` varchar(255) DEFAULT NULL,
+  `PostCode` varchar(10) DEFAULT NULL,
+  `Bank` int DEFAULT NULL,
+  `Transit` int DEFAULT NULL,
+  `Account` int DEFAULT NULL,
+  `Status` enum('Active','InActive') DEFAULT 'Active',
+  `Avalibility` varchar(255) DEFAULT NULL,
+  `PhotoConsent` tinyint(1) DEFAULT '1',
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) DEFAULT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  `WhatsApp` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`CoachID`),
+  UNIQUE KEY `IX_coaches_UserID` (`UserID`),
+  KEY `IX_coaches_CityID` (`CityID`),
+  CONSTRAINT `FK_coaches_cities_CityID` FOREIGN KEY (`CityID`) REFERENCES `cities` (`CityID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_coaches_users_UserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=146 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `activity_enrollments` (
+  `EnrollmentID` int NOT NULL AUTO_INCREMENT,
+  `ChildID` int NOT NULL,
+  `ActivityID` int NOT NULL,
+  `Status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  PRIMARY KEY (`EnrollmentID`),
+  KEY `IX_activity_enrollments_ActivityID` (`ActivityID`),
+  KEY `IX_activity_enrollments_ChildID` (`ChildID`),
+  KEY `IX_activity_enrollments_CreatedBy` (`CreatedBy`),
+  KEY `IX_activity_enrollments_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_activity_enrollments_activities_ActivityID` FOREIGN KEY (`ActivityID`) REFERENCES `activities` (`ActivityID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_activity_enrollments_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_activity_enrollments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_activity_enrollments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `activity_feedback` (
+  `FeedbackID` int NOT NULL AUTO_INCREMENT,
+  `ChildID` int DEFAULT NULL,
+  `ActivityID` int DEFAULT NULL,
+  `Message` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  PRIMARY KEY (`FeedbackID`),
+  KEY `IX_activity_feedback_ActivityID` (`ActivityID`),
+  KEY `IX_activity_feedback_ChildID` (`ChildID`),
+  KEY `IX_activity_feedback_CreatedBy` (`CreatedBy`),
+  KEY `IX_activity_feedback_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_activity_feedback_activities_ActivityID` FOREIGN KEY (`ActivityID`) REFERENCES `activities` (`ActivityID`),
+  CONSTRAINT `FK_activity_feedback_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`),
+  CONSTRAINT `FK_activity_feedback_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_activity_feedback_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `coach_specialty` (
+  `CoachID` int NOT NULL,
+  `SpecialtyID` int NOT NULL,
+  KEY `coach_specialty_ibfk_1_idx` (`CoachID`),
+  KEY `coach_specialty_ibfk_2` (`SpecialtyID`),
+  CONSTRAINT `coach_specialty_ibfk_1` FOREIGN KEY (`CoachID`) REFERENCES `coaches` (`CoachID`) ON DELETE CASCADE,
+  CONSTRAINT `coach_specialty_ibfk_2` FOREIGN KEY (`SpecialtyID`) REFERENCES `specialties` (`SpecialtyID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `courses` (
+  `CourseID` int NOT NULL AUTO_INCREMENT,
+  `Title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `CourseType` varchar(45) DEFAULT NULL,
+  `MaxCapacity` int DEFAULT NULL,
+  `SessionCount` int DEFAULT NULL,
+  `HourlyCost` decimal(10,2) DEFAULT NULL,
+  `SessionCost` decimal(10,2) DEFAULT NULL,
+  `IsActive` tinyint(1) NOT NULL,
+  `CoachID` int DEFAULT NULL,
+  `SpecialtyID` int NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`CourseID`),
+  KEY `IX_courses_CoachID` (`CoachID`),
+  KEY `IX_courses_CreatedBy` (`CreatedBy`),
+  KEY `IX_courses_UpdatedBy` (`UpdatedBy`),
+  KEY `FK_courses_specialties_SpecialtyID` (`SpecialtyID`),
+  CONSTRAINT `FK_courses_coaches_CoachID` FOREIGN KEY (`CoachID`) REFERENCES `coaches` (`CoachID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_courses_specialties_SpecialtyID` FOREIGN KEY (`SpecialtyID`) REFERENCES `specialties` (`SpecialtyID`),
+  CONSTRAINT `FK_courses_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_courses_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `emergency_contacts` (
+  `EmergencyContactID` int NOT NULL AUTO_INCREMENT,
+  `ChildID` int DEFAULT NULL,
+  `CoachID` int DEFAULT NULL,
+  `ContactName` varchar(100) NOT NULL,
+  `Relationship` varchar(50) DEFAULT NULL,
+  `Phone` varchar(20) DEFAULT NULL,
+  `Email` varchar(100) DEFAULT NULL,
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) DEFAULT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`EmergencyContactID`),
+  KEY `emergency_contacts_ibfk_2_idx` (`CoachID`),
+  KEY `emergency_contacts_ibfk_1` (`ChildID`),
+  CONSTRAINT `emergency_contacts_ibfk_1` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
+  CONSTRAINT `emergency_contacts_ibfk_2` FOREIGN KEY (`CoachID`) REFERENCES `coaches` (`CoachID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `parent_child` (
+  `ParentChildID` int NOT NULL AUTO_INCREMENT,
+  `ParentID` int NOT NULL,
+  `ChildID` int NOT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int NOT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  `Relationship` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`ParentChildID`),
+  KEY `IX_parent_child_ChildID` (`ChildID`),
+  KEY `IX_parent_child_ParentID` (`ParentID`),
+  CONSTRAINT `FK_parent_child_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_parent_child_parents_ParentID` FOREIGN KEY (`ParentID`) REFERENCES `parents` (`ParentID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `payments` (
+  `PaymentID` int NOT NULL AUTO_INCREMENT,
+  `PaymentPackageID` int DEFAULT NULL,
+  `FeeID` int DEFAULT NULL,
+  `Amount` decimal(10,2) DEFAULT NULL,
+  `Receipt` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `PaymentDate` datetime(6) DEFAULT NULL,
+  `Memo` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `ChildID` int NOT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`PaymentID`),
+  KEY `IX_payments_ChildID` (`ChildID`),
+  KEY `IX_payments_CreatedBy` (`CreatedBy`),
+  KEY `IX_payments_PaymentPackageID` (`PaymentPackageID`),
+  KEY `IX_payments_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_payments_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_payments_payment_package_PaymentPackageID` FOREIGN KEY (`PaymentPackageID`) REFERENCES `payment_package` (`PackageID`),
+  CONSTRAINT `FK_payments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_payments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `activity_notifications` (
+  `NotificationID` int NOT NULL AUTO_INCREMENT,
+  `Message` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ActivityID` int DEFAULT NULL,
+  `EnrollmentID` int DEFAULT NULL,
+  `ScheduledSend` datetime(6) DEFAULT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  PRIMARY KEY (`NotificationID`),
+  KEY `IX_ActivityNotifications_ActivityID` (`ActivityID`),
+  KEY `IX_ActivityNotifications_CreatedBy` (`CreatedBy`),
+  KEY `IX_ActivityNotifications_EnrollmentID` (`EnrollmentID`),
+  KEY `IX_ActivityNotifications_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_ActivityNotifications_activities_ActivityID` FOREIGN KEY (`ActivityID`) REFERENCES `activities` (`ActivityID`),
+  CONSTRAINT `FK_ActivityNotifications_activity_enrollments_EnrollmentID` FOREIGN KEY (`EnrollmentID`) REFERENCES `activity_enrollments` (`EnrollmentID`),
+  CONSTRAINT `FK_ActivityNotifications_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ActivityNotifications_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `course_enrollments` (
+  `EnrollmentID` int NOT NULL AUTO_INCREMENT,
+  `ChildID` int DEFAULT NULL,
+  `CourseID` int NOT NULL,
+  `ScheduledAt` datetime(6) DEFAULT NULL,
+  `ScheduledHours` decimal(4,2) DEFAULT NULL,
+  `ActualHours` decimal(4,2) DEFAULT NULL,
+  `Status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  `ParentNote` text,
+  `StaffNote` text,
+  `CoachNote` text,
+  `Location` varchar(100) DEFAULT NULL,
+  `EnrollmentID_Ref` int DEFAULT NULL,
+  `ScheduledLocalTime` datetime(6) DEFAULT NULL,
+  `ScheduledTimeZoneId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`EnrollmentID`),
+  KEY `IX_course_enrollments_ChildID` (`ChildID`),
+  KEY `IX_course_enrollments_CourseID` (`CourseID`),
+  KEY `IX_course_enrollments_CreatedBy` (`CreatedBy`),
+  KEY `IX_course_enrollments_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `FK_course_enrollments_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_course_enrollments_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`) ON DELETE CASCADE,
+  CONSTRAINT `FK_course_enrollments_users_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`),
+  CONSTRAINT `FK_course_enrollments_users_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1244 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `child_balance` (
+  `BalanceID` int NOT NULL AUTO_INCREMENT,
+  `ChildID` int DEFAULT NULL,
+  `PaymentID` int DEFAULT NULL,
+  `CourseID` int DEFAULT NULL,
+  `ActivityID` int DEFAULT NULL,
+  `EnrollmentID` int DEFAULT NULL,
+  `Remarks` varchar(1000) DEFAULT NULL,
+  `TransactionType` enum('Payment','Adjustment','Activity','Course','Course Session','Refund') NOT NULL,
+  `Calculation` varchar(255) DEFAULT NULL,
+  `BalanceChange` decimal(10,2) DEFAULT NULL,
+  `Balance` decimal(10,2) DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`BalanceID`),
+  KEY `IX_child_balance_ActivityID` (`ActivityID`),
+  KEY `IX_child_balance_ChildID` (`ChildID`),
+  KEY `IX_child_balance_CourseID` (`CourseID`),
+  KEY `IX_child_balance_EnrollmentID` (`EnrollmentID`),
+  KEY `IX_child_balance_PaymentID` (`PaymentID`),
+  CONSTRAINT `FK_child_balance_activities_ActivityID` FOREIGN KEY (`ActivityID`) REFERENCES `activities` (`ActivityID`),
+  CONSTRAINT `FK_child_balance_children_ChildID` FOREIGN KEY (`ChildID`) REFERENCES `children` (`ChildID`),
+  CONSTRAINT `FK_child_balance_course_enrollments_EnrollmentID` FOREIGN KEY (`EnrollmentID`) REFERENCES `course_enrollments` (`EnrollmentID`),
+  CONSTRAINT `FK_child_balance_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`),
+  CONSTRAINT `FK_child_balance_payments_PaymentID` FOREIGN KEY (`PaymentID`) REFERENCES `payments` (`PaymentID`)
+) ENGINE=InnoDB AUTO_INCREMENT=336 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `coach_income` (
+  `IncomeID` int NOT NULL AUTO_INCREMENT,
+  `CoachID` int DEFAULT NULL,
+  `CourseID` int DEFAULT NULL,
+  `EnrollmentID` int DEFAULT NULL,
+  `IncomeChange` decimal(10,2) DEFAULT NULL,
+  `Income` decimal(10,2) DEFAULT NULL,
+  `CreatedDate` datetime(6) DEFAULT NULL,
+  `CreatedBy` int DEFAULT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `UpdatedDate` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`IncomeID`),
+  KEY `IX_coach_income_CoachID` (`CoachID`),
+  KEY `IX_coach_income_CourseID` (`CourseID`),
+  KEY `IX_coach_income_EnrollmentID` (`EnrollmentID`),
+  CONSTRAINT `FK_coach_income_coaches_CoachID` FOREIGN KEY (`CoachID`) REFERENCES `coaches` (`CoachID`),
+  CONSTRAINT `FK_coach_income_course_enrollments_EnrollmentID` FOREIGN KEY (`EnrollmentID`) REFERENCES `course_enrollments` (`EnrollmentID`),
+  CONSTRAINT `FK_coach_income_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`)
+) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `course_notifications` (
+  `NotificationID` int NOT NULL AUTO_INCREMENT,
+  `Message` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `CourseID` int DEFAULT NULL,
+  `EnrollmentID` int DEFAULT NULL,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  `CreatedDate` datetime(6) NOT NULL,
+  `UpdatedDate` datetime(6) NOT NULL,
+  `CreatedByUserId` int NOT NULL,
+  `UpdatedByUserId` int NOT NULL,
+  PRIMARY KEY (`NotificationID`),
+  KEY `IX_course_notifications_CourseID` (`CourseID`),
+  KEY `IX_course_notifications_CreatedByUserId` (`CreatedByUserId`),
+  KEY `IX_course_notifications_EnrollmentID` (`EnrollmentID`),
+  KEY `IX_course_notifications_UpdatedByUserId` (`UpdatedByUserId`),
+  CONSTRAINT `FK_course_notifications_course_enrollments_EnrollmentID` FOREIGN KEY (`EnrollmentID`) REFERENCES `course_enrollments` (`EnrollmentID`),
+  CONSTRAINT `FK_course_notifications_courses_CourseID` FOREIGN KEY (`CourseID`) REFERENCES `courses` (`CourseID`),
+  CONSTRAINT `FK_course_notifications_users_CreatedByUserId` FOREIGN KEY (`CreatedByUserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_course_notifications_users_UpdatedByUserId` FOREIGN KEY (`UpdatedByUserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `fees` (
+  `FeeID` int NOT NULL AUTO_INCREMENT,
+  `CourseEnrollmentID` int DEFAULT NULL,
+  `ActivityEnrollmentID` int DEFAULT NULL,
+  `Description` varchar(255) DEFAULT NULL,
+  `PaymentModel` enum('Direct','Token','OAP','') NOT NULL DEFAULT '',
+  `TotalCost` decimal(10,2) DEFAULT NULL,
+  `IsPaid` tinyint(1) DEFAULT '0',
+  `PaidAt` datetime DEFAULT NULL,
+  `CreatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `CreatedBy` int NOT NULL,
+  `UpdatedBy` int DEFAULT NULL,
+  PRIMARY KEY (`FeeID`),
+  KEY `fk_fee_course` (`CourseEnrollmentID`),
+  KEY `fk_fee_activity` (`ActivityEnrollmentID`),
+  KEY `FK_fee_CreatedBy` (`CreatedBy`),
+  KEY `FK_fee_UpdatedBy` (`UpdatedBy`),
+  CONSTRAINT `fk_fee_activity` FOREIGN KEY (`ActivityEnrollmentID`) REFERENCES `activity_enrollments` (`EnrollmentID`),
+  CONSTRAINT `fk_fee_course` FOREIGN KEY (`CourseEnrollmentID`) REFERENCES `course_enrollments` (`EnrollmentID`),
+  CONSTRAINT `FK_fee_CreatedBy` FOREIGN KEY (`CreatedBy`) REFERENCES `users` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_fee_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `users` (`Id`),
+  CONSTRAINT `chk_only_one` CHECK ((((`CourseEnrollmentID` is not null) and (`ActivityEnrollmentID` is null)) or ((`CourseEnrollmentID` is null) and (`ActivityEnrollmentID` is not null))))
+) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
