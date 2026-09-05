@@ -45,8 +45,10 @@ or deployment configuration in this directory.
 - `adminPassword`
 
 The backend also accepts `planId`, which currently defaults to Starter (`1`) when
-omitted. A successful response contains `tenantUrl`; an error response normally
-contains `message`.
+omitted. A successful signup response contains `message`; the portal displays it
+and waits for email verification instead of redirecting. The verification link
+activates the tenant and redirects to its website. Error responses normally
+contain `message`.
 
 API hosts are selected from the portal hostname:
 

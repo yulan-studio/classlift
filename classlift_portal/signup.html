@@ -382,6 +382,7 @@ document.getElementById("signupForm").addEventListener("submit", async function 
     const form = e.target;
     const message = document.getElementById("message");
     const submitBtn = document.getElementById("submitBtn");
+    let signupSucceeded = false;
 
     const isPasswordValid = showPasswordValidation();
     const doPasswordsMatch = validatePasswordMatch();
@@ -439,17 +440,20 @@ document.getElementById("signupForm").addEventListener("submit", async function 
             return;
         }
 
-        message.innerText = "Organization created. Redirecting...";
-        message.className = "mt-5 text-center text-sm text-indigo-600";
-
-        window.location.href = result.tenantUrl;
+        signupSucceeded = true;
+        message.innerText = result.message ||
+            "Organization created. Check your email to activate it.";
+        message.className = "mt-5 text-center text-sm text-green-700";
+        submitBtn.innerText = "Check Your Email";
 
     } catch (error) {
         message.innerText = "Something went wrong. Please try again.";
         message.className = "mt-5 text-center text-sm text-red-600";
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Create Organization";
+        if (!signupSucceeded) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Create Organization";
+        }
     }
 });
 </script>
