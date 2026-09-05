@@ -93,34 +93,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
-builder.Services
-    .AddOptions<SmtpSettings>()
-    .Bind(builder.Configuration.GetSection("SmtpSettings"))
-    .Validate(
-        settings => !string.IsNullOrWhiteSpace(settings.Server),
-        "SmtpSettings:Server is required.")
-    .Validate(
-        settings => settings.Port is > 0 and <= 65535,
-        "SmtpSettings:Port must be a valid TCP port.")
-    .Validate(
-        settings => !string.IsNullOrWhiteSpace(settings.Username),
-        "SmtpSettings:Username is required.")
-    .Validate(
-        settings => !string.IsNullOrWhiteSpace(settings.Password),
-        "SmtpSettings:Password is required.")
-    .Validate(
-        settings => System.Net.Mail.MailAddress.TryCreate(
-            settings.SenderEmail,
-            out _),
-        "SmtpSettings:SenderEmail must be a valid email address.")
-    .ValidateOnStart();
-
-// 注册 EmailService
-builder.Services.AddTransient<EmailService>();
-
-
-
-
 // Add services to the container.
 // Full MVC with Views (HTML pages using Razor).
 // Controllers that return both Views & JSON (e.g., hybrid APIs).

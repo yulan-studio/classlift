@@ -54,7 +54,6 @@ Preserve these lifetime rules:
 | Repositories/services using EF | Scoped | Must share the correct scoped tenant context |
 | `TenantConnectionStringFactory` | Singleton | Holds only immutable base configuration and builds strings locally |
 | `R2StorageService` | Singleton | Current registration; review disposal/client ownership before changing |
-| `EmailService` | Transient | Stateless wrapper around SMTP configuration |
 
 Never make an EF `DbContext` singleton. Never store a request's `CurrentTenant` inside a singleton.
 
@@ -98,7 +97,6 @@ For background processing:
 | Payments/fees | `PaymentPackageController`, `FeeController` | Payment, package, fee, and balance services |
 | Reports | `ReportController` | Report service/repository and report DTOs |
 | Uploads | `UploadController` | `R2StorageService` |
-| Notifications | Notification controllers and workflow calls | `EmailService` |
 | Tenant appearance | `AccountController`, `HomeController` | `OrganizationTerminologyService`, `R2StorageService`, branding/home-page view models |
 | Locations | `CityController`, child/coach workflows | Province and city services/repositories |
 | Time zones | Account, course, activity, coach, child, and report controllers | `TimeZoneService`, `TimeZoneClaimsPrincipalFactory` |
@@ -131,18 +129,6 @@ When changing an endpoint:
 
 Do not assume authorization is inherited consistently; many attributes are action-level and some are commented out.
 
-## Email
-
-`Core/Services/EmailService.cs` uses `System.Net.Mail.SmtpClient` and binds `SmtpSettings` in `Program.cs` with startup validation.
-
-When changing email behavior:
-
-- Never log credentials or the complete SMTP configuration.
-- Validate or encode user-derived HTML content.
-- Avoid making a successful database operation appear failed solely because notification delivery failed; decide explicitly whether email is transactional or best-effort.
-- For Gmail, use port 587, TLS, and an app password.
-- A live send is an external side effect: use an explicitly approved recipient.
-
 ## Uploads and R2
 
 `R2StorageService` uploads using the S3-compatible API and returns a public URL. Before expanding uploads, add validation for maximum size, allowed content types, actual file signatures, safe object names, and access policy. Do not place sensitive child or payment material at permanently public URLs.
@@ -170,12 +156,11 @@ Use the terminology object in user-facing text for concepts that tenants can ren
 Runtime configuration keys include:
 
 - `ServerConnection` or `ConnectionStrings:ServerConnection`
-- `SmtpSettings:*`
 - `CloudflareR2:*`
 - `PORT` for container hosting
 - `ASPNETCORE_ENVIRONMENT`
 
-Use environment variables or a secret manager for secrets. In environment-variable form, use `__` for `:`, for example `SmtpSettings__Password`.
+Use environment variables or a secret manager for secrets. In environment-variable form, use `__` for `:`.
 
 Do not print configuration values while debugging. Showing whether a value is present is normally sufficient.
 
@@ -199,7 +184,6 @@ The existing NUnit project references `Core` but still has only placeholder cove
 4. Payment, fee, balance, and coach-income calculations
 5. Session/activity/course completion transitions
 6. Background-worker idempotency
-7. SMTP configuration validation without sending real mail
 
 Use unit tests for pure calculations and integration tests for EF, Identity, middleware, and controller behavior.
 
@@ -236,7 +220,6 @@ For a future Codex task:
 
 Do not perform these actions unless explicitly requested:
 
-- Send a real email
 - Upload or delete an R2 object
 - Apply a database migration
 - Execute SQL cleanup scripts
@@ -253,7 +236,6 @@ Do not perform these actions unless explicitly requested:
 | Tenancy | Local host, active subdomain, custom domain, inactive/unknown tenant, cross-tenant isolation |
 | Identity/authorization | Anonymous, allowed role, denied role, ownership checks, anti-forgery behavior |
 | Payment/balance | Calculation tests, transaction behavior, duplicate/retry behavior |
-| Email | Configuration validation and approved test recipient only |
 | Background worker | One tenant failure isolation, cancellation, idempotency, repeated run |
 | Deployment/config | Release build, Docker build where relevant, missing/invalid configuration behavior |
 

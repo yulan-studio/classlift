@@ -11,7 +11,6 @@ Production uses a database-per-tenant model. Local development uses a single MyS
 - Entity Framework Core 8 with Pomelo MySQL
 - ASP.NET Core Identity with integer user and role keys
 - Cloudflare R2 through the AWS S3 SDK
-- SMTP email
 - NUnit test project
 - Docker deployment
 
@@ -37,7 +36,6 @@ Razor view -> MVC controller -> service -> repository -> AppDbContext -> MySQL
 - .NET 8 SDK
 - MySQL 8-compatible server
 - A local database named `classlift`
-- Optional SMTP account for email testing
 - Optional Cloudflare R2 account for upload testing
 
 Check the installed SDK:
@@ -48,7 +46,7 @@ dotnet --version
 
 ## Configuration
 
-Never commit real database, SMTP, or R2 credentials. Environment variables should use double underscores for nested ASP.NET configuration keys.
+Never commit real database or R2 credentials. Environment variables should use double underscores for nested ASP.NET configuration keys.
 
 ### Required database configuration
 
@@ -68,22 +66,6 @@ $env:ConnectionStrings__ServerConnection = "Server=localhost;Port=3306;User ID=Y
 Do not include a database name in this base value. The application adds `classlift` locally, `classlift_platform` for the production registry, or the selected tenant database name.
 
 Connection pooling is enabled by default and is configured through the `ConnectionPool` section in `Web/appsettings.json`. Production values can be overridden with environment variables such as `ConnectionPool__MaximumPoolSize=30`. Each distinct tenant database has its own pool, so size the maximum with the number of concurrently active tenants and the MySQL server's connection limit in mind.
-
-### SMTP configuration
-
-Configure these keys when testing email:
-
-```text
-SmtpSettings__Server
-SmtpSettings__Port
-SmtpSettings__Username
-SmtpSettings__Password
-SmtpSettings__SenderEmail
-SmtpSettings__SenderName
-SmtpSettings__EnableSsl
-```
-
-For Gmail on port 587, enable TLS and use a Google app password rather than the normal account password.
 
 ### Cloudflare R2 configuration
 
@@ -126,7 +108,7 @@ The health endpoint is:
 GET /health
 ```
 
-It reports process health only; it does not currently verify MySQL, SMTP, or R2 connectivity.
+It reports process health only; it does not currently verify MySQL or R2 connectivity.
 
 ## Tests
 
