@@ -1,4 +1,5 @@
 using Core.Models;
+using Core.Repositories;
 using Core.Services;
 
 namespace Test;
@@ -93,5 +94,37 @@ public class TimeZoneServiceTests
     public void NewUsersDefaultToToronto()
     {
         Assert.That(new User { Role = "Test" }.TimeZoneId, Is.EqualTo(TimeZoneService.DefaultTimeZoneId));
+    }
+}
+
+public class GroupRegistrationConfirmationDeadlineTests
+{
+    [Test]
+    public void DeadlineIsMidnightAtStartOfFirstSessionDateInLocalTimeZone()
+    {
+        var scheduledLocal = new DateTime(2026, 7, 15, 9, 0, 0, DateTimeKind.Unspecified);
+        var scheduledUtc = new DateTime(2026, 7, 15, 13, 0, 0, DateTimeKind.Utc);
+
+        var deadline = CourseEnrollmentRepository.GetGroupRegistrationConfirmationDeadlineUtc(
+            scheduledUtc,
+            scheduledLocal,
+            "America/Toronto");
+
+        Assert.That(deadline, Is.EqualTo(
+            new DateTime(2026, 7, 15, 4, 0, 0, DateTimeKind.Utc)));
+    }
+
+    [Test]
+    public void LegacySessionUsesMidnightAtStartOfUtcSessionDate()
+    {
+        var scheduledUtc = new DateTime(2026, 7, 15, 13, 0, 0, DateTimeKind.Utc);
+
+        var deadline = CourseEnrollmentRepository.GetGroupRegistrationConfirmationDeadlineUtc(
+            scheduledUtc,
+            scheduledLocalTime: null,
+            timeZoneId: null);
+
+        Assert.That(deadline, Is.EqualTo(
+            new DateTime(2026, 7, 15, 0, 0, 0, DateTimeKind.Utc)));
     }
 }

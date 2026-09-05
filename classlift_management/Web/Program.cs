@@ -2,6 +2,7 @@
 using Core.BackendService;
 using Core.Contexts;
 using Core.ConnectionStrings;
+using Core.Email;
 using Core.Interfaces;
 using Core.Middleware;
 using Core.Models;
@@ -10,6 +11,7 @@ using Core.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 //using System.IdentityModel.Tokens.Jwt;
 //using Microsoft.AspNetCore.Authentication.JwtBearer;
 //using Microsoft.IdentityModel.Tokens;
@@ -90,33 +92,27 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-
 builder.Services
-    .AddOptions<SmtpSettings>()
-    .Bind(builder.Configuration.GetSection("SmtpSettings"))
-    .Validate(
-        settings => !string.IsNullOrWhiteSpace(settings.Server),
-        "SmtpSettings:Server is required.")
-    .Validate(
-        settings => settings.Port is > 0 and <= 65535,
-        "SmtpSettings:Port must be a valid TCP port.")
-    .Validate(
-        settings => !string.IsNullOrWhiteSpace(settings.Username),
-        "SmtpSettings:Username is required.")
-    .Validate(
-        settings => !string.IsNullOrWhiteSpace(settings.Password),
-        "SmtpSettings:Password is required.")
-    .Validate(
-        settings => System.Net.Mail.MailAddress.TryCreate(
-            settings.SenderEmail,
-            out _),
-        "SmtpSettings:SenderEmail must be a valid email address.")
+    .AddOptions<EmailOptions>()
+    .Bind(builder.Configuration.GetSection(EmailOptions.SectionName))
     .ValidateOnStart();
+builder.Services.AddSingleton<IValidateOptions<EmailOptions>>(
+    new EmailOptionsValidator(builder.Environment.IsProduction()));
 
-// 注册 EmailService
-builder.Services.AddTransient<EmailService>();
-
-
+if (!builder.Configuration.GetValue<bool>($"{EmailOptions.SectionName}:Enabled"))
+{
+    builder.Services.AddSingleton<IEmailService, NullEmailService>();
+}
+else if (!builder.Environment.IsProduction())
+{
+    // Non-production environments capture messages and never contact an SMTP server.
+    builder.Services.AddSingleton<DevelopmentEmailStore>();
+    builder.Services.AddSingleton<IEmailService, DevelopmentEmailService>();
+}
+else
+{
+    builder.Services.AddTransient<IEmailService, SmtpEmailService>();
+}
 
 
 // Add services to the container.
@@ -220,6 +216,7 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IOrganizationEmailSettingsService, OrganizationEmailSettingsService>();
 
 
 

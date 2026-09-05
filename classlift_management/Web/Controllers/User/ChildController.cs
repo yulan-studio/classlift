@@ -20,7 +20,6 @@ using System.Data.SqlClient;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Xml.Linq;
 using X.PagedList;
 using Web.Filters;
@@ -53,7 +52,6 @@ namespace Web.Controllers.User
         private readonly IPaymentService _paymentService;
         private readonly IChildBalanceService _balanceService;
         private readonly IChildCalendarService _calendarService;
-        private readonly EmailService _emailService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly Core.R2.R2StorageService _r2UploadService;
         private readonly ITimeZoneService _timeZoneService;
@@ -61,7 +59,7 @@ namespace Web.Controllers.User
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, EmailService emailService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -80,7 +78,6 @@ namespace Web.Controllers.User
             _userManager = userManager;
             _emergencyContactService = emergencyContactService;
             _currentTenant = currentTenant;
-            _emailService = emailService;
             _calendarService = calendarService;
             _timeZoneService = timeZoneService;
 
@@ -1637,9 +1634,6 @@ namespace Web.Controllers.User
 
             try
             {
-                var course = await _courseService.GetAsync(formModel.CourseID);
-                var child = await _childService.GetAsync(formModel.ChildID);
-
                 foreach (var session in formModel.AllSessions)
                 {
                     if (string.IsNullOrWhiteSpace(session.Status))
@@ -1658,31 +1652,6 @@ namespace Web.Controllers.User
                     var updated = await _courseEnrollmentService.UpdateSessionAsync(existingSession);
                     if (!updated)
                         throw new InvalidOperationException("A session could not be updated.");
-                }
-
-                var hasConfirmed = formModel.AllSessions.All(session => session.Status != "Registered");
-                var subject = hasConfirmed
-                    ? "Please Review Your Child’s Updated Course Schedule"
-                    : "Please Confirm Your Child’s Course";
-                var portalPath = hasConfirmed ? "MySchedules" : "MyConfirmations";
-                var actionText = hasConfirmed ? "review the changes" : "confirm the course";
-                var htmlMessage =
-                    "<p>Hello,</p>" +
-                    $"<p>We’ve updated the course schedule for <strong>{WebUtility.HtmlEncode(child.Name)}</strong> in " +
-                    $"<strong>\"{WebUtility.HtmlEncode(course.Title)}\"</strong>.</p>" +
-                    $"<p>Please log in to your portal to {actionText}:</p>" +
-                    $"<p><a href=\"https://me.nsns.ca/Child/{portalPath}\">https://me.nsns.ca/Child/{portalPath}</a></p>" +
-                    "<p>If you have any questions or need assistance, please feel free to contact us.</p>" +
-                    "<p>Thank you,<br/>NSNS Support Team</p>";
-
-                try
-                {
-                    await _emailService.SendEmailAsync(child.User.Email!, subject, htmlMessage);
-                }
-                catch
-                {
-                    TempData["ErrorMessage"] = "Session updates were saved, but the notification email could not be sent.";
-                    return RedirectToAction("ManageSessionRegistrations", new { childId = formModel.ChildID, courseId = formModel.CourseID });
                 }
 
                 TempData["SuccessMessage"] = "Session updates saved successfully.";
@@ -1763,25 +1732,6 @@ namespace Web.Controllers.User
                     }
 
 
-
-                    var course = await _courseService.GetAsync(model.CourseID);
-                    var sendTo = "";
-                    if (course != null && course.CourseType == "Group")
-                    {
-                        sendTo = "customer.nsns@gmail.com";
-                    }
-
-                    else if (course != null && course.CourseType == "Private")
-                    {
-                        sendTo = course.Coach.User.Email;
-                    }
-
-
-                    var subject = child.MemberID + ":" + " Course schedules change has been requested";
-
-                    var message = "The course schedules change has been requested for the child: " + child.Name + ". Please review it ASAP.";
-
-                    //await _emailService.SendEmailAsync("customer.nsns@gmail.com", subject, message);  //send to staff, how about send to coach?
 
                     TempData["SuccessMessage1"] = "Schedules updated successfully.";
                     TempData["CourseID"] = model.CourseID;
@@ -1880,16 +1830,6 @@ namespace Web.Controllers.User
                                 await _courseEnrollmentService.UpdateSessionAsync(existing);
                             }
                         }
-
-
-
-                        //var course = await _courseService.GetAsync(model.CourseID);
-                        //var subject = child.MemberID + ":" + " Course schedules has been confirmed";
-                        //var message = "The course schedules have been confirmed for the child: " + child.Name + ":\n" +
-                        //             "Course: " + course.Title;
-
-                        //await _emailService.SendEmailAsync("customer.nsns@gmail.com", subject, message);  //send to staff
-
                         TempData["SuccessMessage2"] = "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
                     }
                 }
@@ -1952,13 +1892,6 @@ namespace Web.Controllers.User
                 {
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     TempData["SuccessMessage2"] = "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>.";
-
-                    //var course = await _courseService.GetAsync(model.CourseID);
-                    //var subject = child.MemberID + ":" + " Course has been confirmed";
-                    //var message = "The course have been confirmed for the child: " + child.Name + ":\n" +
-                    //                "Course: " + course.Title;
-
-                    //await _emailService.SendEmailAsync("customer.nsns@gmail.com", subject, message);  //send to staff
                 }
 
 
@@ -2016,13 +1949,6 @@ namespace Web.Controllers.User
                 {
                    // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     TempData["SuccessMessage3"] = "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
-
-                    //var activity = await _activityService.GetAsync(model.ActivityID);
-                    //var subject = child.MemberID + ":" + " Activity has been confirmed";
-                    //var message = "The activity have been confirmed for the child: " + child.Name + ":\n" +
-                    //                "Activity: " + activity.Title;
-
-                    //await _emailService.SendEmailAsync("customer.nsns@gmail.com", subject, message);  //send to staff
                 }
 
                     

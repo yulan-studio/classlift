@@ -103,7 +103,7 @@ namespace Billing.Services.Provisioning
                 request.AdminPassword,
                 "Admin",
                 request.AdminName,
-                addStaffRoleAndProfile: true,
+                addStaffRoleAndProfile: false,
                 emailConfirmed: false);
 
             // Shared support accounts are provisioned once, together with this new

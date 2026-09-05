@@ -77,6 +77,7 @@ Incoming host
 | --- | --- | --- |
 | Identity | users, roles, userroles, userclaims, userlogins, roleclaims, usertokens | Authentication, authorization, and user identity |
 | People | admins, staff, coaches, children, parents, parent_child, emergency_contacts | Role profiles and child/guardian relationships |
+| Organization settings | organization_email_settings | One tenant-local sender address and notification recipient address configured by an administrator |
 | Catalog | courses, specialties, coach_specialty, provinces, cities | Course offering, coach expertise, and location reference data |
 | Course operations | course_enrollments, course_notifications | Registration, master sessions, child sessions, notes, and notifications |
 | Activities | activities, activity_enrollments, activity_feedback, activity_notifications | Separate activity/event workflow |
@@ -209,6 +210,7 @@ For recurrence, the controller repeats the master-first fan-out for every occurr
 
 ### 7.2 Confirmation
 
+- The parent must confirm before the first Group session date begins, based on that session's local time zone. At midnight (00:00) at the start of that date, an unconfirmed root registration and all non-terminal child-session copies become eligible for automatic cancellation; Completed and Deleted history is preserved.
 - Find the fee through the child/course root registration.
 - For unpaid Token pricing, insert a negative child_balance entry equal to the fee total.
 - Change the root registration status to Confirmed and mark the fee paid when applicable.

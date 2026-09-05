@@ -17,7 +17,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using X.PagedList;
@@ -46,7 +45,6 @@ namespace Web.Controllers.User
         private readonly IParentChildService _parentChildService;
         private readonly IFeeService _feeService;
 
-        private readonly EmailService _emailService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
         private readonly CurrentTenant _currentTenant;
@@ -57,7 +55,7 @@ namespace Web.Controllers.User
         private string ProviderNameLower =>
             ProviderName.ToLowerInvariant();
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, EmailService emailService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
         {
             _coachService = coachService;
             _incomeService = incomeService;
@@ -73,7 +71,6 @@ namespace Web.Controllers.User
             _childService = childService;
             _parentChildService = parentChildService;
             _feeService = feeService;
-            _emailService = emailService;
             _userManager = userManager;
             _timeZoneService = timeZoneService;
             _currentTenant = currentTenant;
@@ -918,16 +915,6 @@ namespace Web.Controllers.User
 
             if (result)
             {
-                //var subject = "A Course schedule has been deleted";
-
-                //var message = "A course schedule has been deleted for the child: " + child.Name + ":\n" +
-                //    "Course: " + course.Title + "\n" +
-                //    "Coach: " + coach.Name + "\n" +
-                //    "Scheduled At: " + enrollment.ScheduledAt?.ToString("yyyy - MM - dd HH: mm") + "\n" +
-                //    "Scheduled Hours: " + enrollment.ScheduledHours;
-
-                //await _emailService.SendEmailAsync(child.User.Email, subject, message);  //send to child
-
                 TempData["SuccessMessage"] = "Schedule deleted successfully.";
             }
             else
@@ -1142,29 +1129,6 @@ namespace Web.Controllers.User
                     //if (result1)
                     {
                     TempData["SuccessMessage"] = "Course Completed successfully.";
-
-
-                    var subject = "Your Child’s Course Session Has Been Successfully Completed";
-
-
-                    var htmlMessage =
-                                        "<p>Hello,</p>" +
-                                        "<p>We’re happy to let you know that the following course session for <strong>" +
-                                        WebUtility.HtmlEncode(child.Name) +
-                                        "</strong> has been completed successfully:</p>" +
-                                        "<ul>" +
-                                          "<li><strong>Course:</strong> " + WebUtility.HtmlEncode(course.Title) + "</li>" +
-                                          "<li><strong>Scheduled At:</strong> " +
-                                            WebUtility.HtmlEncode(courseEnrollment.ScheduledAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A") + "</li>" +
-                                          "<li><strong>Actual Hours Completed:</strong> " + WebUtility.HtmlEncode(hoursToUse.ToString()) + "</li>" +
-                                        "</ul>" +
-                                        "<p>If you have any questions about this session or need any further information, please feel free to contact us anytime.</p>" +
-                                        "<p>Thank you for your continued support!</p>" +
-                                        "<p>NSNS Support Team</p>";
-
-
-                    //await _emailService.SendEmailAsync(child.User.Email, subject, htmlMessage);  //send to child
-
 
 
                 }
