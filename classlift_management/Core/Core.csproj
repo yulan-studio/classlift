@@ -32,4 +32,8 @@
     <Folder Include="MultiTenancy\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Test" />
+  </ItemGroup>
+
 </Project>

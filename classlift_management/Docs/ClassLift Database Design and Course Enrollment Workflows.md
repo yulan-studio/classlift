@@ -209,6 +209,7 @@ For recurrence, the controller repeats the master-first fan-out for every occurr
 
 ### 7.2 Confirmation
 
+- The parent must confirm before the first Group session date begins, based on that session's local time zone. At midnight (00:00) at the start of that date, an unconfirmed root registration and all non-terminal child-session copies become eligible for automatic cancellation; Completed and Deleted history is preserved.
 - Find the fee through the child/course root registration.
 - For unpaid Token pricing, insert a negative child_balance entry equal to the fee total.
 - Change the root registration status to Confirmed and mark the fee paid when applicable.

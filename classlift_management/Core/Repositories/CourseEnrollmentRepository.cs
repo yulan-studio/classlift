@@ -630,7 +630,7 @@ namespace Core.Repositories
         {
             var now = DateTime.UtcNow;
             const string cancellationNote =
-                "Automatically canceled because the registration was not confirmed within three days after the first session date.";
+                "Automatically canceled because the registration was not confirmed before the first session date.";
 
             var groupSessions = await dbContext.CourseEnrollments
                 .Where(enrollment =>
@@ -649,7 +649,7 @@ namespace Core.Repositories
                 })
                 .ToListAsync(cancellationToken);
 
-            var startedCourseIds = groupSessions
+            var courseIdsPastConfirmationDeadline = groupSessions
                 .GroupBy(session => session.CourseID)
                 .Select(group => group.OrderBy(session => session.ScheduledAt).First())
                 .Where(firstSession => GetCancellationDeadlineUtc(
@@ -659,12 +659,12 @@ namespace Core.Repositories
                 .Select(session => session.CourseID)
                 .ToList();
 
-            if (startedCourseIds.Count == 0)
+            if (courseIdsPastConfirmationDeadline.Count == 0)
                 return;
 
             var rootsToCancel = await dbContext.CourseEnrollments
                 .Where(enrollment =>
-                    startedCourseIds.Contains(enrollment.CourseID)
+                    courseIdsPastConfirmationDeadline.Contains(enrollment.CourseID)
                     && enrollment.EnrollmentID_Ref == null
                     && enrollment.ChildID != null
                     && enrollment.ScheduledAt == null
@@ -742,23 +742,32 @@ namespace Core.Repositories
             static DateTime GetCancellationDeadlineUtc(
                 DateTime scheduledAtUtc,
                 DateTime? scheduledLocalTime,
-                string? timeZoneId)
+                string? timeZoneId) =>
+                GetGroupRegistrationConfirmationDeadlineUtc(
+                    scheduledAtUtc,
+                    scheduledLocalTime,
+                    timeZoneId);
+        }
+
+        internal static DateTime GetGroupRegistrationConfirmationDeadlineUtc(
+            DateTime scheduledAtUtc,
+            DateTime? scheduledLocalTime,
+            string? timeZoneId)
+        {
+            if (scheduledLocalTime.HasValue
+                && !string.IsNullOrWhiteSpace(timeZoneId)
+                && TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out var zone))
             {
-                if (scheduledLocalTime.HasValue
-                    && !string.IsNullOrWhiteSpace(timeZoneId)
-                    && TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out var zone))
-                {
-                    var localDeadline = DateTime.SpecifyKind(
-                        scheduledLocalTime.Value.Date.AddDays(3),
-                        DateTimeKind.Unspecified);
+                var localDeadline = DateTime.SpecifyKind(
+                    scheduledLocalTime.Value.Date,
+                    DateTimeKind.Unspecified);
 
-                    if (!zone.IsInvalidTime(localDeadline))
-                        return TimeZoneInfo.ConvertTimeToUtc(localDeadline, zone);
-                }
-
-                // Legacy sessions may not have local-time metadata.
-                return DateTime.SpecifyKind(scheduledAtUtc.Date.AddDays(3), DateTimeKind.Utc);
+                if (!zone.IsInvalidTime(localDeadline))
+                    return TimeZoneInfo.ConvertTimeToUtc(localDeadline, zone);
             }
+
+            // Legacy sessions may not have local-time metadata.
+            return DateTime.SpecifyKind(scheduledAtUtc.Date, DateTimeKind.Utc);
         }
 
 

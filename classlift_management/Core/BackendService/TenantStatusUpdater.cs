@@ -267,7 +267,7 @@ namespace Core.BackendService
             var courseEnrollmentService = scope.ServiceProvider
                 .GetRequiredService<ICourseEnrollmentService>();
 
-            // Registration must be confirmed before the first group session starts.
+            // Registration must be confirmed before the first group session date begins.
             await courseEnrollmentService.CancelUnconfirmedGroupRegistrationsAsync(
                 dbContext,
                 cancellationToken);
