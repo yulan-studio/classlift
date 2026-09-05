@@ -218,6 +218,7 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IOrganizationEmailSettingsService, OrganizationEmailSettingsService>();
 
 
 

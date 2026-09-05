@@ -104,11 +104,34 @@ namespace Core.Contexts
 
         public DbSet<Fee> Fees { get; set; }
 
+        public DbSet<OrganizationEmailSettings> OrganizationEmailSettings { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<OrganizationEmailSettings>(entity =>
+            {
+                entity.ToTable("organization_email_settings");
+                entity.HasKey(settings => settings.OrganizationEmailSettingsId);
+                entity.Property(settings => settings.OrganizationEmailSettingsId)
+                    .HasColumnName("OrganizationEmailSettingsID")
+                    .ValueGeneratedNever();
+                entity.Property(settings => settings.SenderEmail)
+                    .HasColumnName("SenderEmail")
+                    .HasMaxLength(254)
+                    .IsRequired();
+                entity.Property(settings => settings.ReceiverEmail)
+                    .HasColumnName("ReceiverEmail")
+                    .HasMaxLength(254)
+                    .IsRequired();
+                entity.Property(settings => settings.CreatedAtUtc)
+                    .HasColumnName("CreatedAtUtc");
+                entity.Property(settings => settings.UpdatedAtUtc)
+                    .HasColumnName("UpdatedAtUtc");
+            });
 
             modelBuilder.Entity<User>()
         .ToTable("users"); // Explicitly map to the table name

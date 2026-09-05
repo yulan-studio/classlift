@@ -24,11 +24,12 @@ namespace Web.Controllers.Account
         private readonly R2StorageService _storageService;
         private readonly CurrentTenant _currentTenant;
         private readonly OrganizationTerminologyService _terminologyService;
+        private readonly IOrganizationEmailSettingsService _organizationEmailSettingsService;
         private const string AdminResetPassword = "hello123!";
         private const long MaxLogoSize = 2 * 1024 * 1024;
         private const string DefaultHomePageUrl = "https://courses.roboturtle.ca/";
 
-        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant, OrganizationTerminologyService terminologyService)
+        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant, OrganizationTerminologyService terminologyService, IOrganizationEmailSettingsService organizationEmailSettingsService)
         {
             _userRegistrationService = userRegistrationService;
             _signInManager = signInManager;
@@ -38,6 +39,7 @@ namespace Web.Controllers.Account
             _storageService = storageService;
             _currentTenant = currentTenant;
             _terminologyService = terminologyService;
+            _organizationEmailSettingsService = organizationEmailSettingsService;
         }
 
         // Show Registration Form (GET)
@@ -149,6 +151,55 @@ namespace Web.Controllers.Account
         {
             ViewBag.ActiveTab = tab;
             return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("EmailSettings")]
+        public async Task<IActionResult> EmailSettings(CancellationToken cancellationToken)
+        {
+            var settings = await _organizationEmailSettingsService.GetAsync(cancellationToken);
+            return PartialView("_EmailSettings", new OrganizationEmailSettingsViewModel
+            {
+                SenderEmail = settings?.SenderEmail ?? string.Empty,
+                ReceiverEmail = settings?.ReceiverEmail ?? string.Empty
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("EmailSettings")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EmailSettings(
+            OrganizationEmailSettingsViewModel model,
+            CancellationToken cancellationToken)
+        {
+            model.SenderEmail = model.SenderEmail?.Trim() ?? string.Empty;
+            model.ReceiverEmail = model.ReceiverEmail?.Trim() ?? string.Empty;
+            ModelState.Clear();
+            TryValidateModel(model);
+
+            if (!ModelState.IsValid)
+                return PartialView("_EmailSettings", model);
+
+            try
+            {
+                await _organizationEmailSettingsService.SaveAsync(
+                    model.SenderEmail,
+                    model.ReceiverEmail,
+                    cancellationToken);
+                ViewBag.SuccessMessage = "Organization email settings have been updated.";
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "The email settings could not be saved. Please try again.");
+            }
+
+            return PartialView("_EmailSettings", model);
         }
 
         [Authorize(Roles = "Admin")]

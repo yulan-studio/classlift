@@ -31,6 +31,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.
 3. The initial user manual will be one combined manual covering all roles.
+4. An administrator can configure one sender email address and one notification recipient email address for their organization.
 
 ## Open questions
 
