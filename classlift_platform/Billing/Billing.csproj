@@ -37,7 +37,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   
-    <None Update="TenantScripts\classlift_empty_20260825.sql">
+    <None Update="TenantScripts\classlift_empty_20260905.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
