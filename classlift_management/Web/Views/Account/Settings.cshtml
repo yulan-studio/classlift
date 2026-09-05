@@ -12,6 +12,11 @@
                href="#"
                data-url="/Account/Branding">Branding</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "EmailSettings" ? "active" : "")"
+               href="#"
+               data-url="/Account/EmailSettings">Email</a>
+        </li>
     }
     <li class="nav-item">
         <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
