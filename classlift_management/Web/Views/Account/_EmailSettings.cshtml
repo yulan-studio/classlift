@@ -10,7 +10,7 @@
     <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
 }
 
-<form asp-controller="Account" asp-action="EmailSettings" method="post" class="settings-form">
+<form asp-controller="Account" asp-action="EmailSettings" method="post" class="settings-form" style="max-width: 560px;">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
