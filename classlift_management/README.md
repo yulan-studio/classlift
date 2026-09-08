@@ -90,6 +90,8 @@ Email__TimeoutSeconds=30
 
 In every non-production environment, enabling email captures up to 100 messages in memory instead of contacting SMTP and does not require SMTP credentials. The capture store has no public HTTP endpoint and is cleared when the process restarts. Only the Production environment can select the MailKit SMTP implementation; its required settings are validated at startup.
 
+Email templates are centralized under `Core/Email/Templates`. They create matching HTML and plain-text content using the organization name, Reply-To address, tenant terminology, trusted portal URL, and course time zone. The templates are not connected to business workflows yet.
+
 ### Cloudflare R2 configuration
 
 Uploads require:
