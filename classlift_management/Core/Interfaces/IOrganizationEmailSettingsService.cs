@@ -7,7 +7,7 @@ public interface IOrganizationEmailSettingsService
     Task<OrganizationEmailSettings?> GetAsync(CancellationToken cancellationToken = default);
 
     Task SaveAsync(
-        string senderEmail,
+        string replyToEmail,
         string receiverEmail,
         CancellationToken cancellationToken = default);
 }

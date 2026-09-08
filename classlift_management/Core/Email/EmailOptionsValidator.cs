@@ -42,7 +42,7 @@ public sealed class EmailOptionsValidator : IValidateOptions<EmailOptions>
 
         if (!EmailAddressValidation.IsValid(options.SenderEmail))
         {
-            failures.Add("Email:SenderEmail must be a valid email address.");
+            failures.Add("Email:SenderEmail must be a valid verified address.");
         }
 
         if (string.IsNullOrWhiteSpace(options.SenderName))

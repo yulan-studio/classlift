@@ -160,7 +160,7 @@ namespace Web.Controllers.Account
             var settings = await _organizationEmailSettingsService.GetAsync(cancellationToken);
             return PartialView("_EmailSettings", new OrganizationEmailSettingsViewModel
             {
-                SenderEmail = settings?.SenderEmail ?? string.Empty,
+                ReplyToEmail = settings?.ReplyToEmail ?? string.Empty,
                 ReceiverEmail = settings?.ReceiverEmail ?? string.Empty
             });
         }
@@ -172,7 +172,7 @@ namespace Web.Controllers.Account
             OrganizationEmailSettingsViewModel model,
             CancellationToken cancellationToken)
         {
-            model.SenderEmail = model.SenderEmail?.Trim() ?? string.Empty;
+            model.ReplyToEmail = model.ReplyToEmail?.Trim() ?? string.Empty;
             model.ReceiverEmail = model.ReceiverEmail?.Trim() ?? string.Empty;
             ModelState.Clear();
             TryValidateModel(model);
@@ -183,7 +183,7 @@ namespace Web.Controllers.Account
             try
             {
                 await _organizationEmailSettingsService.SaveAsync(
-                    model.SenderEmail,
+                    model.ReplyToEmail,
                     model.ReceiverEmail,
                     cancellationToken);
                 ViewBag.SuccessMessage = "Organization email settings have been updated.";

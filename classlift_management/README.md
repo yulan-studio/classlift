@@ -80,13 +80,13 @@ Email__Host=smtp.example.com
 Email__Port=587
 Email__Username=YOUR_SMTP_USERNAME
 Email__Password=YOUR_SMTP_PASSWORD
-Email__SenderEmail=no-reply@example.com
+Email__SenderEmail=VERIFIED_PLATFORM_SENDER@example.com
 Email__SenderName=ClassLift
 Email__Security=StartTls
 Email__TimeoutSeconds=30
 ```
 
-Supported security values are `StartTls` and `SslOnConnect`; unencrypted SMTP is deliberately unsupported. Never commit real credentials to an appsettings file.
+`Email__SenderEmail` must be a platform address verified by the configured SMTP provider. Organization administrators configure a separate Reply-To address in Settings, so replies reach their organization without spoofing the From address. Supported security values are `StartTls` and `SslOnConnect`; unencrypted SMTP is deliberately unsupported. Never commit real credentials to an appsettings file.
 
 In every non-production environment, enabling email captures up to 100 messages in memory instead of contacting SMTP and does not require SMTP credentials. The capture store has no public HTTP endpoint and is cleared when the process restarts. Only the Production environment can select the MailKit SMTP implementation; its required settings are validated at startup.
 
