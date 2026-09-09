@@ -20,6 +20,9 @@
 .generating-card label>textarea{display:block!important;box-sizing:border-box;float:none!important;position:relative!important}
 .generating-card:has(form .check-ring)> .eyebrow,.generating-card:has(form .check-ring)> h2,.generating-card:has(form .check-ring)> p{display:none}
 body:has(#demoForm) .privacy-note{display:none}
+body:has(#demoForm) .header-note{font-size:0}
+body:has(#demoForm) .header-note .language-link{font-size:13px}
+body:has(#demoForm) .header-note .status-dot{display:none}
 .generating-card:has(form .check-ring) form{display:grid;grid-template-columns:48px 1fr;column-gap:16px;align-items:center}
 .generating-card:has(form .check-ring) form .check-ring{grid-row:1 / span 2;margin:0}
 .generating-card:has(form .check-ring) form h2{margin:0;font-family:Georgia,"Noto Serif SC",serif;font-size:30px;font-weight:500}
