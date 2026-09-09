@@ -61,7 +61,10 @@ if (!string.IsNullOrWhiteSpace(connectionString))
     await database.Database.MigrateAsync();
 }
 
-app.UseExceptionHandler();
+if (app.Environment.IsDevelopment())
+    app.UseDeveloperExceptionPage();
+else
+    app.UseExceptionHandler();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRateLimiter();
@@ -114,6 +117,8 @@ app.MapPost("/api/demo-requests", async (CreateDemoRequest request, DiagnosticDb
         lead.UpdatedAt = now; lead.Name = request.Name!.Trim(); lead.Organization ??= request.Organization?.Trim();
         lead.WebsiteUrl ??= request.WebsiteUrl?.Trim(); lead.Phone ??= request.Phone?.Trim();
     }
+    if (db.Entry(lead).State == EntityState.Added)
+        await db.SaveChangesAsync(cancellationToken);
     var demo = new DemoRequest { Id = Guid.NewGuid(), LeadId = lead.Id, CreatedAt = now, Phone = request.Phone?.Trim(),
         PreferredTime = request.PreferredTime?.Trim(), CompanySize = request.CompanySize?.Trim(), MainGoal = request.MainGoal!.Trim(),
         CurrentSystem = request.CurrentSystem?.Trim(), Message = request.Message?.Trim() };

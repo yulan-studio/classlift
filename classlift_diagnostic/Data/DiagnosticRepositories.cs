@@ -25,6 +25,8 @@ public sealed class MySqlDiagnosticRepository(DiagnosticDbContext db) : IDiagnos
         }
         else { customer.UpdatedAt = DateTimeOffset.UtcNow; customer.Name = lead.Name; customer.Organization ??= lead.Organization; customer.WebsiteUrl ??= lead.WebsiteUrl; }
         lead.LeadId = customer.Id;
+        if (customer is not null && db.Entry(customer).State == EntityState.Added)
+            await db.SaveChangesAsync(cancellationToken);
         db.DiagnosticLeads.Add(lead);
         await db.SaveChangesAsync(cancellationToken);
     }

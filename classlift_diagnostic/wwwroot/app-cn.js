@@ -109,7 +109,7 @@ function renderReport(serverResult){
  <section class="report-section"><span class="section-index">03 · POTENTIAL IMPACTS</span><h3>这些问题可能持续造成的影响</h3><p>以下内容根据你选择的运营问题推断，用于帮助确定改善优先级，并不代表一定会发生。</p><div class="impact-grid">${(impacts.length?impacts:['目前信息不足以判断具体影响。']).map((x,i)=>`<div class="impact-card"><b>0${i+1}</b><span>${x}</span></div>`).join('')}</div></section>
  <section class="report-section"><span class="section-index">04 · TOP PRIORITY</span><h3>你最急需解决的问题</h3><div class="quote">“${state.answers.primary_pain}”</div></section>
  <section class="report-section"><span class="section-index">05 · PRIORITIES</span><h3>建议的三个改善优先级</h3><div class="priorities">${ps.map((x,i)=>`<div class="insight-card"><b>PRIORITY ${i+1}</b><h4>${x[0]}</h4><p>${x[1]}</p></div>`).join('')}</div></section>
- <div class="solution-cta"><div><h3>看看这些问题可以如何被系统化</h3><p>基于你的 ${c[0]} 诊断与 ${intent} 改善意愿，查看与你当前问题相关的能力。</p></div><button class="primary-btn" onclick="alert('下一步可在这里连接 ClassLift 个性化解决方案页面。')">看看系统如何解决我的三个问题 <span>→</span></button></div></div></article>`;
+ <div class="solution-cta"><div><h3>看看这些问题可以如何被系统化</h3><p>基于你的 ${c[0]} 诊断与 ${intent} 改善意愿，查看与你当前问题相关的能力。</p></div><button class="primary-btn" onclick="window.location.href='https://classlift.ca'">看看系统如何解决我的三个问题 <span>→</span></button></div></div></article>`;
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&quiz&&!quiz.classList.contains('hidden')&&e.target.tagName!=='TEXTAREA'){$('#questionForm').requestSubmit()}});
