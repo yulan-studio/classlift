@@ -15,6 +15,18 @@ public sealed class MySqlDiagnosticRepository(DiagnosticDbContext db) : IDiagnos
 {
     public async Task AddAsync(DiagnosticLead lead, CancellationToken cancellationToken)
     {
+        var email = lead.Email.Trim().ToLowerInvariant();
+        var customer = await db.Leads.SingleOrDefaultAsync(x => x.Email == email, cancellationToken);
+        if (customer is null)
+        {
+            customer = new Lead { Id = Guid.NewGuid(), CreatedAt = lead.CreatedAt, UpdatedAt = lead.CreatedAt,
+                Name = lead.Name, Email = email, Organization = lead.Organization, WebsiteUrl = lead.WebsiteUrl };
+            db.Leads.Add(customer);
+        }
+        else { customer.UpdatedAt = DateTimeOffset.UtcNow; customer.Name = lead.Name; customer.Organization ??= lead.Organization; customer.WebsiteUrl ??= lead.WebsiteUrl; }
+        lead.LeadId = customer.Id;
+        if (customer is not null && db.Entry(customer).State == EntityState.Added)
+            await db.SaveChangesAsync(cancellationToken);
         db.DiagnosticLeads.Add(lead);
         await db.SaveChangesAsync(cancellationToken);
     }
@@ -48,6 +60,7 @@ public sealed class InMemoryDiagnosticRepository : IDiagnosticRepository
     private readonly ConcurrentDictionary<Guid, DiagnosticLead> _leads = new();
     public Task AddAsync(DiagnosticLead lead, CancellationToken cancellationToken)
     {
+        lead.LeadId = _leads.Values.FirstOrDefault(x => x.Email.Equals(lead.Email, StringComparison.OrdinalIgnoreCase))?.LeadId ?? Guid.NewGuid();
         _leads[lead.Id] = lead;
         return Task.CompletedTask;
     }

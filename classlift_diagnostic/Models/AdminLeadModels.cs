@@ -24,7 +24,7 @@ public sealed record AdminLeadDetail(
         lead.AdditionalNeeds, lead.OperationalEfficiencyScore, lead.SystemizationScore,
         lead.KeyPersonScore, lead.FinancialControlScore, lead.ScalabilityScore, lead.TotalScore,
         lead.Classification, lead.LeadIntent,
-        string.IsNullOrWhiteSpace(lead.AiSummary) ? null : JsonSerializer.Deserialize<AiDiagnosticReport>(lead.AiSummary));
+        string.IsNullOrWhiteSpace(lead.SalesReportJson) ? null : JsonSerializer.Deserialize<AiDiagnosticReport>(lead.SalesReportJson));
 
     private static IReadOnlyList<string> ParseList(string? json)
     {

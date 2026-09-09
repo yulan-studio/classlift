@@ -61,7 +61,10 @@ if (!string.IsNullOrWhiteSpace(connectionString))
     await database.Database.MigrateAsync();
 }
 
-app.UseExceptionHandler();
+if (app.Environment.IsDevelopment())
+    app.UseDeveloperExceptionPage();
+else
+    app.UseExceptionHandler();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRateLimiter();
@@ -88,12 +91,41 @@ app.MapPost("/api/diagnostics", async (
     var result = scoring.Calculate(request);
     var diagnostic = DiagnosticLead.From(request, result);
     var report = await aiReports.GenerateAsync(request, result, cancellationToken);
-    diagnostic.AiSummary = System.Text.Json.JsonSerializer.Serialize(report);
+    diagnostic.UserReportJson = System.Text.Json.JsonSerializer.Serialize(report with { SalesBrief = "" });
+    diagnostic.SalesReportJson = System.Text.Json.JsonSerializer.Serialize(report);
     diagnostic.RecommendedModulesJson = System.Text.Json.JsonSerializer.Serialize(report.RelevantCapabilities);
     await repository.AddAsync(diagnostic, cancellationToken);
 
     return Results.Created($"/api/diagnostics/{diagnostic.Id}", new DiagnosticResponse(
         diagnostic.Id, diagnostic.CreatedAt, result, diagnostic.LeadIntent, report));
+});
+
+app.MapPost("/api/demo-requests", async (CreateDemoRequest request, DiagnosticDbContext db, CancellationToken cancellationToken) =>
+{
+    var errors = request.Validate();
+    if (errors.Count > 0) return Results.ValidationProblem(errors);
+    var email = request.Email!.Trim().ToLowerInvariant();
+    var now = DateTimeOffset.UtcNow;
+    var lead = await db.Leads.SingleOrDefaultAsync(x => x.Email == email, cancellationToken);
+    if (lead is null)
+    {
+        lead = new Lead { Id = Guid.NewGuid(), CreatedAt = now, UpdatedAt = now, Name = request.Name!.Trim(), Email = email,
+            Organization = request.Organization?.Trim(), WebsiteUrl = request.WebsiteUrl?.Trim(), Phone = request.Phone?.Trim() };
+        db.Leads.Add(lead);
+    }
+    else
+    {
+        lead.UpdatedAt = now; lead.Name = request.Name!.Trim(); lead.Organization ??= request.Organization?.Trim();
+        lead.WebsiteUrl ??= request.WebsiteUrl?.Trim(); lead.Phone ??= request.Phone?.Trim();
+    }
+    if (db.Entry(lead).State == EntityState.Added)
+        await db.SaveChangesAsync(cancellationToken);
+    var demo = new DemoRequest { Id = Guid.NewGuid(), LeadId = lead.Id, CreatedAt = now, Phone = request.Phone?.Trim(),
+        PreferredTime = request.PreferredTime?.Trim(), CompanySize = request.CompanySize?.Trim(), MainGoal = request.MainGoal!.Trim(),
+        CurrentSystem = request.CurrentSystem?.Trim(), Message = request.Message?.Trim() };
+    db.DemoRequests.Add(demo);
+    await db.SaveChangesAsync(cancellationToken);
+    return Results.Created($"/api/demo-requests/{demo.Id}", new { demoRequestId = demo.Id, leadId = lead.Id, demo.CreatedAt });
 });
 
 app.MapGet("/api/diagnostics/{id:guid}", async (
@@ -172,6 +204,7 @@ app.MapGet("/api/admin/leads.csv", async (
 
 app.MapGet("/cn", () => Results.File(Path.Combine(app.Environment.WebRootPath, "cn", "index.html"), "text/html; charset=utf-8"));
 app.MapGet("/en", () => Results.File(Path.Combine(app.Environment.WebRootPath, "en", "index.html"), "text/html; charset=utf-8"));
+app.MapGet("/request-demo", () => Results.File(Path.Combine(app.Environment.WebRootPath, "request-demo.html"), "text/html; charset=utf-8"));
 app.MapFallbackToFile("index.html");
 app.Run();
 
