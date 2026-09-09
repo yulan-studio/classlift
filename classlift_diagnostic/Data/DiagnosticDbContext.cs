@@ -31,6 +31,8 @@ public sealed class DiagnosticDbContext(DbContextOptions<DiagnosticDbContext> op
         lead.Property(x => x.PreviousSolutionsJson).HasColumnType("json");
         lead.Property(x => x.BuyingCriteriaJson).HasColumnType("json");
         lead.Property(x => x.RecommendedModulesJson).HasColumnType("json");
+        lead.Property(x => x.UserReportJson).HasColumnType("json");
+        lead.Property(x => x.SalesReportJson).HasColumnType("json");
         lead.HasIndex(x => x.CreatedAt);
         lead.HasIndex(x => x.Email);
         lead.HasIndex(x => x.LeadIntent);

@@ -91,7 +91,8 @@ app.MapPost("/api/diagnostics", async (
     var result = scoring.Calculate(request);
     var diagnostic = DiagnosticLead.From(request, result);
     var report = await aiReports.GenerateAsync(request, result, cancellationToken);
-    diagnostic.AiSummary = System.Text.Json.JsonSerializer.Serialize(report);
+    diagnostic.UserReportJson = System.Text.Json.JsonSerializer.Serialize(report with { SalesBrief = "" });
+    diagnostic.SalesReportJson = System.Text.Json.JsonSerializer.Serialize(report);
     diagnostic.RecommendedModulesJson = System.Text.Json.JsonSerializer.Serialize(report.RelevantCapabilities);
     await repository.AddAsync(diagnostic, cancellationToken);
 

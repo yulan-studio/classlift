@@ -31,7 +31,8 @@ public sealed class DiagnosticLead
     public int TotalScore { get; set; }
     public string Classification { get; set; } = "";
     public string LeadIntent { get; set; } = "";
-    public string? AiSummary { get; set; }
+    public string? UserReportJson { get; set; }
+    public string? SalesReportJson { get; set; }
     public string? RecommendedModulesJson { get; set; }
     public string Name { get; set; } = "";
     public string Email { get; set; } = "";
@@ -64,7 +65,7 @@ public sealed class DiagnosticLead
     public DiagnosticResponse ToResponse() => new(Id, CreatedAt,
         new ScoreResult(OperationalEfficiencyScore, SystemizationScore, KeyPersonScore,
             FinancialControlScore, ScalabilityScore, TotalScore, Classification, ""), LeadIntent,
-        string.IsNullOrWhiteSpace(AiSummary) ? null : JsonSerializer.Deserialize<AiDiagnosticReport>(AiSummary));
+        string.IsNullOrWhiteSpace(UserReportJson) ? null : JsonSerializer.Deserialize<AiDiagnosticReport>(UserReportJson));
 
     private static string LeadIntentFor(string? timeline) => timeline switch
     {

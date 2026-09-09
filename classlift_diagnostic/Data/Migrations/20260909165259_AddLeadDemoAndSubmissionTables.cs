@@ -21,6 +21,7 @@ namespace ClassLift.Diagnostic.Data.Migrations
                 ALTER TABLE `diagnostic_submissions` ADD CONSTRAINT `FK_diagnostic_submissions_leads_LeadId` FOREIGN KEY (`LeadId`) REFERENCES `leads` (`Id`) ON DELETE CASCADE;
                 CREATE TABLE `demo_requests` (`Id` char(36) NOT NULL, `LeadId` char(36) NOT NULL, `CreatedAt` datetime(6) NOT NULL, `Phone` varchar(50) NULL, `PreferredTime` varchar(120) NULL, `TimeZone` varchar(80) NULL, `CompanySize` varchar(80) NULL, `MainGoal` longtext NOT NULL, `CurrentSystem` longtext NULL, `Message` longtext NULL, `Source` varchar(50) NOT NULL, `Status` varchar(30) NOT NULL, PRIMARY KEY (`Id`), KEY `IX_demo_requests_CreatedAt` (`CreatedAt`), KEY `IX_demo_requests_Status` (`Status`), CONSTRAINT `FK_demo_requests_leads_LeadId` FOREIGN KEY (`LeadId`) REFERENCES `leads` (`Id`) ON DELETE CASCADE) CHARACTER SET=utf8mb4;
                 """);
+            migrationBuilder.Sql("ALTER TABLE `diagnostic_submissions` ADD COLUMN `UserReportJson` JSON NULL, ADD COLUMN `SalesReportJson` JSON NULL;");
         }
 
         /// <inheritdoc />
