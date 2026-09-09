@@ -10,11 +10,15 @@ namespace Core.Models
     {
         public int? OrganizationId { get; set; }
 
+        public string OrganizationName { get; set; } = "ClassLift";
+
         public string? Subdomain { get; set; }
 
         public string? DatabaseName { get; set; }
 
         public string? ConnectionString { get; set; }
+
+        public Uri? TrustedPortalBaseUri { get; set; }
 
         public int? PlanId { get; set; }
 

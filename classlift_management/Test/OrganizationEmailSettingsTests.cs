@@ -13,7 +13,7 @@ public class OrganizationEmailSettingsViewModelTests
     {
         var model = new OrganizationEmailSettingsViewModel
         {
-            SenderEmail = "no-reply@example.com",
+            ReplyToEmail = "support@example.com",
             ReceiverEmail = "notifications@example.com"
         };
 
@@ -25,12 +25,12 @@ public class OrganizationEmailSettingsViewModelTests
     [TestCase("", "notifications@example.com")]
     [TestCase("no-reply@example.com", "")]
     public void InvalidOrMissingEmailAddressFailsValidation(
-        string senderEmail,
+        string replyToEmail,
         string receiverEmail)
     {
         var model = new OrganizationEmailSettingsViewModel
         {
-            SenderEmail = senderEmail,
+            ReplyToEmail = replyToEmail,
             ReceiverEmail = receiverEmail
         };
 
@@ -73,7 +73,7 @@ public class OrganizationEmailSettingsServiceTests
         {
             Assert.That(updated, Is.Not.Null);
             Assert.That(updated!.OrganizationEmailSettingsId, Is.EqualTo(1));
-            Assert.That(updated.SenderEmail, Is.EqualTo("second@example.com"));
+            Assert.That(updated.ReplyToEmail, Is.EqualTo("second@example.com"));
             Assert.That(updated.ReceiverEmail, Is.EqualTo("office@example.com"));
             Assert.That(updated.CreatedAtUtc, Is.EqualTo(createdAt));
             Assert.That(updated.UpdatedAtUtc, Is.GreaterThanOrEqualTo(createdAt));

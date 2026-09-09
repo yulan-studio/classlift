@@ -3,6 +3,8 @@ using Core.BackendService;
 using Core.Contexts;
 using Core.ConnectionStrings;
 using Core.Email;
+using Core.Email.Templates;
+using Core.Email.Notifications;
 using Core.Interfaces;
 using Core.Middleware;
 using Core.Models;
@@ -217,6 +219,8 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IOrganizationEmailSettingsService, OrganizationEmailSettingsService>();
+builder.Services.AddSingleton<IOrganizationEmailTemplateService, OrganizationEmailTemplateService>();
+builder.Services.AddScoped<IOrganizationEmailNotificationService, OrganizationEmailNotificationService>();
 
 
 

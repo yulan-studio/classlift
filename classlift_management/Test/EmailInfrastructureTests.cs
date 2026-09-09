@@ -1,5 +1,6 @@
 using Core.Email;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace Test;
 
@@ -32,7 +33,6 @@ public class EmailOptionsValidatorTests
         {
             Enabled = true,
             Port = 0,
-            SenderEmail = "not-an-address",
             TimeoutSeconds = 0
         });
 
@@ -62,10 +62,10 @@ public class EmailOptionsValidatorTests
         Enabled = true,
         Host = "smtp.example.com",
         Port = 587,
-        Username = "smtp-user",
-        Password = "secret-from-test-only",
-        SenderEmail = "no-reply@example.com",
-        SenderName = "ClassLift",
+            Username = "smtp-user",
+            Password = "secret-from-test-only",
+            SenderEmail = "platform@example.com",
+            SenderName = "ClassLift",
         Security = EmailSecurity.StartTls,
         TimeoutSeconds = 30
     };
@@ -101,7 +101,56 @@ public class EmailServiceBehaviorTests
         {
             Assert.That(result.Status, Is.EqualTo(EmailSendStatus.Captured));
             Assert.That(store.Messages, Has.Count.EqualTo(1));
+            Assert.That(store.Messages[0].Message.ReplyTo, Is.EqualTo("support@example.com"));
             Assert.That(store.Messages[0].Message.Subject, Is.EqualTo("Test subject"));
+        });
+    }
+
+    [TestCase("bad-address")]
+    [TestCase("")]
+    public async Task DevelopmentServiceRejectsInvalidReplyTo(string replyTo)
+    {
+        var service = new DevelopmentEmailService(
+            new DevelopmentEmailStore(),
+            NullLogger<DevelopmentEmailService>.Instance);
+
+        var result = await service.SendAsync(ValidMessage() with { ReplyTo = replyTo });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Status, Is.EqualTo(EmailSendStatus.Failed));
+            Assert.That(result.ErrorCode, Is.EqualTo("invalid_reply_to"));
+        });
+    }
+
+    [Test]
+    public void SmtpMessageUsesOrganizationSenderAddress()
+    {
+        var service = new SmtpEmailService(
+            Options.Create(new EmailOptions
+            {
+                Enabled = true,
+                Host = "smtp.example.com",
+                Port = 587,
+                Username = "smtp-user",
+                Password = "secret-from-test-only",
+                SenderEmail = "platform@example.com",
+                SenderName = "ClassLift",
+                Security = EmailSecurity.StartTls,
+                TimeoutSeconds = 30
+            }),
+            NullLogger<SmtpEmailService>.Instance);
+
+        var mimeMessage = service.CreateMessage(ValidMessage());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(
+                mimeMessage.From.Mailboxes.Single().Address,
+                Is.EqualTo("platform@example.com"));
+            Assert.That(
+                mimeMessage.ReplyTo.Mailboxes.Single().Address,
+                Is.EqualTo("support@example.com"));
         });
     }
 
@@ -138,6 +187,7 @@ public class EmailServiceBehaviorTests
     }
 
     private static EmailMessage ValidMessage() => new(
+        "support@example.com",
         "parent@example.com",
         "Test subject",
         "<p>Test body</p>",

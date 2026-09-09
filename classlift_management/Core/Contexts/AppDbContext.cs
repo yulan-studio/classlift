@@ -119,8 +119,8 @@ namespace Core.Contexts
                 entity.Property(settings => settings.OrganizationEmailSettingsId)
                     .HasColumnName("OrganizationEmailSettingsID")
                     .ValueGeneratedNever();
-                entity.Property(settings => settings.SenderEmail)
-                    .HasColumnName("SenderEmail")
+                entity.Property(settings => settings.ReplyToEmail)
+                    .HasColumnName("ReplyToEmail")
                     .HasMaxLength(254)
                     .IsRequired();
                 entity.Property(settings => settings.ReceiverEmail)

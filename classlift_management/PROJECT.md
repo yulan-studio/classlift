@@ -134,6 +134,8 @@ Do not assume authorization is inherited consistently; many attributes are actio
 
 Email infrastructure lives under `Core/Email` and is not yet connected to business workflows. `Email:Enabled` defaults to false. Disabled mode performs no delivery, every non-production environment captures messages in a bounded in-memory store, and only an enabled Production environment uses MailKit SMTP with required TLS.
 
+Tenant-aware templates live under `Core/Email/Templates`. They generate both HTML and plain text, encode dynamic HTML values, format schedules in the supplied course time zone, combine only a trusted portal base URI with a validated local action path, and attach the organization's configured Reply-To address. Controllers should not construct email HTML directly.
+
 When changing email behavior:
 
 - Never log credentials, full recipient addresses, or complete message bodies.

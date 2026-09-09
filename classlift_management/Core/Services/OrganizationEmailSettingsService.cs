@@ -24,7 +24,7 @@ public sealed class OrganizationEmailSettingsService : IOrganizationEmailSetting
                 cancellationToken);
 
     public async Task SaveAsync(
-        string senderEmail,
+        string replyToEmail,
         string receiverEmail,
         CancellationToken cancellationToken = default)
     {
@@ -39,7 +39,7 @@ public sealed class OrganizationEmailSettingsService : IOrganizationEmailSetting
             settings = new OrganizationEmailSettings
             {
                 OrganizationEmailSettingsId = SettingsId,
-                SenderEmail = senderEmail,
+                ReplyToEmail = replyToEmail,
                 ReceiverEmail = receiverEmail,
                 CreatedAtUtc = now,
                 UpdatedAtUtc = now
@@ -48,7 +48,7 @@ public sealed class OrganizationEmailSettingsService : IOrganizationEmailSetting
         }
         else
         {
-            settings.SenderEmail = senderEmail;
+            settings.ReplyToEmail = replyToEmail;
             settings.ReceiverEmail = receiverEmail;
             settings.UpdatedAtUtc = now;
         }

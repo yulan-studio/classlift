@@ -31,7 +31,13 @@ This file is the concise, canonical record of business rules confirmed by the pr
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.
 3. The initial user manual will be one combined manual covering all roles.
-4. An administrator can configure one sender email address and one notification recipient email address for their organization.
+4. An administrator can configure one reply-to email address and one notification recipient email address for their organization. ClassLift sends from a platform-controlled, SMTP-verified address and directs recipient replies to the organization's reply-to address.
+
+## Email notifications
+
+1. When a private course is confirmed, ClassLift sends separate notifications to:
+   - the organization's configured notification recipient email address; and
+   - the coach assigned to that private course.
 
 ## Open questions
 

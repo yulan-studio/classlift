@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Start Your ClassLift Free Trial | Create Your Organization</title>
+<title>Start Your ClassLift Free Trial | Program Management Software</title>
 <meta name="description" content="Start your ClassLift free trial and create a workspace for managing staff, students, scheduling, attendance, billing, and reporting.">
 <link rel="canonical" href="https://classlift.ca/signup.html">
 
@@ -38,7 +38,7 @@ body { font-family: 'Inter', sans-serif; }
 <header class="bg-white/80 backdrop-blur sticky top-0 z-50 border-b">
     <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
 
-        <a href="./index.html" class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-3">
             <img
                 src="icons/classlift-logo2.png"
                 alt="ClassLift"
@@ -50,9 +50,10 @@ body { font-family: 'Inter', sans-serif; }
         </a>
 
         <div class="space-x-6 hidden md:flex items-center">
-            <a href="./index.html" class="hover:text-indigo-600">Features</a>
+            <a href="/" class="hover:text-indigo-600">Home</a>
             <a href="./pricing.html#pricing" class="hover:text-indigo-600">Pricing</a>
             <a href="https://diagnostic.classlift.ca" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600">Free Diagnostic</a>
+            <a href="./blog.html" class="hover:text-indigo-600">Articles</a>
             <a href="./contact.html" class="hover:text-indigo-600">Contact</a>
 
             <a href="./pricing.html" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow hover:bg-indigo-700">
@@ -60,16 +61,17 @@ body { font-family: 'Inter', sans-serif; }
             </a>
         </div>
 
-        <button id="menuBtn" class="md:hidden text-3xl">
+        <button id="menuBtn" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden text-3xl">
             ☰
         </button>
     </div>
 
     <div id="mobileMenu" class="hidden md:hidden px-6 pt-4 pb-4 space-y-4 bg-white border-t">
-        <a href="./index.html" class="block hover:text-indigo-600">Features</a>
+        <a href="/" class="block hover:text-indigo-600">Home</a>
         <a href="./pricing.html#pricing" class="block hover:text-indigo-600">Pricing</a>
         <a href="https://diagnostic.classlift.ca" target="_blank" rel="noopener noreferrer" class="block hover:text-indigo-600">Free Diagnostic</a>
-        <a href="./contact.html" class="block hover:text-indigo-600">Contact</a>
+                <a href="./blog.html" class="block hover:text-indigo-600">Articles</a>
+                <a href="./contact.html" class="block hover:text-indigo-600">Contact</a>
 
         <a href="./pricing.html" class="block bg-indigo-600 text-white px-4 py-2 rounded-xl text-center">
             Book Demo
@@ -79,7 +81,7 @@ body { font-family: 'Inter', sans-serif; }
 
 <!-- HERO / SIGNUP -->
 <section class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-500 opacity-90"></div>
+<div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-500 opacity-90"></div>
 
     <div class="relative max-w-7xl mx-auto px-6 py-20">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
@@ -346,6 +348,7 @@ const mobileMenu = document.getElementById('mobileMenu');
 
 menuBtn.addEventListener('click', () => {
     mobileMenu.classList.toggle('hidden');
+    menuBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
 });
 
 function getPlatformApiBaseUrl() {
