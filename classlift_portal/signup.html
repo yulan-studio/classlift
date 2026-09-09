@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Start Your ClassLift Free Trial | Create Your Organization</title>
+<title>Start Your ClassLift Free Trial | Program Management Software</title>
 <meta name="description" content="Start your ClassLift free trial and create a workspace for managing staff, students, scheduling, attendance, billing, and reporting.">
 <link rel="canonical" href="https://classlift.ca/signup.html">
 
@@ -60,7 +60,7 @@ body { font-family: 'Inter', sans-serif; }
             </a>
         </div>
 
-        <button id="menuBtn" class="md:hidden text-3xl">
+        <button id="menuBtn" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden text-3xl">
             ☰
         </button>
     </div>
@@ -346,6 +346,7 @@ const mobileMenu = document.getElementById('mobileMenu');
 
 menuBtn.addEventListener('click', () => {
     mobileMenu.classList.toggle('hidden');
+    menuBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
 });
 
 function getPlatformApiBaseUrl() {

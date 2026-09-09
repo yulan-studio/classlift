@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ClassLift | Course Management Software for Specialized Programs</title>
-<meta name="description" content="Manage scheduling, attendance, billing, student progress, and reporting for therapy clinics, nonprofits, and specialized education programs.">
+<title>ClassLift | Program Management Software for Education &amp; Special Needs Programs</title>
+<meta name="description" content="ClassLift is program management software for education, tutoring, therapy, nonprofit, and special needs organizations. Manage students, scheduling, attendance, billing, and reporting in one platform.">
 <link rel="canonical" href="https://classlift.ca/">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ClassLift">
-<meta property="og:title" content="ClassLift | Course Management Software for Specialized Programs">
-<meta property="og:description" content="Manage scheduling, attendance, billing, student progress, and reporting for therapy clinics, nonprofits, and specialized education programs.">
+<meta property="og:title" content="ClassLift | Program Management Software for Education &amp; Special Needs Programs">
+<meta property="og:description" content="ClassLift is program management software for education, tutoring, therapy, nonprofit, and special needs organizations.">
 <meta property="og:url" content="https://classlift.ca/">
 <meta property="og:image" content="https://classlift.ca/icons/favicon-512.png">
 <meta property="og:image:width" content="512">
@@ -27,6 +27,7 @@
       "@id": "https://classlift.ca/#website",
       "url": "https://classlift.ca/",
       "name": "ClassLift",
+      "description": "ClassLift is program management software for education, tutoring, therapy, nonprofit, and special needs organizations.",
       "publisher": {
         "@id": "https://classlift.ca/#organization"
       }
@@ -37,6 +38,7 @@
       "name": "ClassLift",
       "url": "https://classlift.ca/",
       "logo": "https://classlift.ca/icons/favicon-512.png",
+      "description": "Program management software for education, tutoring, therapy, nonprofit, and special needs organizations.",
       "email": "info@classlift.ca",
       "contactPoint": [
         {
@@ -100,7 +102,7 @@ body { font-family: 'Inter', sans-serif; }
         </div>
 
         <!-- MOBILE BUTTON -->
-        <button id="menuBtn" class="md:hidden text-3xl">
+        <button id="menuBtn" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden text-3xl">
             ☰
         </button>
     </div>
@@ -133,6 +135,7 @@ const mobileMenu = document.getElementById('mobileMenu');
 
 menuBtn.addEventListener('click', () => {
     mobileMenu.classList.toggle('hidden');
+    menuBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
 });
 </script>
 
@@ -151,10 +154,10 @@ menuBtn.addEventListener('click', () => {
             </h1>
 
             <p class="mt-6 text-lg text-white/90">
-                Manage complex scheduling, attendance, billing, student progress, and reporting for therapy clinics, special-needs programs, nonprofits, and education providers. 
+                Manage complex scheduling, attendance, billing, student progress, and reporting for therapy clinics, special-needs programs, nonprofits, and education providers.
+            </p>
             <p class="mt-6 text-lg text-white/90">
                 Reduce administrative work and focus more time on supporting every learner’s success.
-            </p>
             </p>
 
             <div class="mt-8 flex flex-col sm:flex-row gap-4">

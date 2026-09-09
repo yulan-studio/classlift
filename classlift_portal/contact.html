@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Contact ClassLift | Sales, Demos and Customer Support</title>
+<title>Contact ClassLift | Program Management Software Demo &amp; Support</title>
 <meta name="description" content="Contact ClassLift to book a demo, discuss course management software and pricing, or get help from our customer support team.">
 <link rel="canonical" href="https://classlift.ca/contact.html">
 
@@ -63,7 +63,7 @@ body { font-family: 'Inter', sans-serif; }
         </div>
 
         <!-- MOBILE BUTTON -->
-        <button id="menuBtn" class="md:hidden text-3xl">
+        <button id="menuBtn" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden text-3xl">
             ☰
         </button>
     </div>
@@ -96,6 +96,7 @@ const mobileMenu = document.getElementById('mobileMenu');
 
 menuBtn.addEventListener('click', () => {
     mobileMenu.classList.toggle('hidden');
+    menuBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
 });
 </script>
 
@@ -109,7 +110,7 @@ menuBtn.addEventListener('click', () => {
             Contact ClassLift
         </h1>
 
-        <p class="mt-6 text-lg text-white/90 max-w-3xl mx-auto">
+        <p class="mt-8 text-lg text-white/90 max-w-3xl mx-auto">
             We'd love to hear from you. Whether you're interested in a demo,
             have questions about pricing, or need technical support, we're here
             to help.
