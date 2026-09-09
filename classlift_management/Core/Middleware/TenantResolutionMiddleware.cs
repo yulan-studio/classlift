@@ -44,8 +44,11 @@ namespace Core.Middleware
             {
                 currentTenant.Subdomain = "classlift";
                 currentTenant.DatabaseName = LocalDatabaseName;
+                currentTenant.OrganizationName = "ClassLift";
                 currentTenant.ConnectionString =
                     connectionFactory.BuildConnectionString(LocalDatabaseName);
+                currentTenant.TrustedPortalBaseUri = new Uri(
+                    $"{context.Request.Scheme}://{context.Request.Host.Value}/");
                 currentTenant.AreAllFeaturesEnabled = true;
 
                 context.Items["CurrentTenant"] = currentTenant;
@@ -76,6 +79,7 @@ namespace Core.Middleware
             // 1. Try exact custom-domain match.
             var tenant = await billingDbContext.TenantRegistries
                 .AsNoTracking()
+                .Include(t => t.Organization)
                 .FirstOrDefaultAsync(t =>
                     t.IsActive &&
                     t.CustomDomain != null &&
@@ -90,6 +94,7 @@ namespace Core.Middleware
                 {
                     tenant = await billingDbContext.TenantRegistries
                         .AsNoTracking()
+                        .Include(t => t.Organization)
                         .FirstOrDefaultAsync(t =>
                             t.IsActive &&
                             t.Subdomain != null &&
@@ -111,9 +116,11 @@ namespace Core.Middleware
             var tenantConnectionString = connectionFactory.BuildConnectionString(tenant.DatabaseName);
 
             currentTenant.OrganizationId = tenant.OrganizationId;
+            currentTenant.OrganizationName = tenant.Organization.OrganizationName;
             currentTenant.Subdomain = tenant.Subdomain;
             currentTenant.DatabaseName = tenant.DatabaseName;
             currentTenant.ConnectionString = tenantConnectionString;
+            currentTenant.TrustedPortalBaseUri = new Uri($"https://{host}/");
 
             // Resolve entitlements once per request and expose them through
             // CurrentTenant so controllers and Razor views do not query the

@@ -15,10 +15,12 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
     public TemplatedEmail CourseScheduleCreated(
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         CourseScheduleEmailData data) =>
         BuildScheduleEmail(
             EmailNotificationType.CourseScheduleCreated,
             context,
+            recipientEmail,
             data,
             "New course schedule",
             "A new course session has been scheduled.",
@@ -26,10 +28,12 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
     public TemplatedEmail CourseScheduleUpdated(
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         CourseScheduleEmailData data) =>
         BuildScheduleEmail(
             EmailNotificationType.CourseScheduleUpdated,
             context,
+            recipientEmail,
             data,
             "Course schedule updated",
             "A course session schedule has been updated.",
@@ -37,10 +41,12 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
     public TemplatedEmail CourseScheduleDeleted(
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         CourseScheduleEmailData data) =>
         BuildScheduleEmail(
             EmailNotificationType.CourseScheduleDeleted,
             context,
+            recipientEmail,
             data,
             "Course schedule deleted",
             "A course session has been removed from the schedule.",
@@ -48,10 +54,11 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
     public TemplatedEmail CourseSessionCompleted(
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         CourseSessionCompletedEmailData data)
     {
         ValidateContext(context);
-        ValidateRequired(data.RecipientEmail, nameof(data.RecipientEmail));
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
         ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
         ValidateRequired(data.CourseName, nameof(data.CourseName));
         ValidateRequired(data.ProviderName, nameof(data.ProviderName));
@@ -71,7 +78,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         return Build(
             EmailNotificationType.CourseSessionCompleted,
             context,
-            data.RecipientEmail,
+            recipientEmail,
             $"{SubjectValue(data.CourseName)}: session completed",
             "Course session completed",
             "A course session has been marked as completed.",
@@ -82,10 +89,11 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
     public TemplatedEmail ScheduleChangeRequested(
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         ScheduleChangeRequestedEmailData data)
     {
         ValidateContext(context);
-        ValidateRequired(data.RecipientEmail, nameof(data.RecipientEmail));
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
         ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
         ValidateRequired(data.CourseName, nameof(data.CourseName));
         ValidateRequired(data.RequestedBy, nameof(data.RequestedBy));
@@ -102,7 +110,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         return Build(
             EmailNotificationType.ScheduleChangeRequested,
             context,
-            data.RecipientEmail,
+            recipientEmail,
             $"{SubjectValue(data.CourseName)}: schedule change requested",
             "Schedule change requested",
             "A course schedule change has been requested.",
@@ -113,10 +121,11 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
     public TemplatedEmail CourseConfirmed(
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         CourseConfirmedEmailData data)
     {
         ValidateContext(context);
-        ValidateRequired(data.RecipientEmail, nameof(data.RecipientEmail));
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
         ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
         ValidateRequired(data.CourseName, nameof(data.CourseName));
         ValidateRequired(data.CourseType, nameof(data.CourseType));
@@ -133,7 +142,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         return Build(
             EmailNotificationType.CourseConfirmed,
             context,
-            data.RecipientEmail,
+            recipientEmail,
             $"{SubjectValue(data.CourseName)}: course confirmed",
             "Course confirmed",
             "A course registration has been confirmed.",
@@ -144,10 +153,11 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
     public TemplatedEmail ActivityConfirmed(
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         ActivityConfirmedEmailData data)
     {
         ValidateContext(context);
-        ValidateRequired(data.RecipientEmail, nameof(data.RecipientEmail));
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
         ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
         ValidateRequired(data.ActivityName, nameof(data.ActivityName));
 
@@ -165,7 +175,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         return Build(
             EmailNotificationType.ActivityConfirmed,
             context,
-            data.RecipientEmail,
+            recipientEmail,
             $"{SubjectValue(data.ActivityName)}: activity confirmed",
             "Activity confirmed",
             "An activity registration has been confirmed.",
@@ -177,13 +187,14 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
     private TemplatedEmail BuildScheduleEmail(
         EmailNotificationType notificationType,
         OrganizationEmailTemplateContext context,
+        string recipientEmail,
         CourseScheduleEmailData data,
         string heading,
         string htmlIntroduction,
         string textIntroduction)
     {
         ValidateContext(context);
-        ValidateRequired(data.RecipientEmail, nameof(data.RecipientEmail));
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
         ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
         ValidateRequired(data.CourseName, nameof(data.CourseName));
         ValidateRequired(data.ProviderName, nameof(data.ProviderName));
@@ -203,7 +214,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         return Build(
             notificationType,
             context,
-            data.RecipientEmail,
+            recipientEmail,
             $"{SubjectValue(data.CourseName)}: {heading.ToLowerInvariant()}",
             heading,
             htmlIntroduction,

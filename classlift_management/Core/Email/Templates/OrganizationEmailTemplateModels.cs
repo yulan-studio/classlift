@@ -1,7 +1,6 @@
 namespace Core.Email.Templates;
 
 public sealed record CourseScheduleEmailData(
-    string RecipientEmail,
     string ParticipantName,
     string CourseName,
     string ProviderName,
@@ -12,7 +11,6 @@ public sealed record CourseScheduleEmailData(
     string? Location = null);
 
 public sealed record CourseSessionCompletedEmailData(
-    string RecipientEmail,
     string ParticipantName,
     string CourseName,
     string ProviderName,
@@ -22,7 +20,6 @@ public sealed record CourseSessionCompletedEmailData(
     string ActionPath);
 
 public sealed record ScheduleChangeRequestedEmailData(
-    string RecipientEmail,
     string ParticipantName,
     string CourseName,
     string RequestedBy,
@@ -30,7 +27,6 @@ public sealed record ScheduleChangeRequestedEmailData(
     string? RequestNote = null);
 
 public sealed record CourseConfirmedEmailData(
-    string RecipientEmail,
     string ParticipantName,
     string CourseName,
     string CourseType,
@@ -38,7 +34,6 @@ public sealed record CourseConfirmedEmailData(
     string? ProviderName = null);
 
 public sealed record ActivityConfirmedEmailData(
-    string RecipientEmail,
     string ParticipantName,
     string ActivityName,
     string ActionPath,

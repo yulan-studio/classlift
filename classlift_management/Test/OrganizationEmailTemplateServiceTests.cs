@@ -52,7 +52,7 @@ public class OrganizationEmailTemplateServiceTests
             Location = "Room <b>One</b>"
         };
 
-        var email = _service.CourseScheduleCreated(context, data);
+        var email = _service.CourseScheduleCreated(context, "recipient@example.com", data);
 
         Assert.Multiple(() =>
         {
@@ -72,7 +72,7 @@ public class OrganizationEmailTemplateServiceTests
             TimeZoneId = "America/Toronto"
         };
 
-        var email = _service.CourseScheduleUpdated(Context(), data);
+        var email = _service.CourseScheduleUpdated(Context(), "recipient@example.com", data);
 
         Assert.Multiple(() =>
         {
@@ -86,8 +86,8 @@ public class OrganizationEmailTemplateServiceTests
     {
         var email = _service.CourseConfirmed(
             Context(),
+            "recipient@example.com",
             new CourseConfirmedEmailData(
-                "recipient@example.com",
                 "Alex",
                 "Robotics\r\nBcc: attacker@example.com",
                 "Private",
@@ -108,7 +108,7 @@ public class OrganizationEmailTemplateServiceTests
         var context = Context() with { TrustedPortalBaseUri = new Uri(portalUrl) };
 
         Assert.Throws<ArgumentException>(() =>
-            _service.CourseScheduleCreated(context, ScheduleData()));
+            _service.CourseScheduleCreated(context, "recipient@example.com", ScheduleData()));
     }
 
     [Test]
@@ -117,7 +117,7 @@ public class OrganizationEmailTemplateServiceTests
         var context = Context() with { ReplyToEmail = "invalid" };
 
         Assert.Throws<ArgumentException>(() =>
-            _service.CourseScheduleCreated(context, ScheduleData()));
+            _service.CourseScheduleCreated(context, "recipient@example.com", ScheduleData()));
     }
 
     [Test]
@@ -126,7 +126,7 @@ public class OrganizationEmailTemplateServiceTests
         var data = ScheduleData() with { ParticipantName = "" };
 
         Assert.Throws<ArgumentException>(() =>
-            _service.CourseScheduleCreated(Context(), data));
+            _service.CourseScheduleCreated(Context(), "recipient@example.com", data));
     }
 
     [TestCase("https://attacker.example/path")]
@@ -137,31 +137,29 @@ public class OrganizationEmailTemplateServiceTests
         var data = ScheduleData() with { ActionPath = actionPath };
 
         Assert.Throws<ArgumentException>(() =>
-            _service.CourseScheduleCreated(Context(), data));
+            _service.CourseScheduleCreated(Context(), "recipient@example.com", data));
     }
 
     [Test]
     public void RejectsInvalidRecipientAddress()
     {
-        var data = ScheduleData() with { RecipientEmail = "invalid" };
-
         Assert.Throws<ArgumentException>(() =>
-            _service.CourseScheduleCreated(Context(), data));
+            _service.CourseScheduleCreated(Context(), "invalid", ScheduleData()));
     }
 
     private TemplatedEmail Build(EmailNotificationType notificationType) => notificationType switch
     {
         EmailNotificationType.CourseScheduleCreated =>
-            _service.CourseScheduleCreated(Context(), ScheduleData()),
+            _service.CourseScheduleCreated(Context(), "recipient@example.com", ScheduleData()),
         EmailNotificationType.CourseScheduleUpdated =>
-            _service.CourseScheduleUpdated(Context(), ScheduleData()),
+            _service.CourseScheduleUpdated(Context(), "recipient@example.com", ScheduleData()),
         EmailNotificationType.CourseScheduleDeleted =>
-            _service.CourseScheduleDeleted(Context(), ScheduleData()),
+            _service.CourseScheduleDeleted(Context(), "recipient@example.com", ScheduleData()),
         EmailNotificationType.CourseSessionCompleted =>
             _service.CourseSessionCompleted(
                 Context(),
+                "recipient@example.com",
                 new CourseSessionCompletedEmailData(
-                    "recipient@example.com",
                     "Alex",
                     "Robotics",
                     "Morgan",
@@ -172,8 +170,8 @@ public class OrganizationEmailTemplateServiceTests
         EmailNotificationType.ScheduleChangeRequested =>
             _service.ScheduleChangeRequested(
                 Context(),
+                "recipient@example.com",
                 new ScheduleChangeRequestedEmailData(
-                    "recipient@example.com",
                     "Alex",
                     "Robotics",
                     "Alex's family",
@@ -182,8 +180,8 @@ public class OrganizationEmailTemplateServiceTests
         EmailNotificationType.CourseConfirmed =>
             _service.CourseConfirmed(
                 Context(),
+                "recipient@example.com",
                 new CourseConfirmedEmailData(
-                    "recipient@example.com",
                     "Alex",
                     "Robotics",
                     "Private",
@@ -192,8 +190,8 @@ public class OrganizationEmailTemplateServiceTests
         EmailNotificationType.ActivityConfirmed =>
             _service.ActivityConfirmed(
                 Context(),
+                "recipient@example.com",
                 new ActivityConfirmedEmailData(
-                    "recipient@example.com",
                     "Alex",
                     "Robotics Camp",
                     "/Activity/Manage",
@@ -224,7 +222,6 @@ public class OrganizationEmailTemplateServiceTests
         });
 
     private static CourseScheduleEmailData ScheduleData() => new(
-        "recipient@example.com",
         "Alex",
         "Robotics",
         "Morgan",
