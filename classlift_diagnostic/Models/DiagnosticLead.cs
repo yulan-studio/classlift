@@ -5,6 +5,7 @@ namespace ClassLift.Diagnostic.Models;
 public sealed class DiagnosticLead
 {
     public Guid Id { get; set; }
+    public Guid LeadId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public string BusinessType { get; set; } = "";
     public string StudentCount { get; set; } = "";
