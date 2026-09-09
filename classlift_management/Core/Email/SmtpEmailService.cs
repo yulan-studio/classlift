@@ -62,10 +62,11 @@ public sealed class SmtpEmailService : IEmailService
         }
     }
 
-    private MimeMessage CreateMessage(EmailMessage message)
+    internal MimeMessage CreateMessage(EmailMessage message)
     {
         var mimeMessage = new MimeMessage();
         mimeMessage.From.Add(new MailboxAddress(_options.SenderName, _options.SenderEmail));
+        mimeMessage.ReplyTo.Add(MailboxAddress.Parse(message.ReplyTo));
         mimeMessage.To.Add(MailboxAddress.Parse(message.To));
         mimeMessage.Subject = message.Subject;
         mimeMessage.Body = new BodyBuilder

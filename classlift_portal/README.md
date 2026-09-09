@@ -13,6 +13,8 @@ JavaScript.
 | `pricing.html` | Starter, Growth, and Pro plan information |
 | `contact.html` | Sales and support contact options |
 | `signup.html` | Starter organization provisioning |
+| `blog.html` | Blog index and featured articles |
+| `blog/` | Individual blog articles |
 
 Brand and favicon images are stored in `icons/` and at `favicon.ico`.
 

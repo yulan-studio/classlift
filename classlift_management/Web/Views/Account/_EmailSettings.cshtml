@@ -15,16 +15,16 @@
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
     <div class="mb-3">
-        <label asp-for="SenderEmail" class="form-label"></label>
-        <input asp-for="SenderEmail"
+        <label asp-for="ReplyToEmail" class="form-label"></label>
+        <input asp-for="ReplyToEmail"
                class="form-control"
                type="email"
                inputmode="email"
                autocomplete="email"
-               placeholder="no-reply@example.com" />
-        <span asp-validation-for="SenderEmail" class="text-danger"></span>
+               placeholder="support@example.com" />
+        <span asp-validation-for="ReplyToEmail" class="text-danger"></span>
         <div class="form-text">
-            This address will appear in the From field. Your email provider must allow ClassLift to send from it.
+            Replies from recipients will go to this address. ClassLift uses its verified platform address in the From field.
         </div>
     </div>
 

@@ -4,6 +4,11 @@ internal static class EmailMessageValidation
 {
     internal static string? GetErrorCode(EmailMessage message)
     {
+        if (!EmailAddressValidation.IsValid(message.ReplyTo))
+        {
+            return "invalid_reply_to";
+        }
+
         if (!EmailAddressValidation.IsValid(message.To))
         {
             return "invalid_recipient";

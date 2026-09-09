@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Contact ClassLift | Sales, Demos and Customer Support</title>
+<title>Contact ClassLift | Program Management Software Demo &amp; Support</title>
 <meta name="description" content="Contact ClassLift to book a demo, discuss course management software and pricing, or get help from our customer support team.">
 <link rel="canonical" href="https://classlift.ca/contact.html">
 
@@ -39,7 +39,7 @@ body { font-family: 'Inter', sans-serif; }
     <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
 
         <!-- LOGO -->
-        <a href="./index.html" class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-3">
             <img
                 src="icons/classlift-logo2.png"
                 alt="ClassLift"
@@ -52,9 +52,10 @@ body { font-family: 'Inter', sans-serif; }
 
         <!-- DESKTOP MENU -->
         <div class="space-x-6 hidden md:flex items-center">
-            <a href="./index.html" class="hover:text-indigo-600">Features</a>
+            <a href="/" class="hover:text-indigo-600">Home</a>
             <a href="./pricing.html#pricing" class="hover:text-indigo-600">Pricing</a>
             <a href="https://diagnostic.classlift.ca" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600">Free Diagnostic</a>
+            <a href="./blog.html" class="hover:text-indigo-600">Articles</a>
             <a href="./contact.html" class="hover:text-indigo-600">Contact</a>
 
             <a href="./pricing.html" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow hover:bg-indigo-700">
@@ -63,7 +64,7 @@ body { font-family: 'Inter', sans-serif; }
         </div>
 
         <!-- MOBILE BUTTON -->
-        <button id="menuBtn" class="md:hidden text-3xl">
+        <button id="menuBtn" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden text-3xl">
             ☰
         </button>
     </div>
@@ -71,8 +72,8 @@ body { font-family: 'Inter', sans-serif; }
     <!-- MOBILE MENU -->
     <div id="mobileMenu" class="hidden md:hidden px-6 pt-4 pb-4 space-y-4 bg-white border-t">
 
-        <a href="./index.html" class="block hover:text-indigo-600">
-            Features
+        <a href="/" class="block hover:text-indigo-600">
+            Home
         </a>
 
         <a href="./pricing.html#pricing" class="block hover:text-indigo-600">
@@ -81,7 +82,8 @@ body { font-family: 'Inter', sans-serif; }
 
         <a href="https://diagnostic.classlift.ca" target="_blank" rel="noopener noreferrer" class="block hover:text-indigo-600">Free Diagnostic</a>
 
-        <a href="./contact.html" class="block hover:text-indigo-600">Contact</a>
+                <a href="./blog.html" class="block hover:text-indigo-600">Articles</a>
+                <a href="./contact.html" class="block hover:text-indigo-600">Contact</a>
 
         <a href="./pricing.html" class="block bg-indigo-600 text-white px-4 py-2 rounded-xl text-center">
             Book Demo
@@ -96,12 +98,13 @@ const mobileMenu = document.getElementById('mobileMenu');
 
 menuBtn.addEventListener('click', () => {
     mobileMenu.classList.toggle('hidden');
+    menuBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
 });
 </script>
 
 <!-- HERO -->
 <section class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-500 opacity-90"></div>
+<div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-500 opacity-90"></div>
 
     <div class="relative max-w-5xl mx-auto text-center py-24 px-6 text-white">
 
@@ -109,7 +112,7 @@ menuBtn.addEventListener('click', () => {
             Contact ClassLift
         </h1>
 
-        <p class="mt-6 text-lg text-white/90 max-w-3xl mx-auto">
+        <p class="mt-8 text-lg text-white/90 max-w-3xl mx-auto">
             We'd love to hear from you. Whether you're interested in a demo,
             have questions about pricing, or need technical support, we're here
             to help.
