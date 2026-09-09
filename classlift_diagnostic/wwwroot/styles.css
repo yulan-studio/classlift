@@ -19,6 +19,11 @@
 .generating-card label .textarea{display:block!important;min-width:100%;width:100%;margin-top:8px;clear:both}
 .generating-card label>textarea{display:block!important;box-sizing:border-box;float:none!important;position:relative!important}
 .generating-card:has(form .check-ring)> .eyebrow,.generating-card:has(form .check-ring)> h2,.generating-card:has(form .check-ring)> p{display:none}
+body:has(#demoForm) .privacy-note{display:none}
+.generating-card:has(form .check-ring) form{display:grid;grid-template-columns:48px 1fr;column-gap:16px;align-items:center}
+.generating-card:has(form .check-ring) form .check-ring{grid-row:1 / span 2;margin:0}
+.generating-card:has(form .check-ring) form h2{margin:0;font-family:Georgia,"Noto Serif SC",serif;font-size:30px;font-weight:500}
+.generating-card:has(form .check-ring) form p{margin:4px 0 0;color:var(--muted);line-height:1.6}
 .brand-logo,.brand-mark{width:34px;height:34px;display:block;flex:0 0 34px;border-radius:7px;background:#fff url('/images/classlift_logo.png') center/contain no-repeat;object-fit:contain;font-size:0;color:transparent}
 .aside-brand .brand-mark{background:#fff url('/images/classlift_logo.png') center/contain no-repeat;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
 .language-link{display:inline-block;margin-left:12px;padding:5px 8px;border:1px solid var(--line);border-radius:3px;color:var(--ink);font-weight:700;text-decoration:none}
