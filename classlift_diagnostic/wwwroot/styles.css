@@ -18,6 +18,7 @@
 .generating-card textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(81,70,229,.1)}
 .generating-card label .textarea{display:block!important;min-width:100%;width:100%;margin-top:8px;clear:both}
 .generating-card label>textarea{display:block!important;box-sizing:border-box;float:none!important;position:relative!important}
+.generating-card:has(form .check-ring)> .eyebrow,.generating-card:has(form .check-ring)> h2,.generating-card:has(form .check-ring)> p{display:none}
 .brand-logo,.brand-mark{width:34px;height:34px;display:block;flex:0 0 34px;border-radius:7px;background:#fff url('/images/classlift_logo.png') center/contain no-repeat;object-fit:contain;font-size:0;color:transparent}
 .aside-brand .brand-mark{background:#fff url('/images/classlift_logo.png') center/contain no-repeat;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
 .language-link{display:inline-block;margin-left:12px;padding:5px 8px;border:1px solid var(--line);border-radius:3px;color:var(--ink);font-weight:700;text-decoration:none}
