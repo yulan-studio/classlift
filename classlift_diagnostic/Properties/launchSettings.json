@@ -4,7 +4,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ADMIN_USERNAME": "admin@classlift.ca",
+        "ADMIN_PASSWORD": "Classlift123!"
       },
       "applicationUrl": "https://localhost:64919;http://localhost:64920"
     }
