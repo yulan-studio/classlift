@@ -347,6 +347,10 @@ namespace Core.Services
             return await _enrollmentRepository.GetRegisteredUpcomingSessionsByCourseAsync(courseId);
         }
 
+        public async Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
+            GetScheduleNotificationRecipientsAsync(int masterSessionId) =>
+            await _enrollmentRepository.GetScheduleNotificationRecipientsAsync(masterSessionId);
+
         //Get Registered children for a course
         public async Task<IEnumerable<Core.ViewModels.ChildViewModel>> GetRegisterationByCourseAsync(int courseId)
         {

@@ -13,6 +13,8 @@ using System.Numerics;
 using Microsoft.EntityFrameworkCore;
 using Core.Services;
 using X.PagedList;
+using Core.Email.Notifications;
+using Core.Email.Templates;
 
 //using X.PagedList.Mvc.Core;
 
@@ -35,9 +37,11 @@ namespace Web.Controllers.Courses
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
         private readonly CurrentTenant _currentTenant;
+        private readonly IOrganizationEmailNotificationService _emailNotifications;
+        private readonly ILogger<CourseController> _logger;
 
 
-        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
+        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CourseController> logger)
         {
             _courseService = courseService;
             _coachService = coachService;
@@ -46,6 +50,8 @@ namespace Web.Controllers.Courses
             _courseEnrollmentService = courseEnrollmentService;
             _timeZoneService = timeZoneService;
             _currentTenant = currentTenant;
+            _emailNotifications = emailNotifications;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Staff")]
@@ -589,6 +595,7 @@ namespace Web.Controllers.Courses
 
 
         // ✅ Save Session (Add / Edit)
+        [Authorize(Roles = "Staff")]
         [HttpPost("SaveSession")]
         public async Task<IActionResult> SaveSession(int enrollmentId, string location, string? staffNote, string status)
         {
@@ -626,6 +633,7 @@ namespace Web.Controllers.Courses
 
                 if (result)
                 {
+                    await NotifyFamiliesOfStaffScheduleUpdateAsync(session);
                     return Json(new { success = true });
 
                 }
@@ -642,6 +650,70 @@ namespace Web.Controllers.Courses
             }
 
 
+        }
+
+        private async Task NotifyFamiliesOfStaffScheduleUpdateAsync(CourseEnrollment session)
+        {
+            try
+            {
+                if (!session.ScheduledAt.HasValue || !session.ScheduledHours.HasValue)
+                {
+                    TempData["WarningMessage"] =
+                        "The session was saved, but its notification email could not be prepared.";
+                    return;
+                }
+
+                var recipients = await _courseEnrollmentService
+                    .GetScheduleNotificationRecipientsAsync(session.EnrollmentID);
+                var course = await _courseService.GetAsync(session.CourseID);
+                var uniqueRecipients = recipients
+                    .GroupBy(
+                        recipient => recipient.Email?.Trim(),
+                        StringComparer.OrdinalIgnoreCase)
+                    .Select(group => new Core.DTOs.CourseScheduleNotificationRecipient(
+                        string.Join(", ", group
+                            .Select(recipient => recipient.ParticipantName)
+                            .Distinct(StringComparer.OrdinalIgnoreCase)),
+                        group.Key))
+                    .ToList();
+
+                var notificationFailed = false;
+                foreach (var recipient in uniqueRecipients)
+                {
+                    var delivery = await _emailNotifications.SendCourseScheduleUpdatedAsync(
+                        recipient.Email,
+                        new CourseScheduleEmailData(
+                            recipient.ParticipantName,
+                            course.Title,
+                            course.Coach?.Name ?? "Staff",
+                            DateTime.SpecifyKind(session.ScheduledAt.Value, DateTimeKind.Utc),
+                            session.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId,
+                            "/Child/MySchedules",
+                            session.ScheduledHours,
+                            session.Location));
+
+                    notificationFailed |= !delivery.IsSuccessful;
+                }
+
+                if (notificationFailed)
+                {
+                    TempData["WarningMessage"] =
+                        "The session was saved, but one or more notification emails could not be sent.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Session updated successfully.";
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Staff schedule update succeeded, but family notifications could not be processed. SessionId={SessionId}",
+                    session.EnrollmentID);
+                TempData["WarningMessage"] =
+                    "The session was saved, but notification emails could not be sent.";
+            }
         }
 
         // ✅ Load Partial View for Add/Edit Form

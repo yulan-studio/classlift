@@ -60,6 +60,9 @@ namespace Core.Interfaces
 
         Task<List<int?>> GetRegisteredUpcomingSessionsByCourseAsync(int courseId);
 
+        Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
+            GetScheduleNotificationRecipientsAsync(int masterSessionId);
+
         //Task<IEnumerable<Child>> GetRegisteredChildrenByCoachAsync(int coachId);
 
         //Task<IEnumerable<Core.ViewModels.RegisteredChild>> GetRegisterationByCoachAsync(int coachId);

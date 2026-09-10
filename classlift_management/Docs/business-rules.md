@@ -38,6 +38,9 @@ This file is the concise, canonical record of business rules confirmed by the pr
 1. When a private course is confirmed, ClassLift sends separate notifications to:
    - the organization's configured notification recipient email address; and
    - the coach assigned to that private course.
+2. After Staff successfully updates a Group course session, ClassLift sends one notification to each affected family's shared participant-portal email address, deduplicated by email address.
+   - The database update completes before notification delivery is attempted.
+   - A missing recipient or email-delivery failure does not roll back the session update; Staff sees a warning instead.
 
 ## Open questions
 
