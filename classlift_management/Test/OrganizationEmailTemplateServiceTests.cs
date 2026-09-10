@@ -132,12 +132,26 @@ public class OrganizationEmailTemplateServiceTests
     [TestCase("https://attacker.example/path")]
     [TestCase("//attacker.example/path")]
     [TestCase("relative/path")]
+    [TestCase("/\\attacker.example/path")]
+    [TestCase("/Child/MySchedules\nInjected")]
     public void RejectsExternalOrRelativeActionPath(string actionPath)
     {
         var data = ScheduleData() with { ActionPath = actionPath };
 
         Assert.Throws<ArgumentException>(() =>
             _service.CourseScheduleCreated(Context(), "recipient@example.com", data));
+    }
+
+    [Test]
+    public void AcceptsRootedLocalActionPathWithoutPlatformDependentUriClassification()
+    {
+        var data = ScheduleData() with { ActionPath = "/Child/MySchedules" };
+
+        var email = _service.CourseScheduleUpdated(Context(), "recipient@example.com", data);
+
+        Assert.That(
+            email.Message.TextBody,
+            Does.Contain("https://northstar.example/Child/MySchedules"));
     }
 
     [Test]

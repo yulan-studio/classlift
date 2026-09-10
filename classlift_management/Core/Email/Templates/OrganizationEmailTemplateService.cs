@@ -318,7 +318,8 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         ValidateRequired(actionPath, nameof(actionPath));
         if (!actionPath.StartsWith('/')
             || actionPath.StartsWith("//", StringComparison.Ordinal)
-            || Uri.TryCreate(actionPath, UriKind.Absolute, out _))
+            || actionPath.Contains('\\')
+            || actionPath.Any(char.IsControl))
         {
             throw new ArgumentException("The portal action path must be a local absolute path.", nameof(actionPath));
         }
