@@ -35,7 +35,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Private-course scheduling
 
 1. On Coach Manage Schedules, a Private course session whose status is RequestToReschedule does not show the Edit action. The Coach may still use Remove, subject to the existing removal rules.
-2. A Coach Note containing non-whitespace text is required before a Coach can update or remove a Private course session. This rule is enforced by both the Manage Schedules page and the server.
+2. A Provider Note containing non-whitespace text is required before a Coach can update or remove a Private course session. The displayed Provider term comes from the organization's terminology settings, and the rule is enforced by both the Manage Schedules page and the server.
+3. Coach Manage Schedules displays both Provider Note and Participant Note labels using the organization's configured terminology rather than fixed Coach or Child wording.
 
 ## Accounts and user manual
 

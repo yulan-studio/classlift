@@ -144,7 +144,7 @@
             <th>Location</th>
             <th>Status</th>
             <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
-                            <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
+            <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -178,7 +178,7 @@
 
                     <td data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FFDBF6" : "transparent")">@s.Status</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">@s.ParentNote</td>
-                    <td data-label="Coach Note"><textarea id="coachNote-@s.EnrollmentID" class="form-control" required>@s.CoachNote</textarea></td>
+                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")"><textarea id="coachNote-@s.EnrollmentID" class="form-control" data-note-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")" required>@s.CoachNote</textarea></td>
 
                     <td data-label="Actions">
                         @if (s.Status != "Deleted" &&
@@ -322,7 +322,7 @@
         const noteInput = document.getElementById(`coachNote-${id}`);
         const note = noteInput.value.trim();
         if (!note) {
-            alert("Coach Note is required before removing a session.");
+            alert(`${noteInput.dataset.noteLabel} is required before removing a session.`);
             noteInput.focus();
             return false;
         }
@@ -395,7 +395,7 @@
        const noteInput = document.getElementById(`coachNote-${id}`);
        const coachNote = noteInput.value.trim();
        if (!coachNote) {
-           alert("Coach Note is required before updating a session.");
+           alert(`${noteInput.dataset.noteLabel} is required before updating a session.`);
            noteInput.focus();
            return;
        }

@@ -917,7 +917,7 @@ namespace Web.Controllers.User
         {
             if (string.IsNullOrWhiteSpace(coachNote))
             {
-                TempData["ErrorMessage"] = "Coach Note is required before removing a session.";
+                TempData["ErrorMessage"] = $"{ProviderName} Note is required before removing a session.";
                 return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
             }
 
@@ -1248,7 +1248,7 @@ namespace Web.Controllers.User
         public async Task<IActionResult> UpdateSchedule([FromBody] UpdateCoachScheduleViewModel vm)
         {
             if (string.IsNullOrWhiteSpace(vm.CoachNote))
-                return BadRequest(new { error = "Coach Note is required before updating a session." });
+                return BadRequest(new { error = $"{ProviderName} Note is required before updating a session." });
 
             vm.CoachNote = vm.CoachNote.Trim();
 
