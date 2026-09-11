@@ -11,6 +11,19 @@ public sealed record CourseScheduleEmailData(
     string? Location = null,
     string? Status = null);
 
+public sealed record CourseScheduleSummaryItem(
+    DateTime ScheduledAtUtc,
+    string TimeZoneId,
+    decimal ScheduledHours,
+    string? Location = null);
+
+public sealed record CourseScheduleSummaryEmailData(
+    string ParticipantName,
+    string CourseName,
+    string ProviderName,
+    IReadOnlyList<CourseScheduleSummaryItem> Sessions,
+    string ActionPath);
+
 public sealed record CourseSessionCompletedEmailData(
     string ParticipantName,
     string CourseName,

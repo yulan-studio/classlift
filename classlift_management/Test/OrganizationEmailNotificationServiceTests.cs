@@ -152,6 +152,38 @@ public class OrganizationEmailNotificationServiceTests
         });
     }
 
+    [Test]
+    public async Task CreatedScheduleSummaryIsDeliveredAsOneEmail()
+    {
+        var email = new FakeEmailService(EmailSendResult.Captured());
+        var service = CreateService(new FakeSettingsService(ValidSettings()), email);
+        var summary = new CourseScheduleSummaryEmailData(
+            "Jamie",
+            "Piano",
+            "Taylor",
+            [
+                new CourseScheduleSummaryItem(
+                    new DateTime(2026, 9, 14, 18, 0, 0, DateTimeKind.Utc),
+                    "America/Toronto",
+                    1m),
+                new CourseScheduleSummaryItem(
+                    new DateTime(2026, 9, 21, 18, 0, 0, DateTimeKind.Utc),
+                    "America/Toronto",
+                    1m)
+            ],
+            "/Child/MySchedules");
+
+        var result = await service.SendCourseSchedulesCreatedAsync("family@example.com", summary);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Status, Is.EqualTo(OrganizationNotificationStatus.Captured));
+            Assert.That(email.Messages, Has.Count.EqualTo(1));
+            Assert.That(email.Messages[0].HtmlBody, Does.Contain("Session 1"));
+            Assert.That(email.Messages[0].HtmlBody, Does.Contain("Session 2"));
+        });
+    }
+
     private static OrganizationEmailNotificationService CreateService(
         IOrganizationEmailSettingsService settingsService,
         IEmailService emailService) =>

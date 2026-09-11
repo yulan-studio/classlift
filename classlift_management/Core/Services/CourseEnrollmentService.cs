@@ -474,7 +474,7 @@ namespace Core.Services
 
 
         //Add new session to Group Course
-        public async Task<bool> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
+        public async Task<int> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
         {
           
             Course course = await _courseRepository.GetAsync(courseId);
@@ -497,7 +497,7 @@ namespace Core.Services
             try
             {
                 if (!await _enrollmentRepository.AddAsync(newSession))
-                    return false;
+                    return 0;
 
                 var registeredStudents = await _enrollmentRepository
                     .GetEnrollmentsByCourseAsync(courseId, "Registered");
@@ -533,7 +533,7 @@ namespace Core.Services
                             $"The new session could not be added for {registration.Child.Name}.");
                 }
 
-                return true;
+                return newSession.EnrollmentID;
             }
 
             catch (Exception ex)

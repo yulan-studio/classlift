@@ -26,6 +26,54 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             "A new course session has been scheduled.",
             "A new course session has been scheduled");
 
+    public TemplatedEmail CourseSchedulesCreated(
+        OrganizationEmailTemplateContext context,
+        string recipientEmail,
+        CourseScheduleSummaryEmailData data)
+    {
+        ValidateContext(context);
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
+        ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
+        ValidateRequired(data.CourseName, nameof(data.CourseName));
+        ValidateRequired(data.ProviderName, nameof(data.ProviderName));
+        if (data.Sessions is null || data.Sessions.Count == 0)
+            throw new ArgumentException("At least one scheduled session is required.", nameof(data.Sessions));
+
+        var details = new List<(string Label, string Value)>
+        {
+            ("Course", data.CourseName),
+            (context.Terminology.ParticipantSingular, data.ParticipantName),
+            (context.Terminology.ProviderSingular, data.ProviderName)
+        };
+
+        for (var index = 0; index < data.Sessions.Count; index++)
+        {
+            var session = data.Sessions[index];
+            if (session.ScheduledHours <= 0)
+                throw new ArgumentOutOfRangeException(nameof(data.Sessions), "Scheduled hours must be greater than zero.");
+
+            var value = $"{FormatSchedule(session.ScheduledAtUtc, session.TimeZoneId)}; " +
+                        $"{session.ScheduledHours.ToString("0.##", CultureInfo.InvariantCulture)} hours";
+            if (!string.IsNullOrWhiteSpace(session.Location))
+                value += $"; Location: {session.Location.Trim()}";
+
+            details.Add(($"Session {index + 1}", value));
+        }
+
+        var sessionWord = data.Sessions.Count == 1 ? "session" : "sessions";
+        var verb = data.Sessions.Count == 1 ? "has" : "have";
+        return Build(
+            EmailNotificationType.CourseScheduleCreated,
+            context,
+            recipientEmail,
+            $"{SubjectValue(data.CourseName)}: {data.Sessions.Count} new course {sessionWord} scheduled",
+            data.Sessions.Count == 1 ? "New course session scheduled" : "New course sessions scheduled",
+            $"{data.Sessions.Count} new course {sessionWord} {verb} been scheduled.",
+            $"{data.Sessions.Count} new course {sessionWord} {verb} been scheduled",
+            details,
+            data.ActionPath);
+    }
+
     public TemplatedEmail CourseScheduleUpdated(
         OrganizationEmailTemplateContext context,
         string recipientEmail,

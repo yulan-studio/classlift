@@ -38,6 +38,17 @@ public sealed class OrganizationEmailNotificationService : IOrganizationEmailNot
             (context, recipient) => _templateService.CourseScheduleCreated(context, recipient, data),
             cancellationToken);
 
+    public Task<OrganizationNotificationResult> SendCourseSchedulesCreatedAsync(
+        string? familyEmail,
+        CourseScheduleSummaryEmailData data,
+        CancellationToken cancellationToken = default) =>
+        SendDirectAsync(
+            EmailNotificationType.CourseScheduleCreated,
+            NotificationRecipientKind.Family,
+            familyEmail,
+            (context, recipient) => _templateService.CourseSchedulesCreated(context, recipient, data),
+            cancellationToken);
+
     public Task<OrganizationNotificationResult> SendCourseScheduleUpdatedAsync(
         string? familyEmail,
         CourseScheduleEmailData data,

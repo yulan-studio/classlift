@@ -550,12 +550,31 @@ namespace Web.Controllers.Courses
                     localTime = repeatType == "Daily" ? localTime.AddDays(1) : localTime.AddDays(7);
                 }
 
-                var result = true;
+                var createdMasterSessionIds = new List<int>();
                 foreach (var timing in timings)
-                    result &= await _courseEnrollmentService.AddSessionToGroupCourseAsync(courseId, timing, scheduledHours, location, staffNote, user!);
-                if (result)
+                {
+                    var masterSessionId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
+                        courseId,
+                        timing,
+                        scheduledHours,
+                        location,
+                        staffNote,
+                        user!);
+                    if (masterSessionId <= 0)
+                        throw new InvalidOperationException("A course session could not be created.");
+
+                    createdMasterSessionIds.Add(masterSessionId);
+                }
+
+                if (createdMasterSessionIds.Count == timings.Count)
                 {
                     TempData["SuccessMessage"] = "Session(s) added successfully.";
+                    await NotifyFamiliesOfStaffScheduleCreationAsync(
+                        course,
+                        createdMasterSessionIds,
+                        timings,
+                        scheduledHours,
+                        location);
                 }
                 else
                 {
@@ -650,6 +669,69 @@ namespace Web.Controllers.Courses
             }
 
 
+        }
+
+        private async Task NotifyFamiliesOfStaffScheduleCreationAsync(
+            Course course,
+            IReadOnlyList<int> masterSessionIds,
+            IReadOnlyList<ScheduleTiming> timings,
+            decimal scheduledHours,
+            string? location)
+        {
+            try
+            {
+                var recipients = new List<Core.DTOs.CourseScheduleNotificationRecipient>();
+                foreach (var masterSessionId in masterSessionIds)
+                {
+                    recipients.AddRange(await _courseEnrollmentService
+                        .GetScheduleNotificationRecipientsAsync(masterSessionId));
+                }
+                var uniqueFamilies = recipients
+                    .GroupBy(recipient => recipient.Email?.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(group => new Core.DTOs.CourseScheduleNotificationRecipient(
+                        string.Join(", ", group
+                            .Select(recipient => recipient.ParticipantName)
+                            .Distinct(StringComparer.OrdinalIgnoreCase)),
+                        group.Key))
+                    .ToList();
+
+                var sessions = timings
+                    .Select(timing => new CourseScheduleSummaryItem(
+                        timing.ScheduledAtUtc,
+                        timing.TimeZoneId,
+                        scheduledHours,
+                        location))
+                    .ToList();
+                var notificationFailed = false;
+
+                foreach (var family in uniqueFamilies)
+                {
+                    var delivery = await _emailNotifications.SendCourseSchedulesCreatedAsync(
+                        family.Email,
+                        new CourseScheduleSummaryEmailData(
+                            family.ParticipantName,
+                            course.Title,
+                            course.Coach?.Name ?? "Staff",
+                            sessions,
+                            "/Child/MySchedules"));
+                    notificationFailed |= !delivery.IsSuccessful;
+                }
+
+                if (notificationFailed)
+                {
+                    TempData["WarningMessage"] =
+                        "The sessions were created, but one or more notification emails could not be sent.";
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Group sessions were created, but family notifications could not be processed. CourseId={CourseId}",
+                    course.CourseID);
+                TempData["WarningMessage"] =
+                    "The sessions were created, but notification emails could not be sent.";
+            }
         }
 
         private async Task NotifyFamiliesOfStaffScheduleUpdateAsync(CourseEnrollment session)

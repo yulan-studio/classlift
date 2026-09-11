@@ -172,6 +172,51 @@ public class OrganizationEmailTemplateServiceTests
     }
 
     [Test]
+    public void BuildsOneSummaryEmailContainingEveryCreatedSession()
+    {
+        var data = new CourseScheduleSummaryEmailData(
+            "Jamie",
+            "Piano",
+            "Taylor",
+            [
+                new CourseScheduleSummaryItem(
+                    new DateTime(2026, 9, 14, 18, 0, 0, DateTimeKind.Utc),
+                    "America/Toronto",
+                    1m,
+                    "Room A"),
+                new CourseScheduleSummaryItem(
+                    new DateTime(2026, 9, 21, 18, 0, 0, DateTimeKind.Utc),
+                    "America/Toronto",
+                    1m,
+                    "Room A")
+            ],
+            "/Child/MySchedules");
+
+        var email = _service.CourseSchedulesCreated(Context(), "recipient@example.com", data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.NotificationType, Is.EqualTo(EmailNotificationType.CourseScheduleCreated));
+            Assert.That(email.Message.Subject, Does.Contain("2 new course sessions"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Session 1"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Session 2"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Location: Room A"));
+            Assert.That(email.Message.TextBody, Does.Contain("September 14, 2026"));
+            Assert.That(email.Message.TextBody, Does.Contain("September 21, 2026"));
+        });
+    }
+
+    [Test]
+    public void RejectsEmptyCreatedSessionSummary()
+    {
+        var data = new CourseScheduleSummaryEmailData(
+            "Jamie", "Piano", "Taylor", [], "/Child/MySchedules");
+
+        Assert.Throws<ArgumentException>(() =>
+            _service.CourseSchedulesCreated(Context(), "recipient@example.com", data));
+    }
+
+    [Test]
     public void RejectsInvalidRecipientAddress()
     {
         Assert.Throws<ArgumentException>(() =>
