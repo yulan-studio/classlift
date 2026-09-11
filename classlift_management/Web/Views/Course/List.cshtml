@@ -100,19 +100,6 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["MaxCapacitySortParm"]" style="color: black; text-decoration: none;">
-                    Max Capacity
-                    @if ((string)ViewData["CurrentSort"] == "max_capacity")
-                    {
-                        <span>▲</span>
-                    }
-                    else if ((string)ViewData["CurrentSort"] == "max_capacity_desc")
-                    {
-                        <span>▼</span>
-                    }
-                </a>
-            </th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 2%; background-color: lightblue;">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["SessionCountSortParm"]" style="color: black; text-decoration: none;">
                     Session Count
@@ -121,6 +108,19 @@
                         <span>▲</span>
                     }
                     else if ((string)ViewData["CurrentSort"] == "session_count_desc")
+                    {
+                        <span>▼</span>
+                    }
+                </a>
+            </th>
+            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["MaxCapacitySortParm"]" style="color: black; text-decoration: none;">
+                    Max Capacity
+                    @if ((string)ViewData["CurrentSort"] == "max_capacity")
+                    {
+                        <span>▲</span>
+                    }
+                    else if ((string)ViewData["CurrentSort"] == "max_capacity_desc")
                     {
                         <span>▼</span>
                     }
@@ -183,8 +183,8 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@course.Title</td>
                     @*   <td style="padding: 8px; border: 1px solid #ddd;">@course.Description</td>*@
                     <th style="padding: 8px; border: 1px solid #ddd;">@course.CourseType</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">@course.MaxCapacity</th>
                     <th style="padding: 8px; border: 1px solid #ddd;">@course.SessionCount</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">@course.MaxCapacity</th>
                     @*  <td style="padding: 8px; border: 1px solid #ddd;">@course.HourlyCost</td>*@
         
                     <td style="padding: 8px; border: 1px solid #ddd;">
