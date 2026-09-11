@@ -413,7 +413,10 @@ namespace Core.Repositories
         public async Task<IEnumerable<CourseEnrollment>> GetSessionsByCourseAsync(int courseId, string status)
         {
             return await _context.CourseEnrollments
-                .Where(e => e.CourseID == courseId && e.Status == status && e.Child==null)
+                .Where(e => e.CourseID == courseId
+                    && e.Status == status
+                    && e.ChildID == null
+                    && e.EnrollmentID_Ref == null)
                 .OrderBy(e => e.ScheduledAt) // Sort by ScheduledAt ascending
                 .ToListAsync();
         }

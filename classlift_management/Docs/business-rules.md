@@ -20,6 +20,11 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - preserve Completed and Deleted session history; and
    - recalculate course availability when Max Capacity is configured.
 3. When Staff changes the location of a Group master session, ClassLift copies the new location to every child session linked to that master session.
+4. Before Staff can register a participant in a Group course, the number of Group master sessions whose status is Open or Completed must equal the course's Session Count exactly.
+   - If the total is lower, registration is blocked and Staff is instructed to finish setting up the course sessions.
+   - If the total is higher, registration is blocked because the course session data is inconsistent.
+   - Canceled, Deleted, and child-session copies are not included in this count.
+   - No registration, fee, balance, or child-session data is created when this validation fails.
 
 ## Course completion and reporting
 
