@@ -83,7 +83,10 @@ namespace Core.Repositories
                 .ToListAsync();
 
             foreach (var childSession in childSessions)
+            {
                 childSession.StaffNote = session.StaffNote;
+                childSession.Location = session.Location;
+            }
 
             await _context.SaveChangesAsync();
             return true;

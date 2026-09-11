@@ -8,6 +8,41 @@ namespace Test;
 public class CourseScheduleNotificationRecipientTests
 {
     [Test]
+    public async Task UpdatingMasterSessionCopiesLocationToItsChildSessions()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase($"master-session-location-{Guid.NewGuid()}")
+            .Options;
+
+        await using var context = new AppDbContext(options);
+        var master = MasterSession(50, "Old room");
+        var linkedChildSession = ChildSessionWithoutChild(101, 50, "Scheduled", "Old room");
+        var unrelatedChildSession = ChildSessionWithoutChild(102, 99, "Scheduled", "Other room");
+        context.CourseEnrollments.AddRange(master, linkedChildSession, unrelatedChildSession);
+        await context.SaveChangesAsync();
+
+        var repository = new CourseEnrollmentRepository(context);
+        var updated = await repository.UpdateSessionAndChildStaffNotesAsync(new CourseEnrollment
+        {
+            EnrollmentID = master.EnrollmentID,
+            CourseID = master.CourseID,
+            Course = null!,
+            Status = master.Status,
+            StaffNote = "Updated note",
+            Location = "New room"
+        });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated, Is.True);
+            Assert.That(master.Location, Is.EqualTo("New room"));
+            Assert.That(linkedChildSession.Location, Is.EqualTo("New room"));
+            Assert.That(linkedChildSession.StaffNote, Is.EqualTo("Updated note"));
+            Assert.That(unrelatedChildSession.Location, Is.EqualTo("Other room"));
+        });
+    }
+
+    [Test]
     public async Task ReturnsOnlyNonDeletedFamiliesLinkedToTheEditedMasterSession()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -78,5 +113,30 @@ public class CourseScheduleNotificationRecipientTests
             CourseID = 1,
             Course = null!,
             Status = status
+        };
+
+    private static CourseEnrollment MasterSession(int enrollmentId, string location) => new()
+    {
+        EnrollmentID = enrollmentId,
+        CourseID = 1,
+        Course = null!,
+        Status = "Open",
+        Location = location
+    };
+
+    private static CourseEnrollment ChildSessionWithoutChild(
+        int enrollmentId,
+        int masterSessionId,
+        string status,
+        string location) => new()
+        {
+            EnrollmentID = enrollmentId,
+            EnrollmentID_Ref = masterSessionId,
+            ChildID = enrollmentId,
+            Child = null!,
+            CourseID = 1,
+            Course = null!,
+            Status = status,
+            Location = location
         };
 }

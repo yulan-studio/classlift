@@ -19,6 +19,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - cancel all of its non-terminal child-session registrations;
    - preserve Completed and Deleted session history; and
    - recalculate course availability when Max Capacity is configured.
+3. When Staff changes the location of a Group master session, ClassLift copies the new location to every child session linked to that master session.
 
 ## Course completion and reporting
 
