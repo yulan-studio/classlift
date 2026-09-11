@@ -28,6 +28,8 @@ window.addEventListener('DOMContentLoaded', function () {
     const maxCapacity = document.getElementById("MaxCapacity");
     const hourlyCost = document.getElementById("HourlyCost");
     const sessionCost = document.getElementById("SessionCost");
+    const privateSessionCountInstruction = document.getElementById("privateSessionCountInstruction");
+    const groupSessionCountInstruction = document.getElementById("groupSessionCountInstruction");
 
     if (!courseType || !sessionCount || !maxCapacity || !sessionCost) {
         return;
@@ -48,6 +50,11 @@ window.addEventListener('DOMContentLoaded', function () {
 
         maxCapacity.disabled = isPrivate;
         sessionCount.required = isGroup;
+        if (privateSessionCountInstruction && groupSessionCountInstruction) {
+            privateSessionCountInstruction.style.display = isGroup ? "none" : "inline";
+            groupSessionCountInstruction.style.display = isGroup ? "inline" : "none";
+        }
+
         if (hourlyCost) {
             if (hasSessionCount) {
                 hourlyCost.value = "";
