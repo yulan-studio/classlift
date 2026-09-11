@@ -57,6 +57,12 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - All sessions created by the same recurring-session request are summarized in that single family email.
    - Notification delivery begins only after every requested session creation has reported success.
    - Missing recipients or email-delivery failures do not roll back created sessions; Staff sees a warning instead.
+5. After a Coach successfully creates one or more Private course sessions, ClassLift sends one email to the family's shared participant-portal address.
+   - Sessions created by the same recurring-session request are summarized in one email.
+6. After a Coach successfully updates, deletes, or completes a Private course session, ClassLift sends a corresponding notification to the family's shared participant-portal address.
+   - The business operation completes before notification delivery is attempted.
+   - Missing recipients or email-delivery failures do not roll back the session action; the Coach sees a warning instead.
+   - A completion email includes the actual hours, and all session-action emails link to the participant Schedules page.
 
 ## Open questions
 

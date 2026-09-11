@@ -307,6 +307,13 @@
     </div>
 }
 
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["WarningMessage"]
+    </div>
+}
+
 <script>
 
     function attachCoachNote(id) {
