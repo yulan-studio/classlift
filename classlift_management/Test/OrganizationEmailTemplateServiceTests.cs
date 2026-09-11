@@ -13,6 +13,7 @@ public class OrganizationEmailTemplateServiceTests
     [TestCase(EmailNotificationType.CourseScheduleDeleted)]
     [TestCase(EmailNotificationType.CourseSessionCompleted)]
     [TestCase(EmailNotificationType.ScheduleChangeRequested)]
+    [TestCase(EmailNotificationType.CourseConfirmationRequested)]
     [TestCase(EmailNotificationType.CourseConfirmed)]
     [TestCase(EmailNotificationType.ActivityConfirmed)]
     public void BuildsEverySupportedTemplate(EmailNotificationType notificationType)
@@ -172,6 +173,26 @@ public class OrganizationEmailTemplateServiceTests
     }
 
     [Test]
+    public void RegistrationConfirmationRequestLinksDirectlyToConfirmationsPage()
+    {
+        var email = _service.CourseConfirmationRequested(
+            Context(),
+            "family@example.com",
+            new CourseConfirmationRequestedEmailData(
+                "Jamie", "Piano", "Group", "/Child/MyConfirmations", "Taylor"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.Message.Subject, Does.Contain("confirmation required"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Review and confirm course"));
+            Assert.That(email.Message.HtmlBody,
+                Does.Contain("https://northstar.example/Child/MyConfirmations"));
+            Assert.That(email.Message.TextBody,
+                Does.Contain("https://northstar.example/Child/MyConfirmations"));
+        });
+    }
+
+    [Test]
     public void BuildsOneSummaryEmailContainingEveryCreatedSession()
     {
         var data = new CourseScheduleSummaryEmailData(
@@ -253,6 +274,16 @@ public class OrganizationEmailTemplateServiceTests
                     "Alex's family",
                     "/Staff/ScheduleRequests",
                     "Please move this session.")),
+        EmailNotificationType.CourseConfirmationRequested =>
+            _service.CourseConfirmationRequested(
+                Context(),
+                "recipient@example.com",
+                new CourseConfirmationRequestedEmailData(
+                    "Alex",
+                    "Robotics",
+                    "Group",
+                    "/Child/MyConfirmations",
+                    "Morgan")),
         EmailNotificationType.CourseConfirmed =>
             _service.CourseConfirmed(
                 Context(),
@@ -279,6 +310,7 @@ public class OrganizationEmailTemplateServiceTests
     private static string GetActionPath(EmailNotificationType notificationType) => notificationType switch
     {
         EmailNotificationType.ScheduleChangeRequested => "/Staff/ScheduleRequests",
+        EmailNotificationType.CourseConfirmationRequested => "/Child/MyConfirmations",
         EmailNotificationType.CourseConfirmed => "/Course/Manage",
         EmailNotificationType.ActivityConfirmed => "/Activity/Manage",
         _ => "/Child/MySchedules"

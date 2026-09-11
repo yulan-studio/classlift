@@ -113,6 +113,17 @@ public sealed class OrganizationEmailNotificationService : IOrganizationEmailNot
             cancellationToken);
     }
 
+    public Task<OrganizationNotificationResult> SendCourseConfirmationRequestedAsync(
+        string? familyEmail,
+        CourseConfirmationRequestedEmailData data,
+        CancellationToken cancellationToken = default) =>
+        SendDirectAsync(
+            EmailNotificationType.CourseConfirmationRequested,
+            NotificationRecipientKind.Family,
+            familyEmail,
+            (context, recipient) => _templateService.CourseConfirmationRequested(context, recipient, data),
+            cancellationToken);
+
     public async Task<OrganizationNotificationBatchResult> SendPrivateCourseConfirmedAsync(
         string? coachEmail,
         CourseConfirmedEmailData data,

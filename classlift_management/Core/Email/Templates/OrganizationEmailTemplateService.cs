@@ -210,6 +210,39 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             data.ActionPath);
     }
 
+    public TemplatedEmail CourseConfirmationRequested(
+        OrganizationEmailTemplateContext context,
+        string recipientEmail,
+        CourseConfirmationRequestedEmailData data)
+    {
+        ValidateContext(context);
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
+        ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
+        ValidateRequired(data.CourseName, nameof(data.CourseName));
+        ValidateRequired(data.CourseType, nameof(data.CourseType));
+
+        var details = new List<(string Label, string Value)>
+        {
+            ("Course", data.CourseName),
+            ("Course type", data.CourseType),
+            (context.Terminology.ParticipantSingular, data.ParticipantName)
+        };
+        if (!string.IsNullOrWhiteSpace(data.ProviderName))
+            details.Add((context.Terminology.ProviderSingular, data.ProviderName.Trim()));
+
+        return Build(
+            EmailNotificationType.CourseConfirmationRequested,
+            context,
+            recipientEmail,
+            $"{SubjectValue(data.CourseName)}: confirmation required",
+            "Course confirmation required",
+            "A course registration has been created. Please review and confirm it.",
+            "A course registration has been created. Please review and confirm it",
+            details,
+            data.ActionPath,
+            "Review and confirm course");
+    }
+
     public TemplatedEmail ActivityConfirmed(
         OrganizationEmailTemplateContext context,
         string recipientEmail,
@@ -293,7 +326,8 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         string htmlIntroduction,
         string textIntroduction,
         IEnumerable<(string Label, string Value)> details,
-        string portalPath)
+        string portalPath,
+        string actionLabel = "Open your ClassLift portal")
     {
         if (!EmailAddressValidation.IsValid(recipientEmail))
             throw new ArgumentException("The recipient email address is invalid.", nameof(recipientEmail));
@@ -318,7 +352,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
         html.Append("</ul><p><a href=\"")
             .Append(EmailHtml.Encode(portalUri.AbsoluteUri))
-            .Append("\">Open your ClassLift portal</a></p><p>Thank you,<br>")
+            .Append("\">").Append(EmailHtml.Encode(actionLabel)).Append("</a></p><p>Thank you,<br>")
             .Append(EmailHtml.Encode(context.OrganizationName))
             .Append(" Support Team</p>");
 
@@ -331,7 +365,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             text.Append(label).Append(": ").AppendLine(value);
 
         text.AppendLine()
-            .Append("Open your ClassLift portal: ").AppendLine(portalUri.AbsoluteUri)
+            .Append(actionLabel).Append(": ").AppendLine(portalUri.AbsoluteUri)
             .AppendLine()
             .Append("Thank you,").AppendLine()
             .Append(context.OrganizationName).Append(" Support Team");

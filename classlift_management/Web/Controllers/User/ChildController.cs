@@ -1,6 +1,8 @@
 ﻿
 using Core;
 using Core.Contexts;
+using Core.Email.Notifications;
+using Core.Email.Templates;
 using Core.FormModels;
 using Core.Interfaces;
 using Core.Models;
@@ -56,10 +58,12 @@ namespace Web.Controllers.User
         private readonly Core.R2.R2StorageService _r2UploadService;
         private readonly ITimeZoneService _timeZoneService;
         private readonly CurrentTenant _currentTenant;
+        private readonly IOrganizationEmailNotificationService _emailNotifications;
+        private readonly ILogger<ChildController> _logger;
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<ChildController> logger/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -80,6 +84,8 @@ namespace Web.Controllers.User
             _currentTenant = currentTenant;
             _calendarService = calendarService;
             _timeZoneService = timeZoneService;
+            _emailNotifications = emailNotifications;
+            _logger = logger;
 
             //_context = context;   // For transaction
         }
@@ -964,6 +970,7 @@ namespace Web.Controllers.User
                 //await transaction.CommitAsync();
 
                 TempData["SuccessMessage1"] = "Child enrolled successfully!";
+                await NotifyFamilyOfCourseRegistrationAsync(childId, course);
             }
             catch (Exception ex)
             {
@@ -976,6 +983,38 @@ namespace Web.Controllers.User
             return RedirectToAction("Participation", new { childId, tab = "ManageRegistrations" });
 
 
+        }
+
+        private async Task NotifyFamilyOfCourseRegistrationAsync(int childId, Course course)
+        {
+            try
+            {
+                var child = await _childService.GetAsync(childId);
+                var delivery = await _emailNotifications.SendCourseConfirmationRequestedAsync(
+                    child.User?.Email,
+                    new CourseConfirmationRequestedEmailData(
+                        child.Name,
+                        course.Title,
+                        course.CourseType,
+                        "/Child/MyConfirmations",
+                        course.Coach?.Name));
+
+                if (!delivery.IsSuccessful)
+                {
+                    TempData["WarningMessage"] =
+                        "The participant was registered, but the confirmation email could not be sent.";
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Course registration succeeded, but its family confirmation email could not be processed. ChildId={ChildId}, CourseId={CourseId}",
+                    childId,
+                    course.CourseID);
+                TempData["WarningMessage"] =
+                    "The participant was registered, but the confirmation email could not be sent.";
+            }
         }
 
         [Authorize(Roles = "Staff")]

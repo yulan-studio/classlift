@@ -184,6 +184,28 @@ public class OrganizationEmailNotificationServiceTests
         });
     }
 
+    [Test]
+    public async Task RegistrationConfirmationRequestIsSentToFamily()
+    {
+        var email = new FakeEmailService(EmailSendResult.Captured());
+        var service = CreateService(new FakeSettingsService(ValidSettings()), email);
+
+        var result = await service.SendCourseConfirmationRequestedAsync(
+            "family@example.com",
+            new CourseConfirmationRequestedEmailData(
+                "Jamie", "Piano", "Group", "/Child/MyConfirmations", "Taylor"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.NotificationType, Is.EqualTo(EmailNotificationType.CourseConfirmationRequested));
+            Assert.That(result.RecipientKind, Is.EqualTo(NotificationRecipientKind.Family));
+            Assert.That(result.Status, Is.EqualTo(OrganizationNotificationStatus.Captured));
+            Assert.That(email.Messages, Has.Count.EqualTo(1));
+            Assert.That(email.Messages[0].To, Is.EqualTo("family@example.com"));
+            Assert.That(email.Messages[0].HtmlBody, Does.Contain("/Child/MyConfirmations"));
+        });
+    }
+
     private static OrganizationEmailNotificationService CreateService(
         IOrganizationEmailSettingsService settingsService,
         IEmailService emailService) =>

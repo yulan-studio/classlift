@@ -40,6 +40,13 @@ public sealed record ScheduleChangeRequestedEmailData(
     string ActionPath,
     string? RequestNote = null);
 
+public sealed record CourseConfirmationRequestedEmailData(
+    string ParticipantName,
+    string CourseName,
+    string CourseType,
+    string ActionPath,
+    string? ProviderName = null);
+
 public sealed record CourseConfirmedEmailData(
     string ParticipantName,
     string CourseName,

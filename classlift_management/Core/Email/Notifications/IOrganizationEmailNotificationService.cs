@@ -38,6 +38,11 @@ public interface IOrganizationEmailNotificationService
         ScheduleChangeRequestedEmailData data,
         CancellationToken cancellationToken = default);
 
+    Task<OrganizationNotificationResult> SendCourseConfirmationRequestedAsync(
+        string? familyEmail,
+        CourseConfirmationRequestedEmailData data,
+        CancellationToken cancellationToken = default);
+
     Task<OrganizationNotificationBatchResult> SendPrivateCourseConfirmedAsync(
         string? coachEmail,
         CourseConfirmedEmailData data,

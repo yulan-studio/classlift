@@ -32,6 +32,11 @@ public interface IOrganizationEmailTemplateService
         string recipientEmail,
         ScheduleChangeRequestedEmailData data);
 
+    TemplatedEmail CourseConfirmationRequested(
+        OrganizationEmailTemplateContext context,
+        string recipientEmail,
+        CourseConfirmationRequestedEmailData data);
+
     TemplatedEmail CourseConfirmed(
         OrganizationEmailTemplateContext context,
         string recipientEmail,

@@ -42,14 +42,18 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Email notifications
 
-1. When a private course is confirmed, ClassLift sends separate notifications to:
+1. After Staff successfully registers a participant in a course, ClassLift emails the family's shared participant-portal address and asks the family to confirm the registration.
+   - The email links directly to the participant Confirmations page.
+   - Registration, fee, and Group child-session records must all be created before delivery is attempted.
+   - Missing recipients or email-delivery failures do not roll back the registration; Staff sees a warning instead.
+2. When a private course is confirmed, ClassLift sends separate notifications to:
    - the organization's configured notification recipient email address; and
    - the coach assigned to that private course.
-2. After Staff successfully updates a Group course session, ClassLift sends one notification to each affected family's shared participant-portal email address, deduplicated by email address.
+3. After Staff successfully updates a Group course session, ClassLift sends one notification to each affected family's shared participant-portal email address, deduplicated by email address.
    - The database update completes before notification delivery is attempted.
    - A missing recipient or email-delivery failure does not roll back the session update; Staff sees a warning instead.
    - When Staff changes the session status to Canceled, the email subject and content must clearly identify the session as canceled.
-3. After Staff successfully creates one or more Group course sessions, ClassLift sends one notification email per affected shared family email address.
+4. After Staff successfully creates one or more Group course sessions, ClassLift sends one notification email per affected shared family email address.
    - All sessions created by the same recurring-session request are summarized in that single family email.
    - Notification delivery begins only after every requested session creation has reported success.
    - Missing recipients or email-delivery failures do not roll back created sessions; Staff sees a warning instead.
