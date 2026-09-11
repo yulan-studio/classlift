@@ -52,7 +52,8 @@ public sealed record CourseConfirmedEmailData(
     string CourseName,
     string CourseType,
     string ActionPath,
-    string? ProviderName = null);
+    string? ProviderName = null,
+    string? ProviderActionPath = null);
 
 public sealed record ActivityConfirmedEmailData(
     string ParticipantName,

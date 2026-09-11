@@ -153,7 +153,10 @@ public sealed class OrganizationEmailNotificationService : IOrganizationEmailNot
             EmailNotificationType.CourseConfirmed,
             NotificationRecipientKind.Coach,
             coachEmail,
-            context => _templateService.CourseConfirmed(context, coachEmail!, data),
+            context => _templateService.CourseConfirmed(
+                context,
+                coachEmail!,
+                data with { ActionPath = data.ProviderActionPath ?? data.ActionPath }),
             bundle.Context!,
             cancellationToken);
 

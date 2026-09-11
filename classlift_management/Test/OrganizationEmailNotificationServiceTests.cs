@@ -83,6 +83,10 @@ public class OrganizationEmailNotificationServiceTests
             Assert.That(email.Messages.Select(x => x.To),
                 Is.EquivalentTo(new[] { "office@northstar.example", "coach@example.com" }));
             Assert.That(email.Messages.All(x => x.ReplyTo == "support@northstar.example"), Is.True);
+            Assert.That(email.Messages.Single(x => x.To == "office@northstar.example").HtmlBody,
+                Does.Contain("/courses/1"));
+            Assert.That(email.Messages.Single(x => x.To == "coach@example.com").HtmlBody,
+                Does.Contain("/coach/courses/1"));
         });
     }
 
@@ -243,7 +247,7 @@ public class OrganizationEmailNotificationServiceTests
         "Jamie", "Piano", "Parent", "/requests/1", "Please change the time.");
 
     private static CourseConfirmedEmailData CourseConfirmedData() => new(
-        "Jamie", "Piano", "Private", "/courses/1", "Taylor");
+        "Jamie", "Piano", "Private", "/courses/1", "Taylor", "/coach/courses/1");
 
     private static ActivityConfirmedEmailData ActivityData() => new(
         "Jamie", "Field Trip", "/activities/1");

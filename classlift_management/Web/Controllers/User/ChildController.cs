@@ -1957,6 +1957,7 @@ namespace Web.Controllers.User
                     result3 = await _feeService.UpdateCourseIsPaidAsync(fee.CourseEnrollmentID.Value, user.Id);
                 }
 
+                bool result4 = true;
                 if (result1 == true && result2 == true && result3 == true)
                 {
                     if (model?.Schedules != null && model.Schedules.Any())
@@ -1971,10 +1972,15 @@ namespace Web.Controllers.User
                                     existing.Status = "Scheduled";
                                 }
 
-                                await _courseEnrollmentService.UpdateSessionAsync(existing);
+                                result4 = await _courseEnrollmentService.UpdateSessionAsync(existing) && result4;
                             }
                         }
+                    }
+
+                    if (result4)
+                    {
                         TempData["SuccessMessage2"] = "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
+                        await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
                     }
                 }
             }
@@ -2036,6 +2042,7 @@ namespace Web.Controllers.User
                 {
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     TempData["SuccessMessage2"] = "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>.";
+                    await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
                 }
 
 
@@ -2093,12 +2100,96 @@ namespace Web.Controllers.User
                 {
                    // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     TempData["SuccessMessage3"] = "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
+                    await NotifyActivityConfirmedAsync(child, model.ActivityID);
                 }
 
                     
             }
 
             return RedirectToAction("MyConfirmations");
+        }
+
+        private async Task NotifyGroupCourseConfirmedAsync(Child child, int courseId)
+        {
+            try
+            {
+                var course = await _courseService.GetAsync(courseId);
+                var delivery = await _emailNotifications.SendGroupCourseConfirmedAsync(
+                    new CourseConfirmedEmailData(
+                        child.Name,
+                        course.Title,
+                        course.CourseType,
+                        $"/Child/ManageSessionRegistrations?childId={child.ChildID}&courseId={course.CourseID}",
+                        course.Coach?.Name));
+
+                if (!delivery.IsSuccessful)
+                    TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Group course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
+                    child.ChildID,
+                    courseId);
+                TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+            }
+        }
+
+        private async Task NotifyPrivateCourseConfirmedAsync(Child child, int courseId, int enrollmentId)
+        {
+            try
+            {
+                var course = await _courseService.GetAsync(courseId);
+                var delivery = await _emailNotifications.SendPrivateCourseConfirmedAsync(
+                    course.Coach?.User?.Email,
+                    new CourseConfirmedEmailData(
+                        child.Name,
+                        course.Title,
+                        course.CourseType,
+                        $"/Child/ManageRegistrations/{child.ChildID}",
+                        course.Coach?.Name,
+                        $"/Coach/ManageSchedules/{child.ChildID}?courseId={course.CourseID}&enrollmentId={enrollmentId}"));
+
+                if (!delivery.IsSuccessful)
+                    TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Private course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
+                    child.ChildID,
+                    courseId);
+                TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+            }
+        }
+
+        private async Task NotifyActivityConfirmedAsync(Child child, int activityId)
+        {
+            try
+            {
+                var activity = await _activityService.GetAsync(activityId);
+                var delivery = await _emailNotifications.SendActivityConfirmedAsync(
+                    new ActivityConfirmedEmailData(
+                        child.Name,
+                        activity.Title,
+                        $"/Child/ManageRegistrations/{child.ChildID}",
+                        DateTime.SpecifyKind(activity.ScheduledAt, DateTimeKind.Utc),
+                        activity.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId));
+
+                if (!delivery.IsSuccessful)
+                    TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Activity confirmation notification failed. ChildId={ChildId}, ActivityId={ActivityId}",
+                    child.ChildID,
+                    activityId);
+                TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+            }
         }
 
         [HttpGet("MyCalendar")]

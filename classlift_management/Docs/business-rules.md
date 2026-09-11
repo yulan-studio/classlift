@@ -56,21 +56,29 @@ This file is the concise, canonical record of business rules confirmed by the pr
 2. When a private course is confirmed, ClassLift sends separate notifications to:
    - the organization's configured notification recipient email address; and
    - the coach assigned to that private course.
-3. After Staff successfully updates a Group course session, ClassLift sends one notification to each affected family's shared participant-portal email address, deduplicated by email address.
+   - Each recipient receives a link appropriate to their role.
+   - A missing recipient or delivery failure does not roll back the confirmation; the family sees a warning.
+3. When a Group course is confirmed, ClassLift notifies the organization's configured notification recipient email address.
+   - The confirmation workflow must complete successfully before delivery is attempted.
+   - A missing recipient or delivery failure does not roll back the confirmation; the family sees a warning.
+4. When an activity is confirmed, ClassLift notifies the organization's configured notification recipient email address.
+   - The activity and fee workflow must complete successfully before delivery is attempted.
+   - A missing recipient or delivery failure does not roll back the confirmation; the family sees a warning.
+5. After Staff successfully updates a Group course session, ClassLift sends one notification to each affected family's shared participant-portal email address, deduplicated by email address.
    - The database update completes before notification delivery is attempted.
    - A missing recipient or email-delivery failure does not roll back the session update; Staff sees a warning instead.
    - When Staff changes the session status to Canceled, the email subject and content must clearly identify the session as canceled.
-4. After Staff successfully creates one or more Group course sessions, ClassLift sends one notification email per affected shared family email address.
+6. After Staff successfully creates one or more Group course sessions, ClassLift sends one notification email per affected shared family email address.
    - All sessions created by the same recurring-session request are summarized in that single family email.
    - Notification delivery begins only after every requested session creation has reported success.
    - Missing recipients or email-delivery failures do not roll back created sessions; Staff sees a warning instead.
-5. After a Coach successfully creates one or more Private course sessions, ClassLift sends one email to the family's shared participant-portal address.
+7. After a Coach successfully creates one or more Private course sessions, ClassLift sends one email to the family's shared participant-portal address.
    - Sessions created by the same recurring-session request are summarized in one email.
-6. After a Coach successfully updates, deletes, or completes a Private course session, ClassLift sends a corresponding notification to the family's shared participant-portal address.
+8. After a Coach successfully updates, deletes, or completes a Private course session, ClassLift sends a corresponding notification to the family's shared participant-portal address.
    - The business operation completes before notification delivery is attempted.
    - Missing recipients or email-delivery failures do not roll back the session action; the Coach sees a warning instead.
    - A completion email includes the actual hours, and all session-action emails link to the participant Schedules page.
-7. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
+9. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
    - Private-course requests go to the assigned Coach and link to that registration's Coach schedule page.
    - Group-course requests go to the organization's configured notification recipient and link to Staff's session-registration page.
    - The email identifies the participant, course, request type, affected session time, and family note.
