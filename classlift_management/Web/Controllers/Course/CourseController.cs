@@ -690,7 +690,8 @@ namespace Web.Controllers.Courses
                             session.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId,
                             "/Child/MySchedules",
                             session.ScheduledHours,
-                            session.Location));
+                            session.Location,
+                            session.Status));
 
                     notificationFailed |= !delivery.IsSuccessful;
                 }

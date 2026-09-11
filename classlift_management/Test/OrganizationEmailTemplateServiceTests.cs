@@ -155,6 +155,23 @@ public class OrganizationEmailTemplateServiceTests
     }
 
     [Test]
+    public void CanceledScheduleIsExplicitInSubjectAndBothBodies()
+    {
+        var data = ScheduleData() with { Status = "Canceled" };
+
+        var email = _service.CourseScheduleUpdated(Context(), "recipient@example.com", data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.Message.Subject, Does.Contain("canceled").IgnoreCase);
+            Assert.That(email.Message.HtmlBody, Does.Contain("has been canceled"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("<strong>Status:</strong> Canceled"));
+            Assert.That(email.Message.TextBody, Does.Contain("has been canceled"));
+            Assert.That(email.Message.TextBody, Does.Contain("Status: Canceled"));
+        });
+    }
+
+    [Test]
     public void RejectsInvalidRecipientAddress()
     {
         Assert.Throws<ArgumentException>(() =>

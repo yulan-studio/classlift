@@ -8,7 +8,8 @@ public sealed record CourseScheduleEmailData(
     string TimeZoneId,
     string ActionPath,
     decimal? ScheduledHours = null,
-    string? Location = null);
+    string? Location = null,
+    string? Status = null);
 
 public sealed record CourseSessionCompletedEmailData(
     string ParticipantName,

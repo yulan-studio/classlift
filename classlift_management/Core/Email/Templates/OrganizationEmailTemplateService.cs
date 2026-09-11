@@ -29,15 +29,26 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
     public TemplatedEmail CourseScheduleUpdated(
         OrganizationEmailTemplateContext context,
         string recipientEmail,
-        CourseScheduleEmailData data) =>
-        BuildScheduleEmail(
+        CourseScheduleEmailData data)
+    {
+        var isCanceled = string.Equals(
+            data.Status?.Trim(),
+            "Canceled",
+            StringComparison.OrdinalIgnoreCase);
+
+        return BuildScheduleEmail(
             EmailNotificationType.CourseScheduleUpdated,
             context,
             recipientEmail,
             data,
-            "Course schedule updated",
-            "A course session schedule has been updated.",
-            "A course session schedule has been updated");
+            isCanceled ? "Course session canceled" : "Course schedule updated",
+            isCanceled
+                ? "This course session has been canceled."
+                : "A course session schedule has been updated.",
+            isCanceled
+                ? "This course session has been canceled"
+                : "A course session schedule has been updated");
+    }
 
     public TemplatedEmail CourseScheduleDeleted(
         OrganizationEmailTemplateContext context,
@@ -210,6 +221,8 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             details.Add(("Scheduled hours", data.ScheduledHours.Value.ToString("0.##", CultureInfo.InvariantCulture)));
         if (!string.IsNullOrWhiteSpace(data.Location))
             details.Add(("Location", data.Location.Trim()));
+        if (!string.IsNullOrWhiteSpace(data.Status))
+            details.Add(("Status", data.Status.Trim()));
 
         return Build(
             notificationType,
