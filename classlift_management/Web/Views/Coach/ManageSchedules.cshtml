@@ -181,7 +181,9 @@
                     <td data-label="Coach Note"><textarea id="coachNote-@s.EnrollmentID" class=" form-control">@s.CoachNote</textarea></td>
 
                     <td data-label="Actions">
-                        @if (s.Status != "Deleted" && !isWithin24Hours)
+                        @if (s.Status != "Deleted" &&
+                            s.Status != "RequestToReschedule" &&
+                            !isWithin24Hours)
                         {
                             <a href="javascript:void(0);" class="view-mode" onclick="enterEditMode(@s.EnrollmentID)">Edit</a>
                             

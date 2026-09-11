@@ -32,6 +32,10 @@ This file is the concise, canonical record of business rules confirmed by the pr
 2. Private sessions without a fixed Session Count are completed manually by the coach using actual hours.
 3. Standard course reports include completed child sessions that have Actual Hours recorded.
 
+## Private-course scheduling
+
+1. On Coach Manage Schedules, a Private course session whose status is RequestToReschedule does not show the Edit action. The Coach may still use Remove, subject to the existing removal rules.
+
 ## Accounts and user manual
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
