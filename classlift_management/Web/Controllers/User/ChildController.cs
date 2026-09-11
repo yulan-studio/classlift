@@ -1747,11 +1747,17 @@ namespace Web.Controllers.User
             {
                 try
                 {
-
+                    var course = await _courseService.GetAsync(model.CourseID);
+                    var submittedRequests = new List<CourseEnrollment>();
 
                     foreach (var schedule in model.Schedules)
                     {
                         var existing = await _courseEnrollmentService.GetAsync(schedule.EnrollmentID);
+                        if (existing.ChildID != child.ChildID || existing.CourseID != model.CourseID)
+                            return BadRequest("The session does not belong to the selected participant and course.");
+
+                        var previousStatus = existing.Status;
+                        var previousNote = existing.ParentNote;
                         if (existing != null)
                         {
                             if (existing.Status != "Canceled" && existing.Status != "Deleted" && schedule.Status != null)  //schedule.Status is not null means Status dropdown list is enabled
@@ -1766,7 +1772,21 @@ namespace Web.Controllers.User
                                 existing.ParentNote = schedule.ParentNote;
                             }
 
-                            await _courseEnrollmentService.UpdateSessionAsync(existing);
+                            var updated = await _courseEnrollmentService.UpdateSessionAsync(existing);
+                            if (!updated)
+                                throw new InvalidOperationException("One or more schedule changes could not be saved.");
+
+                            var isRequest = existing.Status is "RequestToReschedule" or "RequestToLeave";
+                            var requestChanged = !string.Equals(
+                                    previousStatus,
+                                    existing.Status,
+                                    StringComparison.Ordinal)
+                                || !string.Equals(
+                                    previousNote?.Trim(),
+                                    existing.ParentNote?.Trim(),
+                                    StringComparison.Ordinal);
+                            if (isRequest && requestChanged)
+                                submittedRequests.Add(existing);
                         }
                     }
 
@@ -1774,6 +1794,10 @@ namespace Web.Controllers.User
 
                     TempData["SuccessMessage1"] = "Schedules updated successfully.";
                     TempData["CourseID"] = model.CourseID;
+                    if (submittedRequests.Count > 0)
+                    {
+                        await NotifyScheduleChangeRequestAsync(child, course, submittedRequests);
+                    }
                 }
 
                 catch (Exception ex)
@@ -1787,6 +1811,87 @@ namespace Web.Controllers.User
 
             return RedirectToAction("MySchedules");
         }
+
+        private async Task NotifyScheduleChangeRequestAsync(
+            Child child,
+            Course course,
+            IReadOnlyList<CourseEnrollment> requests)
+        {
+            try
+            {
+                var requestTypes = string.Join(", ", requests
+                    .Select(request => RequestDisplayName(request.Status))
+                    .Distinct(StringComparer.OrdinalIgnoreCase));
+                var requestDetails = string.Join("; ", requests.Select(request =>
+                {
+                    var schedule = request.ScheduledAt.HasValue
+                        ? _timeZoneService.ConvertUtcToLocal(
+                            DateTime.SpecifyKind(request.ScheduledAt.Value, DateTimeKind.Utc),
+                            request.ScheduledTimeZoneId ?? userTimeZone(child.User))
+                            .ToString("MMMM d, yyyy 'at' h:mm tt")
+                        : "Unscheduled session";
+                    var note = string.IsNullOrWhiteSpace(request.ParentNote)
+                        ? string.Empty
+                        : $" — {request.ParentNote.Trim()}";
+                    return $"{schedule}: {RequestDisplayName(request.Status)}{note}";
+                }));
+
+                var rootEnrollmentId = requests
+                    .Select(request => request.EnrollmentID_Ref)
+                    .FirstOrDefault(reference => reference.HasValue);
+                var actionPath = string.Equals(course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                    ? $"/Coach/ManageSchedules/{child.ChildID}?courseId={course.CourseID}&enrollmentId={rootEnrollmentId}"
+                    : $"/Child/ManageSessionRegistrations?childId={child.ChildID}&courseId={course.CourseID}";
+                var data = new ScheduleChangeRequestedEmailData(
+                    child.Name,
+                    course.Title,
+                    $"{child.Name}'s family ({requestTypes})",
+                    actionPath,
+                    requestDetails);
+
+                OrganizationNotificationResult delivery;
+                if (string.Equals(course.CourseType, "Private", StringComparison.OrdinalIgnoreCase))
+                {
+                    delivery = await _emailNotifications.SendScheduleChangeRequestedToCoachAsync(
+                        course.Coach?.User?.Email,
+                        data);
+                }
+                else
+                {
+                    delivery = await _emailNotifications.SendScheduleChangeRequestedToOrganizationAsync(data);
+                }
+
+                if (!delivery.IsSuccessful)
+                {
+                    TempData["WarningMessage1"] =
+                        "Your schedule request was saved, but the notification email could not be sent.";
+                    TempData["CourseID"] = course.CourseID;
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Schedule request was saved, but its notification email could not be processed. ChildId={ChildId}, CourseId={CourseId}",
+                    child.ChildID,
+                    course.CourseID);
+                TempData["WarningMessage1"] =
+                    "Your schedule request was saved, but the notification email could not be sent.";
+                TempData["CourseID"] = course.CourseID;
+            }
+
+            static string userTimeZone(Core.Models.User user) =>
+                string.IsNullOrWhiteSpace(user.TimeZoneId)
+                    ? TimeZoneService.DefaultTimeZoneId
+                    : user.TimeZoneId;
+        }
+
+        private static string RequestDisplayName(string status) => status switch
+        {
+            "RequestToReschedule" => "Request to Reschedule",
+            "RequestToLeave" => "Request to Leave",
+            _ => status
+        };
 
 
 

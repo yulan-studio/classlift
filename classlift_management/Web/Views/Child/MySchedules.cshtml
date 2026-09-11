@@ -264,6 +264,17 @@
                                 </td>
                             </tr>
                         }
+
+                        @if (TempData["WarningMessage1"] != null && TempData["CourseID"]?.ToString() == courseSchedules.Course.CourseID.ToString())
+                        {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="alert alert-warning">
+                                        @TempData["WarningMessage1"]
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
                 <br/>
