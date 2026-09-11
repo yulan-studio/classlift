@@ -68,6 +68,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - The database update completes before notification delivery is attempted.
    - A missing recipient or email-delivery failure does not roll back the session update; Staff sees a warning instead.
    - When Staff changes the session status to Canceled, the email subject and content must clearly identify the session as canceled.
+   - When Staff Note contains text, the updated-session email includes it in both HTML and plain-text content.
 6. After Staff successfully creates one or more Group course sessions, ClassLift sends one notification email per affected shared family email address.
    - All sessions created by the same recurring-session request are summarized in that single family email.
    - Notification delivery begins only after every requested session creation has reported success.

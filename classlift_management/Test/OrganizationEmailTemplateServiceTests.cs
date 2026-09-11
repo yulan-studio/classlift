@@ -83,6 +83,21 @@ public class OrganizationEmailTemplateServiceTests
     }
 
     [Test]
+    public void UpdatedScheduleIncludesStaffNoteInBothBodies()
+    {
+        var data = ScheduleData() with { StaffNote = "Bring <indoor shoes>" };
+
+        var email = _service.CourseScheduleUpdated(Context(), "recipient@example.com", data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.Message.HtmlBody, Does.Contain("Staff Note"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Bring &lt;indoor shoes&gt;"));
+            Assert.That(email.Message.TextBody, Does.Contain("Staff Note: Bring <indoor shoes>"));
+        });
+    }
+
+    [Test]
     public void RemovesLineBreaksFromUserDerivedSubjectText()
     {
         var email = _service.CourseConfirmed(

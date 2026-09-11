@@ -773,7 +773,8 @@ namespace Web.Controllers.Courses
                             "/Child/MySchedules",
                             session.ScheduledHours,
                             session.Location,
-                            session.Status));
+                            session.Status,
+                            session.StaffNote));
 
                     notificationFailed |= !delivery.IsSuccessful;
                 }

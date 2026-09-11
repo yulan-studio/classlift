@@ -9,7 +9,8 @@ public sealed record CourseScheduleEmailData(
     string ActionPath,
     decimal? ScheduledHours = null,
     string? Location = null,
-    string? Status = null);
+    string? Status = null,
+    string? StaffNote = null);
 
 public sealed record CourseScheduleSummaryItem(
     DateTime ScheduledAtUtc,

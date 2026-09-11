@@ -304,6 +304,8 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             details.Add(("Location", data.Location.Trim()));
         if (!string.IsNullOrWhiteSpace(data.Status))
             details.Add(("Status", data.Status.Trim()));
+        if (!string.IsNullOrWhiteSpace(data.StaffNote))
+            details.Add(("Staff Note", data.StaffNote.Trim()));
 
         return Build(
             notificationType,
