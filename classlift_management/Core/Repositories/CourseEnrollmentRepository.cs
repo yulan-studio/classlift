@@ -1215,6 +1215,7 @@ namespace Core.Repositories
             {
                 //schedule.ScheduledAt = DateTime.Parse(vm.ScheduledAt);
                 schedule.Location = vm.Location;
+                schedule.CoachNote = vm.CoachNote?.Trim();
                 await _context.SaveChangesAsync();
                 return true;
             }

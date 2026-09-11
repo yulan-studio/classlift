@@ -913,8 +913,13 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Coach")]
         [HttpPost("DeleteSchedule")]
-        public async Task<IActionResult> DeleteSchedule(int enrollmentId, int childId, int courseId, string coachNote, int enrollmentId_Ref)
+        public async Task<IActionResult> DeleteSchedule(int enrollmentId, int childId, int courseId, string? coachNote, int enrollmentId_Ref)
         {
+            if (string.IsNullOrWhiteSpace(coachNote))
+            {
+                TempData["ErrorMessage"] = "Coach Note is required before removing a session.";
+                return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
+            }
 
             var child = await _childService.GetAsync(childId);
             var course = await _courseService.GetAsync(courseId);
@@ -923,7 +928,7 @@ namespace Web.Controllers.User
 
             var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
 
-            bool result = await _courseEnrollmentService.RemoveScheduleAsync(enrollmentId, coachNote);
+            bool result = await _courseEnrollmentService.RemoveScheduleAsync(enrollmentId, coachNote.Trim());
             
 
             if (result)
@@ -1242,6 +1247,11 @@ namespace Web.Controllers.User
         [HttpPost("UpdateSchedule")]
         public async Task<IActionResult> UpdateSchedule([FromBody] UpdateCoachScheduleViewModel vm)
         {
+            if (string.IsNullOrWhiteSpace(vm.CoachNote))
+                return BadRequest(new { error = "Coach Note is required before updating a session." });
+
+            vm.CoachNote = vm.CoachNote.Trim();
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Challenge();

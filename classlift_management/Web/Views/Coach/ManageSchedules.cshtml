@@ -178,7 +178,7 @@
 
                     <td data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FFDBF6" : "transparent")">@s.Status</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">@s.ParentNote</td>
-                    <td data-label="Coach Note"><textarea id="coachNote-@s.EnrollmentID" class=" form-control">@s.CoachNote</textarea></td>
+                    <td data-label="Coach Note"><textarea id="coachNote-@s.EnrollmentID" class="form-control" required>@s.CoachNote</textarea></td>
 
                     <td data-label="Actions">
                         @if (s.Status != "Deleted" &&
@@ -319,7 +319,14 @@
 <script>
 
     function attachCoachNote(id) {
-        const note = document.getElementById(`coachNote-${id}`).value;
+        const noteInput = document.getElementById(`coachNote-${id}`);
+        const note = noteInput.value.trim();
+        if (!note) {
+            alert("Coach Note is required before removing a session.");
+            noteInput.focus();
+            return false;
+        }
+
         document.getElementById(`coachNote-${id}-hidden`).value = note;
         return true; // allow submit
     }
@@ -385,6 +392,13 @@
         function saveSchedule(id) {
        // const location=document.getElementById("locationEdit-${id}").value;
        const location = document.getElementById(`locationEdit-${id}`).value;
+       const noteInput = document.getElementById(`coachNote-${id}`);
+       const coachNote = noteInput.value.trim();
+       if (!coachNote) {
+           alert("Coach Note is required before updating a session.");
+           noteInput.focus();
+           return;
+       }
        
 
         fetch('/Coach/UpdateSchedule', {
@@ -395,15 +409,22 @@
             , body: JSON.stringify({
                 enrollmentId: id, 
                 location: location, 
+                coachNote: coachNote,
                 childId: document.getElementById("childId").value, 
                 courseId: document.getElementById("courseId").value, 
                 enrollmentId_Ref: document.getElementById("enrollmentId_Ref").value
             })
 
-    }) .then(r=> r.json()) .then(data=> {
+    }) .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "The session could not be updated.");
+            }
+            return data;
+        }).then(data=> {
             if (data.redirectUrl) {
                 window.location.href=data.redirectUrl;
             }
-        });
+        }).catch(error => alert(error.message));
     }
 </script>

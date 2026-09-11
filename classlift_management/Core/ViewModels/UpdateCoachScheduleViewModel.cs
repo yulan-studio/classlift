@@ -12,6 +12,7 @@ namespace Core.ViewModels
         //public string ScheduledAt { get; set; }
         //public decimal ScheduledHours { get; set; }
         public string Location { get; set; }
+        public string? CoachNote { get; set; }
 
         // 👇 add these
         public int ChildId { get; set; }
