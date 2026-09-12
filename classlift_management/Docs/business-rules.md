@@ -10,6 +10,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 2. A private course without a Session Count uses hourly pricing and requires Credit Tracking.
 3. A Group course requires a Session Count and Session Cost.
 4. Max Capacity is optional for a Group course. When supplied, it limits active registrations.
+5. The Staff course list is paginated and can be filtered by Specialty, Provider, Course Type, and active status. Sorting and active filters are preserved while paging.
 
 ## Group-course registration
 

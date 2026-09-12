@@ -184,7 +184,13 @@ namespace Web.Controllers.Courses
         [Authorize(Roles = "Admin, Staff")]
         [HttpGet("List")]
 
-        public async Task<IActionResult> List(string sortOrder, int? page)
+        public async Task<IActionResult> List(
+            string? sortOrder,
+            int? page,
+            int? specialtyId,
+            int? coachId,
+            string? courseType,
+            bool? isActive)
         {
 
             ViewData["TitleSortParm"] = sortOrder == "title" ? "title_desc" : "title";
@@ -197,7 +203,57 @@ namespace Web.Controllers.Courses
             ViewData["SessionCountSortParm"] = sortOrder == "session_count" ? "session_count_desc" : "session_count";
             ViewData["MaxCapacitySortParm"] = sortOrder == "max_capacity" ? "max_capacity_desc" : "max_capacity";
             ViewData["CurrentSort"] = sortOrder;
-            var courses = await _courseService.GetAllAsync();
+            ViewData["SpecialtyId"] = specialtyId;
+            ViewData["CoachId"] = coachId;
+            ViewData["CourseType"] = courseType;
+            ViewData["IsActive"] = isActive;
+
+            var allCourses = (await _courseService.GetAllAsync()).ToList();
+
+            ViewBag.SpecialtyFilterOptions = allCourses
+                .GroupBy(course => course.SpecialtyID)
+                .Select(group => new SelectListItem
+                {
+                    Value = group.Key.ToString(),
+                    Text = group.First().SpecialtyName,
+                    Selected = group.Key == specialtyId
+                })
+                .OrderBy(option => option.Text)
+                .ToList();
+            ViewBag.CoachFilterOptions = allCourses
+                .Where(course => course.CoachID.HasValue)
+                .GroupBy(course => course.CoachID!.Value)
+                .Select(group => new SelectListItem
+                {
+                    Value = group.Key.ToString(),
+                    Text = group.First().CoachName,
+                    Selected = group.Key == coachId
+                })
+                .OrderBy(option => option.Text)
+                .ToList();
+            ViewBag.CourseTypeFilterOptions = new List<SelectListItem>
+            {
+                new("Group", "Group", string.Equals(courseType, "Group", StringComparison.OrdinalIgnoreCase)),
+                new("Private", "Private", string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase))
+            };
+            ViewBag.ActiveFilterOptions = new List<SelectListItem>
+            {
+                new("Active", "true", isActive == true),
+                new("Inactive", "false", isActive == false)
+            };
+
+            IEnumerable<CourseViewModel> courses = allCourses;
+            if (specialtyId.HasValue)
+                courses = courses.Where(course => course.SpecialtyID == specialtyId.Value);
+            if (coachId.HasValue)
+                courses = courses.Where(course => course.CoachID == coachId.Value);
+            if (!string.IsNullOrWhiteSpace(courseType))
+                courses = courses.Where(course => string.Equals(
+                    course.CourseType,
+                    courseType.Trim(),
+                    StringComparison.OrdinalIgnoreCase));
+            if (isActive.HasValue)
+                courses = courses.Where(course => course.IsActive == isActive.Value);
 
             courses = sortOrder switch
             {
@@ -226,7 +282,9 @@ namespace Web.Controllers.Courses
 
             // Paging logic
             int pageSize = 10;
-            int pageNumber = page ?? 1;
+            int pageNumber = page.GetValueOrDefault(1);
+            if (pageNumber < 1)
+                pageNumber = 1;
 
             // Replace the problematic line with the following:
             //if (courses == null || !courses.Any())
