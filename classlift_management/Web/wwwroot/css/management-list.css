@@ -28,6 +28,11 @@
     color: black;
 }
 
+.management-table .sortable-link {
+    color: black;
+    text-decoration: none;
+}
+
 .management-table .action-link {
     margin-left: 10px;
 }
@@ -35,6 +40,11 @@
 .list-filter__search {
     padding: 5px 10px;
     margin-left: 10px;
+}
+
+.list-filter__input {
+    padding: 5px;
+    width: 250px;
 }
 
 .list-filter__reset,
