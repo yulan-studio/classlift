@@ -1,0 +1,75 @@
+.management-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.management-table th,
+.management-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.management-table thead tr {
+    background-color: #f2f2f2;
+}
+
+.management-table .sortable-header {
+    background-color: lightblue;
+}
+
+.management-table .sortable-header a,
+.management-table .action-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.management-table .sortable-header a {
+    color: black;
+}
+
+.management-table .action-link {
+    margin-left: 10px;
+}
+
+.list-filter__search {
+    padding: 5px 10px;
+    margin-left: 10px;
+}
+
+.list-filter__reset,
+.list-add-link {
+    display: inline-block;
+    margin-left: 10px;
+    text-decoration: none;
+}
+
+.list-add-link {
+    margin-left: 0;
+    margin-bottom: 20px;
+}
+
+.list-pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination {
+    justify-content: center;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.page-link {
+    color: #007bff;
+}
+
+@media (max-width: 768px) {
+    .management-table-wrapper {
+        overflow-x: auto;
+    }
+}

@@ -13,27 +13,10 @@
     ViewData["Title"] = "Manage Courses";
 }
 
-<style>
-    .pagination {
-        justify-content: center;
-    }
-
-    .page-item.active .page-link {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: white;
-    }
-
-    .page-link {
-        color: #007bff;
-    }
-</style>
-
-
 <h1>@ViewData["Title"]</h1>
 
 
-<a href="/Course/Add" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add Course</a>
+<a href="/Course/Add" class="list-add-link">Add Course</a>
 
 <form method="get" asp-action="List" class="row g-2 align-items-end mb-3">
     <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
@@ -62,18 +45,19 @@
         </select>
     </div>
     <div class="col-md-2">
-        <button type="submit" style="padding:5px 10px; margin-left: 10px;">Search</button>
-        <a href="/Course/List" style="display: inline-block; margin-left: 10px; text-decoration: none;">Reset</a>
+        <button type="submit" class="list-filter__search">Search</button>
+        <a href="/Course/List" class="list-filter__reset">Reset</a>
     </div>
 </form>
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="management-table-wrapper">
+<table class="management-table">
     <thead>
-        <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; border: 1px solid #ddd; width: 3%">#</th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 10%; background-color:lightblue">
+        <tr>
+            <th style="width: 3%">#</th>
+            <th class="sortable-header" style="width: 10%">
                 
-                <a asp-action="List" asp-route-sortOrder="@ViewData["SpecialtySortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none; ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["SpecialtySortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]">
                     Specialty
                     @if ((string)ViewData["CurrentSort"] == "specialty")
                     {
@@ -88,8 +72,8 @@
 
 
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["CoachSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="width: 5%">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["CoachSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]">
                     @CurrentTenant.Terminology.ProviderSingular
                     @if ((string)ViewData["CurrentSort"] == "coach")
                     {
@@ -102,8 +86,8 @@
                     }
                 </a>
                 </th>
-            <th style="padding:8px; border:1px solid #ddd;background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["TitleSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["TitleSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]">
                     Title
                     @if ((string)ViewData["CurrentSort"] == "title")
                     {
@@ -119,7 +103,7 @@
             
            
            @*  <th style="padding: 8px; border: 1px solid #ddd; width: 20%">Description</th> *@
-            <th style="padding: 8px; border: 1px solid #ddd; width: 7%; background-color: lightblue">
+            <th class="sortable-header" style="width: 7%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["TypeSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none; ">
                     Type
                     @if ((string)ViewData["CurrentSort"] == "type")
@@ -132,7 +116,7 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 2%; background-color: lightblue;">
+            <th class="sortable-header" style="width: 2%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["SessionCountSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     Session Count
                     @if ((string)ViewData["CurrentSort"] == "session_count")
@@ -145,7 +129,7 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
+            <th class="sortable-header" style="width: 5%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["MaxCapacitySortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     Max Capacity
                     @if ((string)ViewData["CurrentSort"] == "max_capacity")
@@ -173,7 +157,7 @@
                 </a>
             </th> *@
  
-            <th style="padding: 8px; border: 1px solid #ddd; background-color: lightblue;">
+            <th class="sortable-header">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationsSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     # of Registrations
                     @if ((string)ViewData["CurrentSort"] == "registrations")
@@ -186,7 +170,7 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
+            <th class="sortable-header" style="width: 5%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["IsActiveSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     Is Active
                     @if ((string)ViewData["CurrentSort"] == "is_active")
@@ -199,8 +183,8 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 15%">Actions</th>
-            <th style="padding: 8px; border: 1px solid #ddd; width: 5%">Group Sessions</th>
+            <th style="width: 15%">Actions</th>
+            <th style="width: 5%">Group Sessions</th>
         </tr>
     </thead>
     <tbody>
@@ -209,32 +193,32 @@
             foreach (var course in Model)
             {
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@course.SpecialtyName</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@course.CoachName</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@course.Title</td>
+                    <td>@index</td>
+                    <td>@course.SpecialtyName</td>
+                    <td>@course.CoachName</td>
+                    <td>@course.Title</td>
                     @*   <td style="padding: 8px; border: 1px solid #ddd;">@course.Description</td>*@
-                    <th style="padding: 8px; border: 1px solid #ddd;">@course.CourseType</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">@course.SessionCount</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">@course.MaxCapacity</th>
+                    <th>@course.CourseType</th>
+                    <th>@course.SessionCount</th>
+                    <th>@course.MaxCapacity</th>
                     @*  <td style="padding: 8px; border: 1px solid #ddd;">@course.HourlyCost</td>*@
         
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td>
                         <a asp-action="Registrations" asp-route-courseId="@course.CourseID">
                             @course.RegisteredChildrenCount
                         </a>
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@course.IsActive</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td>@course.IsActive</td>
+                    <td>
                        
                       @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
-                        <a href="/Course/ConfirmDelete/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(course.RegisteredChildrenCount == 0 ?"":"display: none;")">Delete</a>
-                        <a href="/Course/Edit/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
+                        <a class="action-link" href="/Course/ConfirmDelete/@course.CourseID" style="@(course.RegisteredChildrenCount == 0 ?"":"display: none;")">Delete</a>
+                        <a class="action-link" href="/Course/Edit/@course.CourseID">Edit</a>
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td>
 
                         @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
-                        <a href="/Course/ManageSessions/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(course.CourseType == "Group" ?"":"display: none;")">Manage</a>
+                        <a class="action-link" href="/Course/ManageSessions/@course.CourseID" style="@(course.CourseType == "Group" ?"":"display: none;")">Manage</a>
 
                     </td>
                 </tr>
@@ -270,9 +254,10 @@
         }
     </tbody>
 </table>
+</div>
 
 
-<div style="margin-top: 20px; text-align: center;">
+<div class="list-pagination">
     @Html.PagedListPager(
     Model,
     page => Url.Action("List", new
