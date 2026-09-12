@@ -130,7 +130,7 @@
     </thead>
     <tbody>
         @{
-            int index = 1;
+            int index = ((Model.PageNumber - 1) * Model.PageSize) + 1;
             
             foreach (var coachWithDelete in Model)
             {
