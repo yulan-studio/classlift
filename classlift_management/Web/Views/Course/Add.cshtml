@@ -21,7 +21,7 @@
 </div>
 
 <form method="post" action="/Course/Add">
-    <table style="border-collapse: collapse; width: 90%; text-align: left; vertical-align: top;">
+    <table class="management-form-table management-form-table--add">
 
         <tr>
             <td style="padding: 8px; width:15%"><label for="CourseType">Course Type:</label></td>
@@ -72,7 +72,7 @@
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
-                <label style="font-size:0.7em; color:darkslategray">
+                    <label class="management-form__instruction">
                     - Private XXX course by XXX <br />
                     @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                     {
@@ -88,10 +88,10 @@
                 <input id="Description" name="Description" type="text" placeholder="XX min/session" style="width: 100%;" required />
             </td>
             <td style="width:55%; padding-left: 30px;">
-                <label style="font-size:0.7em; color:darkslategray"> - XX min/session </label>
+                <label class="management-form__instruction"> - XX min/session </label>
                 @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                 {
-                    <label style="font-size:0.7em; color:darkslategray"> (optional for flexible course, required for other courses) </label>
+                    <label class="management-form__instruction"> (optional for flexible course, required for other courses) </label>
                 }
             </td>
             
@@ -118,14 +118,14 @@
             </td>
             <td style="width:55%; padding-left: 30px;">
                 <span id="privateSessionCountInstruction">
-                    <label style="font-size:0.7em; color:darkslategray"> - Enter the number of sessions if each session has a fixed duration and full payment is required.
+                    <label class="management-form__instruction"> - Enter the number of sessions if each session has a fixed duration and full payment is required.
                         @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                         {
                             <br/><text>- Leave blank for flexible course (each session fee will be deducted from the balance later)</text>
                         }
                     </label>
                 </span>
-                <label id="groupSessionCountInstruction" style="display:none; font-size:0.7em; color:darkslategray">- Required for group course</label>
+                <label id="groupSessionCountInstruction" class="management-form__instruction" style="display:none">- Required for group course</label>
             </td>
         </tr>
 
@@ -165,9 +165,9 @@
             </td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: left;  padding: 20px 16px 16px 8px;">
-                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Add Course</button>
-                <a href="/Course/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            <td colspan="3" class="management-form__actions">
+                <button type="submit" class="management-form__save">Add Course</button>
+                <a href="/Course/List" class="management-form__cancel">Cancel</a>
 
             </td>
             

@@ -83,3 +83,82 @@
         overflow-x: auto;
     }
 }
+
+.management-form-table {
+    border-collapse: collapse;
+    text-align: left;
+    vertical-align: top;
+}
+
+.management-form-table--add {
+    width: 90%;
+}
+
+.management-form-table--edit {
+    width: 70%;
+}
+
+.management-form-table td {
+    padding: 8px;
+}
+
+.management-form-table input[type="text"],
+.management-form-table input[type="number"],
+.management-form-table select {
+    max-width: 100%;
+}
+
+.management-form__input--full {
+    width: 100%;
+}
+
+.management-form__input--medium {
+    width: 60%;
+}
+
+.management-form__instruction {
+    font-size: 0.7em;
+    color: darkslategray;
+}
+
+.management-form__actions {
+    text-align: left;
+    padding: 20px 16px 16px 8px !important;
+}
+
+.management-form__save,
+.management-form__cancel {
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+.management-form__save {
+    background-color: #1B7BAB;
+    color: white;
+    border: 1px solid #1B7BAB;
+    cursor: pointer;
+}
+
+.management-form__save:hover,
+.management-form__save:focus {
+    background-color: #23A1E0;
+    border-color: #23A1E0;
+    color: white;
+}
+
+.management-form__cancel {
+    background-color: #ddd;
+    color: black;
+    border: 1px solid #ccc;
+}
+
+@media (max-width: 768px) {
+    .management-form-table--add,
+    .management-form-table--edit {
+        width: 100%;
+    }
+
+    .management-form__input--medium {
+        width: 100%;
+    }
+}
