@@ -60,6 +60,9 @@ namespace Core.Interfaces
 
         Task<List<int?>> GetRegisteredUpcomingSessionsByCourseAsync(int courseId);
 
+        Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
+            GetScheduleNotificationRecipientsAsync(int masterSessionId);
+
         //Task<IEnumerable<Child>> GetRegisteredChildrenByCoachAsync(int coachId);
 
         //Task<IEnumerable<Core.ViewModels.RegisteredChild>> GetRegisterationByCoachAsync(int coachId);
@@ -67,7 +70,7 @@ namespace Core.Interfaces
 
         Task<bool> ScheduleCourseAsync(int childId, int courseId, ScheduleTiming timing, decimal scheduledHours, string location, int coachId, int enrollmentId_Ref);
 
-        Task<bool> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user);
+        Task<int> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user);
 
         Task<bool> UpdateSessionAsync(CourseEnrollment session);
 

@@ -13,6 +13,8 @@ using System.Numerics;
 using Microsoft.EntityFrameworkCore;
 using Core.Services;
 using X.PagedList;
+using Core.Email.Notifications;
+using Core.Email.Templates;
 
 //using X.PagedList.Mvc.Core;
 
@@ -35,9 +37,11 @@ namespace Web.Controllers.Courses
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
         private readonly CurrentTenant _currentTenant;
+        private readonly IOrganizationEmailNotificationService _emailNotifications;
+        private readonly ILogger<CourseController> _logger;
 
 
-        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
+        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CourseController> logger)
         {
             _courseService = courseService;
             _coachService = coachService;
@@ -46,6 +50,8 @@ namespace Web.Controllers.Courses
             _courseEnrollmentService = courseEnrollmentService;
             _timeZoneService = timeZoneService;
             _currentTenant = currentTenant;
+            _emailNotifications = emailNotifications;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Staff")]
@@ -178,7 +184,13 @@ namespace Web.Controllers.Courses
         [Authorize(Roles = "Admin, Staff")]
         [HttpGet("List")]
 
-        public async Task<IActionResult> List(string sortOrder, int? page)
+        public async Task<IActionResult> List(
+            string? sortOrder,
+            int? page,
+            int? specialtyId,
+            int? coachId,
+            string? courseType,
+            bool? isActive)
         {
 
             ViewData["TitleSortParm"] = sortOrder == "title" ? "title_desc" : "title";
@@ -191,7 +203,57 @@ namespace Web.Controllers.Courses
             ViewData["SessionCountSortParm"] = sortOrder == "session_count" ? "session_count_desc" : "session_count";
             ViewData["MaxCapacitySortParm"] = sortOrder == "max_capacity" ? "max_capacity_desc" : "max_capacity";
             ViewData["CurrentSort"] = sortOrder;
-            var courses = await _courseService.GetAllAsync();
+            ViewData["SpecialtyId"] = specialtyId;
+            ViewData["CoachId"] = coachId;
+            ViewData["CourseType"] = courseType;
+            ViewData["IsActive"] = isActive;
+
+            var allCourses = (await _courseService.GetAllAsync()).ToList();
+
+            ViewBag.SpecialtyFilterOptions = allCourses
+                .GroupBy(course => course.SpecialtyID)
+                .Select(group => new SelectListItem
+                {
+                    Value = group.Key.ToString(),
+                    Text = group.First().SpecialtyName,
+                    Selected = group.Key == specialtyId
+                })
+                .OrderBy(option => option.Text)
+                .ToList();
+            ViewBag.CoachFilterOptions = allCourses
+                .Where(course => course.CoachID.HasValue)
+                .GroupBy(course => course.CoachID!.Value)
+                .Select(group => new SelectListItem
+                {
+                    Value = group.Key.ToString(),
+                    Text = group.First().CoachName,
+                    Selected = group.Key == coachId
+                })
+                .OrderBy(option => option.Text)
+                .ToList();
+            ViewBag.CourseTypeFilterOptions = new List<SelectListItem>
+            {
+                new("Group", "Group", string.Equals(courseType, "Group", StringComparison.OrdinalIgnoreCase)),
+                new("Private", "Private", string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase))
+            };
+            ViewBag.ActiveFilterOptions = new List<SelectListItem>
+            {
+                new("Active", "true", isActive == true),
+                new("Inactive", "false", isActive == false)
+            };
+
+            IEnumerable<CourseViewModel> courses = allCourses;
+            if (specialtyId.HasValue)
+                courses = courses.Where(course => course.SpecialtyID == specialtyId.Value);
+            if (coachId.HasValue)
+                courses = courses.Where(course => course.CoachID == coachId.Value);
+            if (!string.IsNullOrWhiteSpace(courseType))
+                courses = courses.Where(course => string.Equals(
+                    course.CourseType,
+                    courseType.Trim(),
+                    StringComparison.OrdinalIgnoreCase));
+            if (isActive.HasValue)
+                courses = courses.Where(course => course.IsActive == isActive.Value);
 
             courses = sortOrder switch
             {
@@ -220,7 +282,9 @@ namespace Web.Controllers.Courses
 
             // Paging logic
             int pageSize = 10;
-            int pageNumber = page ?? 1;
+            int pageNumber = page.GetValueOrDefault(1);
+            if (pageNumber < 1)
+                pageNumber = 1;
 
             // Replace the problematic line with the following:
             //if (courses == null || !courses.Any())
@@ -544,12 +608,31 @@ namespace Web.Controllers.Courses
                     localTime = repeatType == "Daily" ? localTime.AddDays(1) : localTime.AddDays(7);
                 }
 
-                var result = true;
+                var createdMasterSessionIds = new List<int>();
                 foreach (var timing in timings)
-                    result &= await _courseEnrollmentService.AddSessionToGroupCourseAsync(courseId, timing, scheduledHours, location, staffNote, user!);
-                if (result)
+                {
+                    var masterSessionId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
+                        courseId,
+                        timing,
+                        scheduledHours,
+                        location,
+                        staffNote,
+                        user!);
+                    if (masterSessionId <= 0)
+                        throw new InvalidOperationException("A course session could not be created.");
+
+                    createdMasterSessionIds.Add(masterSessionId);
+                }
+
+                if (createdMasterSessionIds.Count == timings.Count)
                 {
                     TempData["SuccessMessage"] = "Session(s) added successfully.";
+                    await NotifyFamiliesOfStaffScheduleCreationAsync(
+                        course,
+                        createdMasterSessionIds,
+                        timings,
+                        scheduledHours,
+                        location);
                 }
                 else
                 {
@@ -589,6 +672,7 @@ namespace Web.Controllers.Courses
 
 
         // ✅ Save Session (Add / Edit)
+        [Authorize(Roles = "Staff")]
         [HttpPost("SaveSession")]
         public async Task<IActionResult> SaveSession(int enrollmentId, string location, string? staffNote, string status)
         {
@@ -626,6 +710,7 @@ namespace Web.Controllers.Courses
 
                 if (result)
                 {
+                    await NotifyFamiliesOfStaffScheduleUpdateAsync(session);
                     return Json(new { success = true });
 
                 }
@@ -642,6 +727,135 @@ namespace Web.Controllers.Courses
             }
 
 
+        }
+
+        private async Task NotifyFamiliesOfStaffScheduleCreationAsync(
+            Course course,
+            IReadOnlyList<int> masterSessionIds,
+            IReadOnlyList<ScheduleTiming> timings,
+            decimal scheduledHours,
+            string? location)
+        {
+            try
+            {
+                var recipients = new List<Core.DTOs.CourseScheduleNotificationRecipient>();
+                foreach (var masterSessionId in masterSessionIds)
+                {
+                    recipients.AddRange(await _courseEnrollmentService
+                        .GetScheduleNotificationRecipientsAsync(masterSessionId));
+                }
+                var uniqueFamilies = recipients
+                    .GroupBy(recipient => recipient.Email?.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(group => new Core.DTOs.CourseScheduleNotificationRecipient(
+                        string.Join(", ", group
+                            .Select(recipient => recipient.ParticipantName)
+                            .Distinct(StringComparer.OrdinalIgnoreCase)),
+                        group.Key))
+                    .ToList();
+
+                var sessions = timings
+                    .Select(timing => new CourseScheduleSummaryItem(
+                        timing.ScheduledAtUtc,
+                        timing.TimeZoneId,
+                        scheduledHours,
+                        location))
+                    .ToList();
+                var notificationFailed = false;
+
+                foreach (var family in uniqueFamilies)
+                {
+                    var delivery = await _emailNotifications.SendCourseSchedulesCreatedAsync(
+                        family.Email,
+                        new CourseScheduleSummaryEmailData(
+                            family.ParticipantName,
+                            course.Title,
+                            course.Coach?.Name ?? "Staff",
+                            sessions,
+                            "/Child/MySchedules"));
+                    notificationFailed |= !delivery.IsSuccessful;
+                }
+
+                if (notificationFailed)
+                {
+                    TempData["WarningMessage"] =
+                        "The sessions were created, but one or more notification emails could not be sent.";
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Group sessions were created, but family notifications could not be processed. CourseId={CourseId}",
+                    course.CourseID);
+                TempData["WarningMessage"] =
+                    "The sessions were created, but notification emails could not be sent.";
+            }
+        }
+
+        private async Task NotifyFamiliesOfStaffScheduleUpdateAsync(CourseEnrollment session)
+        {
+            try
+            {
+                if (!session.ScheduledAt.HasValue || !session.ScheduledHours.HasValue)
+                {
+                    TempData["WarningMessage"] =
+                        "The session was saved, but its notification email could not be prepared.";
+                    return;
+                }
+
+                var recipients = await _courseEnrollmentService
+                    .GetScheduleNotificationRecipientsAsync(session.EnrollmentID);
+                var course = await _courseService.GetAsync(session.CourseID);
+                var uniqueRecipients = recipients
+                    .GroupBy(
+                        recipient => recipient.Email?.Trim(),
+                        StringComparer.OrdinalIgnoreCase)
+                    .Select(group => new Core.DTOs.CourseScheduleNotificationRecipient(
+                        string.Join(", ", group
+                            .Select(recipient => recipient.ParticipantName)
+                            .Distinct(StringComparer.OrdinalIgnoreCase)),
+                        group.Key))
+                    .ToList();
+
+                var notificationFailed = false;
+                foreach (var recipient in uniqueRecipients)
+                {
+                    var delivery = await _emailNotifications.SendCourseScheduleUpdatedAsync(
+                        recipient.Email,
+                        new CourseScheduleEmailData(
+                            recipient.ParticipantName,
+                            course.Title,
+                            course.Coach?.Name ?? "Staff",
+                            DateTime.SpecifyKind(session.ScheduledAt.Value, DateTimeKind.Utc),
+                            session.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId,
+                            "/Child/MySchedules",
+                            session.ScheduledHours,
+                            session.Location,
+                            session.Status,
+                            session.StaffNote));
+
+                    notificationFailed |= !delivery.IsSuccessful;
+                }
+
+                if (notificationFailed)
+                {
+                    TempData["WarningMessage"] =
+                        "The session was saved, but one or more notification emails could not be sent.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Session updated successfully.";
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Staff schedule update succeeded, but family notifications could not be processed. SessionId={SessionId}",
+                    session.EnrollmentID);
+                TempData["WarningMessage"] =
+                    "The session was saved, but notification emails could not be sent.";
+            }
         }
 
         // ✅ Load Partial View for Add/Edit Form

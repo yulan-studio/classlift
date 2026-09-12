@@ -251,6 +251,17 @@
                     </td>
                 </tr>
             }
+
+            @if (TempData["WarningMessage"] != null)
+            {
+                <tr>
+                    <td colspan="3">
+                        <div class="alert alert-warning">
+                            @TempData["WarningMessage"]
+                        </div>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>

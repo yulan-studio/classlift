@@ -151,6 +151,11 @@
     <div class="alert alert-danger" style="margin-top: 20px;">@TempData["ErrorMessage"]</div>
 }
 
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning" style="margin-top: 20px;">@TempData["WarningMessage"]</div>
+}
+
 <!-- Existing Sessions Table -->
 <h5 style="color:steelblue; margin-bottom: 20px;">Upcoming Sessions</h5>
 

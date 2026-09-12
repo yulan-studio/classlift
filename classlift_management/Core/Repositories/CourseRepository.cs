@@ -48,6 +48,8 @@ namespace Core.Repositories
                 .Select(c => new CourseViewModel
                 {
                     CourseID = c.CourseID,
+                    SpecialtyID = c.SpecialtyID,
+                    CoachID = c.CoachID,
                     SpecialtyName = c.Specialty.Title,
                     //CoachName = c.Coach.Name,
                     CoachName = c.Coach != null ? c.Coach.Name : "",

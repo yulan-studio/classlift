@@ -67,17 +67,18 @@ namespace Web.Controllers.Account
         }
 
         [HttpGet("Login")]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
             
             ViewData["Title"] = "Login";
-            return View(new LoginViewModel()); // Ensure a model instance is passed
+            return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
 
         // Handle login form submission
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -95,20 +96,10 @@ namespace Web.Controllers.Account
 
             if (result.Succeeded)
             {
+                if (Url.IsLocalUrl(model.ReturnUrl))
+                    return LocalRedirect(model.ReturnUrl);
 
-                //if(user.Role == "Admin")
-                //    return Redirect("/Dashboard/Admin"); // Redirect to the requested page
-                if (user.Role == "Coach")
-                    return Redirect("/Home/Index"); 
-                  
-                else if (user.Role == "Child")
-                    return Redirect("/Home/Index");
-
-                else if (user.Role == "Staff")
-                    return Redirect("/Home/Index");
-                
-                else
-                    return Redirect("/Home/Index");
+                return Redirect("/Home/Index");
             }
             else
             {

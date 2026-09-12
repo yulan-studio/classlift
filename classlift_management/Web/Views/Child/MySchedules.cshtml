@@ -88,7 +88,7 @@
  *@
         <div class="course-summary" style="padding: 12px; margin: 16px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
 
-            <h5>Course: @($"{courseSchedules.Course.Title}{(string.IsNullOrEmpty(courseSchedules.Course.Description) ? "" : " | " + courseSchedules.Course.Description)}")</h5>
+            <h5>@($"{courseSchedules.Course.Title}{(string.IsNullOrEmpty(courseSchedules.Course.Description) ? "" : " | " + courseSchedules.Course.Description)}")</h5>
            @*  <label style="font-size:0.9em; color:darkslategray"> @courseSchedules.Course.Description</label> *@
 
             <span class="desktop-only">
@@ -260,6 +260,17 @@
                                 <td colspan="7">
                                     <div class="alert alert-danger">
                                         @TempData["ErrorMessage1"]
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                        @if (TempData["WarningMessage1"] != null && TempData["CourseID"]?.ToString() == courseSchedules.Course.CourseID.ToString())
+                        {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="alert alert-warning">
+                                        @TempData["WarningMessage1"]
                                     </div>
                                 </td>
                             </tr>

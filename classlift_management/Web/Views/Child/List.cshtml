@@ -20,49 +20,33 @@
 @using X.PagedList
 
 
-<style>
-    .pagination {
-        justify-content: center;
-    }
-
-    .page-item.active .page-link {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: white;
-    }
-
-    .page-link {
-        color: #007bff;
-    }
-</style>
-
 
 
 <h1>Manage @CurrentTenant.Terminology.ParticipantPlural</h1>
 
-<a href="/Child/Add" style="display: inline-block; margin-bottom: 20px; margin-right: 40px; text-decoration: none; ">Add @CurrentTenant.Terminology.ParticipantSingular</a>
+<a href="/Child/Add" class="list-add-link">Add @CurrentTenant.Terminology.ParticipantSingular</a>
 @* <label style="font-size:0.8em; color:darkslategray">
     <strong>0_CLXXXX</strong> - Balance and courses are correct &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>1_CLXXXX</strong> - Courses are correct &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  <strong>2_CLXXXX</strong> - Has some courses  &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <strong>3_CLXXXX</strong> - Only balance; courses not added yet
 </label> *@
 
 
-<form method="get" asp-action="List" style="margin-bottom:15px;">
+<form method="get" asp-action="List" class="list-filter mb-3">
     <input type="text" name="searchName" placeholder="Search @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() name..."
-           style="padding:5px; width:250px;" value="@Context.Request.Query["searchName"]" />
+           class="list-filter__input" value="@Context.Request.Query["searchName"]" />
 
-    <button type="submit" style="padding:5px 10px; margin-left: 10px;">Search</button>
-    <a href="/Child/List" style="display: inline-block; margin-left: 10px; text-decoration: none; ">Reset</a>
+    <button type="submit" class="list-filter__search">Search</button>
+    <a href="/Child/List" class="list-filter__reset">Reset</a>
 </form>
 
 
 
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="management-table-wrapper"><table class="management-table">
     <thead>
-        <tr style="background-color: #f2f2f2;">
+        <tr>
             <th style="padding: 8px; border: 1px solid #ddd;">#</th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" style="color: black; text-decoration: none; ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" style="color: black; text-decoration: none; ">
                     Member ID
                     @if ((string)ViewData["CurrentSort"] == "id")
                     {
@@ -76,7 +60,7 @@
                 </a>
             </th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" style="color: black; text-decoration: none; ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" style="color: black; text-decoration: none; ">
                     Name
                     @if ((string)ViewData["CurrentSort"] == "name")
                     {
@@ -90,7 +74,7 @@
                 </a>
             </th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["BirthDateSortParm"]" style="color: black; text-decoration: none; ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["BirthDateSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" style="color: black; text-decoration: none; ">
                     Birth Date
                     @if ((string)ViewData["CurrentSort"] == "birthday")
                     {
@@ -104,7 +88,7 @@
                 </a>
             </th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["GenderSortParm"]" style="color: black; text-decoration: none; ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["GenderSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" style="color: black; text-decoration: none; ">
                     Gender
                     @if ((string)ViewData["CurrentSort"] == "gender")
                     {
@@ -118,7 +102,7 @@
                 </a>
             </th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["CitySortParm"]" style="color: black; text-decoration: none; ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["CitySortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" style="color: black; text-decoration: none; ">
                     City
                     @if ((string)ViewData["CurrentSort"] == "city")
                     {
@@ -142,7 +126,7 @@
     </thead>
     <tbody>
         @{
-            int index = 1;
+            int index = ((Model.PageNumber - 1) * Model.PageSize) + 1;
 
             foreach (var childWithDelete in Model)
             {
@@ -217,13 +201,14 @@
         }
     </tbody>
 </table>
+</div>
 
 
 
-<div style="margin-top: 20px; text-align: center;">
+<div class="list-pagination">
     @Html.PagedListPager(
     Model,
-    page => Url.Action("List", new { page, sortOrder = ViewData["CurrentSort"] }),
+    page => Url.Action("List", new { page, sortOrder = ViewData["CurrentSort"], searchName = Context.Request.Query["searchName"] }),
         new PagedListRenderOptions
         {
             DisplayLinkToFirstPage = PagedListDisplayMode.Always,

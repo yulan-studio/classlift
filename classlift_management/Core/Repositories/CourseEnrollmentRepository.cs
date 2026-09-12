@@ -83,7 +83,10 @@ namespace Core.Repositories
                 .ToListAsync();
 
             foreach (var childSession in childSessions)
+            {
                 childSession.StaffNote = session.StaffNote;
+                childSession.Location = session.Location;
+            }
 
             await _context.SaveChangesAsync();
             return true;
@@ -410,7 +413,10 @@ namespace Core.Repositories
         public async Task<IEnumerable<CourseEnrollment>> GetSessionsByCourseAsync(int courseId, string status)
         {
             return await _context.CourseEnrollments
-                .Where(e => e.CourseID == courseId && e.Status == status && e.Child==null)
+                .Where(e => e.CourseID == courseId
+                    && e.Status == status
+                    && e.ChildID == null
+                    && e.EnrollmentID_Ref == null)
                 .OrderBy(e => e.ScheduledAt) // Sort by ScheduledAt ascending
                 .ToListAsync();
         }
@@ -446,6 +452,21 @@ namespace Core.Repositories
                 .Where(e => e.CourseID == courseId && e.ChildID != null && e.ScheduledAt >= torontoNow)
                 .OrderBy(e => e.ScheduledAt) // Sort by ScheduledAt ascending
                 .Select(e => e.EnrollmentID_Ref)
+                .ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
+            GetScheduleNotificationRecipientsAsync(int masterSessionId)
+        {
+            return await _context.CourseEnrollments
+                .AsNoTracking()
+                .Where(enrollment =>
+                    enrollment.EnrollmentID_Ref == masterSessionId
+                    && enrollment.ChildID != null
+                    && enrollment.Status != "Deleted")
+                .Select(enrollment => new CourseScheduleNotificationRecipient(
+                    enrollment.Child.Name,
+                    enrollment.Child.User.Email))
                 .ToListAsync();
         }
 
@@ -1194,6 +1215,7 @@ namespace Core.Repositories
             {
                 //schedule.ScheduledAt = DateTime.Parse(vm.ScheduledAt);
                 schedule.Location = vm.Location;
+                schedule.CoachNote = vm.CoachNote?.Trim();
                 await _context.SaveChangesAsync();
                 return true;
             }

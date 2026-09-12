@@ -17,6 +17,7 @@ namespace Billing.Services.Provisioning
         private readonly ITenantSchemaService _tenantSchemaService;
         private readonly ITenantSeedService _tenantSeedService;
         private readonly ITenantConnectionStringFactory _tenantConnectionFactory;
+        private readonly ITenantIdentitySeeder _tenantIdentitySeeder;
 
         public TenantProvisioningService(
             BillingDbContext context,
@@ -24,7 +25,8 @@ namespace Billing.Services.Provisioning
             IDatabaseProvisioner databaseProvisioner,
             ITenantSchemaService tenantSchemaService,
             ITenantSeedService tenantSeedService,
-            ITenantConnectionStringFactory tenantConnectionFactory)
+            ITenantConnectionStringFactory tenantConnectionFactory,
+            ITenantIdentitySeeder tenantIdentitySeeder)
         {
             _context = context;
             _configuration = configuration;
@@ -32,6 +34,31 @@ namespace Billing.Services.Provisioning
             _tenantSchemaService = tenantSchemaService;
             _tenantSeedService = tenantSeedService;
             _tenantConnectionFactory = tenantConnectionFactory;
+            _tenantIdentitySeeder = tenantIdentitySeeder;
+        }
+
+        public async Task SeedSharedAccountsAsync(Organization organization)
+        {
+            var tenant = await _context.Tenantregistries
+                .FirstAsync(t => t.OrganizationId == organization.OrganizationId);
+
+            var adminEmail = _configuration["TenantAdmin:Email"];
+            var adminPassword = _configuration["TenantAdmin:Password"];
+            var staffEmail = _configuration["TenantStaff:Email"];
+            var staffPassword = _configuration["TenantStaff:Password"];
+
+            if (string.IsNullOrWhiteSpace(adminEmail) &&
+                string.IsNullOrWhiteSpace(adminPassword) &&
+                string.IsNullOrWhiteSpace(staffEmail) &&
+                string.IsNullOrWhiteSpace(staffPassword))
+                return;
+
+            EnsureComplete("shared tenant admin configuration", adminEmail, adminPassword);
+            EnsureComplete("shared tenant staff configuration", staffEmail, staffPassword);
+
+            var connectionString = _tenantConnectionFactory.BuildConnectionString(tenant.DatabaseName);
+            await _tenantIdentitySeeder.SeedUserAsync(connectionString, adminEmail!, adminPassword!, "Admin");
+            await _tenantIdentitySeeder.SeedUserAsync(connectionString, staffEmail!, staffPassword!, "Staff");
         }
 
 
@@ -169,6 +196,12 @@ namespace Billing.Services.Provisioning
             safe = safe.Trim('_');
 
             return $"classlift_{safe}";
+        }
+
+        private static void EnsureComplete(string source, params string?[] values)
+        {
+            if (values.Any(string.IsNullOrWhiteSpace))
+                throw new InvalidOperationException($"{source} requires both email and password settings.");
         }
     }
 }

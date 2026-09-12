@@ -9,6 +9,11 @@ public interface IOrganizationEmailNotificationService
         CourseScheduleEmailData data,
         CancellationToken cancellationToken = default);
 
+    Task<OrganizationNotificationResult> SendCourseSchedulesCreatedAsync(
+        string? familyEmail,
+        CourseScheduleSummaryEmailData data,
+        CancellationToken cancellationToken = default);
+
     Task<OrganizationNotificationResult> SendCourseScheduleUpdatedAsync(
         string? familyEmail,
         CourseScheduleEmailData data,
@@ -31,6 +36,11 @@ public interface IOrganizationEmailNotificationService
 
     Task<OrganizationNotificationResult> SendScheduleChangeRequestedToOrganizationAsync(
         ScheduleChangeRequestedEmailData data,
+        CancellationToken cancellationToken = default);
+
+    Task<OrganizationNotificationResult> SendCourseConfirmationRequestedAsync(
+        string? familyEmail,
+        CourseConfirmationRequestedEmailData data,
         CancellationToken cancellationToken = default);
 
     Task<OrganizationNotificationBatchResult> SendPrivateCourseConfirmedAsync(

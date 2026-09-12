@@ -120,6 +120,36 @@ namespace Core.Services
             }
         }
 
+        private async Task EnsureGroupCourseSessionsAreReadyForRegistrationAsync(Course course)
+        {
+            if (!string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (!course.SessionCount.HasValue)
+                throw new InvalidOperationException(
+                    "This Group course does not have a Session Count. Please update the course before adding a participant.");
+
+            var openSessions = await _enrollmentRepository
+                .GetSessionsByCourseAsync(course.CourseID, "Open");
+            var completedSessions = await _enrollmentRepository
+                .GetSessionsByCourseAsync(course.CourseID, "Completed");
+            var configuredSessionCount = openSessions.Count() + completedSessions.Count();
+
+            if (configuredSessionCount < course.SessionCount.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Please finish setting up all course sessions before adding a participant. " +
+                    $"This course requires {course.SessionCount.Value} sessions, but only {configuredSessionCount} Open or Completed sessions are configured.");
+            }
+
+            if (configuredSessionCount > course.SessionCount.Value)
+            {
+                throw new InvalidOperationException(
+                    $"This course has inconsistent session data and cannot accept registrations. " +
+                    $"It requires {course.SessionCount.Value} sessions, but {configuredSessionCount} Open or Completed sessions are configured.");
+            }
+        }
+
 
 
         //Register course to child
@@ -134,6 +164,9 @@ namespace Core.Services
 
             if (child == null || course == null)
                 throw new ArgumentException("Invalid child or course.");
+
+            // Validate the complete Group schedule before creating any registration data.
+            await EnsureGroupCourseSessionsAreReadyForRegistrationAsync(course);
 
             if(await IsChildEnrolledInCourse(child.ChildID, courseId))
                 throw new ArgumentException("This course has already been registered.");
@@ -347,6 +380,10 @@ namespace Core.Services
             return await _enrollmentRepository.GetRegisteredUpcomingSessionsByCourseAsync(courseId);
         }
 
+        public async Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
+            GetScheduleNotificationRecipientsAsync(int masterSessionId) =>
+            await _enrollmentRepository.GetScheduleNotificationRecipientsAsync(masterSessionId);
+
         //Get Registered children for a course
         public async Task<IEnumerable<Core.ViewModels.ChildViewModel>> GetRegisterationByCourseAsync(int courseId)
         {
@@ -470,7 +507,7 @@ namespace Core.Services
 
 
         //Add new session to Group Course
-        public async Task<bool> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
+        public async Task<int> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
         {
           
             Course course = await _courseRepository.GetAsync(courseId);
@@ -493,7 +530,7 @@ namespace Core.Services
             try
             {
                 if (!await _enrollmentRepository.AddAsync(newSession))
-                    return false;
+                    return 0;
 
                 var registeredStudents = await _enrollmentRepository
                     .GetEnrollmentsByCourseAsync(courseId, "Registered");
@@ -529,7 +566,7 @@ namespace Core.Services
                             $"The new session could not be added for {registration.Child.Name}.");
                 }
 
-                return true;
+                return newSession.EnrollmentID;
             }
 
             catch (Exception ex)
