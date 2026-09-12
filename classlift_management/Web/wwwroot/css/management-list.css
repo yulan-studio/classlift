@@ -132,6 +132,49 @@
     text-decoration: none;
 }
 
+.schedule-info {
+    padding: 20px 0;
+}
+
+.schedule-add-panel {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+}
+
+.schedule-field {
+    margin-bottom: 10px;
+}
+
+.schedule-input {
+    width: 40%;
+    padding: 5px;
+}
+
+.schedule-input--edit {
+    width: 50%;
+}
+
+.schedule-alert {
+    margin-top: 20px;
+}
+
+.schedule-section-title {
+    color: steelblue;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .schedule-input {
+        width: 100%;
+    }
+
+    .schedule-input--edit {
+        width: 100%;
+    }
+}
+
 .management-form__save {
     background-color: #1B7BAB;
     color: white;

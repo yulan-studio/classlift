@@ -68,11 +68,11 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<a href="/Course/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to Courses List</a>
+<a href="/Course/List" class="management-form__cancel">Back to Courses List</a>
 
 
 
-<div style="padding-top: 40px; padding-bottom: 20px">
+<div class="schedule-info">
     <strong>Course:</strong> @Model.Course.Title <br /><br />
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
 </div>
@@ -80,21 +80,21 @@
 <!-- Add New Session Form -->
 @if (canAddSessions)
 {
-    <div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2; border-radius: 8px;">
+    <div class="schedule-add-panel">
         <form method="post" asp-action="AddSession" asp-controller="Course" onsubmit="return validateScheduleTime()">
             <input type="hidden" name="courseId" value="@courseId" />
             <input type="hidden" name="courseId" value="@courseId" />
 
 
-        <div style="margin-bottom: 10px;">
+        <div class="schedule-field">
             <strong>Scheduled At:</strong><br />
-            <input type="datetime-local" name="scheduledAt" id="scheduledAt" required style="width: 40%; padding: 5px;" />
+            <input type="datetime-local" name="scheduledAt" id="scheduledAt" required class="schedule-input" />
             <span id="scheduledAtError" style="color: red; margin-left: 10px;"></span>
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div class="schedule-field">
             <strong>Event Time Zone:</strong><br />
-            <select name="scheduledTimeZoneId" required style="width: 40%; padding: 5px;">
+            <select name="scheduledTimeZoneId" required class="schedule-input">
                 @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
                 {
                     <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.UserTimeZoneId)">@zone.DisplayName (@zone.Id)</option>
@@ -102,40 +102,40 @@
             </select>
         </div>
        
-        <div style="margin-bottom: 10px;">
+        <div class="schedule-field">
             <strong>Scheduled Hours:</strong><br />
-            <input type="number" step="0.25" min="0.5" name="scheduledHours" id="scheduledHours" required onchange="return updateMinutesDisplay()" style="width: 40%; padding: 5px;" />
+            <input type="number" step="0.25" min="0.5" name="scheduledHours" id="scheduledHours" required onchange="return updateMinutesDisplay()" class="schedule-input" />
             <span id="minutesDisplay" style="margin-left: 10px; font-style: italic;"></span>
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div class="schedule-field">
             <strong>Repeat:</strong><br />
-            <select id="repeatType" name="repeatType" style="width: 40%; padding: 5px;">
+            <select id="repeatType" name="repeatType" class="schedule-input">
                 <option value="None">Does not repeat</option>
                 <option value="Daily">Daily</option>
                 <option value="Weekly">Weekly</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div class="schedule-field">
             <strong>Repeat Count:</strong><br />
-            <input type="number" name="repeatCount" min="1" max="100" value="1" style="width: 40%; padding: 5px;" />
+            <input type="number" name="repeatCount" min="1" max="100" value="1" class="schedule-input" />
             <span style="font-style: italic;"></span>
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div class="schedule-field">
             <strong>Location:</strong><br />
-            <input type="text"  name="location" required style="width: 40%; padding: 5px;" />
+            <input type="text"  name="location" required class="schedule-input" />
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div class="schedule-field">
             <strong>Staff Note:</strong><br />
-            <textarea name="staffNote" rows="3" style="width: 40%; padding: 5px;" ></textarea>
+            <textarea name="staffNote" rows="3" class="schedule-input" ></textarea>
         </div>
 
 
 
-            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px;">Add Session(s)</button>
+            <button type="submit" class="management-form__save">Add Session(s)</button>
         </form>
     </div>
 }
@@ -143,23 +143,23 @@
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success" style="margin-top: 20px;">@TempData["SuccessMessage"]</div>
+    <div class="alert alert-success schedule-alert">@TempData["SuccessMessage"]</div>
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger" style="margin-top: 20px;">@TempData["ErrorMessage"]</div>
+    <div class="alert alert-danger schedule-alert">@TempData["ErrorMessage"]</div>
 }
 
 @if (TempData["WarningMessage"] != null)
 {
-    <div class="alert alert-warning" style="margin-top: 20px;">@TempData["WarningMessage"]</div>
+    <div class="alert alert-warning schedule-alert">@TempData["WarningMessage"]</div>
 }
 
 <!-- Existing Sessions Table -->
-<h5 style="color:steelblue; margin-bottom: 20px;">Upcoming Sessions</h5>
+<h5 class="schedule-section-title">Upcoming Sessions</h5>
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="management-table-wrapper"><table class="management-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
 
@@ -230,7 +230,7 @@
             </tr>
         }
     </tbody>
-</table>
+</table></div>
 
 
 
@@ -260,9 +260,9 @@
 
 
 <!-- Completed Sessions Table -->
-<h5 style="color:steelblue; margin-bottom: 20px;">Finished Sessions</h5>
+<h5 class="schedule-section-title">Finished Sessions</h5>
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="management-table-wrapper"><table class="management-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd; width: 10%">Date</th>
@@ -318,4 +318,4 @@
             </tr>
         }
     </tbody>
-</table>
+</table></div>
