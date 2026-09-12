@@ -7,6 +7,7 @@ public enum EmailNotificationType
     CourseScheduleDeleted,
     CourseSessionCompleted,
     ScheduleChangeRequested,
+    CourseConfirmationRequested,
     CourseConfirmed,
     ActivityConfirmed
 }

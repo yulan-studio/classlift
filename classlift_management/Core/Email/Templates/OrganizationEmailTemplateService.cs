@@ -26,18 +26,77 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             "A new course session has been scheduled.",
             "A new course session has been scheduled");
 
+    public TemplatedEmail CourseSchedulesCreated(
+        OrganizationEmailTemplateContext context,
+        string recipientEmail,
+        CourseScheduleSummaryEmailData data)
+    {
+        ValidateContext(context);
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
+        ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
+        ValidateRequired(data.CourseName, nameof(data.CourseName));
+        ValidateRequired(data.ProviderName, nameof(data.ProviderName));
+        if (data.Sessions is null || data.Sessions.Count == 0)
+            throw new ArgumentException("At least one scheduled session is required.", nameof(data.Sessions));
+
+        var details = new List<(string Label, string Value)>
+        {
+            ("Course", data.CourseName),
+            (context.Terminology.ParticipantSingular, data.ParticipantName),
+            (context.Terminology.ProviderSingular, data.ProviderName)
+        };
+
+        for (var index = 0; index < data.Sessions.Count; index++)
+        {
+            var session = data.Sessions[index];
+            if (session.ScheduledHours <= 0)
+                throw new ArgumentOutOfRangeException(nameof(data.Sessions), "Scheduled hours must be greater than zero.");
+
+            var value = $"{FormatSchedule(session.ScheduledAtUtc, session.TimeZoneId)}; " +
+                        $"{session.ScheduledHours.ToString("0.##", CultureInfo.InvariantCulture)} hours";
+            if (!string.IsNullOrWhiteSpace(session.Location))
+                value += $"; Location: {session.Location.Trim()}";
+
+            details.Add(($"Session {index + 1}", value));
+        }
+
+        var sessionWord = data.Sessions.Count == 1 ? "session" : "sessions";
+        var verb = data.Sessions.Count == 1 ? "has" : "have";
+        return Build(
+            EmailNotificationType.CourseScheduleCreated,
+            context,
+            recipientEmail,
+            $"{SubjectValue(data.CourseName)}: {data.Sessions.Count} new course {sessionWord} scheduled",
+            data.Sessions.Count == 1 ? "New course session scheduled" : "New course sessions scheduled",
+            $"{data.Sessions.Count} new course {sessionWord} {verb} been scheduled.",
+            $"{data.Sessions.Count} new course {sessionWord} {verb} been scheduled",
+            details,
+            data.ActionPath);
+    }
+
     public TemplatedEmail CourseScheduleUpdated(
         OrganizationEmailTemplateContext context,
         string recipientEmail,
-        CourseScheduleEmailData data) =>
-        BuildScheduleEmail(
+        CourseScheduleEmailData data)
+    {
+        var isCanceled = string.Equals(
+            data.Status?.Trim(),
+            "Canceled",
+            StringComparison.OrdinalIgnoreCase);
+
+        return BuildScheduleEmail(
             EmailNotificationType.CourseScheduleUpdated,
             context,
             recipientEmail,
             data,
-            "Course schedule updated",
-            "A course session schedule has been updated.",
-            "A course session schedule has been updated");
+            isCanceled ? "Course session canceled" : "Course schedule updated",
+            isCanceled
+                ? "This course session has been canceled."
+                : "A course session schedule has been updated.",
+            isCanceled
+                ? "This course session has been canceled"
+                : "A course session schedule has been updated");
+    }
 
     public TemplatedEmail CourseScheduleDeleted(
         OrganizationEmailTemplateContext context,
@@ -151,6 +210,39 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             data.ActionPath);
     }
 
+    public TemplatedEmail CourseConfirmationRequested(
+        OrganizationEmailTemplateContext context,
+        string recipientEmail,
+        CourseConfirmationRequestedEmailData data)
+    {
+        ValidateContext(context);
+        ValidateRequired(recipientEmail, nameof(recipientEmail));
+        ValidateRequired(data.ParticipantName, nameof(data.ParticipantName));
+        ValidateRequired(data.CourseName, nameof(data.CourseName));
+        ValidateRequired(data.CourseType, nameof(data.CourseType));
+
+        var details = new List<(string Label, string Value)>
+        {
+            ("Course", data.CourseName),
+            ("Course type", data.CourseType),
+            (context.Terminology.ParticipantSingular, data.ParticipantName)
+        };
+        if (!string.IsNullOrWhiteSpace(data.ProviderName))
+            details.Add((context.Terminology.ProviderSingular, data.ProviderName.Trim()));
+
+        return Build(
+            EmailNotificationType.CourseConfirmationRequested,
+            context,
+            recipientEmail,
+            $"{SubjectValue(data.CourseName)}: confirmation required",
+            "Course confirmation required",
+            "A course registration has been created. Please review and confirm it.",
+            "A course registration has been created. Please review and confirm it",
+            details,
+            data.ActionPath,
+            "Review and confirm course");
+    }
+
     public TemplatedEmail ActivityConfirmed(
         OrganizationEmailTemplateContext context,
         string recipientEmail,
@@ -210,6 +302,10 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             details.Add(("Scheduled hours", data.ScheduledHours.Value.ToString("0.##", CultureInfo.InvariantCulture)));
         if (!string.IsNullOrWhiteSpace(data.Location))
             details.Add(("Location", data.Location.Trim()));
+        if (!string.IsNullOrWhiteSpace(data.Status))
+            details.Add(("Status", data.Status.Trim()));
+        if (!string.IsNullOrWhiteSpace(data.StaffNote))
+            details.Add(("Staff Note", data.StaffNote.Trim()));
 
         return Build(
             notificationType,
@@ -232,7 +328,8 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         string htmlIntroduction,
         string textIntroduction,
         IEnumerable<(string Label, string Value)> details,
-        string portalPath)
+        string portalPath,
+        string actionLabel = "Open your ClassLift portal")
     {
         if (!EmailAddressValidation.IsValid(recipientEmail))
             throw new ArgumentException("The recipient email address is invalid.", nameof(recipientEmail));
@@ -257,7 +354,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
 
         html.Append("</ul><p><a href=\"")
             .Append(EmailHtml.Encode(portalUri.AbsoluteUri))
-            .Append("\">Open your ClassLift portal</a></p><p>Thank you,<br>")
+            .Append("\">").Append(EmailHtml.Encode(actionLabel)).Append("</a></p><p>Thank you,<br>")
             .Append(EmailHtml.Encode(context.OrganizationName))
             .Append(" Support Team</p>");
 
@@ -270,7 +367,7 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
             text.Append(label).Append(": ").AppendLine(value);
 
         text.AppendLine()
-            .Append("Open your ClassLift portal: ").AppendLine(portalUri.AbsoluteUri)
+            .Append(actionLabel).Append(": ").AppendLine(portalUri.AbsoluteUri)
             .AppendLine()
             .Append("Thank you,").AppendLine()
             .Append(context.OrganizationName).Append(" Support Team");
@@ -318,7 +415,8 @@ public sealed class OrganizationEmailTemplateService : IOrganizationEmailTemplat
         ValidateRequired(actionPath, nameof(actionPath));
         if (!actionPath.StartsWith('/')
             || actionPath.StartsWith("//", StringComparison.Ordinal)
-            || Uri.TryCreate(actionPath, UriKind.Absolute, out _))
+            || actionPath.Contains('\\')
+            || actionPath.Any(char.IsControl))
         {
             throw new ArgumentException("The portal action path must be a local absolute path.", nameof(actionPath));
         }

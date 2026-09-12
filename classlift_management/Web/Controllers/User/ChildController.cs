@@ -1,6 +1,8 @@
 ﻿
 using Core;
 using Core.Contexts;
+using Core.Email.Notifications;
+using Core.Email.Templates;
 using Core.FormModels;
 using Core.Interfaces;
 using Core.Models;
@@ -56,10 +58,12 @@ namespace Web.Controllers.User
         private readonly Core.R2.R2StorageService _r2UploadService;
         private readonly ITimeZoneService _timeZoneService;
         private readonly CurrentTenant _currentTenant;
+        private readonly IOrganizationEmailNotificationService _emailNotifications;
+        private readonly ILogger<ChildController> _logger;
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<ChildController> logger/*, AppDbContext context*/)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -80,6 +84,8 @@ namespace Web.Controllers.User
             _currentTenant = currentTenant;
             _calendarService = calendarService;
             _timeZoneService = timeZoneService;
+            _emailNotifications = emailNotifications;
+            _logger = logger;
 
             //_context = context;   // For transaction
         }
@@ -964,6 +970,7 @@ namespace Web.Controllers.User
                 //await transaction.CommitAsync();
 
                 TempData["SuccessMessage1"] = "Child enrolled successfully!";
+                await NotifyFamilyOfCourseRegistrationAsync(childId, course);
             }
             catch (Exception ex)
             {
@@ -976,6 +983,38 @@ namespace Web.Controllers.User
             return RedirectToAction("Participation", new { childId, tab = "ManageRegistrations" });
 
 
+        }
+
+        private async Task NotifyFamilyOfCourseRegistrationAsync(int childId, Course course)
+        {
+            try
+            {
+                var child = await _childService.GetAsync(childId);
+                var delivery = await _emailNotifications.SendCourseConfirmationRequestedAsync(
+                    child.User?.Email,
+                    new CourseConfirmationRequestedEmailData(
+                        child.Name,
+                        course.Title,
+                        course.CourseType,
+                        "/Child/MyConfirmations",
+                        course.Coach?.Name));
+
+                if (!delivery.IsSuccessful)
+                {
+                    TempData["WarningMessage"] =
+                        "The participant was registered, but the confirmation email could not be sent.";
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Course registration succeeded, but its family confirmation email could not be processed. ChildId={ChildId}, CourseId={CourseId}",
+                    childId,
+                    course.CourseID);
+                TempData["WarningMessage"] =
+                    "The participant was registered, but the confirmation email could not be sent.";
+            }
         }
 
         [Authorize(Roles = "Staff")]
@@ -1708,11 +1747,17 @@ namespace Web.Controllers.User
             {
                 try
                 {
-
+                    var course = await _courseService.GetAsync(model.CourseID);
+                    var submittedRequests = new List<CourseEnrollment>();
 
                     foreach (var schedule in model.Schedules)
                     {
                         var existing = await _courseEnrollmentService.GetAsync(schedule.EnrollmentID);
+                        if (existing.ChildID != child.ChildID || existing.CourseID != model.CourseID)
+                            return BadRequest("The session does not belong to the selected participant and course.");
+
+                        var previousStatus = existing.Status;
+                        var previousNote = existing.ParentNote;
                         if (existing != null)
                         {
                             if (existing.Status != "Canceled" && existing.Status != "Deleted" && schedule.Status != null)  //schedule.Status is not null means Status dropdown list is enabled
@@ -1727,7 +1772,21 @@ namespace Web.Controllers.User
                                 existing.ParentNote = schedule.ParentNote;
                             }
 
-                            await _courseEnrollmentService.UpdateSessionAsync(existing);
+                            var updated = await _courseEnrollmentService.UpdateSessionAsync(existing);
+                            if (!updated)
+                                throw new InvalidOperationException("One or more schedule changes could not be saved.");
+
+                            var isRequest = existing.Status is "RequestToReschedule" or "RequestToLeave";
+                            var requestChanged = !string.Equals(
+                                    previousStatus,
+                                    existing.Status,
+                                    StringComparison.Ordinal)
+                                || !string.Equals(
+                                    previousNote?.Trim(),
+                                    existing.ParentNote?.Trim(),
+                                    StringComparison.Ordinal);
+                            if (isRequest && requestChanged)
+                                submittedRequests.Add(existing);
                         }
                     }
 
@@ -1735,6 +1794,10 @@ namespace Web.Controllers.User
 
                     TempData["SuccessMessage1"] = "Schedules updated successfully.";
                     TempData["CourseID"] = model.CourseID;
+                    if (submittedRequests.Count > 0)
+                    {
+                        await NotifyScheduleChangeRequestAsync(child, course, submittedRequests);
+                    }
                 }
 
                 catch (Exception ex)
@@ -1748,6 +1811,87 @@ namespace Web.Controllers.User
 
             return RedirectToAction("MySchedules");
         }
+
+        private async Task NotifyScheduleChangeRequestAsync(
+            Child child,
+            Course course,
+            IReadOnlyList<CourseEnrollment> requests)
+        {
+            try
+            {
+                var requestTypes = string.Join(", ", requests
+                    .Select(request => RequestDisplayName(request.Status))
+                    .Distinct(StringComparer.OrdinalIgnoreCase));
+                var requestDetails = string.Join("; ", requests.Select(request =>
+                {
+                    var schedule = request.ScheduledAt.HasValue
+                        ? _timeZoneService.ConvertUtcToLocal(
+                            DateTime.SpecifyKind(request.ScheduledAt.Value, DateTimeKind.Utc),
+                            request.ScheduledTimeZoneId ?? userTimeZone(child.User))
+                            .ToString("MMMM d, yyyy 'at' h:mm tt")
+                        : "Unscheduled session";
+                    var note = string.IsNullOrWhiteSpace(request.ParentNote)
+                        ? string.Empty
+                        : $" — {request.ParentNote.Trim()}";
+                    return $"{schedule}: {RequestDisplayName(request.Status)}{note}";
+                }));
+
+                var rootEnrollmentId = requests
+                    .Select(request => request.EnrollmentID_Ref)
+                    .FirstOrDefault(reference => reference.HasValue);
+                var actionPath = string.Equals(course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                    ? $"/Coach/ManageSchedules/{child.ChildID}?courseId={course.CourseID}&enrollmentId={rootEnrollmentId}"
+                    : $"/Child/ManageSessionRegistrations?childId={child.ChildID}&courseId={course.CourseID}";
+                var data = new ScheduleChangeRequestedEmailData(
+                    child.Name,
+                    course.Title,
+                    $"{child.Name}'s family ({requestTypes})",
+                    actionPath,
+                    requestDetails);
+
+                OrganizationNotificationResult delivery;
+                if (string.Equals(course.CourseType, "Private", StringComparison.OrdinalIgnoreCase))
+                {
+                    delivery = await _emailNotifications.SendScheduleChangeRequestedToCoachAsync(
+                        course.Coach?.User?.Email,
+                        data);
+                }
+                else
+                {
+                    delivery = await _emailNotifications.SendScheduleChangeRequestedToOrganizationAsync(data);
+                }
+
+                if (!delivery.IsSuccessful)
+                {
+                    TempData["WarningMessage1"] =
+                        "Your schedule request was saved, but the notification email could not be sent.";
+                    TempData["CourseID"] = course.CourseID;
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Schedule request was saved, but its notification email could not be processed. ChildId={ChildId}, CourseId={CourseId}",
+                    child.ChildID,
+                    course.CourseID);
+                TempData["WarningMessage1"] =
+                    "Your schedule request was saved, but the notification email could not be sent.";
+                TempData["CourseID"] = course.CourseID;
+            }
+
+            static string userTimeZone(Core.Models.User user) =>
+                string.IsNullOrWhiteSpace(user.TimeZoneId)
+                    ? TimeZoneService.DefaultTimeZoneId
+                    : user.TimeZoneId;
+        }
+
+        private static string RequestDisplayName(string status) => status switch
+        {
+            "RequestToReschedule" => "Request to Reschedule",
+            "RequestToLeave" => "Request to Leave",
+            _ => status
+        };
 
 
 
@@ -1813,6 +1957,7 @@ namespace Web.Controllers.User
                     result3 = await _feeService.UpdateCourseIsPaidAsync(fee.CourseEnrollmentID.Value, user.Id);
                 }
 
+                bool result4 = true;
                 if (result1 == true && result2 == true && result3 == true)
                 {
                     if (model?.Schedules != null && model.Schedules.Any())
@@ -1827,10 +1972,15 @@ namespace Web.Controllers.User
                                     existing.Status = "Scheduled";
                                 }
 
-                                await _courseEnrollmentService.UpdateSessionAsync(existing);
+                                result4 = await _courseEnrollmentService.UpdateSessionAsync(existing) && result4;
                             }
                         }
+                    }
+
+                    if (result4)
+                    {
                         TempData["SuccessMessage2"] = "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
+                        await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
                     }
                 }
             }
@@ -1892,6 +2042,7 @@ namespace Web.Controllers.User
                 {
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     TempData["SuccessMessage2"] = "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>.";
+                    await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
                 }
 
 
@@ -1949,12 +2100,96 @@ namespace Web.Controllers.User
                 {
                    // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     TempData["SuccessMessage3"] = "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
+                    await NotifyActivityConfirmedAsync(child, model.ActivityID);
                 }
 
                     
             }
 
             return RedirectToAction("MyConfirmations");
+        }
+
+        private async Task NotifyGroupCourseConfirmedAsync(Child child, int courseId)
+        {
+            try
+            {
+                var course = await _courseService.GetAsync(courseId);
+                var delivery = await _emailNotifications.SendGroupCourseConfirmedAsync(
+                    new CourseConfirmedEmailData(
+                        child.Name,
+                        course.Title,
+                        course.CourseType,
+                        $"/Child/ManageSessionRegistrations?childId={child.ChildID}&courseId={course.CourseID}",
+                        course.Coach?.Name));
+
+                if (!delivery.IsSuccessful)
+                    TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Group course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
+                    child.ChildID,
+                    courseId);
+                TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+            }
+        }
+
+        private async Task NotifyPrivateCourseConfirmedAsync(Child child, int courseId, int enrollmentId)
+        {
+            try
+            {
+                var course = await _courseService.GetAsync(courseId);
+                var delivery = await _emailNotifications.SendPrivateCourseConfirmedAsync(
+                    course.Coach?.User?.Email,
+                    new CourseConfirmedEmailData(
+                        child.Name,
+                        course.Title,
+                        course.CourseType,
+                        $"/Child/ManageRegistrations/{child.ChildID}",
+                        course.Coach?.Name,
+                        $"/Coach/ManageSchedules/{child.ChildID}?courseId={course.CourseID}&enrollmentId={enrollmentId}"));
+
+                if (!delivery.IsSuccessful)
+                    TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Private course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
+                    child.ChildID,
+                    courseId);
+                TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+            }
+        }
+
+        private async Task NotifyActivityConfirmedAsync(Child child, int activityId)
+        {
+            try
+            {
+                var activity = await _activityService.GetAsync(activityId);
+                var delivery = await _emailNotifications.SendActivityConfirmedAsync(
+                    new ActivityConfirmedEmailData(
+                        child.Name,
+                        activity.Title,
+                        $"/Child/ManageRegistrations/{child.ChildID}",
+                        DateTime.SpecifyKind(activity.ScheduledAt, DateTimeKind.Utc),
+                        activity.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId));
+
+                if (!delivery.IsSuccessful)
+                    TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Activity confirmation notification failed. ChildId={ChildId}, ActivityId={ActivityId}",
+                    child.ChildID,
+                    activityId);
+                TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+            }
         }
 
         [HttpGet("MyCalendar")]

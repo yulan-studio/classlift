@@ -13,6 +13,7 @@ public class OrganizationEmailTemplateServiceTests
     [TestCase(EmailNotificationType.CourseScheduleDeleted)]
     [TestCase(EmailNotificationType.CourseSessionCompleted)]
     [TestCase(EmailNotificationType.ScheduleChangeRequested)]
+    [TestCase(EmailNotificationType.CourseConfirmationRequested)]
     [TestCase(EmailNotificationType.CourseConfirmed)]
     [TestCase(EmailNotificationType.ActivityConfirmed)]
     public void BuildsEverySupportedTemplate(EmailNotificationType notificationType)
@@ -82,6 +83,21 @@ public class OrganizationEmailTemplateServiceTests
     }
 
     [Test]
+    public void UpdatedScheduleIncludesStaffNoteInBothBodies()
+    {
+        var data = ScheduleData() with { StaffNote = "Bring <indoor shoes>" };
+
+        var email = _service.CourseScheduleUpdated(Context(), "recipient@example.com", data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.Message.HtmlBody, Does.Contain("Staff Note"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Bring &lt;indoor shoes&gt;"));
+            Assert.That(email.Message.TextBody, Does.Contain("Staff Note: Bring <indoor shoes>"));
+        });
+    }
+
+    [Test]
     public void RemovesLineBreaksFromUserDerivedSubjectText()
     {
         var email = _service.CourseConfirmed(
@@ -132,12 +148,108 @@ public class OrganizationEmailTemplateServiceTests
     [TestCase("https://attacker.example/path")]
     [TestCase("//attacker.example/path")]
     [TestCase("relative/path")]
+    [TestCase("/\\attacker.example/path")]
+    [TestCase("/Child/MySchedules\nInjected")]
     public void RejectsExternalOrRelativeActionPath(string actionPath)
     {
         var data = ScheduleData() with { ActionPath = actionPath };
 
         Assert.Throws<ArgumentException>(() =>
             _service.CourseScheduleCreated(Context(), "recipient@example.com", data));
+    }
+
+    [Test]
+    public void AcceptsRootedLocalActionPathWithoutPlatformDependentUriClassification()
+    {
+        var data = ScheduleData() with { ActionPath = "/Child/MySchedules" };
+
+        var email = _service.CourseScheduleUpdated(Context(), "recipient@example.com", data);
+
+        Assert.That(
+            email.Message.TextBody,
+            Does.Contain("https://northstar.example/Child/MySchedules"));
+    }
+
+    [Test]
+    public void CanceledScheduleIsExplicitInSubjectAndBothBodies()
+    {
+        var data = ScheduleData() with { Status = "Canceled" };
+
+        var email = _service.CourseScheduleUpdated(Context(), "recipient@example.com", data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.Message.Subject, Does.Contain("canceled").IgnoreCase);
+            Assert.That(email.Message.HtmlBody, Does.Contain("has been canceled"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("<strong>Status:</strong> Canceled"));
+            Assert.That(email.Message.TextBody, Does.Contain("has been canceled"));
+            Assert.That(email.Message.TextBody, Does.Contain("Status: Canceled"));
+        });
+    }
+
+    [Test]
+    public void RegistrationConfirmationRequestLinksDirectlyToConfirmationsPage()
+    {
+        var email = _service.CourseConfirmationRequested(
+            Context(),
+            "family@example.com",
+            new CourseConfirmationRequestedEmailData(
+                "Jamie", "Piano", "Group", "/Child/MyConfirmations", "Taylor"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.Message.Subject, Does.Contain("confirmation required"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Review and confirm course"));
+            Assert.That(email.Message.HtmlBody,
+                Does.Contain("https://northstar.example/Child/MyConfirmations"));
+            Assert.That(email.Message.TextBody,
+                Does.Contain("https://northstar.example/Child/MyConfirmations"));
+        });
+    }
+
+    [Test]
+    public void BuildsOneSummaryEmailContainingEveryCreatedSession()
+    {
+        var data = new CourseScheduleSummaryEmailData(
+            "Jamie",
+            "Piano",
+            "Taylor",
+            [
+                new CourseScheduleSummaryItem(
+                    new DateTime(2026, 9, 14, 18, 0, 0, DateTimeKind.Utc),
+                    "America/Toronto",
+                    1m,
+                    "Room A"),
+                new CourseScheduleSummaryItem(
+                    new DateTime(2026, 9, 21, 18, 0, 0, DateTimeKind.Utc),
+                    "America/Toronto",
+                    1m,
+                    "Room A")
+            ],
+            "/Child/MySchedules");
+
+        var email = _service.CourseSchedulesCreated(Context(), "recipient@example.com", data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(email.NotificationType, Is.EqualTo(EmailNotificationType.CourseScheduleCreated));
+            Assert.That(email.Message.Subject, Does.Contain("2 new course sessions"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Session 1"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Session 2"));
+            Assert.That(email.Message.HtmlBody, Does.Contain("Location: Room A"));
+            Assert.That(email.Message.TextBody, Does.Contain("September 14, 2026"));
+            Assert.That(email.Message.TextBody, Does.Contain("September 21, 2026"));
+        });
+    }
+
+    [Test]
+    public void RejectsEmptyCreatedSessionSummary()
+    {
+        var data = new CourseScheduleSummaryEmailData(
+            "Jamie", "Piano", "Taylor", [], "/Child/MySchedules");
+
+        Assert.Throws<ArgumentException>(() =>
+            _service.CourseSchedulesCreated(Context(), "recipient@example.com", data));
     }
 
     [Test]
@@ -177,6 +289,16 @@ public class OrganizationEmailTemplateServiceTests
                     "Alex's family",
                     "/Staff/ScheduleRequests",
                     "Please move this session.")),
+        EmailNotificationType.CourseConfirmationRequested =>
+            _service.CourseConfirmationRequested(
+                Context(),
+                "recipient@example.com",
+                new CourseConfirmationRequestedEmailData(
+                    "Alex",
+                    "Robotics",
+                    "Group",
+                    "/Child/MyConfirmations",
+                    "Morgan")),
         EmailNotificationType.CourseConfirmed =>
             _service.CourseConfirmed(
                 Context(),
@@ -203,6 +325,7 @@ public class OrganizationEmailTemplateServiceTests
     private static string GetActionPath(EmailNotificationType notificationType) => notificationType switch
     {
         EmailNotificationType.ScheduleChangeRequested => "/Staff/ScheduleRequests",
+        EmailNotificationType.CourseConfirmationRequested => "/Child/MyConfirmations",
         EmailNotificationType.CourseConfirmed => "/Course/Manage",
         EmailNotificationType.ActivityConfirmed => "/Activity/Manage",
         _ => "/Child/MySchedules"

@@ -65,6 +65,9 @@ namespace Core.Interfaces
 
         Task<List<int?>> GetRegisteredUpcomingSessionsByCourseAsync(int courseId);
 
+        Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
+            GetScheduleNotificationRecipientsAsync(int masterSessionId);
+
         Task UpdateChildCompletedSessionsAsync(int courseId);
 
         Task UpdateChildCompletedSessionsAsync(AppDbContext dbContext, int courseId, CancellationToken cancellationToken);

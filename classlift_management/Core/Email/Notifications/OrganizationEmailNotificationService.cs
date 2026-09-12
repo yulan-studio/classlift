@@ -38,6 +38,17 @@ public sealed class OrganizationEmailNotificationService : IOrganizationEmailNot
             (context, recipient) => _templateService.CourseScheduleCreated(context, recipient, data),
             cancellationToken);
 
+    public Task<OrganizationNotificationResult> SendCourseSchedulesCreatedAsync(
+        string? familyEmail,
+        CourseScheduleSummaryEmailData data,
+        CancellationToken cancellationToken = default) =>
+        SendDirectAsync(
+            EmailNotificationType.CourseScheduleCreated,
+            NotificationRecipientKind.Family,
+            familyEmail,
+            (context, recipient) => _templateService.CourseSchedulesCreated(context, recipient, data),
+            cancellationToken);
+
     public Task<OrganizationNotificationResult> SendCourseScheduleUpdatedAsync(
         string? familyEmail,
         CourseScheduleEmailData data,
@@ -102,6 +113,17 @@ public sealed class OrganizationEmailNotificationService : IOrganizationEmailNot
             cancellationToken);
     }
 
+    public Task<OrganizationNotificationResult> SendCourseConfirmationRequestedAsync(
+        string? familyEmail,
+        CourseConfirmationRequestedEmailData data,
+        CancellationToken cancellationToken = default) =>
+        SendDirectAsync(
+            EmailNotificationType.CourseConfirmationRequested,
+            NotificationRecipientKind.Family,
+            familyEmail,
+            (context, recipient) => _templateService.CourseConfirmationRequested(context, recipient, data),
+            cancellationToken);
+
     public async Task<OrganizationNotificationBatchResult> SendPrivateCourseConfirmedAsync(
         string? coachEmail,
         CourseConfirmedEmailData data,
@@ -131,7 +153,10 @@ public sealed class OrganizationEmailNotificationService : IOrganizationEmailNot
             EmailNotificationType.CourseConfirmed,
             NotificationRecipientKind.Coach,
             coachEmail,
-            context => _templateService.CourseConfirmed(context, coachEmail!, data),
+            context => _templateService.CourseConfirmed(
+                context,
+                coachEmail!,
+                data with { ActionPath = data.ProviderActionPath ?? data.ActionPath }),
             bundle.Context!,
             cancellationToken);
 

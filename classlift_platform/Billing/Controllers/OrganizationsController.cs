@@ -171,6 +171,8 @@ namespace Billing.Controllers
                 var organization = await _tenantProvisioningService
                     .CreateOrganizationAsync(model);
 
+                await _tenantProvisioningService.SeedSharedAccountsAsync(organization);
+
                 TempData["Success"] = "Organization created successfully.";
 
                 return RedirectToAction(nameof(Details), new { id = organization.OrganizationId });

@@ -10,6 +10,10 @@ namespace Core.ViewModels
     {
         public int CourseID { get; set; }
 
+        public int SpecialtyID { get; set; }
+
+        public int? CoachID { get; set; }
+
         public string SpecialtyName { get; set; }
 
         public string CoachName { get; set; }

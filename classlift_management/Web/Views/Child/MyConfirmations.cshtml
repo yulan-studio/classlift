@@ -25,6 +25,13 @@
 
 }
 
+@if (TempData["WarningMessage2"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["WarningMessage2"]
+    </div>
+}
+
 @{
     bool hasCourseToConfirm = false;
 }
@@ -273,6 +280,13 @@
 
     </div>
 
+}
+
+@if (TempData["WarningMessage3"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["WarningMessage3"]
+    </div>
 }
 @if (Model.ActivitiesToConfirm != null && Model.ActivitiesToConfirm.Any())
 {

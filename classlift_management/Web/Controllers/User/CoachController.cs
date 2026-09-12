@@ -1,5 +1,7 @@
 ﻿
 using Core;
+using Core.Email.Notifications;
+using Core.Email.Templates;
 using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
@@ -48,6 +50,8 @@ namespace Web.Controllers.User
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
         private readonly CurrentTenant _currentTenant;
+        private readonly IOrganizationEmailNotificationService _emailNotifications;
+        private readonly ILogger<CoachController> _logger;
 
         private string ProviderName =>
             _currentTenant.Terminology.ProviderSingular;
@@ -55,7 +59,7 @@ namespace Web.Controllers.User
         private string ProviderNameLower =>
             ProviderName.ToLowerInvariant();
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CoachController> logger)
         {
             _coachService = coachService;
             _incomeService = incomeService;
@@ -74,6 +78,8 @@ namespace Web.Controllers.User
             _userManager = userManager;
             _timeZoneService = timeZoneService;
             _currentTenant = currentTenant;
+            _emailNotifications = emailNotifications;
+            _logger = logger;
             
         }
 
@@ -882,6 +888,13 @@ namespace Web.Controllers.User
                 if (allSuccess)
                 {
                     TempData["SuccessMessage"] = "Session(s) scheduled successfully.";
+                    await NotifyFamilyOfCreatedSessionsAsync(
+                        child,
+                        course,
+                        coach.Name,
+                        timings,
+                        scheduledHours,
+                        location);
                 }
                 else
                 {
@@ -900,8 +913,13 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Coach")]
         [HttpPost("DeleteSchedule")]
-        public async Task<IActionResult> DeleteSchedule(int enrollmentId, int childId, int courseId, string coachNote, int enrollmentId_Ref)
+        public async Task<IActionResult> DeleteSchedule(int enrollmentId, int childId, int courseId, string? coachNote, int enrollmentId_Ref)
         {
+            if (string.IsNullOrWhiteSpace(coachNote))
+            {
+                TempData["ErrorMessage"] = $"{ProviderName} Note is required before removing a session.";
+                return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
+            }
 
             var child = await _childService.GetAsync(childId);
             var course = await _courseService.GetAsync(courseId);
@@ -910,12 +928,13 @@ namespace Web.Controllers.User
 
             var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
 
-            bool result = await _courseEnrollmentService.RemoveScheduleAsync(enrollmentId, coachNote);
+            bool result = await _courseEnrollmentService.RemoveScheduleAsync(enrollmentId, coachNote.Trim());
             
 
             if (result)
             {
                 TempData["SuccessMessage"] = "Schedule deleted successfully.";
+                await NotifyFamilyOfDeletedSessionAsync(child, course, coach.Name, enrollment);
             }
             else
             {
@@ -1129,8 +1148,22 @@ namespace Web.Controllers.User
                     //if (result1)
                     {
                     TempData["SuccessMessage"] = "Course Completed successfully.";
-
-
+                    if (hoursToUse > 0)
+                    {
+                        await NotifyFamilyOfCompletedSessionAsync(
+                            child,
+                            course,
+                            courseEnrollment,
+                            hoursToUse);
+                    }
+                    else
+                    {
+                        await NotifyFamilyOfDeletedSessionAsync(
+                            child,
+                            course,
+                            course.Coach?.Name ?? ProviderName,
+                            courseEnrollment);
+                    }
                 }
                 else
                 {
@@ -1214,7 +1247,34 @@ namespace Web.Controllers.User
         [HttpPost("UpdateSchedule")]
         public async Task<IActionResult> UpdateSchedule([FromBody] UpdateCoachScheduleViewModel vm)
         {
-            await _courseEnrollmentService.UpdateCoachSchedule(vm);
+            if (string.IsNullOrWhiteSpace(vm.CoachNote))
+                return BadRequest(new { error = $"{ProviderName} Note is required before updating a session." });
+
+            vm.CoachNote = vm.CoachNote.Trim();
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var child = await _childService.GetAsync(vm.ChildId);
+            var course = await _courseService.GetAsync(vm.CourseId);
+            var enrollment = await _courseEnrollmentService.GetAsync(vm.EnrollmentId);
+            if (coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+            if (enrollment.ChildID != vm.ChildId
+                || enrollment.CourseID != vm.CourseId
+                || enrollment.EnrollmentID_Ref != vm.EnrollmentId_Ref)
+            {
+                return BadRequest("The session does not match the selected registration.");
+            }
+
+            var saved = await _courseEnrollmentService.UpdateCoachSchedule(vm);
+            if (!saved)
+                return BadRequest("The schedule could not be updated.");
+
+            enrollment.Location = vm.Location;
+            await NotifyFamilyOfUpdatedSessionAsync(child, course, coach.Name, enrollment);
             // You need to provide values for childId, courseId, and enrollmentId_Ref here if you want to redirect.
             // For now, just return Ok or a suitable result.
             //return RedirectToAction("ManageSchedules", new { vm.ChildId, courseId = vm.CourseId, enrollmentId = vm.EnrollmentId_Ref });
@@ -1231,6 +1291,143 @@ namespace Web.Controllers.User
                 })
             });
            
+        }
+
+        private async Task NotifyFamilyOfCreatedSessionsAsync(
+            Child child,
+            Course course,
+            string providerName,
+            IReadOnlyList<ScheduleTiming> timings,
+            decimal scheduledHours,
+            string? location)
+        {
+            await RunFamilyNotificationAsync(
+                () => _emailNotifications.SendCourseSchedulesCreatedAsync(
+                    child.User?.Email,
+                    new CourseScheduleSummaryEmailData(
+                        child.Name,
+                        course.Title,
+                        providerName,
+                        timings.Select(timing => new CourseScheduleSummaryItem(
+                            timing.ScheduledAtUtc,
+                            timing.TimeZoneId,
+                            scheduledHours,
+                            location)).ToList(),
+                        "/Child/MySchedules")),
+                "The sessions were scheduled, but the notification email could not be sent.",
+                child.ChildID,
+                course.CourseID);
+        }
+
+        private async Task NotifyFamilyOfUpdatedSessionAsync(
+            Child child,
+            Course course,
+            string providerName,
+            CourseEnrollment session)
+        {
+            if (!session.ScheduledAt.HasValue)
+            {
+                TempData["WarningMessage"] =
+                    "The session was updated, but the notification email could not be prepared.";
+                return;
+            }
+
+            await RunFamilyNotificationAsync(
+                () => _emailNotifications.SendCourseScheduleUpdatedAsync(
+                    child.User?.Email,
+                    ScheduleEmailData(child, course, providerName, session)),
+                "The session was updated, but the notification email could not be sent.",
+                child.ChildID,
+                course.CourseID);
+        }
+
+        private async Task NotifyFamilyOfDeletedSessionAsync(
+            Child child,
+            Course course,
+            string providerName,
+            CourseEnrollment session)
+        {
+            if (!session.ScheduledAt.HasValue)
+            {
+                TempData["WarningMessage"] =
+                    "The session was deleted, but the notification email could not be prepared.";
+                return;
+            }
+
+            await RunFamilyNotificationAsync(
+                () => _emailNotifications.SendCourseScheduleDeletedAsync(
+                    child.User?.Email,
+                    ScheduleEmailData(child, course, providerName, session)),
+                "The session was deleted, but the notification email could not be sent.",
+                child.ChildID,
+                course.CourseID);
+        }
+
+        private async Task NotifyFamilyOfCompletedSessionAsync(
+            Child child,
+            Course course,
+            CourseEnrollment session,
+            decimal actualHours)
+        {
+            if (!session.ScheduledAt.HasValue)
+            {
+                TempData["WarningMessage"] =
+                    "The session was completed, but the notification email could not be prepared.";
+                return;
+            }
+
+            await RunFamilyNotificationAsync(
+                () => _emailNotifications.SendCourseSessionCompletedAsync(
+                    child.User?.Email,
+                    new CourseSessionCompletedEmailData(
+                        child.Name,
+                        course.Title,
+                        course.Coach?.Name ?? ProviderName,
+                        DateTime.SpecifyKind(session.ScheduledAt.Value, DateTimeKind.Utc),
+                        session.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId,
+                        actualHours,
+                        "/Child/MySchedules")),
+                "The session was completed, but the notification email could not be sent.",
+                child.ChildID,
+                course.CourseID);
+        }
+
+        private static CourseScheduleEmailData ScheduleEmailData(
+            Child child,
+            Course course,
+            string providerName,
+            CourseEnrollment session) => new(
+                child.Name,
+                course.Title,
+                providerName,
+                DateTime.SpecifyKind(session.ScheduledAt!.Value, DateTimeKind.Utc),
+                session.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId,
+                "/Child/MySchedules",
+                session.ScheduledHours,
+                session.Location,
+                session.Status);
+
+        private async Task RunFamilyNotificationAsync(
+            Func<Task<OrganizationNotificationResult>> send,
+            string warningMessage,
+            int childId,
+            int courseId)
+        {
+            try
+            {
+                var delivery = await send();
+                if (!delivery.IsSuccessful)
+                    TempData["WarningMessage"] = warningMessage;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Coach session action succeeded, but its family email could not be processed. ChildId={ChildId}, CourseId={CourseId}",
+                    childId,
+                    courseId);
+                TempData["WarningMessage"] = warningMessage;
+            }
         }
 
 
