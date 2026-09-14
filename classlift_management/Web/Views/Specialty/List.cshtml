@@ -7,14 +7,33 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/specialties.js"></script>
 
+<style>
+    @@media (max-width: 767px) {
+        .mobile-hide {
+            display: none !important;
+        }
+    }
+
+    .specialty-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .specialty-table {
+        width: 100%;
+        min-width: 620px;
+    }
+</style>
+
 <h1>Manage Specialties</h1>
 
 <a href="#" onclick="loadAddForm()" style="display: inline-block; margin-bottom: 20px; text-decoration: none;">Add Specialty</a>
 
-<table style="border-collapse: collapse; width: 50%; text-align: left;">
+<div class="specialty-table-wrapper">
+<table class="specialty-table" style="border-collapse: collapse; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; border: 1px solid #ddd;">#</th>
+            <th class="mobile-hide" style="padding: 8px; border: 1px solid #ddd;">#</th>
            @*  <th style="padding: 8px; border: 1px solid #ddd;">Specialty Name</th> *@
 
 
@@ -43,7 +62,7 @@
         foreach (var specialtyWithDelete in Model)
         {
                 <tr id="row-@specialtyWithDelete.Specialty.SpecialtyID">
-                <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
+                <td class="mobile-hide" style="padding: 8px; border: 1px solid #ddd;">@index</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@specialtyWithDelete.Specialty.Title</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@specialtyWithDelete.Specialty.Description</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">
@@ -82,6 +101,7 @@
 
     </tbody>
 </table>
+</div>
 
 
 
