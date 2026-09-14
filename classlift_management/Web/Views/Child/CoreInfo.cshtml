@@ -15,10 +15,23 @@
   
 </div>
 
+<style>
+    .core-info-form-table { border-collapse: collapse; width: 100%; max-width: 600px; text-align: left; }
+    @@media (max-width: 767px) {
+        .core-info-form-table, .core-info-form-table tbody, .core-info-form-table tr, .core-info-form-table td { display: block; width: 100%; }
+        .core-info-form-table tr { margin-bottom: 12px; }
+        .core-info-form-table td { padding: 4px 0 !important; }
+        .core-info-form-table td:first-child { padding-bottom: 0 !important; }
+        .core-info-form-table input:not([type="checkbox"]) { width: 100%; min-height: 42px; box-sizing: border-box; }
+        .core-info-form-table input[type="checkbox"] { margin-left: 0; }
+        .core-info-form-table + br + br + button { min-height: 42px; padding: 10px 16px !important; }
+    }
+</style>
+
 <form asp-action="CoreInfo" method="post">
 
 
-    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+    <table class="core-info-form-table">
 
         <tr>
             <td style="padding: 8px;"><label asp-for="MemberID">Member ID</label></td>
