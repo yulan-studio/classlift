@@ -140,7 +140,6 @@
                         <th class="desktop-only">Gender</th>
                         <th class="desktop-only">City</th>
                         @* <th class="desktop-only">Birthday</th> *@
-                        <th class="desktop-only">Registration Date</th>
                         <th class="desktop-only">@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")</th>
                         @if (course.CourseType == "Group")
                         {
@@ -173,9 +172,6 @@
                                @*  <td class="desktop-only" data-label="Birthday">
                                     @(child.BirthDate?.ToString("yyyy-MM-dd") ?? "N/A")
                                 </td> *@
-                                <td class="desktop-only" data-label="Registration Date">
-                                    @child.RegisteredDate.ToString("yyyy-MM-dd")
-                                </td>
                                 <td class="@(course.CourseType == "Group" ? "desktop-only" : "")" data-label="@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")">@child.Scheduled</td>
                                 @if (course.CourseType == "Group")
                                 {
@@ -215,7 +211,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="@(course.CourseType == "Group" ? 8 : 9)" class="text-center fw-bold bg-light">
+                            <td colspan="@(course.CourseType == "Group" ? 7 : 8)" class="text-center fw-bold bg-light">
                                 No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant() for this course.
                             </td>
                         </tr>
