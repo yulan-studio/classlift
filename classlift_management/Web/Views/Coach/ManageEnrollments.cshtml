@@ -87,6 +87,48 @@
             flex-direction: column;
             align-items: stretch;
         }
+
+        table.mobile-stack {
+            display: block;
+            border: 0;
+        }
+
+        table.mobile-stack thead {
+            display: none;
+        }
+
+        table.mobile-stack tbody,
+        table.mobile-stack tr,
+        table.mobile-stack td {
+            display: block;
+            width: 100%;
+        }
+
+        table.mobile-stack tr {
+            margin-bottom: 16px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        table.mobile-stack td {
+            border: 0;
+            padding: 6px 0;
+        }
+
+        table.mobile-stack td::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 3px;
+            color: #1B7BAB;
+            font-weight: 600;
+        }
+
+        #scheduleTable .row-button .btn {
+            width: 100%;
+            min-height: 44px;
+        }
        /*  .row-fields {
             display: flex;
             gap: 8px;
@@ -160,9 +202,9 @@
                 {
                     <tr>
 
-                        <td>@((schedule.ScheduledAt.HasValue) ? schedule.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
-                        <td>@schedule.ScheduledHours</td>
-                        <td>
+                        <td data-label="Scheduled At">@((schedule.ScheduledAt.HasValue) ? schedule.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
+                        <td data-label="Scheduled Hours">@schedule.ScheduledHours</td>
+                        <td data-label="Actual Hours">
 
 
                             <form method="post" action="/Coach/CompleteSession" class="complete-form">
@@ -291,11 +333,11 @@
             {
                 <tr>
 
-                    <td>@((complete.ScheduledAt.HasValue) ? complete.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
-                    <td>@complete.ScheduledHours</td>
-                    <td>@complete.ActualHours</td>
-                    <td class="desktop-only">@complete.ParentNote</td>
-                    <td class="desktop-only">@complete.CoachNote</td>
+                    <td data-label="Scheduled At">@((complete.ScheduledAt.HasValue) ? complete.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
+                    <td data-label="Scheduled Hours">@complete.ScheduledHours</td>
+                    <td data-label="Actual Hours">@complete.ActualHours</td>
+                    <td class="desktop-only" data-label="@CurrentTenant.Terminology.ParticipantSingular Note">@complete.ParentNote</td>
+                    <td class="desktop-only" data-label="My Note">@complete.CoachNote</td>
                 </tr>
             }
         }
