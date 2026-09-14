@@ -204,4 +204,16 @@
     .management-form__input--medium {
         width: 100%;
     }
+
+    .request-count-cell {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .request-count-cell::before {
+        display: inline-block !important;
+        margin-bottom: 0 !important;
+    }
 }

@@ -52,8 +52,7 @@
     <thead class="table-primary">
         <tr>
             <th>Scheduled At</th>
-            <th>Scheduled Hours</th>
-            <th>Actual Hours</th>
+            <th>Hours</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ProviderSingular Note</th>
             <th class="desktop-only">Action</th>
@@ -66,7 +65,6 @@
             {
                 <tr>
                     <td>@(completed.ScheduledAt.HasValue ? completed.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
-                    <td>@completed.ScheduledHours</td>
                     <td>@completed.ActualHours</td>
                     <td class="desktop-only">@completed.ParentNote</td>
                     <td class="desktop-only">
@@ -90,7 +88,7 @@
         else
         {
             <tr>
-                <td colspan="6" class="text-center">No completed sessions.</td>
+                <td colspan="5" class="text-center">No completed sessions.</td>
             </tr>
         }
     </tbody>

@@ -76,12 +76,15 @@
 
             table.mobile-stack a {
                 display: inline-block;
+                width: 100%;
+                box-sizing: border-box;
                 margin-top: 6px;
                 padding: 6px 12px;
                 background: #1B7BAB;
                 color: #fff;
                 text-decoration: none;
                 border-radius: 4px;
+                text-align: center;
             }
     }
 </style>
@@ -141,7 +144,7 @@
                             <th>Request to Reschedule</th>
                             <th class="desktop-only">Deleted</th>
                         }
-                        <th>Completed</th>
+                        <th class="@(course.CourseType != "Group" ? "desktop-only" : "")">Completed</th>
 
                         @if (course.CourseType != "Group")
                         {
@@ -174,13 +177,13 @@
                                 }
                                 else
                                 {
-                                    <td data-label="Request to Reschedule"
+                                    <td class="request-count-cell" data-label="Request to Reschedule"
                                         style="background-color:@(child.RequestToReschedule > 0 ? "#FFDBF6" : "transparent")">
                                         @child.RequestToReschedule
                                     </td>
                                     <td class="desktop-only" data-label="Deleted">@child.Deleted</td>
                                 }
-                                <td data-label="Completed">@child.Completed</td>
+                                <td class="@(course.CourseType != "Group" ? "desktop-only" : "")" data-label="Completed">@child.Completed</td>
 
                                 @if (course.CourseType != "Group")
                                 {
