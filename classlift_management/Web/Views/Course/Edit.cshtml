@@ -18,11 +18,59 @@
   
 </div>
 
+<style>
+    .edit-course-form-table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 600px;
+        text-align: left;
+    }
+
+    .edit-course-form-table,
+    .edit-course-form-table tbody,
+    .edit-course-form-table tr,
+    .edit-course-form-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .edit-course-form-table tr { margin-bottom: 12px; }
+    .edit-course-form-table td { padding: 4px 0 !important; }
+    .edit-course-form-table td:first-child { padding-bottom: 0 !important; }
+    .edit-course-form-table input[type="text"],
+    .edit-course-form-table input[type="number"] {
+        width: 100% !important;
+        max-width: 300px;
+        min-height: 42px;
+        box-sizing: border-box;
+    }
+
+    .edit-course-form-table input[type="checkbox"] {
+        width: auto !important;
+        min-height: 0;
+    }
+
+    .edit-course-form-table td[colspan="2"] { padding-top: 16px !important; }
+    .edit-course-form-table .management-form__save,
+    .edit-course-form-table .management-form__cancel {
+        display: inline-block;
+        min-height: 42px;
+        box-sizing: border-box;
+        padding: 10px 16px;
+    }
+
+    @@media (max-width: 767px) {
+        .edit-course-form-table input[type="text"],
+        .edit-course-form-table input[type="number"] {
+            max-width: none;
+        }
+    }
+</style>
 
 <form asp-action="Edit" method="post">
     <input type="hidden" name="courseId" value="@Model.CourseID" />
 
-    <table class="management-form-table management-form-table--edit">
+    <table class="edit-course-form-table">
         <tr>
             <td style="padding: 8px;"><label for="name">Coach:</label></td>
            @*  <td style="padding: 8px;"><input type="text" name="name" value="@Model.Coach.Name" placeholder="Name" style="width: 60%;" readonly /><label>   Not to change</label></td> *@
