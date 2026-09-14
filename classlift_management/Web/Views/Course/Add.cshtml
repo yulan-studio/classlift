@@ -12,6 +12,68 @@
 
 <script src="/js/coaches.js"></script>
 <script src="/js/courses.js"></script>
+
+<style>
+    @@media (max-width: 767px) {
+        .management-form-table--add,
+        .management-form-table--add tbody,
+        .management-form-table--add tr,
+        .management-form-table--add td {
+            display: block;
+            width: 100% !important;
+        }
+
+        .management-form-table--add tr {
+            margin-bottom: 14px;
+        }
+
+        .management-form-table--add td {
+            padding: 4px 0 !important;
+        }
+
+        .management-form-table--add td:first-child {
+            padding-bottom: 0 !important;
+        }
+
+        .management-form-table--add td:nth-child(3) {
+            padding-left: 0 !important;
+        }
+
+        .management-form-table--add input,
+        .management-form-table--add select {
+            width: 100% !important;
+            min-height: 42px;
+            box-sizing: border-box;
+        }
+
+    .management-form-table--add input[type="checkbox"] {
+            width: auto !important;
+            min-height: 0;
+            margin-left: 0;
+        }
+
+        .active-course-help {
+            font-size: 0.85em;
+            color: darkslategray;
+        }
+
+        .management-form-table--add select[multiple] {
+            min-height: 110px;
+        }
+
+        .management-form-table--add .management-form__actions {
+            padding-top: 16px !important;
+        }
+
+        .management-form-table--add .management-form__save,
+        .management-form-table--add .management-form__cancel {
+            display: inline-block;
+            min-height: 42px;
+            box-sizing: border-box;
+            padding: 10px 16px;
+        }
+    }
+</style>
            
 
 
@@ -157,7 +219,7 @@
             <td style="padding: 8px;">
                 <input id="IsActive" name="IsActive" type="checkbox" value="true" />
                 <input name="IsActive" type="hidden" value="false" />
-                <label for="IsActive">Check if the course is active</label>
+                <label class="active-course-help" for="IsActive">Check if the course is active</label>
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
