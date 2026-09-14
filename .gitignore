@@ -176,3 +176,5 @@
 /classlift_management/Test/obj/Release/net8.0/Test.csproj.CoreCompileInputs.cache
 /classlift_management/Test/obj/Release/net8.0/Test.csproj.FileListAbsolute.txt
 /classlift_management/Test/bin/Release/net8.0/Test.deps.json
+/classlift_management/Web/.buildcheck/Debug/net8.0
+/classlift_management/Core/.buildcheck/Debug/net8.0
