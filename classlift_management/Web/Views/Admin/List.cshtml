@@ -18,7 +18,20 @@
 
 <a href="/Admin/Add" style="display: inline-block; margin-bottom: 20px;">Add Admin</a>
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<style>
+    .admin-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        min-width: 700px;
+    }
+</style>
+
+<div class="admin-table-wrapper">
+<table class="admin-table" style="border-collapse: collapse; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
@@ -72,6 +85,7 @@
         
     </tbody>
 </table>
+</div>
 
 @* @if (TempData["SuccessMessage"] != null)
 {
