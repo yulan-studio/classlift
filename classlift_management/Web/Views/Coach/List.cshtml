@@ -14,12 +14,36 @@
 @using X.PagedList.Mvc.Core
 @using X.PagedList
 
+<style>
+    @@media (max-width: 767px) {
+        .coach-list-filter {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .coach-list-filter .list-filter__input,
+        .coach-list-filter .list-filter__search,
+        .coach-list-filter .list-filter__reset {
+            width: 100%;
+            box-sizing: border-box;
+            margin-left: 0;
+        }
+
+        .coach-list-filter .list-filter__search,
+        .coach-list-filter .list-filter__reset {
+            min-height: 42px;
+            text-align: center;
+        }
+    }
+</style>
+
 <h1>Manage @CurrentTenant.Terminology.ProviderPlural</h1>
 
 <a href="/Coach/Add" class="list-add-link">Add @CurrentTenant.Terminology.ProviderSingular</a>
 
 
-<form method="get" asp-action="List" class="list-filter mb-3">
+<form method="get" asp-action="List" class="list-filter coach-list-filter mb-3">
     <input type="text" name="searchName" placeholder="Search @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() name..."
            class="list-filter__input" value="@Context.Request.Query["searchName"]" />
 
