@@ -141,7 +141,7 @@
                         <th class="desktop-only">City</th>
                         @* <th class="desktop-only">Birthday</th> *@
                         <th class="desktop-only">Registration Date</th>
-                        <th class="desktop-only">Scheduled</th>
+                        <th class="desktop-only">@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")</th>
                         @if (course.CourseType == "Group")
                         {
                             <th>Leave</th>
@@ -176,7 +176,7 @@
                                 <td class="desktop-only" data-label="Registration Date">
                                     @child.RegisteredDate.ToString("yyyy-MM-dd")
                                 </td>
-                                <td class="@(course.CourseType == "Group" ? "desktop-only" : "")" data-label="Scheduled">@child.Scheduled</td>
+                                <td class="@(course.CourseType == "Group" ? "desktop-only" : "")" data-label="@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")">@child.Scheduled</td>
                                 @if (course.CourseType == "Group")
                                 {
                                     <td data-label="Leave">@child.Leave</td>
