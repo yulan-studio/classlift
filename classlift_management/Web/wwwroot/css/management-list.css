@@ -234,6 +234,15 @@
 
 @media (max-width: 767px) {
     .mobile-only-link {
-        display: inline-block;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 12px;
+        background-color: #1B7BAB;
+        border: 1px solid #1B7BAB;
+        border-radius: 4px;
+        color: white;
+        text-align: center;
+        text-decoration: none;
     }
 }
