@@ -130,7 +130,14 @@
     <h4 style="margin: 0;">Upcoming Sessions</h4>
     @if (Model.Course.CourseType == "Private")
     {
-        <a href="/Coach/ManageEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+        @if (Model.Course.SessionCount.HasValue)
+        {
+            <a href="/Coach/ViewEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+        }
+        else
+        {
+            <a href="/Coach/ManageEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+        }
     }
 </div>
 
