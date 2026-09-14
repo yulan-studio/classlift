@@ -86,6 +86,7 @@
                 border-radius: 4px;
                 text-align: center;
             }
+
     }
 </style>
 
@@ -137,7 +138,6 @@
                 <thead class="table-primary">
                     <tr>
                         <th>@CurrentTenant.Terminology.ParticipantSingular</th>
-                        <th class="desktop-only">Gender</th>
                         <th class="desktop-only">City</th>
                         @* <th class="desktop-only">Birthday</th> *@
                         <th class="desktop-only">@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")</th>
@@ -166,8 +166,9 @@
                         foreach (var child in course.RegisteredChildren)
                         {
                             <tr>
-                                <td data-label="@CurrentTenant.Terminology.ParticipantSingular Name">@child.Name</td>
-                                <td class="desktop-only" data-label="Gender">@child.Gender</td>
+                                <td data-label="@CurrentTenant.Terminology.ParticipantSingular Name">
+                                    @child.Name
+                                </td>
                                 <td class="desktop-only" data-label="City">@child.City</td>
                                @*  <td class="desktop-only" data-label="Birthday">
                                     @(child.BirthDate?.ToString("yyyy-MM-dd") ?? "N/A")
@@ -211,7 +212,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="@(course.CourseType == "Group" ? 7 : 8)" class="text-center fw-bold bg-light">
+                            <td colspan="@(course.CourseType == "Group" ? 6 : 7)" class="text-center fw-bold bg-light">
                                 No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant() for this course.
                             </td>
                         </tr>
