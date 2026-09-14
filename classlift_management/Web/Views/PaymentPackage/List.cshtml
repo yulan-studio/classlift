@@ -11,8 +11,21 @@
 <!-- ✅ Add New Package Button -->
 <a href="/PaymentPackage/AddEdit" style="display: inline-block; margin-bottom: 20px; text-decoration: none; ">Add Payment Package</a>
 
+<style>
+    .payment-package-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .payment-package-table {
+        width: 100%;
+        min-width: 700px;
+    }
+</style>
+
 <!-- ✅ Table Showing Payment Packages -->
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="payment-package-table-wrapper">
+<table class="payment-package-table" style="border-collapse: collapse; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Title</th>
@@ -74,3 +87,4 @@
         }
     </tbody>
 </table>
+</div>
