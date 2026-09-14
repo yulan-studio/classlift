@@ -216,4 +216,8 @@
         display: inline-block !important;
         margin-bottom: 0 !important;
     }
+
+    .schedule-form button {
+        width: 100%;
+    }
 }
