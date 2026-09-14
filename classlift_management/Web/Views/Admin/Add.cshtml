@@ -12,10 +12,30 @@
 <h2>Add Admin</h2>
 
 
+<style>
+    .add-form-table { border-collapse: collapse; width: 100%; max-width: 850px; text-align: left; }
+    .add-form-table, .add-form-table tbody, .add-form-table tr, .add-form-table td { display: block; width: 100%; }
+    .add-form-table tr { margin-bottom: 12px; }
+    .add-form-table td { padding: 4px 0 !important; }
+    .add-form-table td:first-child { padding-bottom: 0 !important; }
+    .add-form-table td:nth-child(2) input { width: 100%; max-width: 300px; min-height: 42px; box-sizing: border-box; }
+    .add-form-table td[colspan="2"] { padding-top: 16px !important; }
+    .add-form-table button, .add-form-table a { display: inline-block; min-height: 42px; box-sizing: border-box; padding: 10px 16px !important; }
+    .password-row { display: flex; align-items: flex-start; gap: 12px; }
+    .password-row input { flex: 0 0 300px; }
+    .password-help { display: block; width: 402px; max-width: 402px; margin-top: 4px; }
+    @@media (max-width: 767px) {
+        .add-form-table input { min-height: 42px; max-width: none !important; box-sizing: border-box; }
+        .password-row { flex-direction: column; gap: 4px; }
+        .password-row input { flex: none; width: 100% !important; }
+        .password-help { width: 300px; max-width: 100%; }
+    }
+</style>
+
 <form id="adminForm" method="post" action="/Admin/Add">
 
 
-    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+    <table class="add-form-table">
     <tr>
         <td style="padding: 8px;"><label for="name">Name:</label></td>
             <td style="padding: 8px;"><input type="text" id="name"  name="name" placeholder="Name" style="width: 100%;" /></td>
@@ -36,8 +56,10 @@
     <tr>
         <td style="padding: 8px; vertical-align:top"><label for="password">Password:</label></td>
             <td style="padding: 8px;">
+                <div class="password-row">
                 <input type="text" id="password" name="password" placeholder="Password" value="hello123!" style="width: 100%;" required />
-                <small style="color:darkslategray">Password must be at least 6 characters, include one lowercase letter, and one special character.</small>
+                <small class="password-help" style="color:darkslategray">Password must be at least 6 characters long and include a lowercase letter, a digit, and a special character. </small>
+                </div>
         </td>
 
     </tr>
