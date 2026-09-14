@@ -103,7 +103,7 @@
 <!-- Info Panel -->
 <div class="p-3 mb-4 bg-light border rounded">
     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
-    <span class="d-none d-lg-inline"><strong>Session Count:</strong> @Model.Course.SessionCount <br /></span>
+    <strong>Session Count:</strong> @Model.Course.SessionCount <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
     <span class="d-none d-lg-inline"><strong>Gender:</strong> @Model.Child.Gender <br /></span>
     @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
@@ -128,9 +128,9 @@
 
 <div style="margin: 0; padding: 30px 0; color: #1B7BAB; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
     <h4 style="margin: 0;">Upcoming Sessions</h4>
-    @if (Model.Course.CourseType == "Private" && Model.Course.SessionCount.HasValue)
+    @if (Model.Course.CourseType == "Private")
     {
-        <a href="/Coach/ViewEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+        <a href="/Coach/ManageEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
     }
 </div>
 

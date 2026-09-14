@@ -88,23 +88,23 @@
             align-items: stretch;
         }
 
-        table.mobile-stack {
+        #scheduleTable.mobile-stack {
             display: block;
             border: 0;
         }
 
-        table.mobile-stack thead {
+        #scheduleTable.mobile-stack thead {
             display: none;
         }
 
-        table.mobile-stack tbody,
-        table.mobile-stack tr,
-        table.mobile-stack td {
+        #scheduleTable.mobile-stack tbody,
+        #scheduleTable.mobile-stack tr,
+        #scheduleTable.mobile-stack td {
             display: block;
             width: 100%;
         }
 
-        table.mobile-stack tr {
+        #scheduleTable.mobile-stack tr {
             margin-bottom: 16px;
             padding: 12px;
             border: 1px solid #ddd;
@@ -112,12 +112,12 @@
             background-color: #fff;
         }
 
-        table.mobile-stack td {
+        #scheduleTable.mobile-stack td {
             border: 0;
             padding: 6px 0;
         }
 
-        table.mobile-stack td::before {
+        #scheduleTable.mobile-stack td::before {
             content: attr(data-label);
             display: block;
             margin-bottom: 3px;
@@ -268,7 +268,7 @@
             else
             {
                 <tr>
-                    <td colspan="3" style="text-align: center; padding: 10px;">No scheduled sessions.</td>
+                    <td colspan="3" style="text-align: center; padding: 10px;">No scheduled sessions to complete.</td>
                 </tr>
             }
 
@@ -312,7 +312,13 @@
 
 
 
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Completed Sessions</h5></div>
+<div style="margin: 0; padding: 30px 0; color: #1B7BAB; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <h5 style="margin: 0;">Completed Sessions</h5>
+    @if (Model.Course.CourseType == "Private")
+    {
+        <a href="/Coach/ManageSchedules/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Upcoming Sessions</a>
+    }
+</div>
 
 
 <table id="completeTable" class="mobile-stack table table-bordered mt-3" >
