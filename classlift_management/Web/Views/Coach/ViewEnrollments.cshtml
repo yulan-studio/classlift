@@ -27,12 +27,10 @@
 
 
 <div class="p-3 mb-4 bg-light border rounded">
-     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
+    <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
-    <strong>Gender:</strong> @Model.Child.Gender <br />
     @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
-    <strong>City:</strong> @Model.Child.City.Name
 
 
 
