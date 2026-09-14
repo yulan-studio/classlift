@@ -313,53 +313,6 @@
 
 
 
-<div style="padding-top: 30px"></div>
-
-
-
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Deleted Sessions</h5></div>
-
-
-<table id="deletedTable" class="mobile-stack table table-bordered mt-3" style="border-collapse: collapse; width: 100%; text-align: left;">
-    <thead class="table-primary">
-        <tr>
-
-            <th>Scheduled At</th>
-            <th>Scheduled Hours</th>
-            <th class="desktop-only">Actual Hours</th>
-            <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th class="desktop-only">My Note</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.DeletedEnrollments.Any())
-        {
-            foreach (var deleted in Model.DeletedEnrollments)
-            {
-                <tr>
-
-                    <td>@((deleted.ScheduledAt.HasValue) ? deleted.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
-                    <td>@deleted.ScheduledHours</td>
-                    <td class="desktop-only">@deleted.ActualHours</td>
-                    <td>@deleted.ParentNote</td>
-                    <td class="desktop-only">@deleted.CoachNote</td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 10px;">No Deleted sessions.</td>
-            </tr>
-        }
-
-
-    </tbody>
-</table>
-
-
-
-
 <script>
         function toggleFields(id, isChecked) {
         const fieldsDiv = document.getElementById('extraFields_' + id);
