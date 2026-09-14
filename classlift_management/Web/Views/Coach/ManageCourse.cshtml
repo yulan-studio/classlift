@@ -177,7 +177,7 @@
                                 <td class="desktop-only" data-label="Registration Date">
                                     @child.RegisteredDate.ToString("yyyy-MM-dd")
                                 </td>
-                                <td class="desktop-only" data-label="Scheduled">@child.Scheduled</td>
+                                <td class="@(course.CourseType == "Group" ? "desktop-only" : "")" data-label="Scheduled">@child.Scheduled</td>
                                 @if (course.CourseType == "Group")
                                 {
                                     <td data-label="Leave">@child.Leave</td>
