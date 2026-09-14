@@ -218,4 +218,22 @@
     table.mobile-stack form button {
         width: 100%;
     }
+
+    .group-course-children-table {
+        display: none !important;
+    }
+
+    .desktop-only-link-row {
+        display: block;
+    }
+}
+
+.mobile-only-link {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .mobile-only-link {
+        display: inline-block;
+    }
 }

@@ -108,9 +108,9 @@
                         ? $" | {course.CourseDescription}"
                         : ""))
         &nbsp; &nbsp; &nbsp;
-        @if (course.CourseType == "Group")
+                @if (course.CourseType == "Group")
                 {
-                    <a href="@Url.Action("Attendance", "Course", new { courseId = course.CourseID })">
+                    <a class="desktop-only" href="@Url.Action("Attendance", "Course", new { courseId = course.CourseID })">
                         View Attendance
                     </a>
 
@@ -123,9 +123,17 @@
                 <p class="mb-2">
                     <strong>Session Count:</strong> @course.SessionCount
                 </p>
+                @if (course.CourseType == "Group")
+                {
+                    <p class="mb-2 desktop-only-link-row">
+                        <a class="mobile-only-link" href="@Url.Action("Attendance", "Course", new { courseId = course.CourseID })">
+                            View Attendance
+                        </a>
+                    </p>
+                }
             }
 
-            <table class="mobile-stack table table-bordered mt-3">
+            <table class="mobile-stack table table-bordered mt-3 @(course.CourseType == "Group" ? "group-course-children-table" : "")">
                 <thead class="table-primary">
                     <tr>
                         <th>@CurrentTenant.Terminology.ParticipantSingular</th>
