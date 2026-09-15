@@ -10,7 +10,36 @@
     var hasCreditTracking = CurrentTenant.HasFeature(FeatureCodes.CreditTracking);
 }
 
+<link rel="stylesheet" href="~/css/management-list.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+<style>
+    .payment-add-panel { margin: 30px 0; padding: 20px; background-color: #f2f2f2; }
+    .payment-form-table { width: 100%; border-collapse: collapse; }
+    .payment-form-table td { padding: 8px; }
+    .payment-field { width: 40%; box-sizing: border-box; }
+
+    @@media (max-width: 991px) {
+        .payment-add-panel { margin: 20px 0; padding: 12px; }
+        .payment-form-table, .payment-form-table .payment-field { width: 100%; }
+        .payment-form-table td { padding: 6px 0; }
+        .payment-form-table input:not([type="radio"]),
+        .payment-form-table select,
+        .payment-form-table button { min-height: 42px; }
+        .payment-form-table button { width: 100%; }
+        .payment-form-table > tbody > tr:not(#directPaymentRow),
+        .payment-form-table > tbody > tr:not(#directPaymentRow) > td,
+        .payment-form-table #directPaymentRow[style*="table-row"],
+        .payment-form-table #directPaymentRow[style*="table-row"] > td { display: block !important; width: 100%; }
+        .payment-form-table > tbody > tr > td { padding: 0 0 4px !important; }
+        .payment-form-table > tbody > tr > td:first-child { padding-bottom: 2px !important; }
+        .payment-form-table > tbody > tr > td:last-child { padding-top: 2px !important; }
+        .payment-form-table > tbody > tr:last-child > td { padding-top: 6px !important; padding-bottom: 0 !important; }
+        .payment-form-table input:not([type="radio"]),
+        .payment-form-table select,
+        .payment-form-table button { width: 100% !important; margin: 0 !important; }
+    }
+</style>
 
 @* <div>
     <p><strong>Name:</strong> @Model.Child.Name</p>
@@ -122,16 +151,16 @@
 </table>
 
 <!-- ✅ Form to Add a New Payment -->
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+<div class="payment-add-panel">
     <b>Add Payment for @Model.Child.Name</b>
     <div style="margin-bottom: 10px;"></div>
  
 
-    <form method="post" action="/Child/AddPayment" enctype="multipart/form-data">
+    <form class="payment-add-form" method="post" action="/Child/AddPayment" enctype="multipart/form-data">
         <input type="hidden" name="childId" value="@Model.Child.ChildID" />
        
 
-        <table style="width: 100%; border-collapse: collapse;">
+        <table class="payment-form-table">
             <!-- Payment Type -->
             <tr>
                 <td style="padding: 8px;"><label>Payment Type:</label></td>
@@ -152,7 +181,7 @@
                 <tr id="packageRow">
                     <td style="padding: 8px;"><label for="packageId">Select Package:</label></td>
                     <td>
-                        <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" style="width: 40%;">
+                            <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" class="payment-field">
                             <option value="">-- Select Package --</option>
                             @foreach (var package in ViewBag.PaymentPackages)
                             {
@@ -203,23 +232,23 @@
             <!-- Amount -->
             <tr>
                 <td style="padding: 8px;"><label for="amount">Amount:</label></td>
-                <td><input id="amount" name="amount" required readonly style="width: 40%;" /></td>
+                <td><input id="amount" name="amount" required readonly class="payment-field" /></td>
             </tr>
 
             <!-- Upload Receipt -->
             <tr>
                 <td style="padding: 8px;"><label for="file">Upload Screenshot:</label></td>
-                <td><input type="file" name="file" accept="image/*" required style="width: 40%;" /></td>
+                <td><input type="file" name="file" accept="image/*" required class="payment-field" /></td>
             </tr>
             <!-- Payment Date -->
             <tr>
                 <td style="padding: 8px;"><label for="paymentDate">Payment Date:</label></td>
-                <td><input type="date" name="paymentDate" required style="width: 40%;" /></td>
+                <td><input type="date" name="paymentDate" required class="payment-field" /></td>
             </tr>
             <!-- Submit -->
             <tr>
-                <td style="padding: 8px;">
-                    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 5px;">
+                <td colspan="2" style="padding: 8px;">
+                    <button type="submit" class="management-form__save">
                         Add Payment
                     </button>
                 </td>

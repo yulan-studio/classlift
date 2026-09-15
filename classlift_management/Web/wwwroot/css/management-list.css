@@ -217,6 +217,26 @@
     background-color: #f2f2f2;
 }
 
+.payment-add-panel {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #f2f2f2;
+}
+
+.payment-form-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payment-form-table td {
+    padding: 8px;
+}
+
+.payment-field {
+    width: 40%;
+    box-sizing: border-box;
+}
+
 @media (max-width: 768px) {
     .schedule-input {
         width: 100%;
@@ -285,7 +305,31 @@
     display: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991px) {
+    .payment-add-panel {
+        margin: 20px 0;
+        padding: 12px;
+    }
+
+    .payment-form-table,
+    .payment-form-table .payment-field {
+        width: 100%;
+    }
+
+    .payment-form-table td {
+        padding: 6px 0;
+    }
+
+    .payment-form-table input:not([type="radio"]),
+    .payment-form-table select,
+    .payment-form-table button {
+        min-height: 42px;
+    }
+
+    .payment-form-table button {
+        width: 100%;
+    }
+
     .child-list-filter {
         display: flex;
         flex-direction: column;
