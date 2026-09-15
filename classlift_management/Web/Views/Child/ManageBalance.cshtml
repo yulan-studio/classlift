@@ -12,6 +12,25 @@
     // decimal finalBalance = ViewBag.FinalBalance;
 }
 
+<style>
+    .balance-adjust-panel { margin: 30px 0; padding: 20px; background-color: #f2f2f2; }
+    .balance-adjust-form { margin-top: 20px; }
+    .balance-adjust-table { width: 100%; border-collapse: collapse; }
+    .balance-adjust-field { box-sizing: border-box; }
+    @@media (max-width: 991px) {
+        .balance-adjust-panel { margin: 20px 0; padding: 12px; }
+        .balance-adjust-table > tbody > tr,
+        .balance-adjust-table > tbody > tr > td { display: block; width: 100%; }
+        .balance-adjust-table > tbody > tr > td { padding: 0 0 4px !important; }
+        .balance-adjust-table > tbody > tr > td:first-child { padding-bottom: 2px !important; }
+        .balance-adjust-table > tbody > tr > td:last-child { padding-top: 2px !important; }
+        .balance-adjust-table .balance-adjust-field,
+        .balance-adjust-table button { width: 90% !important; min-height: 42px; margin: 0 !important; box-sizing: border-box; }
+        .balance-adjust-table textarea.balance-adjust-field { min-height: 100px; }
+        .balance-adjust-table > tbody > tr:last-child > td { padding-top: 6px !important; padding-bottom: 0 !important; }
+    }
+</style>
+
 <h3>Balance Statement</h3>
 
 <div style="padding-top: 20px;">
@@ -130,14 +149,14 @@
 
 
 <!-- ✅ Form to Add a New Payment -->
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+<div class="balance-adjust-panel">
     <b>Adjust or Refund Balance</b>
     <div style="margin-bottom: 10px;"></div>
 <!-- Adjustment / Refund Form -->
-    <form method="post" asp-action="FixBalance" enctype="multipart/form-data"  style="margin-top: 20px;">
+    <form method="post" asp-action="FixBalance" enctype="multipart/form-data" class="balance-adjust-form">
     <input type="hidden" name="ChildID" value="@Model.ChildID" />
 
-    <table style="width: 100%; border-collapse: collapse;">
+    <table class="balance-adjust-table">
         <!-- Select Action Type -->
         <tr>
             <td style="padding-top: 16px; width: 200px; vertical-align: top"><label>Action Type:</label></td>
@@ -157,7 +176,7 @@
         <tr>
                 <td style="padding-top: 16px; vertical-align: top"><label for="Amount">Amount:</label></td>
                 <td style="padding-top: 16px; vertical-align: top">
-                <input id="Amount" name="amount" type="number" step="0.01" required style="width: 20%;" />
+                <input id="Amount" name="amount" type="number" step="0.01" required class="balance-adjust-field" style="width: 20%;" />
                
             </td>
         </tr>
@@ -166,21 +185,21 @@
         <tr>
                 <td style="padding-top: 16px; vertical-align: top"><label for="Remarks">Remarks:</label></td>
                 <td style="padding-top: 16px; vertical-align: top">
-                <textarea id="Remarks" name="remarks" style="width: 40%; height: 100px" required></textarea>
+                <textarea id="Remarks" name="remarks" class="balance-adjust-field" style="width: 40%; height: 100px" required></textarea>
             </td>
         </tr>
 
         <tr>
                 <td style="padding: 8px;"><label for="calculationFile">Upload Screenshot:</label></td>
-                <td><input type="file" name="file" accept="image/*"  style="width: 40%;" /></td>
+                <td><input type="file" name="file" accept="image/*" class="balance-adjust-field" style="width: 40%;" /></td>
         </tr>
 
            
 
         <!-- Submit -->
         <tr>
-                <td style="padding-top: 16px;">
-                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 5px;">
+                <td colspan="2" style="padding-top: 16px;">
+                <button type="submit" class="management-form__save">
                     Submit
                 </button>
             </td>
