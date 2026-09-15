@@ -4,7 +4,34 @@
     ViewData["Title"] = "Manage Sessions";
 }
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<style>
+    .session-registration-section {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .session-registration-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .session-registration-table {
+        min-width: 650px;
+    }
+
+    @@media (max-width: 991px) {
+        .session-registration-table-wrapper {
+            overflow-x: scroll;
+        }
+    }
+</style>
+
+<div class="session-registration-section">
+<div class="session-registration-table-wrapper">
+<table class="session-registration-table" style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
@@ -32,8 +59,10 @@
         </tr>
     </tbody>
 </table>
+</div>
+</div>
 
-<div style="margin-top: 30px">
+<div class="session-registration-section" style="margin-top: 30px">
     
     <p><strong>Course Name:</strong> @Model.Course.Title</p>
     <p><strong>Session Count:</strong> @Model.Course.SessionCount</p>
@@ -53,11 +82,12 @@
 
 <h3>All Sessions</h3>
 
-<form method="post" asp-action="UpdateAllSessions">
+<form class="session-registration-section" method="post" asp-action="UpdateAllSessions">
     <input type="hidden" name="ChildID" value="@Model.ChildID" />
     <input type="hidden" name="CourseID" value="@Model.CourseID" />
 
-    <table class="table">
+    <div class="session-registration-table-wrapper">
+    <table class="table session-registration-table">
         <thead>
             <tr>
                 <th>Scheduled At</th>
@@ -165,6 +195,7 @@
             }
         </tbody>
     </table>
+    </div>
 
     <div style="margin-bottom: 30px;">
         <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button>
