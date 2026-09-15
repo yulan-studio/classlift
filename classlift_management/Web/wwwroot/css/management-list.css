@@ -98,6 +98,10 @@
     width: 70%;
 }
 
+.management-form-table--coach-edit {
+    width: 50%;
+}
+
 .management-form-table td {
     padding: 8px;
 }
@@ -119,6 +123,10 @@
 .management-form__instruction {
     font-size: 0.7em;
     color: darkslategray;
+}
+
+.management-form__instruction--block {
+    display: block;
 }
 
 .management-form__actions {
@@ -197,7 +205,8 @@
 
 @media (max-width: 768px) {
     .management-form-table--add,
-    .management-form-table--edit {
+    .management-form-table--edit,
+    .management-form-table--coach-edit {
         width: 100%;
     }
 
