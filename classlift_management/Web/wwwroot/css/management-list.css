@@ -173,6 +173,50 @@
     margin-bottom: 20px;
 }
 
+.coach-more-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.more-info-summary-wrapper,
+.more-info-tabs-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.more-info-summary-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.more-info-summary-table th,
+.more-info-summary-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.more-info-tabs {
+    flex-wrap: nowrap;
+    min-width: max-content;
+}
+
+.coach-more-info-back {
+    margin-top: 20px;
+}
+
+.coach-more-info-table th,
+.coach-more-info-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.coach-more-info-table thead tr {
+    background-color: #f2f2f2;
+}
+
 @media (max-width: 768px) {
     .schedule-input {
         width: 100%;
@@ -253,5 +297,84 @@
         color: white;
         text-align: center;
         text-decoration: none;
+    }
+
+    .coach-more-info-table {
+        display: block;
+        width: 100%;
+    }
+
+    .coach-more-info-table thead {
+        display: none;
+    }
+
+    .coach-more-info-table tbody,
+    .coach-more-info-table tr,
+    .coach-more-info-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .coach-more-info-table tr {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+    }
+
+    .coach-more-info-table td {
+        padding: 8px 0;
+        border: 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .coach-more-info-table td:last-child {
+        border-bottom: 0;
+    }
+
+    .coach-more-info-table td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 2px;
+        color: #1B7BAB;
+        font-weight: 600;
+    }
+
+    .coach-more-info-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .more-info-summary-wrapper,
+    .more-info-tabs-wrapper {
+        max-width: 100%;
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .more-info-summary-table {
+        width: 760px;
+        min-width: 760px;
+    }
+
+    .more-info-summary-table th,
+    .more-info-summary-table td {
+        padding: 6px !important;
+    }
+
+    .more-info-tabs .nav-link {
+        white-space: nowrap;
+    }
+
+    #contentArea {
+        padding: 10px !important;
+        overflow-x: hidden;
+    }
+
+    #contentArea table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 }

@@ -20,7 +20,8 @@
     <p><strong>Email:</strong> @Model.User.Email</p>
 </div> *@
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="more-info-summary-wrapper">
+<table class="more-info-summary-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
@@ -35,8 +36,8 @@
 
     <tbody>
         <tr>
-            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Name</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">
+            <td data-label="Name">@Model.Name</td>
+            <td data-label="Specialties">
                 @if (Model.CoachSpecialties != null && Model.CoachSpecialties.Any())
                 {
                     @string.Join(", ", Model.CoachSpecialties.Select(cs => cs.Specialty.Title))
@@ -46,22 +47,24 @@
                     <span>N/A</span>
                 }
             </td>
-            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Gender</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">
+            <td data-label="Gender">@Model.Gender</td>
+            <td data-label="City">
                 @(Model.City != null ? Model.City.Name : "N/A")
             </td>
-            <td style="padding: 8px; border: 1px solid #ddd;">@Model.Phone</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">@Model.User.Email</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">@(Model.Status == "InActive" ? "InActive" : "Active")</td>
+            <td data-label="Phone">@Model.Phone</td>
+            <td data-label="Email">@Model.User.Email</td>
+            <td data-label="Status">@(Model.Status == "InActive" ? "InActive" : "Active")</td>
         </tr>
     </tbody>
 </table>
+</div>
 
 
-<a href="/Coach/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to @CurrentTenant.Terminology.ProviderPlural List</a>
+<a href="/Coach/List" class="btn btn-static-grey mb-3 coach-more-info-back">← Back to @CurrentTenant.Terminology.ProviderPlural List</a>
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
-<ul class="nav nav-tabs mb-3">
+<div class="more-info-tabs-wrapper">
+<ul class="nav nav-tabs more-info-tabs mb-3">
     <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" ? "active" : "")" href="#" data-url="/Coach/CoreInfo/@Model.CoachID">Core Member Information</a></li>
     <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "EmergencyContacts" ? "active" : "")" href="#" data-url="/Coach/EmergencyContacts/@Model.CoachID">Emergency Contacts</a></li>
    @*  <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "Parents" ? "active" : "")" href="#" data-url="/Child/Parents/@Model.ChildID">Parents</a></li> *@
@@ -71,6 +74,7 @@
     @* <li class="nav-item"><a class="nav-link" href="#" data-url="/Child/ManageRegistrations/@Model.ChildID">Manage Registration</a></li> *@
     @*<li class="nav-item"><a class="nav-link" href="#" data-url="/Course/List?childId=@Model.Id">Courses</a></li> *@
 </ul>
+</div>
 
 <!-- Content Area -->
 <div id="contentArea" class="border p-3">
