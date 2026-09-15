@@ -41,27 +41,50 @@
 
     .registration-course-selection {
         margin-top: 8px;
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: center;
+        row-gap: 8px;
     }
 
     .registration-course-selection label[for="courseId"],
     .registration-course-selection #courseId {
-        display: inline-block;
+        display: block;
         vertical-align: middle;
     }
 
     .registration-course-selection label[for="courseId"] {
         margin-top: 0;
-        margin-right: 5px;
+        margin-right: 0;
     }
 
     .registration-course-selection #courseId {
-        margin-left: 5px;
-        margin-right: 10px;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .registration-course-selection #openSessionInfo {
+        display: block;
+        vertical-align: middle;
+        grid-column: 2;
+    }
+
+    .registration-add-panel form > label,
+    .registration-add-panel form > select,
+    .registration-add-panel form > div[style*="margin-top"] > label,
+    .registration-add-panel form > div[style*="margin-top"] > select {
         display: inline-block;
         vertical-align: middle;
+    }
+
+    .registration-add-panel form > label,
+    .registration-add-panel form > div[style*="margin-top"] > label {
+        width: 150px;
+    }
+
+    .registration-add-panel form > select,
+    .registration-add-panel form > div[style*="margin-top"] > select {
+        width: min(60%, 420px);
     }
 
     @@media (max-width: 767px) {
@@ -74,6 +97,10 @@
             width: 100%;
         }
 
+        .registration-course-selection {
+            display: block;
+        }
+
         .registration-add-panel label,
         .registration-add-panel select,
         .registration-add-panel input[type="number"],
@@ -82,6 +109,16 @@
             width: 100%;
             margin-left: 0;
             margin-right: 0;
+        }
+
+        .registration-add-panel form > label,
+        .registration-add-panel form > div[style*="margin-top"] > label {
+            width: 100%;
+        }
+
+        .registration-add-panel form > select,
+        .registration-add-panel form > div[style*="margin-top"] > select {
+            width: 100%;
         }
 
         .registration-add-panel select,
