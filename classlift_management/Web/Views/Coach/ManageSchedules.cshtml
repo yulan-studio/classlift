@@ -36,59 +36,25 @@
         width: 40%;
     }
 
-    /* ===== Mobile card view ===== */
+    .schedule-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== Mobile table view ===== */
     @@media (max-width: 767px) {
         .schedule-form-fields {
             width: 100%;
         }
 
-        table.mobile-stack thead {
-            display: none;
+        .schedule-table-wrapper {
+            overflow-x: scroll;
         }
 
-        table.mobile-stack,
-        table.mobile-stack tbody,
-        table.mobile-stack tr,
-        table.mobile-stack td {
-            display: block;
-            width: 100%;
-        }
-
-        table.mobile-stack tr {
-            margin-bottom: 16px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: #fff;
-        }
-
-        table.mobile-stack td {
-            border: none;
-            padding: 6px 0;
-        }
-
-        table.mobile-stack td::before {
-            content: attr(data-label);
-            display: block;
-            font-weight: 600;
-            color: #1B7BAB;
-            margin-bottom: 2px;
-        }
-
-        /* Make inputs, textareas, buttons full-width on mobile */
-        table.mobile-stack textarea,
-        table.mobile-stack input,
-        table.mobile-stack button,
-        table.mobile-stack a {
-            width: 100%;
-            margin-top: 6px;
-        }
-
-        /* Stack buttons vertically for easier tapping */
-        table.mobile-stack td .view-mode,
-        table.mobile-stack td .edit-mode {
-            width: 100%;
-            margin-bottom: 5px;
+        table.mobile-stack {
+            min-width: 900px;
         }
     }
 </style>
@@ -141,6 +107,7 @@
     }
 </div>
 
+<div class="schedule-table-wrapper">
 <table class="mobile-stack table table-bordered mt-3">
     <thead class="table-primary">
         <tr>
@@ -232,6 +199,7 @@
         }
     </tbody>
 </table>
+</div>
 @if (!Model.Course.SessionCount.HasValue ||
      Model.ScheduledCount + Model.CompletedCount < Model.Course.SessionCount.Value)
 {
