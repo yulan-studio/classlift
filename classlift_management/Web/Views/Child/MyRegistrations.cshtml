@@ -24,51 +24,21 @@
 
 
 
-    /* ===== Mobile card layout ===== */
+    .registrations-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== Mobile table layout ===== */
     @@media (max-width: 767px) {
-
-        .desktop-only {
-            display: none !important;
+        .registrations-table-wrapper {
+            overflow-x: scroll;
         }
 
-        .course-title {
-            font-weight: 600;
+        table.mobile-stack {
+            min-width: 760px;
         }
-
-        table.mobile-stack thead
-        {
-            display: none;
-        }
-
-        table.mobile-stack,
-        table.mobile-stack tbody,
-        table.mobile-stack tr,
-        table.mobile-stack td {
-            display: block;
-            width: 100%;
-        }
-
-        table.mobile-stack tr {
-            margin-bottom: 16px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: #fff;
-        }
-
-        table.mobile-stack td {
-            border: none;
-            padding: 6px 0;
-        }
-
-        table.mobile-stack td::before {
-            content: attr(data-label);
-            display: block;
-            font-weight: 600;
-            color: #1B7BAB;
-            margin-bottom: 2px;
-        }
-
     }
 </style>
 
@@ -90,6 +60,7 @@
     Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the courses you have registered for. To view upcoming course session schedules, please check the <a href="/Child/MySchedules">Schedules</a> section.
 
 </div>
+<div class="registrations-table-wrapper">
 <table class="mobile-stack table table-bordered mt-3" @* class="mobile-stack" *@>
     <thead class="table-primary">
         <tr>
@@ -156,6 +127,7 @@
         
     </tbody>
 </table>
+</div>
 
 
 
@@ -174,6 +146,7 @@
     Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the activities you have registered for. For upcoming activities, please check the <a href="/Child/MySchedules">Schedules</a> section.
  
 </div>
+<div class="registrations-table-wrapper">
 <table class="mobile-stack table table-bordered mt-3" @* class="mobile-stack" *@>
    @*  <thead>
         <tr style="background-color: #f2f2f2;">
@@ -236,6 +209,7 @@
       
     </tbody>
 </table>
+</div>
 
 
 
