@@ -1131,7 +1131,9 @@ namespace Web.Controllers.User
 
                 bool result3 = true;
 
-                if(courseEnrollment.EnrollmentID_Ref!=null)
+                // A zero-hour completion is treated as removing the scheduled session,
+                // so no Token balance should be deducted for that removal workflow.
+                if (hoursToUse > 0 && courseEnrollment.EnrollmentID_Ref != null)
                 {
                     Core.Models.Fee? fee = await _feeService.GetFeeForCourseEnrollmentAsync((int)courseEnrollment.EnrollmentID_Ref);
                     if (fee != null && fee.PaymentModel == "Token")
@@ -1143,8 +1145,13 @@ namespace Web.Controllers.User
                 
 
 
-                //if (result1 && result2 && result3)
-                if (result1 && result2 && result3)
+                // Removing a zero-hour session does not use Token balance,
+                // so only the removal and related result checks apply.
+                bool operationSucceeded = hoursToUse == 0
+                    ? result1 && result2
+                    : result1 && result2 && result3;
+
+                if (operationSucceeded)
                     //if (result1)
                     {
                     TempData["SuccessMessage"] = "Course Completed successfully.";

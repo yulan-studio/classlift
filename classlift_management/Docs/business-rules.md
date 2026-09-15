@@ -39,6 +39,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 2. A Provider Note containing non-whitespace text is required before a Coach can update or remove a Private course session. The displayed Provider term comes from the organization's terminology settings, and the rule is enforced by both the Manage Schedules page and the server.
 3. Coach Manage Schedules displays both Provider Note and Participant Note labels using the organization's configured terminology rather than fixed Coach or Child wording.
 4. Coach View Enrollments uses the organization's configured Provider and Participant terminology in its note table headings.
+5. In Coach Manage Enrollments, entering Actual Hours as 0 removes the scheduled session. This removal workflow must not deduct Token balance.
 
 ## Accounts and user manual
 
