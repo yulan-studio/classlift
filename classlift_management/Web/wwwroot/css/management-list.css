@@ -23,6 +23,14 @@
     background-color: #f2f2f2;
 }
 
+.management-table thead.management-table-header tr {
+    background-color: var(--classlift-blue-light);
+}
+
+.management-table thead.management-table-header th {
+    color: #000;
+}
+
 .management-table .sortable-header {
     background-color: var(--classlift-blue-light);
 }
