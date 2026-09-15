@@ -84,7 +84,30 @@
 
     .registration-add-panel form > select,
     .registration-add-panel form > div[style*="margin-top"] > select {
-        width: min(60%, 420px);
+        width: 320px;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .registration-add-panel form > label,
+    .registration-add-panel form > div[style*="margin-top"] > label {
+        margin-bottom: 10px;
+    }
+
+    .registration-add-panel form > div[style*="margin-top"] {
+        margin-top: 16px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .registration-add-panel label[style*="font-size"] {
+        width: auto;
+        white-space: nowrap;
+        margin-left: 8px;
+    }
+
+    .registration-course-selection #courseId {
+        width: 320px;
+        max-width: 100%;
     }
 
     @@media (max-width: 767px) {
@@ -118,7 +141,23 @@
 
         .registration-add-panel form > select,
         .registration-add-panel form > div[style*="margin-top"] > select {
+            width: 100% !important;
+            margin-bottom: 0;
+        }
+
+        .registration-course-selection #courseId {
+            width: 100% !important;
+        }
+
+        .registration-add-panel form > label,
+        .registration-add-panel form > div[style*="margin-top"] > label {
+            margin-bottom: 0;
+        }
+
+        .registration-add-panel label[style*="font-size"] {
             width: 100%;
+            white-space: normal;
+            margin-left: 0;
         }
 
         .registration-add-panel select,
