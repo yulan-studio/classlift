@@ -65,15 +65,6 @@
     <thead class="table-primary">
         <tr>
             <th>Course</th>
-            <th class="desktop-only">Specialty</th>
-            <th>@CurrentTenant.Terminology.ProviderSingular</th>
-            <th>Session Count</th>
-            <th class="desktop-only">Scheduled</th>
-            <th>Completed</th>
-            <th>Canceled</th>
-            <th class="desktop-only">Request To Reschedule</th>
-            <th class="desktop-only">Request To Leave</th>
-            <th>On Leave</th>
             <th>Status</th>
             <th>Is Paid</th>
         </tr>
@@ -87,15 +78,6 @@
             {
                 <tr>
                     <td class="course-title" data-label="Course">@enrollment.Title</td>
-                    <td class="desktop-only" data-label="Specialty">@enrollment.SpecialtyName</td>
-                    <td data-label="Coach">@enrollment.CoachName</td>
-                    <td data-label="Session Count">@enrollment.SessionCount</td>
-                    <td class="desktop-only" data-label="Scheduled">@enrollment.ScheduledSessions</td>
-                    <td data-label="Completed">@enrollment.CompletedSessions</td>
-                    <td data-label="Canceled">@enrollment.CanceledSessions</td>
-                    <td class="desktop-only" data-label="Request To Reschedule">@enrollment.RequestToRescheduleSessions</td>
-                    <td class="desktop-only" data-label="Request To Leave">@enrollment.RequestToLeaveSessions</td>
-                    <td data-label="On Leave">@enrollment.OnLeaveSessions</td>
                     <td data-label="Status">@enrollment.Status</td>
                     <td data-label="Is Paid">
                         @if (!enrollment.IsPaid)
@@ -119,7 +101,7 @@
         else
         {
             <tr>
-                <td colspan="14" style="text-align: center; padding: 10px;">No courses enrolled.</td>
+                <td colspan="3" style="text-align: center; padding: 10px;">No courses enrolled.</td>
             </tr>
         }
 
