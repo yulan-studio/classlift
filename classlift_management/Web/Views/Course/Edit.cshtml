@@ -26,17 +26,15 @@
         text-align: left;
     }
 
-    .edit-course-form-table,
-    .edit-course-form-table tbody,
-    .edit-course-form-table tr,
-    .edit-course-form-table td {
-        display: block;
-        width: 100%;
+    .edit-course-form-table {
+        display: table;
     }
 
-    .edit-course-form-table tr { margin-bottom: 12px; }
-    .edit-course-form-table td { padding: 4px 0 !important; }
-    .edit-course-form-table td:first-child { padding-bottom: 0 !important; }
+    .edit-course-form-table tbody { display: table-row-group; }
+    .edit-course-form-table tr { display: table-row; }
+    .edit-course-form-table td { display: table-cell; }
+    .edit-course-form-table td:first-child { width: 25%; }
+    .edit-course-form-table td:nth-child(2) { width: 75%; }
     .edit-course-form-table input[type="text"],
     .edit-course-form-table input[type="number"] {
         width: 100% !important;
@@ -60,6 +58,18 @@
     }
 
     @@media (max-width: 767px) {
+        .edit-course-form-table,
+        .edit-course-form-table tbody,
+        .edit-course-form-table tr,
+        .edit-course-form-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .edit-course-form-table tr { margin-bottom: 12px; }
+        .edit-course-form-table td { padding: 4px 0 !important; }
+        .edit-course-form-table td:first-child { padding-bottom: 0 !important; }
+
         .edit-course-form-table input[type="text"],
         .edit-course-form-table input[type="number"] {
             max-width: none;
