@@ -1,3 +1,12 @@
+:root {
+    --classlift-blue: #1b7bab;
+    --classlift-blue-dark: #155a78;
+    --classlift-blue-light: #eaf6fa;
+    --classlift-link: #005a8d;
+    --classlift-border: #d6e2e7;
+    --classlift-muted-text: #3f4f56;
+}
+
 .management-table {
     width: 100%;
     border-collapse: collapse;
@@ -7,7 +16,7 @@
 .management-table th,
 .management-table td {
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--classlift-border);
 }
 
 .management-table thead tr {
@@ -15,12 +24,12 @@
 }
 
 .management-table .sortable-header {
-    background-color: lightblue;
+    background-color: var(--classlift-blue-light);
 }
 
 .management-table .sortable-header a,
 .management-table .action-link {
-    color: #007bff;
+    color: var(--classlift-link);
     text-decoration: none;
 }
 
@@ -69,13 +78,13 @@
 }
 
 .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--classlift-blue);
+    border-color: var(--classlift-blue);
     color: white;
 }
 
 .page-link {
-    color: #007bff;
+    color: var(--classlift-link);
 }
 
 @media (max-width: 768px) {
@@ -122,7 +131,7 @@
 
 .management-form__instruction {
     font-size: 0.7em;
-    color: darkslategray;
+    color: var(--classlift-muted-text);
 }
 
 .management-form__instruction--block {
@@ -169,7 +178,7 @@
 }
 
 .schedule-section-title {
-    color: steelblue;
+    color: var(--classlift-blue-dark);
     margin-bottom: 20px;
 }
 
@@ -195,7 +204,7 @@
 .more-info-summary-table th,
 .more-info-summary-table td {
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--classlift-border);
 }
 
 .more-info-tabs {
