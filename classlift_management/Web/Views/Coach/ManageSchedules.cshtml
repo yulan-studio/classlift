@@ -61,6 +61,12 @@
         box-sizing: border-box;
     }
 
+    .remove-schedule-link {
+        color: #0d6efd;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
     .schedule-table-wrapper {
         width: 100%;
         max-width: 100%;
@@ -199,7 +205,7 @@
                                 <input type="hidden" name="courseId" id="courseId" value="@Model.Course.CourseID" />
                                 <input type="hidden" name="enrollmentId_Ref" id="enrollmentId_Ref" value="@Model.EnrollmentID" />
                                 <input type="hidden" name="coachNote" id="coachNote-@s.EnrollmentID-hidden" />
-                                <button type="submit" class="view-mode btn btn btn-primary">Remove</button>
+                                <a href="javascript:void(0);" class="remove-schedule-link" onclick="this.closest('form').requestSubmit(); return false;">Remove</a>
                             </form>
                         }
                     </td>
