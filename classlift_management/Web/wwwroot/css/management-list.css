@@ -35,6 +35,14 @@
     background-color: var(--classlift-blue-light) !important;
 }
 
+.management-table thead.child-management-table-header tr,
+.management-table thead.child-management-table-header th {
+    --bs-table-bg-type: #f2f2f2;
+    --bs-table-bg-state: #f2f2f2;
+    --bs-table-bg: #f2f2f2;
+    background-color: #f2f2f2 !important;
+}
+
 .management-table .sortable-header {
     background-color: var(--classlift-blue-light);
 }
