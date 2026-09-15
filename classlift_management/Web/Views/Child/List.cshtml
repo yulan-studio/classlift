@@ -30,7 +30,7 @@
 </label> *@
 
 
-<form method="get" asp-action="List" class="list-filter mb-3">
+<form method="get" asp-action="List" class="list-filter child-list-filter mb-3">
     <input type="text" name="searchName" placeholder="Search @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() name..."
            class="list-filter__input" value="@Context.Request.Query["searchName"]" />
 

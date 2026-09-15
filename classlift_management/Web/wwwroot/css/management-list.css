@@ -286,6 +286,31 @@
 }
 
 @media (max-width: 767px) {
+    .child-list-filter {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .child-list-filter .list-filter__input,
+    .child-list-filter .list-filter__search,
+    .child-list-filter .list-filter__reset {
+        width: 100%;
+        min-height: 42px;
+        margin-left: 0;
+        box-sizing: border-box;
+    }
+
+    .child-list-filter .list-filter__search,
+    .child-list-filter .list-filter__reset {
+        text-align: center;
+    }
+
+    .child-list-filter .list-filter__reset {
+        padding: 10px 12px;
+    }
+
     .mobile-only-link {
         display: block;
         width: 100%;
