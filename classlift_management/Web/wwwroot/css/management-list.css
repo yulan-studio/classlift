@@ -29,6 +29,10 @@
 
 .management-table thead.management-table-header th {
     color: #000;
+    --bs-table-bg-type: var(--classlift-blue-light);
+    --bs-table-bg-state: var(--classlift-blue-light);
+    --bs-table-bg: var(--classlift-blue-light);
+    background-color: var(--classlift-blue-light) !important;
 }
 
 .management-table .sortable-header {
