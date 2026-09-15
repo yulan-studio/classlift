@@ -8,67 +8,26 @@
     MOBILE FRIENDLY TABLES
     ========================= */
 
-    /* Hide extra course details on mobile */
-@@media (max-width: 768px) {
-    .desktop-only
-
-    {
-        display: none !important;
-    }
-
-}
-
-@@media (max-width: 768px) {
-    /* Course summary stacks nicely */
-    .course-summary strong
-
-    {
-        display: block;
-        margin-top: 6px;
-    }
-
-  
-
-    /* Hide table headers */
-    table.mobile-table thead {
-        display: none;
-    }
-
-    table.mobile-table,
-    table.mobile-table tbody,
-    table.mobile-table tr,
-    table.mobile-table td {
-        display: block;
+    .schedule-table-wrapper {
         width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    table.mobile-table tr {
-        margin-bottom: 16px;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        background: #fff;
-    }
+    @@media (max-width: 768px) {
+        .schedule-table-wrapper {
+            overflow-x: scroll;
+        }
 
-    table.mobile-table td {
-        border: none !important;
-        padding: 6px 0;
-    }
+        table.mobile-table {
+            min-width: 760px;
+        }
 
-    table.mobile-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: steelblue;
-        display: block;
-        margin-bottom: 2px;
+        .btn-save {
+            width: 100%;
+        }
     }
-
-    /* Save button */
-    .btn-save {
-        width: 100%;
-    }
-
-}
 </style>
 
 
@@ -127,7 +86,7 @@
                 <input type="hidden" name="CourseID" value="@courseSchedules.Course.CourseID" />
 
                
-                 @* <table class="mobile-table" style="border-collapse: collapse; width: 100%; text-align: left;"> *@
+                 <div class="schedule-table-wrapper">
                  <table class="mobile-table table table-bordered mt-3" style="border-collapse: collapse; width: 100%; text-align: left; vertical-align:middle">
 
                            
@@ -277,6 +236,7 @@
                         }
                     </tbody>
                 </table>
+                </div>
                 <br/>
            
                 @if (courseSchedules.Course.CourseType == "Group")
