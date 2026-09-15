@@ -36,7 +36,7 @@
 
 <div class="session-registration-section">
 <div class="session-registration-table-wrapper">
-<table class="session-registration-table" style="border-collapse: collapse; width: 100%; text-align: left;">
+<table class="management-table session-registration-table" style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
@@ -92,7 +92,7 @@
     <input type="hidden" name="CourseID" value="@Model.CourseID" />
 
     <div class="session-registration-table-wrapper">
-    <table class="table session-registration-table">
+    <table class="management-table table session-registration-table">
         <thead>
             <tr>
                 <th>Scheduled At</th>
@@ -208,86 +208,6 @@
     </div>
 </form>
 
-@* <div style="margin-top: 20px;"></div>
 
-
-
-<h3>Scheduled Sessions</h3>
-
-<form method="post" asp-action="UpdateScheduledSessions">
-    <input type="hidden" name="ChildID" value="@Model.ChildID" />
-    <input type="hidden" name="CourseID" value="@Model.CourseID" />
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Scheduled At</th>
-                <th>Scheduled Hours</th>
-                <th>Status</th>
-                <th>@($"{CurrentTenant.Terminology.ParticipantSingular} Note")</th>
-                <th>Staff Note</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            @if (Model.ScheduledSessions.Any())
-            {
-                @for (int i = 0; i < Model.ScheduledSessions.Count; i++)
-                {
-                    <tr>
-                        <td>@Model.ScheduledSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
-                        <td>@Model.ScheduledSessions[i].ScheduledHours</td>
-                        <td>
-                            <select name="ScheduledSessions[@i].Status" class="form-select">
-                                <option value="Registered" selected="@("Registered" == Model.ScheduledSessions[i].Status)">Registered</option>
-                                <option value="Deleted" selected="@("Deleted" == Model.ScheduledSessions[i].Status)">Deleted</option>
-
-                            </select>
-                            <input type="hidden" name="ScheduledSessions[@i].EnrollmentID" value="@Model.ScheduledSessions[i].EnrollmentID" />
-                        </td>
-                        <td>@Model.ScheduledSessions[i].ParentNote</td>
-                        <td>
-                            <textarea name="ScheduledSessions[@i].StaffNote" class="form-control">@Model.ScheduledSessions[i].StaffNote</textarea>
-                        </td>
-                    </tr>
-                }
-            }
-
-
-
-
-            else
-            {
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 10px;">No session has been scheduled.</td>
-                </tr>
-            }
-
-            @if (TempData["SuccessMessage2"] != null)
-            {
-                <tr>
-                    <td colspan="5">
-                        <div class="alert alert-success">
-                            @TempData["SuccessMessage2"]
-                        </div>
-                    </td>
-                </tr>
-            }
-
-            @if (TempData["ErrorMessage2"] != null)
-            {
-                <tr>
-                    <td colspan="5">
-                        <div class="alert alert-danger">
-                            @TempData["ErrorMessage2"]
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button>
-</form> *@
 
 
