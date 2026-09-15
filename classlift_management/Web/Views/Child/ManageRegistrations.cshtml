@@ -39,13 +39,29 @@
         margin-right: 10px;
     }
 
-    .registration-add-panel label[for="courseId"],
-    .registration-add-panel #courseId {
-        display: block;
+    .registration-course-selection {
+        margin-top: 8px;
     }
 
-    .registration-add-panel label[for="courseId"] {
-        margin-top: 8px;
+    .registration-course-selection label[for="courseId"],
+    .registration-course-selection #courseId {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .registration-course-selection label[for="courseId"] {
+        margin-top: 0;
+        margin-right: 5px;
+    }
+
+    .registration-course-selection #courseId {
+        margin-left: 5px;
+        margin-right: 10px;
+    }
+
+    .registration-course-selection #openSessionInfo {
+        display: inline-block;
+        vertical-align: middle;
     }
 
     @@media (max-width: 767px) {
@@ -77,6 +93,10 @@
         .registration-add-panel textarea {
             min-height: 90px;
             margin-top: 5px;
+        }
+
+        .registration-course-selection #courseId {
+            margin-left: 0;
         }
 
         .registration-add-panel label[style*="font-size"] {
@@ -278,14 +298,16 @@
         </select>
 
         <!-- Select Course Based on Specialty -->
-        <label for="courseId">Select Course:</label>
-        <select id="courseId" name="courseId" required onchange="checkIfGroupClass(this.value)">
-            <option value="">-- Select Course --</option>
-        </select>
+        <div class="registration-course-selection">
+            <label for="courseId">Select Course:</label>
+            <select id="courseId" name="courseId" required onchange="checkIfGroupClass(this.value)">
+                <option value="">-- Select Course --</option>
+            </select>
 
-        <span id="openSessionInfo" style="display: none; margin-left: 10px; color: darkslategray;">
-            Open Sessions: <strong id="openSessionCount">0</strong>
-        </span>
+            <span id="openSessionInfo" style="display: none; margin-left: 10px; color: darkslategray;">
+                Open Sessions: <strong id="openSessionCount">0</strong>
+            </span>
+        </div>
 
         <input type="hidden" name="scheduledHours" value="0" />
         <div style="margin-top: 20px; margin-bottom:20px;">
