@@ -231,6 +231,28 @@
     </tbody>
 </table>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["WarningMessage"]
+    </div>
+}
+
 @if (!Model.Course.SessionCount.HasValue ||
      Model.ScheduledCount + Model.CompletedCount < Model.Course.SessionCount.Value)
 {
@@ -300,26 +322,7 @@
 </form>
 }
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
-@if (TempData["WarningMessage"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["WarningMessage"]
-    </div>
-}
 
 <div id="removeScheduleModal" class="remove-schedule-modal" role="dialog" aria-modal="true" aria-labelledby="removeScheduleModalTitle">
     <div class="remove-schedule-modal__content">
