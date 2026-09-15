@@ -25,7 +25,8 @@
         .core-info-form-table td:first-child { padding-bottom: 0 !important; }
         .core-info-form-table input:not([type="checkbox"]), .core-info-form-table select { width: 100% !important; min-height: 42px; box-sizing: border-box; }
         .core-info-form-table input[type="checkbox"] { margin-left: 0; }
-        .core-info-form-table + br + br + button { min-height: 42px; padding: 10px 16px !important; }
+        .core-info-save-spacing + button { min-height: 42px; padding: 10px 16px !important; }
+        .core-info-save-spacing { height: 8px; }
     }
 </style>
 
@@ -130,6 +131,6 @@
 
 
 
-    <br /><br />
+    <div class="core-info-save-spacing"></div>
     <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
 </form>
