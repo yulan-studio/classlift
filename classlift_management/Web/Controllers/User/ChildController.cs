@@ -1272,6 +1272,9 @@ namespace Web.Controllers.User
         [HttpPost("RemovePayment")]
         public async Task<IActionResult> RemovePayment(int paymentID, int childId)
         {
+            TempData["ErrorMessage"] = "Payments cannot be deleted. Please record a correcting balance adjustment instead.";
+            return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+            /*
             try
             {
                 Core.Models.User user = await _userManager.GetUserAsync(User);
@@ -1328,7 +1331,8 @@ namespace Web.Controllers.User
             }
 
 
-        }
+            }
+            */
 
         [Authorize(Roles = "Staff")]
         [HttpGet("EnrollmentsHistory/{childId}")]

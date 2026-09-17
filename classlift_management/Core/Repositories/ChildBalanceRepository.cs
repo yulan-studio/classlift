@@ -187,14 +187,13 @@ namespace Core.Repositories
                 .Select(cb => new Core.ViewModels.ChildBalance
                 {
                     CreatedDate = cb.CreatedDate,
-                    Type =  cb.TransactionType != null ? cb.TransactionType :"Other",
+                    Type = cb.TransactionType != null ? cb.TransactionType : "Other",
                     CourseName = cb.CourseID != null ? cb.Course.Title : null,
                     ActivityName = cb.ActivityID != null ? cb.Activity.Title : null,
                     BalanceChange = cb.BalanceChange ?? 0,
                     Balance = cb.Balance ?? 0,
                     Remarks = cb.Remarks,
                     Calculation = cb.Calculation,
-
                     ScheduledAt = cb.EnrollmentID != null ? cb.CourseEnrollment.ScheduledAt : null,
                     ActualHours = cb.EnrollmentID != null ? cb.CourseEnrollment.ActualHours : null
                 })
