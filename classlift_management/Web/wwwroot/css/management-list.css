@@ -93,6 +93,17 @@ select {
     padding: 8px 12px;
 }
 
+/* Keep room for the native arrow on plain selects. Bootstrap .form-select
+   already provides its own arrow spacing. */
+select:not(.form-select) {
+    padding-right: 2.5rem;
+}
+
+select.form-control,
+select.classlift-control {
+    padding-right: 2.75rem;
+}
+
 textarea {
     padding: 8px 12px;
 }

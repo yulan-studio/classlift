@@ -18,6 +18,10 @@
 
 <style>
     .core-info-form-table { border-collapse: collapse; width: 100%; max-width: 600px; text-align: left; }
+    .core-info-form-table select.form-select {
+        padding-right: 2.75rem;
+        background-position: right 0.75rem center;
+    }
     @@media (max-width: 767px) {
         .core-info-form-table, .core-info-form-table tbody, .core-info-form-table tr, .core-info-form-table td { display: block; width: 100%; }
         .core-info-form-table tr { margin-bottom: 12px; }
@@ -112,7 +116,7 @@
                 <input asp-for="Status" class="form-control" />
             </td> *@
             <td style="padding: 8px;">
-                <select name="Status" style="width: 50%;" required>
+                <select name="Status" class="form-select" style="width: 50%;" required>
                     <option value="">-- Select Status --</option>
                     <option value="Active" selected="@(Model.Status == "Active" ? "selected" : null)">Active</option>
                     <option value="InActive" selected="@(Model.Status == "InActive" ? "selected" : null)">InActive</option>
