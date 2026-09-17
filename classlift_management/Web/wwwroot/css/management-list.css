@@ -31,6 +31,30 @@
     color: #5b6870;
 }
 
+.classlift-file-control {
+    min-height: 40px;
+    padding: 5px 8px;
+    box-sizing: border-box;
+    color: #3f4f56;
+    background-color: #fff;
+    border: 1px solid #cbd8de;
+    border-radius: 5px;
+}
+
+.classlift-file-control::file-selector-button {
+    margin-right: 10px;
+    padding: 7px 12px;
+    color: #3f4f56;
+    background-color: #e7eef1;
+    border: 1px solid #cbd8de;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.classlift-file-control::file-selector-button:hover {
+    background-color: #d8e4e9;
+}
+
 .classlift-checkbox {
     width: 18px;
     height: 18px;
@@ -100,6 +124,11 @@ textarea[readonly] {
     .classlift-control {
         min-height: 42px;
         font-size: 1rem;
+    }
+
+    .classlift-file-control {
+        width: 100%;
+        min-height: 42px;
     }
 
     input[type="text"],
