@@ -49,6 +49,7 @@
             <th style="padding: 10px; border: 1px solid #ddd;">Actual Hours</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Cost</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Balance</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Staff</th>
         </tr>
     </thead>
     <tbody>
@@ -93,6 +94,7 @@
                         }
                     </td>
                     <td style="padding: 10px; border: 1px solid #ddd;">$@item.Balance.ToString("F2")</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@(item.StaffName ?? "")</td>
                 </tr>
             }
         }
@@ -140,7 +142,7 @@
 
 <!-- ✅ Form to Add a New Payment -->
 <div class="balance-adjust-panel">
-    <b>Adjust or Refund Balance</b>
+    <b>Adjust Balance or Refund</b>
     <div style="margin-bottom: 10px;"></div>
 <!-- Adjustment / Refund Form -->
     <form method="post" asp-action="FixBalance" enctype="multipart/form-data" class="balance-adjust-form">
@@ -158,7 +160,7 @@
                 <label for="refundBalance">Refund</label>
                 <br/>
 
-                    <label style="font-size:0.9em; color:darkslategray">"Adjust Balance" is used for unexpected issues (Positive amount adds to the balance; negative amount subtracts from it) <br />"Refund" is used when a participant quits the course. </label>
+                    <label style="font-size:0.9em; color:darkslategray">"Adjust Balance" is used for unexpected errors (Positive amount adds to the balance; negative amount subtracts from it) <br />"Refund" is used when a participant quits the course. </label>
             </td>
         </tr>
 

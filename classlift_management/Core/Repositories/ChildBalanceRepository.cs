@@ -192,6 +192,9 @@ namespace Core.Repositories
                     ActivityName = cb.ActivityID != null ? cb.Activity.Title : null,
                     BalanceChange = cb.BalanceChange ?? 0,
                     Balance = cb.Balance ?? 0,
+                    StaffName = cb.CreatedBy != null
+                        ? _context.Staff.Where(s => s.UserID == cb.CreatedBy).Select(s => s.Name).FirstOrDefault()
+                        : null,
                     Remarks = cb.Remarks,
                     Calculation = cb.Calculation,
                     ScheduledAt = cb.EnrollmentID != null ? cb.CourseEnrollment.ScheduledAt : null,

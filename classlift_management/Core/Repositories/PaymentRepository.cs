@@ -33,7 +33,7 @@ namespace Core.Repositories
 
         public async Task<IEnumerable<Payment>> GetByChildAsync(int childId)
         {
-            return await _context.Payments
+            var payments = await _context.Payments
                 .Include(p => p.PaymentPackage)
                 .Include(p => p.Fee)
                 .ThenInclude(Fee => Fee.ActivityEnrollment) // ✅ Include ActivityEnrollment
@@ -43,6 +43,16 @@ namespace Core.Repositories
                 .ThenInclude(ce => ce.Course) // ✅ Include Course entity
                 .Where(p => p.ChildID == childId)
                 .ToListAsync();
+
+            var userIds = payments.Select(p => p.CreatedBy).Distinct().ToList();
+            var staffNames = await _context.Staff
+                .Where(s => userIds.Contains(s.UserID))
+                .ToDictionaryAsync(s => s.UserID, s => s.Name);
+
+            foreach (var payment in payments)
+                payment.StaffName = staffNames.GetValueOrDefault(payment.CreatedBy);
+
+            return payments;
         }
 
         // 🔹 Get payment by ID
