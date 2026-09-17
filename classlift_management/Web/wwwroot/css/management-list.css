@@ -30,6 +30,19 @@ a[style*="background-color"],
     cursor: pointer;
 }
 
+.classlift-button--secondary {
+    color: #26343a !important;
+    background-color: #e2eaed !important;
+    border: 1px solid #cbd8de !important;
+}
+
+.classlift-button--secondary:hover,
+.classlift-button--secondary:focus {
+    color: #26343a !important;
+    background-color: #cbd8de !important;
+    border-color: #aebfc7 !important;
+}
+
 button:focus,
 input[type="submit"]:focus,
 input[type="button"]:focus,
