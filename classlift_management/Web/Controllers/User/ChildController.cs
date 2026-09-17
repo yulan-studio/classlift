@@ -1561,7 +1561,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpPost("FixBalance")]
-        public async Task<IActionResult> FixBalance(int childId, string actionType, decimal amount, string remarks, IFormFile file)
+        public async Task<IActionResult> FixBalance(int childId, string actionType, decimal amount, string remarks)
         {
 
             //string calculationPath = null;
@@ -1583,15 +1583,6 @@ namespace Web.Controllers.User
             //    calculationPath = $"/calculations/{uniqueFileName}";
             //}
 
-            string fileUrl = null;
-
-            if (file != null)
-            {
-                // Upload to R2
-                string fileName = String.Concat(childId, "-", DateTimeHelper.GetTorontoTime().ToString("yyyyMMdd-HHmmss"));
-                fileUrl = await _r2UploadService.UploadAsync(file, "balance", fileName);
-            }
-
             Core.Models.User user = await _userManager.GetUserAsync(User);
             //var userId = int.Parse(User.FindFirst("UserId").Value); // assuming you store UserId in claims
 
@@ -1600,7 +1591,7 @@ namespace Web.Controllers.User
                 actionType,
                 amount,
                 remarks,
-                fileUrl,
+                null,
                 user.Id
             );
 
