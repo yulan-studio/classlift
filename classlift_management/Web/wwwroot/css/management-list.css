@@ -434,6 +434,33 @@ textarea[readonly] {
     border: 1px solid #ccc;
 }
 
+.participation-back-link {
+    display: inline-block;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-bottom: 1rem;
+    padding: 8px 14px;
+    color: #26343a;
+    background-color: #e2eaed;
+    border: 1px solid #cbd8de;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.participation-back-link:hover,
+.participation-back-link:focus {
+    color: #26343a;
+    background-color: #cbd8de;
+    border-color: #aebfc7;
+}
+
+.participation-back-link:active {
+    color: #fff;
+    background-color: #71838b;
+    border-color: #71838b;
+}
+
 @media (max-width: 768px) {
     .management-form-table--add,
     .management-form-table--edit,
