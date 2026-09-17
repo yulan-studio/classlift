@@ -57,6 +57,60 @@
         row-gap: 8px;
     }
 
+    .registration-field-row {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: center;
+        column-gap: 0;
+        margin-bottom: 10px;
+    }
+
+    .registration-field-row label {
+        margin: 0;
+    }
+
+    .registration-field-row select {
+        width: 320px;
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .registration-dropdown {
+        width: 320px !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        box-sizing: border-box;
+    }
+
+    .registration-payment-row {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: center;
+        row-gap: 8px;
+    }
+
+    .registration-payment-row > label:not([style*="font-size"]) {
+        grid-column: 1;
+        width: auto;
+        margin: 0;
+    }
+
+    .registration-payment-row > select {
+        grid-column: 2;
+        margin: 0 !important;
+    }
+
+    .registration-payment-row > label[style*="font-size"] {
+        grid-column: 2;
+        width: auto;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .registration-payment-row > span {
+        grid-column: 2;
+    }
+
     .registration-course-selection label[for="courseId"],
     .registration-course-selection #courseId {
         display: block;
@@ -132,6 +186,23 @@
 
         .registration-course-selection {
             display: block;
+        }
+
+        .registration-field-row {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .registration-payment-row {
+            display: block;
+        }
+
+        .registration-field-row select {
+            width: 100% !important;
+        }
+
+        .registration-dropdown {
+            width: 100% !important;
         }
 
         .registration-add-panel label,
@@ -373,20 +444,21 @@
         <input type="hidden" name="childId" value="@Model.Child.ChildID" />
 
         <!-- Select Specialty First -->
-        <label for="specialtyId">Select Specialty:</label>
-        <select id="specialtyId" name="specialtyId" required onchange="fetchCoursesBySpecialty(this.value)">
-            <option value="">-- Select Specialty --</option>
-            @foreach (var specialty in ViewBag.SpecialtyList)
-
-            {
-                <option value="@specialty.Value">@specialty.Text</option>
-            }
-        </select>
+        <div class="registration-field-row">
+            <label for="specialtyId">Select Specialty:</label>
+            <select id="specialtyId" name="specialtyId" class="registration-dropdown" required onchange="fetchCoursesBySpecialty(this.value)">
+                <option value="">-- Select Specialty --</option>
+                @foreach (var specialty in ViewBag.SpecialtyList)
+                {
+                    <option value="@specialty.Value">@specialty.Text</option>
+                }
+            </select>
+        </div>
 
         <!-- Select Course Based on Specialty -->
         <div class="registration-course-selection">
             <label for="courseId">Select Course:</label>
-            <select id="courseId" name="courseId" required onchange="checkIfGroupClass(this.value)">
+            <select id="courseId" name="courseId" class="registration-dropdown" required onchange="checkIfGroupClass(this.value)">
                 <option value="">-- Select Course --</option>
             </select>
 
@@ -396,10 +468,10 @@
         </div>
 
         <input type="hidden" name="scheduledHours" value="0" />
-        <div style="margin-top: 20px; margin-bottom:20px;">
+        <div class="registration-payment-row" style="margin-top: 20px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label for="paymentModel">Payment Model:</label>
-            <select id="paymentModel" name="paymentModel" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
+            <select id="paymentModel" name="paymentModel" class="registration-dropdown" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
             <option value="">-- Select Payment Model --</option>
             <option value="Direct">Direct</option>
             @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
@@ -549,7 +621,8 @@
 <form method="post" action="/Child/RegisterActivity">
     <input type="hidden" name="childId" value="@Model.Child.ChildID" />
 
-    <label for="activityId">Select Activity:</label>
+    <div class="registration-field-row">
+        <label for="activityId">Select Activity:</label>
     <select id="activityId" name="activityId" required onchange="updateActivityFeeDetails()">
         <option value="">-- Select Activity --</option>
         @foreach (var activity in ViewBag.ActivityList)
@@ -557,7 +630,8 @@
             <option value="@activity.Value" data-cost="@activity.Cost">@activity.Text</option>
         }
     </select>
-        <div style="margin-top: 10px; margin-bottom:20px;">
+    </div>
+        <div class="registration-payment-row" style="margin-top: 10px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label @* for="PaymentModel2" *@>Payment Model:</label>
             <select id="activityPaymentModel" name="paymentModel" required onchange="updateActivityFeeDetails()">
