@@ -71,7 +71,7 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-5">
                             <label class="form-label">Relationship</label>
-                            <select name="Relationship" class="form-select" required>
+                            <select name="Relationship" class="classlift-control form-select" required>
                                 <option value="">-- Select Relationship --</option>
                                 <option value="Father">Father</option>
                                 <option value="Mother">Mother</option>
@@ -80,25 +80,25 @@
                         </div>
                         <div class="col-md-7">
                             <label class="form-label">Name</label>
-                            <input name="Name" class="form-control" required />
+                            <input name="Name" class="classlift-control form-control" required />
                         </div>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
-                            <input name="Email" type="email" class="form-control" required />
+                            <input name="Email" type="email" class="classlift-control form-control" required />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Phone</label>
-                            <input name="Phone" class="form-control" />
+                            <input name="Phone" class="classlift-control form-control" />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">WeChat</label>
-                            <input name="Wechat" class="form-control" />
+                            <input name="Wechat" class="classlift-control form-control" />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">WhatsApp</label>
-                            <input name="WhatsApp" class="form-control" />
+                            <input name="WhatsApp" class="classlift-control form-control" />
                         </div>
                     </div>
                 </div>
@@ -132,7 +132,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-5">
                                 <label class="form-label">Relationship</label>
-                                <select name="Relationship" class="form-select" required>
+                                <select name="Relationship" class="classlift-control form-select" required>
                                     <option value="">-- Select Relationship --</option>
                                     <option value="Father" selected="@(parentChild.Relationship == "Father" ? "selected" : null)">Father</option>
                                     <option value="Mother" selected="@(parentChild.Relationship == "Mother" ? "selected" : null)">Mother</option>
@@ -141,25 +141,25 @@
                             </div>
                             <div class="col-md-7">
                                 <label class="form-label">Name</label>
-                                <input name="Name" value="@parentChild.Parent.Name" class="form-control" required />
+                                <input name="Name" value="@parentChild.Parent.Name" class="classlift-control form-control" required />
                             </div>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
-                                <input name="Email" value="@parentChild.Parent.Email" type="email" class="form-control" required />
+                                <input name="Email" value="@parentChild.Parent.Email" type="email" class="classlift-control form-control" required />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phone</label>
-                                <input name="Phone" value="@parentChild.Parent.Phone" class="form-control" />
+                                <input name="Phone" value="@parentChild.Parent.Phone" class="classlift-control form-control" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">WeChat</label>
-                                <input name="Wechat" value="@parentChild.Parent.Wechat" class="form-control" />
+                                <input name="Wechat" value="@parentChild.Parent.Wechat" class="classlift-control form-control" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">WhatsApp</label>
-                                <input name="WhatsApp" value="@parentChild.Parent.WhatsApp" class="form-control" />
+                                <input name="WhatsApp" value="@parentChild.Parent.WhatsApp" class="classlift-control form-control" />
                             </div>
                         </div>
                     </div>

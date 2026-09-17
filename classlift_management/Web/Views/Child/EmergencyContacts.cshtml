@@ -30,9 +30,19 @@
 
     .emergency-contact-form input {
         width: 180px;
-        min-height: 38px;
-        padding: 6px 8px;
+        min-height: 40px;
+        padding: 8px 12px;
         box-sizing: border-box;
+        border: 1px solid #cbd8de;
+        border-radius: 5px;
+        background-color: #fff;
+        color: #212529;
+    }
+
+    .emergency-contact-form input:focus {
+        border-color: #1b7bab;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(27, 123, 171, 0.15);
     }
 
     @@media (max-width: 767px) {
@@ -92,9 +102,9 @@
 
 <form class="emergency-contact-form" asp-action="AddEmergencyContact" asp-route-childId="@Model.ChildID" method="post">
     @Html.AntiForgeryToken()
-    <input name="contactName" placeholder="Contact Name" required />
-    <input name="relationship" placeholder="Relationship" required />
-    <input name="phone" placeholder="Phone" required />
-    <input name="email" type="email" placeholder="Email" required />
+    <input class="classlift-control" name="contactName" placeholder="Contact Name" required />
+    <input class="classlift-control" name="relationship" placeholder="Relationship" required />
+    <input class="classlift-control" name="phone" placeholder="Phone" required />
+    <input class="classlift-control" name="email" type="email" placeholder="Email" required />
     <button type="submit" class="btn btn-danger btn-sm">Add Contact</button>
 </form>
