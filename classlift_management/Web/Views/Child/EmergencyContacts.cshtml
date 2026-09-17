@@ -45,6 +45,18 @@
         box-shadow: 0 0 0 3px rgba(27, 123, 171, 0.15);
     }
 
+    .emergency-contact-form button,
+    .emergency-contacts-table button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 8px 14px !important;
+        border-radius: 5px !important;
+        box-sizing: border-box;
+    }
+
     @@media (max-width: 767px) {
         .emergency-contacts-table-wrapper {
             overflow-x: scroll;
@@ -61,6 +73,7 @@
         .emergency-contact-form button {
             width: 100%;
             min-height: 42px;
+            height: 42px !important;
             box-sizing: border-box;
         }
     }
@@ -89,7 +102,7 @@
                     <form asp-action="DeleteEmergencyContact" asp-route-contactId="@contact.EmergencyContactID" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="childId" value="@Model.ChildID" />
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        <button type="submit" class="btn btn-danger btn-sm classlift-button">Delete</button>
                     </form>
                 </td>
             </tr>
@@ -106,5 +119,5 @@
     <input class="classlift-control" name="relationship" placeholder="Relationship" required />
     <input class="classlift-control" name="phone" placeholder="Phone" required />
     <input class="classlift-control" name="email" type="email" placeholder="Email" required />
-    <button type="submit" class="btn btn-danger btn-sm">Add Contact</button>
+    <button type="submit" class="btn btn-danger btn-sm classlift-button">Add Contact</button>
 </form>
