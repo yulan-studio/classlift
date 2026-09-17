@@ -61,7 +61,7 @@
         <tr>
             <td style="padding: 8px;"><label for="gender">Gender:</label></td>
             <td style="padding: 8px;">
-                <select name="gender" class="form-control" style="width: 100%;" required>
+                <select name="gender" class="form-select" style="width: 100%;" required>
                     <option value="" selected>-- Select Gender --</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -79,7 +79,7 @@
                         <option value="@specialty.Value">@specialty.Text</option>
                     }
                 </select> *@
-                <select name="specialtyIds" multiple class="form-control" style="width: 100%;" required>
+                <select name="specialtyIds" multiple class="form-select" style="width: 100%;" required>
                    @*  <option value="" selected>-- Select Specialties --</option> *@
                     @foreach (var specialty in ViewBag.SpecialtyList)
                     {
@@ -92,7 +92,7 @@
         <tr>
             <td style="padding: 8px;"><label for="provinceId">Province:</label></td>
             <td style="padding: 8px;">
-                <select name="provinceId" id="provinceId" class="form-control" style="width: 100%;" required>
+                <select name="provinceId" id="provinceId" class="form-select" style="width: 100%;" required>
                     <option value="">-- Select Province --</option>
                     @foreach (var province in ViewBag.ProvinceList)
                     {
@@ -104,7 +104,7 @@
         <tr>
             <td style="padding: 8px;"><label for="cityId">City:</label></td>
             <td style="padding: 8px;">
-                <select name="cityId" id="cityId" class="form-control" style="width: 100%;" required @(ViewBag.CityList.Count == 0 ? "disabled" : null)>
+                <select name="cityId" id="cityId" class="form-select" style="width: 100%;" required @(ViewBag.CityList.Count == 0 ? "disabled" : null)>
                     <option value="">-- Select City --</option>
                     @foreach (var city in ViewBag.CityList)
                     {

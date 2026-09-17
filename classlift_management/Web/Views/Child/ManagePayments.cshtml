@@ -181,7 +181,7 @@
                 <tr id="packageRow">
                     <td style="padding: 8px;"><label for="packageId">Select Package:</label></td>
                     <td>
-                            <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" class="payment-field">
+                            <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" class="payment-field form-select">
                             <option value="">-- Select Package --</option>
                             @foreach (var package in ViewBag.PaymentPackages)
                             {

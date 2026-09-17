@@ -36,6 +36,24 @@
         line-height: 1.5;
     }
 
+    .registration-add-panel select {
+        padding: 8px 2.75rem 8px 12px !important;
+        background-position: right 0.75rem center;
+    }
+
+    /* Match the Bootstrap select used by Course/List, including its arrow. */
+    .registration-add-panel select.form-select {
+        appearance: none;
+        padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
+        background-color: #fff;
+        background-image: var(--bs-form-select-bg-img);
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+
     .registration-add-panel select,
     .registration-add-panel input[type="number"] {
         min-height: 38px;
@@ -446,7 +464,7 @@
         <!-- Select Specialty First -->
         <div class="registration-field-row">
             <label for="specialtyId">Select Specialty:</label>
-            <select id="specialtyId" name="specialtyId" class="registration-dropdown" required onchange="fetchCoursesBySpecialty(this.value)">
+            <select id="specialtyId" name="specialtyId" class="registration-dropdown form-select" required onchange="fetchCoursesBySpecialty(this.value)">
                 <option value="">-- Select Specialty --</option>
                 @foreach (var specialty in ViewBag.SpecialtyList)
                 {
@@ -458,7 +476,7 @@
         <!-- Select Course Based on Specialty -->
         <div class="registration-course-selection">
             <label for="courseId">Select Course:</label>
-            <select id="courseId" name="courseId" class="registration-dropdown" required onchange="checkIfGroupClass(this.value)">
+            <select id="courseId" name="courseId" class="registration-dropdown form-select" required onchange="checkIfGroupClass(this.value)">
                 <option value="">-- Select Course --</option>
             </select>
 
@@ -471,7 +489,7 @@
         <div class="registration-payment-row" style="margin-top: 20px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label for="paymentModel">Payment Model:</label>
-            <select id="paymentModel" name="paymentModel" class="registration-dropdown" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
+            <select id="paymentModel" name="paymentModel" class="registration-dropdown form-select" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
             <option value="">-- Select Payment Model --</option>
             <option value="Direct">Direct</option>
             @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
@@ -623,7 +641,7 @@
 
     <div class="registration-field-row">
         <label for="activityId">Select Activity:</label>
-    <select id="activityId" name="activityId" required onchange="updateActivityFeeDetails()">
+    <select id="activityId" name="activityId" class="form-select" required onchange="updateActivityFeeDetails()">
         <option value="">-- Select Activity --</option>
         @foreach (var activity in ViewBag.ActivityList)
         {
@@ -634,7 +652,7 @@
         <div class="registration-payment-row" style="margin-top: 10px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label @* for="PaymentModel2" *@>Payment Model:</label>
-            <select id="activityPaymentModel" name="paymentModel" required onchange="updateActivityFeeDetails()">
+            <select id="activityPaymentModel" name="paymentModel" class="form-select" required onchange="updateActivityFeeDetails()">
             <option value="">-- Select Payment Model --</option>
             <option value="Token">Token</option>
             <option value="Direct">Direct</option>

@@ -88,7 +88,7 @@
         <tr>
             <td style="padding: 8px; width:15%"><label for="CourseType">Course Type:</label></td>
             <td style="padding: 8px; width: 30%">
-                <select name="CourseType" id="CourseType"  class="classlift-control form-control" required>
+                <select name="CourseType" id="CourseType"  class="classlift-control form-select" required>
                     <option value="">-- Select Course Type --</option>
                     <option value="Group">Group</option>
                     <option value="Private">Private</option>
@@ -101,7 +101,7 @@
         <tr>
             <td style="padding: 8px;"><label for="SpecialtyID">Specialty:</label></td>
             <td style="padding: 8px;">
-                <select id="SpecialtyID" name="SpecialtyID" class="classlift-control form-control" onchange="fetchCoaches(this.value)" required>
+                <select id="SpecialtyID" name="SpecialtyID" class="classlift-control form-select" onchange="fetchCoaches(this.value)" required>
                     <option value="" selected>-- Select Specialty --</option>
                     @foreach (var specialty in ViewBag.SpecialtyList)
 
@@ -115,7 +115,7 @@
         <tr>
             <td style="padding: 8px;"><label for="CoachID">@CurrentTenant.Terminology.ProviderSingular:</label></td>
             <td style="padding: 8px;">
-                <select id="CoachID" name="CoachID" class="classlift-control form-control"
+                <select id="CoachID" name="CoachID" class="classlift-control form-select"
                         data-role-name="@CurrentTenant.Terminology.ProviderSingular"
                         data-role-plural="@CurrentTenant.Terminology.ProviderPlural"
                         required>
