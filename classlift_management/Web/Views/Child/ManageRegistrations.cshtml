@@ -362,7 +362,7 @@
                             <form method="post" action="/Child/UnregisterCourse">
                                 <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
                                 <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                                <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+                                <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
                                     Remove
                                 </button>
                             </form>
@@ -498,7 +498,7 @@
         </span>
         </div>
 
-        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
+        <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
     </form>
 
 </div>
@@ -551,7 +551,7 @@
                         <form method="post" action="/Child/UnregisterActivity">
                             <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
                             <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(
+                            <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(
                                 enrollment.IsPaid ||
                                 enrollment.Status == "Confirmed" ||
                                 enrollment.Status == "Canceled" ||
@@ -655,7 +655,7 @@
         </span>
      </div>
 
-    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
+    <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
         @* <small style="color:darkslategray">   - Open activities are shown here</small> *@
 </form>
 </div>
