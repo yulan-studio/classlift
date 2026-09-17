@@ -89,11 +89,11 @@
 
         <tr>
             <td style="padding: 8px;"><label for="title">Title:</label></td>
-            <td style="padding: 8px;"><input type="text" name="title" value="@Model.Title" placeholder="Title" style="width: 60%;" /></td>
+            <td style="padding: 8px;"><input class="classlift-control" type="text" name="title" value="@Model.Title" placeholder="Title" /></td>
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="description">Description:</label></td>
-            <td style="padding: 8px;"><input type="text" name="description" value="@Model.Description" placeholder="Description" style="width: 60%;" /></td>
+            <td style="padding: 8px;"><input class="classlift-control" type="text" name="description" value="@Model.Description" placeholder="Description" /></td>
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="CourseType">Course Type:</label></td>
@@ -104,7 +104,7 @@
         <tr>
             <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
             <td style="padding: 8px;">
-                <input id="MaxCapacity" name="MaxCapacity" value="@(Model.MaxCapacity)" type="number" step="1" min="2" placeholder="Enter Max Capacity" style="width: 60%;" @(Model.CourseType == "Private" ? "disabled" : "") />
+                <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" value="@(Model.MaxCapacity)" type="number" step="1" min="2" placeholder="Enter Max Capacity" @(Model.CourseType == "Private" ? "disabled" : "") />
             </td>
         </tr>
 
@@ -133,7 +133,7 @@
            @*  <td style="padding: 8px;"><label for="isActive">Is Active:</label></td>
             <td style="padding: 8px;"> <input id="isActive" name="isActive" type="checkbox" value="@Model.IsActive" /> </td> *@
             <td style="padding: 8px;"><label for="isActive">Is Active:</label></td> 
-            <td style="padding: 8px;"> <input asp-for="IsActive" type="checkbox" /></td>
+            <td style="padding: 8px;"> <input class="classlift-checkbox" asp-for="IsActive" type="checkbox" /></td>
             
             <input type="hidden" asp-for="IsActive" value="false" />
         </tr> 

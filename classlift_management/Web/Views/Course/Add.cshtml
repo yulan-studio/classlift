@@ -88,7 +88,7 @@
         <tr>
             <td style="padding: 8px; width:15%"><label for="CourseType">Course Type:</label></td>
             <td style="padding: 8px; width: 30%">
-                <select name="CourseType" id="CourseType"  class="form-control" style="width: 100%;" required>
+                <select name="CourseType" id="CourseType"  class="classlift-control form-control" required>
                     <option value="">-- Select Course Type --</option>
                     <option value="Group">Group</option>
                     <option value="Private">Private</option>
@@ -101,7 +101,7 @@
         <tr>
             <td style="padding: 8px;"><label for="SpecialtyID">Specialty:</label></td>
             <td style="padding: 8px;">
-                <select id="SpecialtyID" name="SpecialtyID" class="form-control" style="width: 100%;" onchange="fetchCoaches(this.value)" required>
+                <select id="SpecialtyID" name="SpecialtyID" class="classlift-control form-control" onchange="fetchCoaches(this.value)" required>
                     <option value="" selected>-- Select Specialty --</option>
                     @foreach (var specialty in ViewBag.SpecialtyList)
 
@@ -115,10 +115,10 @@
         <tr>
             <td style="padding: 8px;"><label for="CoachID">@CurrentTenant.Terminology.ProviderSingular:</label></td>
             <td style="padding: 8px;">
-                <select id="CoachID" name="CoachID" class="form-control"
+                <select id="CoachID" name="CoachID" class="classlift-control form-control"
                         data-role-name="@CurrentTenant.Terminology.ProviderSingular"
                         data-role-plural="@CurrentTenant.Terminology.ProviderPlural"
-                        style="width: 100%;" required>
+                        required>
                     <option value="" selected>-- Select @CurrentTenant.Terminology.ProviderSingular --</option>
                 </select>
 
@@ -130,7 +130,7 @@
         <tr>
             <td style="padding: 8px;"><label for="Title">Course Title:</label></td>
             <td style="padding: 8px;">
-                <input id="Title" name="Title" type="text" placeholder="Enter course title" style="width: 100%;" required/>
+                <input class="classlift-control" id="Title" name="Title" type="text" placeholder="Enter course title" required/>
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
@@ -147,7 +147,7 @@
         <tr>
             <td style="padding: 8px;"><label for="Description">Session Duration:</label></td>  
             <td style="padding: 8px;">
-                <input id="Description" name="Description" type="text" placeholder="XX min/session" style="width: 100%;" required />
+                <input class="classlift-control" id="Description" name="Description" type="text" placeholder="XX min/session" required />
             </td>
             <td style="width:55%; padding-left: 30px;">
                 <label class="management-form__instruction"> - XX min/session </label>
@@ -165,7 +165,7 @@
         <tr>
             <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
             <td style="padding: 8px;">
-                <input id="MaxCapacity" name="MaxCapacity" type="number" step="1" min="2" placeholder="Enter Max Capacity" style="width: 100%;" />
+                <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" type="number" step="1" min="2" placeholder="Enter Max Capacity" />
             </td>
             <td style="width:55%; padding-left: 30px;">
                 <label style="font-size:0.7em; color:darkslategray"> - Optional for group course </label>
@@ -175,7 +175,7 @@
         <tr>
             <td style="padding: 8px;"><label for="SessionCount">Session Count:</label></td>
             <td style="padding: 8px;">
-                <input id="SessionCount" name="SessionCount" type="number" step="1" min="1" placeholder="Enter Session Count" style="width: 100%;"  />
+                <input class="classlift-control" id="SessionCount" name="SessionCount" type="number" step="1" min="1" placeholder="Enter Session Count"  />
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
@@ -196,7 +196,7 @@
             <tr>
                 <td style="padding: 8px;"><label for="HourlyCost">Hourly Cost:</label></td>
                 <td style="padding: 8px;">
-                    <input id="HourlyCost" name="HourlyCost" type="number" step="1" min="0" placeholder="Enter hourly cost" style="width: 100%;" />
+                    <input class="classlift-control" id="HourlyCost" name="HourlyCost" type="number" step="1" min="0" placeholder="Enter hourly cost" />
                 </td>
                 <td style="width:55%; padding-left: 30px;">
                     <label style="font-size:0.7em; color:darkslategray"> - Deduct the session fee from the balance after each session. Each session may have a different duration.</label>
@@ -207,7 +207,7 @@
         <tr>
             <td style="padding: 8px;"><label for="SessionCost">Session Cost:</label></td>
             <td style="padding: 8px;">
-                <input id="SessionCost" name="SessionCost" type="number" step="0.01" min="0" placeholder="Enter cost per session" style="width: 100%;" />
+                    <input class="classlift-control" id="SessionCost" name="SessionCost" type="number" step="0.01" min="0" placeholder="Enter cost per session" />
             </td>
             <td style="width:55%; padding-left: 30px;">
                 <label style="font-size:0.7em; color:darkslategray"> - Each session is charged at a fixed price.</label>
@@ -217,7 +217,7 @@
         <tr>
             <td style="padding: 8px;"><label for="IsActive">Is Active:</label></td>
             <td style="padding: 8px;">
-                <input id="IsActive" name="IsActive" type="checkbox" value="true" />
+                <input class="classlift-checkbox" id="IsActive" name="IsActive" type="checkbox" value="true" />
                 <input name="IsActive" type="hidden" value="false" />
                 <label class="active-course-help" for="IsActive">Check if the course is active</label>
                 
