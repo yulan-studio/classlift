@@ -1333,6 +1333,7 @@ namespace Web.Controllers.User
 
             }
             */
+        }
 
         [Authorize(Roles = "Staff")]
         [HttpGet("EnrollmentsHistory/{childId}")]
