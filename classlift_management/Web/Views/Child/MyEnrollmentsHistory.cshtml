@@ -15,7 +15,10 @@
     .history-table-wrapper { width: 100%; overflow-x: auto; border-top: 1px solid #e5eaf0; padding: 0 1.15rem 1.15rem; }
     .history-table { min-width: 900px; margin-top: 1rem; }
     .history-table th, .history-table td { vertical-align: top; }
+    .history-table .date-column { width: 110px; white-space: nowrap; }
+    .history-table .note-column { min-width: 260px; }
     .history-table textarea { min-width: 180px; border: 1px solid #d9e1eb; border-radius: 5px; padding: .4rem; }
+    .history-table .note-actions { white-space: nowrap; }
     .empty-history { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
     @@media (max-width: 640px) {
         .completed-page { padding: 1rem .75rem 2rem; }
@@ -57,24 +60,27 @@
             </div>
         <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper">
             <table class="management-table history-table table table-bordered">
-                <thead class="management-table-header"><tr><th>Date</th><th>Location</th><th>Actual Hours</th><th>Status</th><th>@CurrentTenant.Terminology.ProviderSingular Note</th><th>@CurrentTenant.Terminology.ParticipantSingular Feedback</th></tr></thead>
+                <thead class="management-table-header"><tr><th class="date-column">Date</th><th>Status</th><th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th><th class="note-column">My Note</th><th>Action</th></tr></thead>
                 <tbody>
                 @foreach (var schedule in courseSchedules.Schedules)
                 {
                     var scheduledAt = schedule.ScheduledAt.ToUserTime(User, AppTimeZoneService);
                     var providerNote = courseSchedules.Course.CourseType == "Private" ? schedule.CoachNote : schedule.StaffNote;
                     <tr>
-                        <td>@(scheduledAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")</td>
-                        <td>@(schedule.Location ?? "N/A")</td>
-                        <td>@(schedule.ActualHours?.ToString() ?? "N/A")</td>
+                        <td class="date-column">@(scheduledAt?.ToString("yyyy-MM-dd") ?? "N/A")</td>
                         <td>@schedule.Status</td>
-                        <td>@(string.IsNullOrWhiteSpace(providerNote) ? "-" : providerNote)</td>
-                        <td>
-                            <form method="post" action="/Child/SaveCompletedCourseFeedback">
+                        <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "-" : providerNote)</td>
+                        <td class="note-column">
+                            <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "-" : schedule.ParentNote)</span>
+                            <textarea id="my-note-edit-@schedule.EnrollmentID" name="feedback" rows="2" form="my-note-form-@schedule.EnrollmentID" style="display: none;">@schedule.ParentNote</textarea>
+                        </td>
+                        <td class="note-actions">
+                            <form id="my-note-form-@schedule.EnrollmentID" method="post" action="/Child/SaveCompletedCourseFeedback">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="enrollmentId" value="@schedule.EnrollmentID" />
-                                <textarea name="feedback" rows="2" style="width: 100%; min-width: 180px;">@schedule.ParentNote</textarea>
-                                <button type="submit" class="btn classlift-secondary-button btn-save mt-2">Save Feedback</button>
+                                <a id="my-note-update-@schedule.EnrollmentID" href="javascript:void(0);" onclick="editMyNote(@schedule.EnrollmentID)">Update Note</a>
+                                <button id="my-note-save-@schedule.EnrollmentID" type="submit" class="btn classlift-secondary-button btn-save mt-2" style="display: none;">Save</button>
+                                <button id="my-note-cancel-@schedule.EnrollmentID" type="button" class="btn btn-secondary mt-2" style="display: none;" onclick="cancelMyNote(@schedule.EnrollmentID)">Cancel</button>
                             </form>
                         </td>
                     </tr>
@@ -89,4 +95,25 @@ else
 {
     <div class="empty-history text-center p-4">No completed courses.</div>
 }
+<script>
+    function editMyNote(enrollmentId) {
+        document.getElementById('my-note-view-' + enrollmentId).style.display = 'none';
+        document.getElementById('my-note-edit-' + enrollmentId).style.display = 'block';
+        document.getElementById('my-note-update-' + enrollmentId).style.display = 'none';
+        document.getElementById('my-note-save-' + enrollmentId).style.display = 'inline-block';
+        document.getElementById('my-note-cancel-' + enrollmentId).style.display = 'inline-block';
+        document.getElementById('my-note-edit-' + enrollmentId).focus();
+    }
+
+    function cancelMyNote(enrollmentId) {
+        var noteView = document.getElementById('my-note-view-' + enrollmentId);
+        var noteEdit = document.getElementById('my-note-edit-' + enrollmentId);
+        noteEdit.value = noteView.textContent === '-' ? '' : noteView.textContent;
+        noteEdit.style.display = 'none';
+        noteView.style.display = 'inline';
+        document.getElementById('my-note-update-' + enrollmentId).style.display = 'inline';
+        document.getElementById('my-note-save-' + enrollmentId).style.display = 'none';
+        document.getElementById('my-note-cancel-' + enrollmentId).style.display = 'none';
+    }
+</script>
 </div>
