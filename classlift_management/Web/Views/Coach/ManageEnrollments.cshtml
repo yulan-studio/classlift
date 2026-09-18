@@ -319,6 +319,7 @@
                             <input type="hidden" name="returnToManageEnrollments" value="true" />
                             <a id="coach-note-edit-link-@complete.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@complete.EnrollmentID)">Update Note</a>
                             <button id="coach-note-save-@complete.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
+                            <button id="coach-note-cancel-@complete.EnrollmentID" type="button" class="btn btn-secondary" style="display: none;" onclick="cancelCoachNote(@complete.EnrollmentID)">Cancel</button>
                         </form>
                     </td>
                 </tr>
@@ -359,6 +360,16 @@
         document.getElementById('coach-note-edit-' + enrollmentId).style.display = 'block';
         document.getElementById('coach-note-edit-link-' + enrollmentId).style.display = 'none';
         document.getElementById('coach-note-save-' + enrollmentId).style.display = 'inline-block';
+        document.getElementById('coach-note-cancel-' + enrollmentId).style.display = 'inline-block';
+    }
+
+    function cancelCoachNote(enrollmentId) {
+        document.getElementById('coach-note-edit-' + enrollmentId).value = document.getElementById('coach-note-view-' + enrollmentId).textContent;
+        document.getElementById('coach-note-edit-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-view-' + enrollmentId).style.display = 'inline';
+        document.getElementById('coach-note-edit-link-' + enrollmentId).style.display = 'inline';
+        document.getElementById('coach-note-save-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-cancel-' + enrollmentId).style.display = 'none';
     }
 
         function toggleFields(id, isChecked) {
