@@ -98,19 +98,15 @@
                         
                             @if (courseSchedules.Course.CourseType == "Private")
                             {
-                                <th width="20%">
-                                    Coach Note
-                                </th>
+                                <th width="20%">@CurrentTenant.Terminology.ProviderSingular Note</th>
                             }
 
                             @if (courseSchedules.Course.CourseType == "Group")
                             {
-                                <th width="20%">
-                                    Staff Note
-                                </th>
+                                <th width="20%">@CurrentTenant.Terminology.ProviderSingular Note</th>
                             }
 
-                            <th width="20%">@CurrentTenant.Terminology.ParticipantSingular Note</th>
+                            <th width="20%">My Note</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -170,7 +166,7 @@
                                             </select>
                                     </td>
 
-                                    <td data-label="Coach / Staff Note">
+                                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")">
                                         @if (courseSchedules.Course.CourseType == "Private")
                                         {
                                             @courseSchedules.Schedules[i].CoachNote
@@ -181,7 +177,7 @@
                                         }
                                     </td>
 
-                                    <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">
+                                    <td data-label="My Note">
                                         <textarea name="Schedules[@i].ParentNote" class="form-control" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" ? "disabled" : "")>
                                             @courseSchedules.Schedules[i].ParentNote
                                         </textarea>
