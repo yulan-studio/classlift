@@ -272,41 +272,22 @@
                 </tr>
             }
 
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <tr>
-                    <td colspan="3">
-                        <div class="alert alert-success">
-                            @TempData["SuccessMessage"]
-                        </div>
-                    </td>
-                </tr>
-            }
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <tr>
-                    <td colspan="3">
-                        <div class="alert alert-danger">
-                            @TempData["ErrorMessage"]
-                        </div>
-                    </td>
-                </tr>
-            }
-
-            @if (TempData["WarningMessage"] != null)
-            {
-                <tr>
-                    <td colspan="3">
-                        <div class="alert alert-warning">
-                            @TempData["WarningMessage"]
-                        </div>
-                    </td>
-                </tr>
-            }
         </tbody>
     </table>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning mt-3">@TempData["WarningMessage"]</div>
+}
 
 <div style="padding-top: 30px"></div>
 
@@ -329,7 +310,8 @@
             <th>Scheduled Hours</th>
             <th>Actual Hours</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th class="desktop-only">My Note</th>
+            <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -343,14 +325,29 @@
                     <td data-label="Scheduled Hours">@complete.ScheduledHours</td>
                     <td data-label="Actual Hours">@complete.ActualHours</td>
                     <td class="desktop-only" data-label="@CurrentTenant.Terminology.ParticipantSingular Note">@complete.ParentNote</td>
-                    <td class="desktop-only" data-label="My Note">@complete.CoachNote</td>
+                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")">
+                        <span id="coach-note-view-@complete.EnrollmentID">@complete.CoachNote</span>
+                        <textarea id="coach-note-edit-@complete.EnrollmentID" name="coachNote" form="coach-note-@complete.EnrollmentID" class="form-control" style="display: none;">@complete.CoachNote</textarea>
+                    </td>
+                    <td data-label="Action">
+                        <form id="coach-note-@complete.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="enrollmentId" value="@complete.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+                            <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+                            <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
+                            <input type="hidden" name="returnToManageEnrollments" value="true" />
+                            <a id="coach-note-edit-link-@complete.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@complete.EnrollmentID)">Edit</a>
+                            <button id="coach-note-save-@complete.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
+                        </form>
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="5" style="text-align: center; padding: 10px;">No completed sessions.</td>
+                <td colspan="6" style="text-align: center; padding: 10px;">No completed sessions.</td>
             </tr>
         }
 
@@ -358,10 +355,31 @@
     </tbody>
 </table>
 
+@if (TempData["CompletedSuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["CompletedSuccessMessage"]
+    </div>
+}
+
+@if (TempData["CompletedErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">
+        @TempData["CompletedErrorMessage"]
+    </div>
+}
+
 
 
 
 <script>
+    function editCoachNote(enrollmentId) {
+        document.getElementById('coach-note-view-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-edit-' + enrollmentId).style.display = 'block';
+        document.getElementById('coach-note-edit-link-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-save-' + enrollmentId).style.display = 'inline-block';
+    }
+
         function toggleFields(id, isChecked) {
         const fieldsDiv = document.getElementById('extraFields_' + id);
         // If "Same as Schedule" is checked, hide fields; otherwise show

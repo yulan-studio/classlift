@@ -40,6 +40,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. Coach Manage Schedules displays both Provider Note and Participant Note labels using the organization's configured terminology rather than fixed Coach or Child wording.
 4. Coach View Enrollments uses the organization's configured Provider and Participant terminology in its note table headings.
 5. In Coach Manage Enrollments, entering Actual Hours as 0 removes the scheduled session. This removal workflow must not deduct Token balance.
+6. In Coach Manage Enrollments, a Coach can edit and save the Provider Note for a completed session.
 
 ## Accounts and user manual
 

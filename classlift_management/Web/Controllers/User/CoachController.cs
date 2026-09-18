@@ -1049,7 +1049,8 @@ namespace Web.Controllers.User
             int childId,
             int courseId,
             int rootEnrollmentId,
-            string? coachNote)
+            string? coachNote,
+            bool returnToManageEnrollments = false)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -1074,9 +1075,19 @@ namespace Web.Controllers.User
             }
 
             var saved = await _courseEnrollmentService.UpdateCoachNoteAsync(enrollmentId, coachNote);
-            TempData[saved ? "SuccessMessage" : "ErrorMessage"] = saved
+            TempData[saved ? "CompletedSuccessMessage" : "CompletedErrorMessage"] = saved
                 ? "Coach note saved successfully."
                 : "Failed to save the coach note.";
+
+            if (returnToManageEnrollments)
+            {
+                return RedirectToAction(nameof(ManageEnrollments), new
+                {
+                    childId,
+                    courseId,
+                    enrollmentId = rootEnrollmentId
+                });
+            }
 
             return RedirectToAction(nameof(ViewEnrollments), new
             {
