@@ -1460,6 +1460,15 @@ namespace Web.Controllers.User
             var completedCourses = await _courseEnrollmentService.GetFinishedEnrollmentsByChildAsync(child.ChildID);
             var completedActivities = await _activityEnrollmentService.GetFinishedEnrollmentsByChildAsync(child.ChildID);
 
+            var courseSchedulesList = completedCourses
+                .GroupBy(e => e.Course)
+                .Select(group => new CourseSchedulesViewModel
+                {
+                    Course = group.Key,
+                    CourseID = group.Key.CourseID,
+                    Schedules = group.OrderBy(e => e.ScheduledAt).ToList()
+                }).ToList();
+
             switch (sortOrder)
             {
                 case "course":
@@ -1484,15 +1493,36 @@ namespace Web.Controllers.User
             }
 
 
-            EnrollmentsHistoryViewModel enrollmentHistory = new EnrollmentsHistoryViewModel
+            var scheduleHistory = new ChildSchedulesViewModel
             {
                 Child = child,
-                //CompletedCourses = (List<CourseEnrollment>)completedCourses,
-                CompletedCourses = completedCourses.ToList(),
-                CompletedActivities = (List<ActivityEnrollment>)completedActivities
+                ChildID = child.ChildID,
+                CoursesSchedules = courseSchedulesList,
+                ActivitySchedules = completedActivities
             };
 
-            return View("MyEnrollmentsHistory", enrollmentHistory);
+            return View("MyEnrollmentsHistory", scheduleHistory);
+        }
+
+        [Authorize(Roles = "Child")]
+        [HttpPost("SaveCompletedCourseFeedback")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveCompletedCourseFeedback(int enrollmentId, string? feedback)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var child = await _childService.GetByIdAsync(user.Id);
+            var session = await _courseEnrollmentService.GetAsync(enrollmentId);
+
+            if (child == null || session == null || session.ChildID != child.ChildID)
+                return BadRequest("The session does not belong to this participant.");
+
+            if (session.Status is not ("Completed" or "Canceled" or "OnLeave"))
+                return BadRequest("Feedback can only be saved for a finished session.");
+
+            session.ParentNote = feedback?.Trim();
+            await _courseEnrollmentService.UpdateSessionAsync(session);
+
+            return RedirectToAction(nameof(MyEnrollmentsHistory));
         }
 
 
