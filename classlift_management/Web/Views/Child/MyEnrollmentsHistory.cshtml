@@ -17,8 +17,6 @@
     .history-table th, .history-table td { vertical-align: top; }
     .history-table textarea { min-width: 180px; border: 1px solid #d9e1eb; border-radius: 5px; padding: .4rem; }
     .empty-history { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
-    .btn-save { background-color: #7bb4dc; border-color: #7bb4dc; color: #fff; }
-    .btn-save:hover, .btn-save:focus { background-color: #6aa8d3; border-color: #6aa8d3; color: #fff; }
     @@media (max-width: 640px) {
         .completed-page { padding: 1rem .75rem 2rem; }
         .completed-page-header { display: block; margin-bottom: 1rem; }
@@ -76,7 +74,7 @@
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="enrollmentId" value="@schedule.EnrollmentID" />
                                 <textarea name="feedback" rows="2" style="width: 100%; min-width: 180px;">@schedule.ParentNote</textarea>
-                                <button type="submit" class="btn btn-primary btn-save mt-2">Save Feedback</button>
+                                <button type="submit" class="btn classlift-secondary-button btn-save mt-2">Save Feedback</button>
                             </form>
                         </td>
                     </tr>

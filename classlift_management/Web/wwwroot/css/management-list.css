@@ -496,6 +496,20 @@ textarea[readonly] {
     color: white;
 }
 
+/* Reusable secondary action used for low-emphasis save and view actions. */
+.classlift-secondary-button {
+    background-color: #7bb4dc;
+    border: 1px solid #7bb4dc;
+    color: #fff;
+}
+
+.classlift-secondary-button:hover,
+.classlift-secondary-button:focus {
+    background-color: #6aa8d3;
+    border-color: #6aa8d3;
+    color: #fff;
+}
+
 .management-form__cancel {
     background-color: #ddd;
     color: black;
