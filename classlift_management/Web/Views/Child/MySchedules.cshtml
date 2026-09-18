@@ -15,6 +15,14 @@
     .schedule-description { margin: 0 0 .5rem; color: #65748b; font-size: .9rem; }
     .schedule-meta { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; color: #65748b; font-size: .9rem; }
     .schedule-meta strong { color: #26364d; font-weight: 600; }
+    .schedule-status-summary { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+    .schedule-status-badge { display: inline-flex; align-items: center; gap: .25rem; padding: .25rem .5rem; border-radius: 999px; color: #526176; background: #f1f5f8; font-size: .78rem; }
+    .schedule-status-badge strong { color: #26364d; }
+    .schedule-status-badge strong[class^="status-"] { display: inline-flex; min-width: 1.35rem; justify-content: center; padding: .08rem .35rem; border-radius: 999px; font-size: .9rem; font-weight: 800; }
+    .schedule-status-badge .status-scheduled { color: #146c43; background: #d1e7dd; }
+    .schedule-status-badge .status-canceled { color: #b02a37; background: #f8d7da; }
+    .schedule-status-badge .status-deleted { color: #b02a37; background: #f8d7da; }
+    .schedule-status-badge .status-request { color: #9a5b00; background: #ffe5b4; }
     .schedule-toggle { flex: 0 0 auto; border: 1px solid #d6e4f2; border-radius: 7px; padding: .5rem .75rem; color: #2673ad; background: #f1f7fc; font-size: .85rem; }
     .schedule-toggle:hover, .schedule-toggle:focus { color: #185681; background: #e5f1fa; border-color: #b9d5eb; }
     .schedule-details { border-top: 1px solid #e5eaf0; padding: 0 1.15rem 1.15rem; }
@@ -48,6 +56,12 @@
 
     @foreach (var courseSchedules in Model.CoursesSchedules)
     {
+        var scheduledCount = courseSchedules.Schedules.Count(s => s.Status == "Scheduled");
+        var canceledCount = courseSchedules.Schedules.Count(s => s.Status == "Canceled");
+        var deletedCount = courseSchedules.Schedules.Count(s => s.Status == "Deleted");
+        var onLeaveCount = courseSchedules.Schedules.Count(s => s.Status == "OnLeave");
+        var requestToLeaveCount = courseSchedules.Schedules.Count(s => s.Status == "RequestToLeave");
+        var requestToRescheduleCount = courseSchedules.Schedules.Count(s => s.Status == "RequestToReschedule");
         @* <div style="padding: 10px 20px 10px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
  *@
         <section class="schedule-card">
@@ -67,6 +81,29 @@
                         <span><strong>Phone:</strong> @(courseSchedules.Course.Coach?.Phone ?? "N/A")</span>
                         <span><strong>WeChat:</strong> @(courseSchedules.Course.Coach?.Wechat ?? "N/A")</span>
                         <span><strong>WhatsApp:</strong> @(courseSchedules.Course.Coach?.WhatsApp ?? "N/A")</span>
+                    }
+                </div>
+                <div class="schedule-status-summary" aria-label="Session status summary">
+                    <span class="schedule-status-badge">Scheduled <strong class="status-scheduled">@scheduledCount</strong></span>
+                    @if (courseSchedules.Course.CourseType == "Private")
+                    {
+                        <span class="schedule-status-badge">Deleted <strong class="status-deleted">@deletedCount</strong></span>
+                    }
+                    @if (courseSchedules.Course.CourseType == "Group")
+                    {
+                        <span class="schedule-status-badge">Canceled <strong class="status-canceled">@canceledCount</strong></span>
+                    }
+                    @if (courseSchedules.Course.CourseType == "Group")
+                    {
+                        <span class="schedule-status-badge">On Leave <strong class="status-request">@onLeaveCount</strong></span>
+                    }
+                    @if (courseSchedules.Course.CourseType == "Group")
+                    {
+                        <span class="schedule-status-badge">Request to Leave <strong class="status-request">@requestToLeaveCount</strong></span>
+                    }
+                    @if (courseSchedules.Course.CourseType == "Private")
+                    {
+                        <span class="schedule-status-badge">Request to Reschedule <strong class="status-request">@requestToRescheduleCount</strong></span>
                     }
                 </div>
             </div>

@@ -173,8 +173,8 @@ namespace Core.Repositories
                 .ToListAsync();
         }
 
-        //Include /Scheduled/RequestToReschedule/RequestToCancel/Canceled/Deleted (not include Registered, Completed )  for private course
-        //Include /Scheduled/RequestToReschedule/RequestToCancel/Canceled (not include Registered, Completed, Deleted ) for group courses
+        //Private: include Scheduled/RequestToReschedule/Deleted.
+        //Group: include Scheduled/RequestToLeave/OnLeave/Canceled.
         public async Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByChildAsync(int childId)
         {
             var torontoNow = DateTime.UtcNow;
@@ -182,7 +182,11 @@ namespace Core.Repositories
                 .Include(e => e.Course)
                 .Include(e => e.Course.Coach)
                 .Include(e => e.Course.Specialty)
-                .Where(e => e.ChildID != null && e.ChildID == childId && e.EnrollmentID_Ref != null && (e.Status != "Registered" && e.Status != "Completed" && e.Status != "Deleted"|| (e.Course.CourseType == "Private" && e.Status == "Deleted"))&& ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) >= torontoNow)
+                .Where(e => e.ChildID != null && e.ChildID == childId && e.EnrollmentID_Ref != null
+                    && (e.Course.CourseType == "Private"
+                        ? e.Status == "Scheduled" || e.Status == "RequestToReschedule" || e.Status == "Deleted"
+                        : e.Status == "Scheduled" || e.Status == "RequestToLeave" || e.Status == "OnLeave" || e.Status == "Canceled")
+                    && ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) >= torontoNow)
                 .OrderBy(e => e.CourseID)
                 .OrderBy(e => e.ScheduledAt)
                 .ToListAsync();

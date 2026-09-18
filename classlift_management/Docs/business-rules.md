@@ -42,6 +42,11 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. In Coach Manage Enrollments, entering Actual Hours as 0 removes the scheduled session. This removal workflow must not deduct Token balance.
 6. In Coach Manage Enrollments, a Coach can edit and save the Provider Note for a completed session.
 
+## Participant schedule display
+
+1. Upcoming Private-course schedules include only Scheduled, RequestToReschedule, and Deleted sessions.
+2. Upcoming Group-course schedules include only Scheduled, RequestToLeave, OnLeave, and Canceled sessions.
+
 ## Accounts and user manual
 
 ## Payments and balance history
