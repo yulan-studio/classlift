@@ -5,6 +5,7 @@
     .completed-page-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
     .completed-page-header h2 { margin: 0; color: #152238; font-size: clamp(1.6rem, 2.5vw, 2rem); font-weight: 700; }
     .completed-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
+    .completed-section-title { margin: 1.5rem 0 .85rem; color: #1b7bab; font-size: 1.25rem; font-weight: 700; }
     .course-history-card { margin-bottom: 1rem; border: 1px solid #e5eaf0; border-radius: 12px; background: #fff; box-shadow: 0 3px 12px rgba(24, 47, 76, .06); overflow: hidden; }
     .course-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; }
     .course-summary h5 { margin: 0 0 .45rem; color: #152238; font-size: 1.05rem; font-weight: 650; }
@@ -32,13 +33,14 @@
 <div class="completed-page">
     <div class="completed-page-header">
         <div>
-            <h2>Completed Courses</h2>
-            <p>Review your completed sessions and share feedback.</p>
+            <h2>Completed</h2>
+            <p>Review completed courses, activities, and your notes.</p>
         </div>
     </div>
 
 @if (Model.CoursesSchedules.Any())
 {
+    <h4 class="completed-section-title">Courses</h4>
     foreach (var courseSchedules in Model.CoursesSchedules)
     {
         <section class="course-history-card">
@@ -93,7 +95,32 @@
 }
 else
 {
+    <h4 class="completed-section-title">Courses</h4>
     <div class="empty-history text-center p-4">No completed courses.</div>
+}
+
+<h4 class="completed-section-title">Activities</h4>
+@if (Model.ActivitySchedules != null && Model.ActivitySchedules.Any())
+{
+    foreach (var activityEnrollment in Model.ActivitySchedules)
+    {
+        <section class="course-history-card">
+            <div class="course-summary">
+                <div>
+                    <h5>@activityEnrollment.Activity.Title</h5>
+                    <div class="course-meta">
+                        <span><strong>Date:</strong> @activityEnrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd")</span>
+                        <span><strong>Status:</strong> @activityEnrollment.Status</span>
+                        <span><strong>Location:</strong> @(string.IsNullOrWhiteSpace(activityEnrollment.Activity.Address) ? "N/A" : activityEnrollment.Activity.Address)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+}
+else
+{
+    <div class="empty-history text-center p-4">No completed activities.</div>
 }
 <script>
     function editMyNote(enrollmentId) {
