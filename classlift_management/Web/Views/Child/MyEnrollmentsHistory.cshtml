@@ -1,33 +1,62 @@
 @model Core.ViewModels.ChildSchedulesViewModel
 
 <style>
-    .history-table-wrapper { width: 100%; overflow-x: auto; }
-    .history-table { min-width: 900px; }
+    .completed-page { max-width: 1080px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .completed-page-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    .completed-page-header h2 { margin: 0; color: #152238; font-size: clamp(1.6rem, 2.5vw, 2rem); font-weight: 700; }
+    .completed-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
+    .course-history-card { margin-bottom: 1rem; border: 1px solid #e5eaf0; border-radius: 12px; background: #fff; box-shadow: 0 3px 12px rgba(24, 47, 76, .06); overflow: hidden; }
+    .course-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; }
+    .course-summary h5 { margin: 0 0 .45rem; color: #152238; font-size: 1.05rem; font-weight: 650; }
+    .course-meta { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; color: #65748b; font-size: .9rem; }
+    .course-meta strong { color: #26364d; font-weight: 600; }
+    .completed-toggle { flex: 0 0 auto; border: 1px solid #d6e4f2; border-radius: 7px; padding: .5rem .75rem; color: #2673ad; background: #f1f7fc; font-size: .85rem; }
+    .completed-toggle:hover, .completed-toggle:focus { color: #185681; background: #e5f1fa; border-color: #b9d5eb; }
+    .history-table-wrapper { width: 100%; overflow-x: auto; border-top: 1px solid #e5eaf0; padding: 0 1.15rem 1.15rem; }
+    .history-table { min-width: 900px; margin-top: 1rem; }
     .history-table th, .history-table td { vertical-align: top; }
+    .history-table textarea { min-width: 180px; border: 1px solid #d9e1eb; border-radius: 5px; padding: .4rem; }
+    .empty-history { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
+    @@media (max-width: 640px) {
+        .completed-page { padding: 1rem .75rem 2rem; }
+        .completed-page-header { display: block; margin-bottom: 1rem; }
+        .course-summary { align-items: flex-start; flex-direction: column; }
+        .completed-toggle { width: 100%; }
+    }
 </style>
 
-<h2>Completed Courses</h2>
-<div class="py-3"><h4 style="color:steelblue">- Courses -</h4></div>
+<div class="completed-page">
+    <div class="completed-page-header">
+        <div>
+            <h2>Completed Courses</h2>
+            <p>Review your completed sessions and share feedback.</p>
+        </div>
+    </div>
 
 @if (Model.CoursesSchedules.Any())
 {
     foreach (var courseSchedules in Model.CoursesSchedules)
     {
-        <div class="course-summary" style="padding: 12px; margin: 16px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
-            <h5>@courseSchedules.Course.Title</h5>
-            <strong>Course Type:</strong> @courseSchedules.Course.CourseType
-            <strong>&nbsp;&nbsp; @CurrentTenant.Terminology.ProviderSingular:</strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")
-        </div>
-        <button class="btn btn-grey mb-2" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#completedSessions_@courseSchedules.CourseID"
-                aria-expanded="false"
-                aria-controls="completedSessions_@courseSchedules.CourseID">
-            Toggle Completed Sessions
-        </button>
-        <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper mb-4">
+        <section class="course-history-card">
+            <div class="course-summary">
+                <div>
+                    <h5>@courseSchedules.Course.Title</h5>
+                    <div class="course-meta">
+                        <span><strong>Course Type:</strong> @courseSchedules.Course.CourseType</span>
+                        <span><strong>@CurrentTenant.Terminology.ProviderSingular:</strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")</span>
+                    </div>
+                </div>
+                <button class="completed-toggle" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#completedSessions_@courseSchedules.CourseID"
+                        aria-expanded="false"
+                        aria-controls="completedSessions_@courseSchedules.CourseID">
+                    View sessions
+                </button>
+            </div>
+        <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper">
             <table class="management-table history-table table table-bordered">
-                <thead><tr><th>Date</th><th>Location</th><th>Actual Hours</th><th>Status</th><th>@CurrentTenant.Terminology.ProviderSingular Note</th><th>@CurrentTenant.Terminology.ParticipantSingular Feedback</th></tr></thead>
+                <thead class="management-table-header"><tr><th>Date</th><th>Location</th><th>Actual Hours</th><th>Status</th><th>@CurrentTenant.Terminology.ProviderSingular Note</th><th>@CurrentTenant.Terminology.ParticipantSingular Feedback</th></tr></thead>
                 <tbody>
                 @foreach (var schedule in courseSchedules.Schedules)
                 {
@@ -52,9 +81,11 @@
                 </tbody>
             </table>
         </div>
+        </section>
     }
 }
 else
 {
-    <div class="text-center p-3">No completed courses.</div>
+    <div class="empty-history text-center p-4">No completed courses.</div>
 }
+</div>
