@@ -32,6 +32,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 1. Fixed-session Group and private sessions are completed automatically after their scheduled end time.
 2. Private sessions without a fixed Session Count are completed manually by the coach using actual hours.
 3. Standard course reports include completed child sessions that have Actual Hours recorded.
+4. My Enrollment History returns only course sessions with status Completed. Canceled and OnLeave sessions are excluded.
 
 ## Private-course scheduling
 

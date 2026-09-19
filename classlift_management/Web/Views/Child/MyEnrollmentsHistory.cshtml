@@ -11,6 +11,7 @@
     .course-summary h5 { margin: 0 0 .45rem; color: #152238; font-size: 1.05rem; font-weight: 650; }
     .course-meta { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; color: #65748b; font-size: .9rem; }
     .course-meta strong { color: #26364d; font-weight: 600; }
+    .completed-count { display: inline-flex; min-width: 1.35rem; justify-content: center; padding: .08rem .35rem; border-radius: 999px; color: #084298; background: #cfe2ff; font-size: .9rem; font-weight: 800; }
     .completed-toggle { flex: 0 0 auto; border: 1px solid #d6e4f2; border-radius: 7px; padding: .5rem .75rem; color: #2673ad; background: #f1f7fc; font-size: .85rem; }
     .completed-toggle:hover, .completed-toggle:focus { color: #185681; background: #e5f1fa; border-color: #b9d5eb; }
     .history-table-wrapper { width: 100%; overflow-x: auto; border-top: 1px solid #e5eaf0; padding: 0 1.15rem 1.15rem; }
@@ -49,7 +50,9 @@
                     <h5>@courseSchedules.Course.Title</h5>
                     <div class="course-meta">
                         <span><strong>Course Type:</strong> @courseSchedules.Course.CourseType</span>
+                        <span><strong>Sessions:</strong> @(courseSchedules.Course.SessionCount?.ToString() ?? "N/A")</span>
                         <span><strong>@CurrentTenant.Terminology.ProviderSingular:</strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")</span>
+                        <span><strong>Completed:</strong> <span class="completed-count">@courseSchedules.Schedules.Count(schedule => schedule.Status == "Completed")</span></span>
                     </div>
                 </div>
                 <button class="completed-toggle" type="button"

@@ -129,7 +129,7 @@ namespace Core.Repositories
                 .Include(e => e.Course)
                 .Include(e => e.Course.Coach)
                 .Include(e => e.Course.Specialty)
-                .Where(e => e.ChildID != null && e.ChildID == childId && (e.Status == "Completed" || e.Status == "Canceled" || e.Status == "OnLeave") && e.EnrollmentID_Ref != null && ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) <= torontoNow)
+                .Where(e => e.ChildID != null && e.ChildID == childId && e.Status == "Completed" && e.EnrollmentID_Ref != null && ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) <= torontoNow)
                 .OrderBy(e => e.CourseID)
                 .OrderBy(e => e.ScheduledAt)
                 .ToListAsync();
