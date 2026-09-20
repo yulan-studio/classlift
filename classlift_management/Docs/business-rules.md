@@ -21,8 +21,9 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - preserve Completed and Deleted session history; and
    - recalculate course availability when Max Capacity is configured.
 3. When Staff changes the location of a Group master session, ClassLift copies the new location to every child session linked to that master session.
-4. Before Staff can register a participant in a Group course, the number of Group master sessions whose status is Open or Completed must equal the course's Session Count exactly.
-   - If the total is lower, registration is blocked and Staff is instructed to finish setting up the course sessions.
+4. Before Staff can register a participant in a Group course, the number of Group master sessions whose status is Open or Completed must equal the course's Session Count exactly, unless the course has already started.
+   - If the course has not started and the total is lower, registration is blocked and Staff is instructed to finish setting up the course sessions.
+   - If at least one Group master session is already Completed, a mid-course registration is allowed even when the remaining session setup is incomplete; the participant is registered for the available Open sessions.
    - If the total is higher, registration is blocked because the course session data is inconsistent.
    - Canceled, Deleted, and child-session copies are not included in this count.
    - No registration, fee, balance, or child-session data is created when this validation fails.
@@ -33,6 +34,15 @@ This file is the concise, canonical record of business rules confirmed by the pr
 2. Private sessions without a fixed Session Count are completed manually by the coach using actual hours.
 3. Standard course reports include completed child sessions that have Actual Hours recorded.
 4. My Enrollment History returns only course sessions with status Completed. Canceled and OnLeave sessions are excluded.
+
+## Canceled course sessions
+
+1. When Staff cancels a Group course session, the affected child sessions are canceled as part of the same operation.
+2. The canceled session's Actions must let Staff explicitly choose either Create Replacement or Refund Session Cost; the system must not automatically perform either choice.
+3. A replacement session is created with a new future schedule and follows the normal Group-session registration process.
+4. If Staff chooses Refund Session Cost, the system credits each affected participant's course balance by that course's Session Cost and records the canceled session and participant session in the balance history. A refund cannot be applied twice to the same participant session.
+5. Refund Session Cost is available only when the tenant's plan includes Credit Tracking (Balance). If the plan does not include it, Staff must create a replacement session; the refund operation is hidden in the page and rejected by the server.
+6. When Staff chooses Refund Session Cost instead of creating a replacement, the course's final Session Count is reduced by one. Creating a replacement does not reduce Session Count. The reduction is applied only once with the refund operation.
 
 ## Private-course scheduling
 

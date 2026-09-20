@@ -4,7 +4,8 @@
 
 @{
     var selectedStatus = Model.Status;
-    var hasRegistrations = (bool?)ViewBag.HasRegistrations ?? false;
+var hasRegistrations = (bool?)ViewBag.HasRegistrations ?? false;
+var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionCost(CurrentTenant);
 }
 
 
@@ -18,25 +19,50 @@
 
    <div class="schedule-field">
         <strong>Scheduled Hours:</strong><br />
-        <input type="number" step="0.5" min="0.5" name="scheduledHours" value="@Model.ScheduledHours" disabled class="schedule-input schedule-input--edit" />
+        <input type="number" step="0.5" min="0.5" name="replacementScheduledHours" value="@Model.ScheduledHours" class="schedule-input schedule-input--edit" />
     </div> 
 
     <div class="schedule-field">
         <strong>Status:</strong><br />
-        <select id="statusSelect" name="status" required disabled="@(!hasRegistrations)" class="schedule-input schedule-input--edit" >
+        <select id="statusSelect" name="status" required class="schedule-input schedule-input--edit">
             <option value="Open" selected="@(selectedStatus == "Open")" >Open</option>
             <option value="Canceled" selected="@(selectedStatus == "Canceled")">Canceled</option>
          </select>
         @if (!hasRegistrations)
         {
-            <input type="hidden" name="status" value="@selectedStatus" />
-            <br/>
+            <br/><span style="color:#6c757d">No active participants are registered. This session can be canceled directly without a replacement or refund.</span>
         }
         else
         {
             <br/><span style="color:red">This can't be undone once the session status is set to Canceled.</span>
         }
     </div>
+
+    @if (hasRegistrations)
+    {
+        <div id="cancellationResolutionFields" class="schedule-field" style="display:none;">
+            <strong>Cancellation resolution:</strong><br />
+            <select name="cancellationResolution" id="cancellationResolution" class="schedule-input schedule-input--edit">
+                <option value="">-- Select --</option>
+                <option value="Replacement">Create Replacement</option>
+                @if (hasBalanceFeature)
+                {
+                    <option value="Refund">Refund Session Cost</option>
+                }
+            </select>
+            <div id="replacementFields" style="display:none; margin-top:8px;">
+                <label for="replacementScheduledAt" class="form-label" style="display:block;"><strong>New Session Scheduled At:</strong></label>
+                <input id="replacementScheduledAt" type="datetime-local" name="replacementScheduledAt" class="schedule-input schedule-input--edit" style="display:block;" />
+                <label for="replacementTimeZoneId" class="form-label" style="display:block; margin-top:8px;"><strong>Time Zone:</strong></label>
+                <select id="replacementTimeZoneId" name="replacementTimeZoneId" class="form-select" required>
+                    @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
+                    {
+                        <option value="@zone.Id">@zone.DisplayName (@zone.Id)</option>
+                    }
+                </select>
+            </div>
+        </div>
+    }
 
 
     <div class="schedule-field">
@@ -54,3 +80,14 @@
 
    @*  <button type="submit" style="background-color: #2198D4; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px;">Add Session</button> *@
 </form>
+
+<script>
+    document.getElementById('statusSelect')?.addEventListener('change', function () {
+        const fields = document.getElementById('cancellationResolutionFields');
+        if (fields) fields.style.display = this.value === 'Canceled' ? 'block' : 'none';
+    });
+    document.getElementById('cancellationResolution')?.addEventListener('change', function () {
+        const fields = document.getElementById('replacementFields');
+        if (fields) fields.style.display = this.value === 'Replacement' ? 'block' : 'none';
+    });
+</script>

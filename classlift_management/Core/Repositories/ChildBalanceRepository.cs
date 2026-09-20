@@ -32,6 +32,83 @@ namespace Core.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> RefundCanceledSessionCostAsync(int sessionEnrollmentId, int createdBy)
+        {
+            var session = await _context.CourseEnrollments
+                .Include(e => e.Course)
+                .FirstOrDefaultAsync(e => e.EnrollmentID == sessionEnrollmentId && e.Status == "Canceled");
+            if (session?.Course?.SessionCost is not decimal sessionCost || sessionCost <= 0)
+                return false;
+
+            var registrations = await _context.CourseEnrollments
+                .Where(e => e.EnrollmentID_Ref == sessionEnrollmentId && e.ChildID != null && e.Status == "Canceled")
+                .ToListAsync();
+            if (registrations.Count == 0)
+                return false;
+
+            var registrationIds = registrations.Select(e => e.EnrollmentID).ToList();
+            var alreadyRefunded = await _context.ChildBalances
+                .Where(b => b.EnrollmentID != null && registrationIds.Contains(b.EnrollmentID.Value)
+                    && b.TransactionType == "Refund")
+                .Select(b => b.EnrollmentID!.Value)
+                .ToListAsync();
+
+            var balanceByChild = new Dictionary<int, decimal>();
+            var eligibleRegistrations = registrations
+                .Where(r => !alreadyRefunded.Contains(r.EnrollmentID))
+                .ToList();
+            if (eligibleRegistrations.Count == 0)
+                return false;
+
+            foreach (var registration in eligibleRegistrations)
+            {
+                var childId = registration.ChildID!.Value;
+                if (!balanceByChild.TryGetValue(childId, out var currentBalance))
+                    currentBalance = await GetFinalBalanceAsync(childId);
+
+                var newBalance = currentBalance + sessionCost;
+                _context.ChildBalances.Add(new Core.Models.ChildBalance
+                {
+                    ChildID = childId,
+                    CourseID = session.CourseID,
+                    EnrollmentID = registration.EnrollmentID,
+                    TransactionType = "Refund",
+                    Remarks = $"Refund for canceled session: {session.Course.Title} on {session.ScheduledAt?.ToString("yyyy-MM-dd") ?? "unknown date"}",
+                    BalanceChange = sessionCost,
+                    Balance = newBalance,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = createdBy,
+                    UpdatedBy = createdBy,
+                    UpdatedDate = DateTime.UtcNow
+                });
+                balanceByChild[childId] = newBalance;
+            }
+
+            // A refund means this canceled session will not be replaced, so it
+            // must no longer be part of the course's final session count.
+            if (session.Course.SessionCount is int sessionCount && sessionCount > 0)
+                session.Course.SessionCount = sessionCount - 1;
+
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<int>> GetRefundedSessionEnrollmentIdsAsync(int courseId)
+        {
+            var refundedChildEnrollmentIds = _context.ChildBalances
+                .Where(b => b.CourseID == courseId
+                    && b.EnrollmentID != null
+                    && b.TransactionType == "Refund")
+                .Select(b => b.EnrollmentID!.Value);
+
+            return await _context.CourseEnrollments
+                .Where(e => e.CourseID == courseId
+                    && e.EnrollmentID_Ref != null
+                    && refundedChildEnrollmentIds.Contains(e.EnrollmentID))
+                .Select(e => e.EnrollmentID_Ref!.Value)
+                .Distinct()
+                .ToListAsync();
+        }
+
 
         public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, string fileUrl, int createdBy)
         {

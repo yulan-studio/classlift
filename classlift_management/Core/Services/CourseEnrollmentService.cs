@@ -137,9 +137,15 @@ namespace Core.Services
 
             if (configuredSessionCount < course.SessionCount.Value)
             {
+                // A partially configured Group course may accept a mid-course
+                // registration when at least one session has already completed.
+                if (completedSessions.Any())
+                    return;
+
                 throw new InvalidOperationException(
                     $"Please finish setting up all course sessions before adding a participant. " +
-                    $"This course requires {course.SessionCount.Value} sessions, but only {configuredSessionCount} Open or Completed sessions are configured.");
+                    $"This course requires {course.SessionCount.Value} sessions, but only {configuredSessionCount} Open or Completed sessions are configured. " +
+                    "A registration may be added after the course has started.");
             }
 
             if (configuredSessionCount > course.SessionCount.Value)
