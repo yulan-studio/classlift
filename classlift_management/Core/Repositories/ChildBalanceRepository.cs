@@ -269,9 +269,12 @@ namespace Core.Repositories
                     ActivityName = cb.ActivityID != null ? cb.Activity.Title : null,
                     BalanceChange = cb.BalanceChange ?? 0,
                     Balance = cb.Balance ?? 0,
-                    StaffName = cb.CreatedBy != null
-                        ? _context.Staff.Where(s => s.UserID == cb.CreatedBy).Select(s => s.Name).FirstOrDefault()
-                        : null,
+                    StaffName = cb.CreatedBy == null || cb.CreatedBy == 0
+                        ? "System"
+                        : (_context.Staff.Where(s => s.UserID == cb.CreatedBy).Select(s => s.Name).FirstOrDefault()
+                            ?? _context.Coaches.Where(c => c.UserID == cb.CreatedBy).Select(c => c.Name).FirstOrDefault()
+                            ?? _context.Users.Where(u => u.Id == cb.CreatedBy).Select(u => u.UserName).FirstOrDefault()
+                            ?? "System"),
                     Remarks = cb.Remarks,
                     Calculation = cb.Calculation,
                     ScheduledAt = cb.EnrollmentID != null ? cb.CourseEnrollment.ScheduledAt : null,
