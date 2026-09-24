@@ -1,229 +1,149 @@
-﻿@model Core.ViewModels.EnrollmentsHistoryViewModel
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+@model Core.ViewModels.ChildSchedulesViewModel
 
 <style>
-    /* ===== Desktop default ===== */
-    table.mobile-stack {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-        table.mobile-stack th,
-        table.mobile-stack td {
-            padding: 8px;
-            border: 1px solid #ddd;
-            vertical-align: top;
-        }
-
-    /* ===== Mobile stacked cards ===== */
-    @@media (max-width: 767px) {
-
-        .desktop-only {
-            display: none !important;
-        }
-
-        /* table.mobile-stack thead
-        {
-            display: none;
-        }
-
-        table.mobile-stack,
-        table.mobile-stack tbody,
-        table.mobile-stack tr,
-        table.mobile-stack td {
-            display: block;
-            width: 100%;
-        }
-
-        table.mobile-stack tr {
-            margin-bottom: 16px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background-color: #fff;
-        }
-
-        table.mobile-stack td {
-            border: none;
-            padding: 6px 0;
-        }
-
-        table.mobile-stack td::before {
-            content: attr(data-label);
-            display: block;
-            font-weight: 600;
-            color: steelblue;
-            margin-bottom: 2px;
-        } */
-
+    .completed-page { width: 100%; margin: 0 auto; padding: 1.5rem 1rem 3rem; box-sizing: border-box; }
+    .completed-page-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    .completed-page-header h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; }
+    .completed-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
+    .completed-section-title { margin: 1.5rem 0 .85rem; color: #1b7bab; font-size: 1.25rem; font-weight: 700; }
+    .course-history-card { margin-bottom: 1rem; border: 1px solid #e5eaf0; border-radius: 8px; background: #fff; box-shadow: 0 3px 12px rgba(24, 47, 76, .06); overflow: hidden; }
+    .course-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; }
+    .course-summary h5 { margin: 0 0 .45rem; color: #152238; font-size: 1.05rem; font-weight: 650; }
+    .course-meta { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; color: #65748b; font-size: .9rem; }
+    .course-meta strong { color: #26364d; font-weight: 600; }
+    .completed-count { display: inline-flex; min-width: 1.35rem; justify-content: center; padding: .08rem .35rem; border-radius: 999px; color: #084298; background: #cfe2ff; font-size: .9rem; font-weight: 800; }
+    .completed-toggle { flex: 0 0 auto; border: 1px solid #d6e4f2; border-radius: 7px; padding: .5rem .75rem; color: #2673ad; background: #f1f7fc; font-size: .85rem; }
+    .completed-toggle:hover, .completed-toggle:focus { color: #185681; background: #e5f1fa; border-color: #b9d5eb; }
+    .history-table-wrapper { width: 100%; overflow-x: auto; border-top: 1px solid #e5eaf0; padding: 0 1.15rem 1.15rem; }
+    .history-table { min-width: 900px; margin-top: 1rem; }
+    .history-table th, .history-table td { vertical-align: top; }
+    .history-table .date-column { width: 110px; white-space: nowrap; }
+    .history-table .note-column { min-width: 260px; }
+    .history-table textarea { min-width: 180px; border: 1px solid #d9e1eb; border-radius: 5px; padding: .4rem; }
+    .history-table .note-actions { white-space: nowrap; }
+    .empty-history { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
+    @@media (max-width: 640px) {
+        .completed-page { padding: 1rem .75rem 2rem; }
+        .completed-page-header { display: block; margin-bottom: 1rem; }
+        .course-summary { align-items: flex-start; flex-direction: column; }
+        .completed-toggle { width: 100%; }
+        .btn-save { width: 100%; }
     }
 </style>
 
-<h2>Enrollments History</h2>
-
-<!-- ================= COURSES ================= -->
-<div class="py-3">
-    <h4 style="color:steelblue">- Courses -</h4>
-</div>
-
-<div style="padding: 10px 10px 10px 10px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
-
-    Records can be sorted by 'Course' or 'Scheduled At'.<br />
-
-    记录可以按课程（Course）或安排时间（Scheduled At）进行排序。
-
-
-
-</div>
-
-@* <table class="mobile-stack table table-bordered">
-    <thead class="table-light"> *@
-<table class="mobile-stack table table-bordered mt-3" >
-    <thead class="table-primary">
-        <tr>
-            @* <th>Course</th> *@
-
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="MyEnrollmentsHistory" asp-route-sortOrder="@ViewData["CourseSortParm"]" style="color: black; text-decoration: none; ">
-                    Course
-                    @if ((string)ViewData["CurrentSort"] == "course")
-                    {
-                        <span>▲</span>
-                    }
-                    else if ((string)ViewData["CurrentSort"] == "course_desc")
-                    {
-
-                        <span>▼</span>
-                    }
-                </a>
-            </th>
-            <th class="desktop-only">Coach</th>
-            <th class="desktop-only">Location</th>
-           @*  <th>Scheduled At</th> *@
-           
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="MyEnrollmentsHistory" asp-route-sortOrder="@ViewData["ScheduledAtSortParm"]" style="color: black; text-decoration: none; ">
-                    Scheduled At
-                    @if ((string)ViewData["CurrentSort"] == "scheduledAt")
-                    {
-                        <span>▲</span>
-                    }
-                    else if ((string)ViewData["CurrentSort"] == "scheduledAt_desc")
-                    {
-
-                        <span>▼</span>
-                    }
-                </a>
-            </th>
-
-            <th class="desktop-only">Scheduled Hours</th>
-            <th>Actual Hours</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.CompletedCourses != null && Model.CompletedCourses.Any())
-        {
-            foreach (var enrollment in Model.CompletedCourses)
-            {
-                <tr>
-                    <td @* data-label="Course" *@>@enrollment.Course.Title</td>
-                    <td class="desktop-only" @* data-label="Coach" *@>@(enrollment.Course.Coach?.Name ?? "N/A")</td>
-                    <td class="desktop-only" @* data-label="Location" *@>@enrollment.Location</td>
-                    <td @* data-label="Scheduled At" *@>
-                        @(enrollment.ScheduledAt.HasValue
-                                        ? enrollment.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
-                                        : "")
-            </td>
-            <td class="desktop-only" @* data-label="Scheduled Hours" *@>@enrollment.ScheduledHours</td>
-            <td @* data-label="Actual Hours" *@>
-                @if (enrollment.ActualHours != null)
-                        {
-                            <a href="javascript:void(0);"
-                               onclick="showNoteModal('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(enrollment.CoachNote))')">
-                                @enrollment.ActualHours
-                            </a>
-                        }
-                    </td>
-                    <td @* data-label="Status" *@>@enrollment.Status</td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="7" class="text-center p-3">
-                    No completed courses.
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- ================= ACTIVITIES ================= -->
-<div class="py-3">
-    <h4 style="color:steelblue">- Activities -</h4>
-</div>
-
-<table class="mobile-stack table table-bordered mt-3">
-    <thead class="table-primary">
-        <tr>
-            <th>Activity</th>
-           @*  <th>Description</th> *@
-            <th>Scheduled At</th>
-            <th class="desktop-only">Address</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.CompletedActivities != null && Model.CompletedActivities.Any())
-        {
-            foreach (var enrollment in Model.CompletedActivities)
-            {
-                <tr>
-                    <td @* data-label="Activity" *@>@enrollment.Activity.Title</td>
-                  @*   <td data-label="Description">@enrollment.Activity.Description</td> *@
-                    <td @* data-label="Scheduled At" *@>
-                        @enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
-                    </td>
-                    <td class="desktop-only" @* data-label="Address" *@>@enrollment.Activity.Address</td>
-                    
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="4" class="text-center p-3">
-                    No completed activities.
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- ================= MODAL ================= -->
-<div class="modal fade" id="noteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@CurrentTenant.Terminology.ProviderSingular Note</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="noteModalBody"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Close
-                </button>
-            </div>
+<div class="completed-page">
+    <div class="completed-page-header">
+        <div>
+            <h2>Completed</h2>
+            <p>Review completed courses, activities, and update your notes.</p>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@if (Model.CoursesSchedules.Any())
+{
+    <h4 class="completed-section-title">Courses</h4>
+    foreach (var courseSchedules in Model.CoursesSchedules)
+    {
+        <section class="course-history-card">
+            <div class="course-summary">
+                <div>
+                    <h5>@courseSchedules.Course.Title</h5>
+                    <div class="course-meta">
+                        <span><strong>Course Type:</strong> @courseSchedules.Course.CourseType</span>
+                        <span><strong>Sessions:</strong> @(courseSchedules.Course.SessionCount?.ToString() ?? "N/A")</span>
+                        <span><strong>@CurrentTenant.Terminology.ProviderSingular:</strong> @(courseSchedules.Course.Coach?.Name ?? "N/A")</span>
+                        <span><strong>Completed:</strong> <span class="completed-count">@courseSchedules.Schedules.Count(schedule => schedule.Status == "Completed")</span></span>
+                    </div>
+                </div>
+                <button class="completed-toggle" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#completedSessions_@courseSchedules.CourseID"
+                        aria-expanded="false"
+                        aria-controls="completedSessions_@courseSchedules.CourseID">
+                    View sessions
+                </button>
+            </div>
+        <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper">
+            <table class="management-table history-table table table-bordered">
+                <thead class="management-table-header"><tr><th class="date-column">Date</th><th>Status</th><th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th><th class="note-column">My Note</th><th>Action</th></tr></thead>
+                <tbody>
+                @foreach (var schedule in courseSchedules.Schedules)
+                {
+                    var scheduledAt = schedule.ScheduledAt.ToUserTime(User, AppTimeZoneService);
+                    var providerNote = courseSchedules.Course.CourseType == "Private" ? schedule.CoachNote : schedule.StaffNote;
+                    <tr>
+                        <td class="date-column">@(scheduledAt?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                        <td>@schedule.Status</td>
+                        <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "-" : providerNote)</td>
+                        <td class="note-column">
+                            <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "-" : schedule.ParentNote)</span>
+                            <textarea id="my-note-edit-@schedule.EnrollmentID" name="feedback" rows="2" form="my-note-form-@schedule.EnrollmentID" style="display: none;">@schedule.ParentNote</textarea>
+                        </td>
+                        <td class="note-actions">
+                            <form id="my-note-form-@schedule.EnrollmentID" method="post" action="/Child/SaveCompletedCourseFeedback">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="enrollmentId" value="@schedule.EnrollmentID" />
+                                <a id="my-note-update-@schedule.EnrollmentID" href="javascript:void(0);" onclick="editMyNote(@schedule.EnrollmentID)">Update Note</a>
+                                <button id="my-note-save-@schedule.EnrollmentID" type="submit" class="btn classlift-secondary-button btn-save mt-2" style="display: none;">Save</button>
+                                <button id="my-note-cancel-@schedule.EnrollmentID" type="button" class="btn btn-secondary mt-2" style="display: none;" onclick="cancelMyNote(@schedule.EnrollmentID)">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        </section>
+    }
+}
+else
+{
+    <h4 class="completed-section-title">Courses</h4>
+    <div class="empty-history text-center p-4">No completed courses.</div>
+}
+
+<h4 class="completed-section-title">Activities</h4>
+@if (Model.ActivitySchedules != null && Model.ActivitySchedules.Any())
+{
+    foreach (var activityEnrollment in Model.ActivitySchedules)
+    {
+        <section class="course-history-card">
+            <div class="course-summary">
+                <div>
+                    <h5>@activityEnrollment.Activity.Title</h5>
+                    <div class="course-meta">
+                        <span><strong>Date:</strong> @activityEnrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd")</span>
+                        <span><strong>Status:</strong> @activityEnrollment.Status</span>
+                        <span><strong>Location:</strong> @(string.IsNullOrWhiteSpace(activityEnrollment.Activity.Address) ? "N/A" : activityEnrollment.Activity.Address)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+}
+else
+{
+    <div class="empty-history text-center p-4">No completed activities.</div>
+}
 <script>
-    function showNoteModal(description) {
-        document.getElementById('noteModalBody').textContent = description;
-        new bootstrap.Modal(document.getElementById('noteModal')).show();
+    function editMyNote(enrollmentId) {
+        document.getElementById('my-note-view-' + enrollmentId).style.display = 'none';
+        document.getElementById('my-note-edit-' + enrollmentId).style.display = 'block';
+        document.getElementById('my-note-update-' + enrollmentId).style.display = 'none';
+        document.getElementById('my-note-save-' + enrollmentId).style.display = 'inline-block';
+        document.getElementById('my-note-cancel-' + enrollmentId).style.display = 'inline-block';
+        document.getElementById('my-note-edit-' + enrollmentId).focus();
+    }
+
+    function cancelMyNote(enrollmentId) {
+        var noteView = document.getElementById('my-note-view-' + enrollmentId);
+        var noteEdit = document.getElementById('my-note-edit-' + enrollmentId);
+        noteEdit.value = noteView.textContent === '-' ? '' : noteView.textContent;
+        noteEdit.style.display = 'none';
+        noteView.style.display = 'inline';
+        document.getElementById('my-note-update-' + enrollmentId).style.display = 'inline';
+        document.getElementById('my-note-save-' + enrollmentId).style.display = 'none';
+        document.getElementById('my-note-cancel-' + enrollmentId).style.display = 'none';
     }
 </script>
+</div>

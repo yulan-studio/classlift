@@ -1,22 +1,24 @@
 @{ ViewData["Title"] = "My Calendar"; }
 
 <style>
-    :root { --cal-primary:#106b90; --cal-dark:#094f6e; --cal-accent:#2c9fbd; --cal-ink:#173042; --cal-border:#dce9ee; }
-    .calendar-shell { padding:18px; overflow:hidden; border:1px solid var(--cal-border); border-radius:18px; background:#fff; box-shadow:0 12px 35px rgba(25,71,91,.1); }
+    :root { --cal-primary:#2673ad; --cal-dark:#152238; --cal-accent:#6eaed8; --cal-ink:#26364d; --cal-border:#dbe5ee; }
+    .calendar-shell { padding:18px; overflow:hidden; border:1px solid var(--cal-border); border-radius:8px; background:#fff; box-shadow:0 5px 18px rgba(24,47,76,.07); }
     #calendar { max-width:100%; }
-    .fc .fc-toolbar.fc-header-toolbar { margin-bottom:18px; }
-    .fc .fc-scrollgrid { overflow:hidden; border:1px solid var(--cal-border); border-radius:12px; }
+    .fc { font-family: inherit; }
+    .fc .fc-toolbar-title { color:#152238; font-size:clamp(1.35rem, 2.2vw, 1.75rem); font-weight:700; }
+    .fc .fc-toolbar.fc-header-toolbar { margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid #edf1f5; }
+    .fc .fc-scrollgrid { overflow:hidden; border:1px solid var(--cal-border); border-radius:8px; }
     .fc-theme-standard td,.fc-theme-standard th { border-color:var(--cal-border); }
-    .fc .fc-col-header-cell { padding:9px 0; background:#eef8fb; }
+    .fc .fc-col-header-cell { padding:10px 0; background:#edf5fb; }
     .fc .fc-col-header-cell-cushion { color:var(--cal-dark); font-size:.76rem; font-weight:800; letter-spacing:.08em; text-decoration:none; text-transform:uppercase; }
     .fc .fc-daygrid-day { transition:background-color .18s ease; }
-    .fc .fc-daygrid-day:hover { background:#f5fbfd; }
-    .fc .fc-day-today { background:#eaf8fc !important; box-shadow:inset 0 3px 0 var(--cal-accent); }
+    .fc .fc-daygrid-day:hover { background:#f7fbfe; }
+    .fc .fc-day-today { background:#f0f7fc !important; box-shadow:inset 0 3px 0 var(--cal-accent); }
     .fc .fc-daygrid-day-number { padding:7px 9px; color:var(--cal-ink); font-weight:650; text-decoration:none; }
     .fc .fc-day-today .fc-daygrid-day-number { min-width:28px; margin:4px; padding:4px 8px; text-align:center; color:#fff; background:var(--cal-primary); border-radius:999px; }
     .fc .fc-event { cursor:pointer; margin:2px 3px; padding:4px 6px; border:0; border-radius:7px; box-shadow:0 3px 8px rgba(28,73,92,.16); font-size:.82rem; font-weight:650; transition:transform .16s ease,box-shadow .16s ease; }
     .fc .fc-event:hover { z-index:5; transform:translateY(-1px); box-shadow:0 6px 13px rgba(28,73,92,.23); }
-    .fc .fc-button { padding:7px 12px; background:#eef8fb; border:1px solid #cce7ef; border-radius:9px; box-shadow:none !important; color:var(--cal-dark); font-size:.82rem; font-weight:700; text-transform:capitalize; }
+    .fc .fc-button { padding:7px 12px; background:#f3f8fc; border:1px solid #d1e2ef; border-radius:7px; box-shadow:none !important; color:#2673ad; font-size:.82rem; font-weight:700; text-transform:capitalize; }
     .fc .fc-button:hover,.fc .fc-button.fc-button-active { background:var(--cal-primary); border-color:var(--cal-primary); color:#fff; }
     .fc .fc-button:disabled { background:#f4f7f8; border-color:#e3ebee; color:#91a4ad; opacity:1; }
     .tippy-box[data-theme~='light-border'] { overflow:hidden; border:1px solid #495057 !important; border-radius:10px; background:#343a40 !important; box-shadow:0 10px 28px rgba(20,30,35,.3); color:#fff !important; font-size:.88rem; line-height:1.55; text-align:left; }
@@ -26,11 +28,11 @@
     .tippy-box[data-theme~='light-border'][data-placement^='bottom'] > .tippy-arrow::before { border-bottom-color:#343a40 !important; }
     @@media (max-width:767px) {
         .calendar-shell { padding:10px; }
-        .fc-toolbar-title { font-size:1rem; }
+        .fc .fc-toolbar-title { margin-left:0; font-size:1.1rem; }
         .fc .fc-button { padding:5px 8px; font-size:.75rem; }
-        .fc .fc-list { overflow:hidden; border-color:var(--cal-border); border-radius:12px; }
-        .fc .fc-list-day-cushion { background:#eef8fb; }
-        .fc .fc-list-event:hover td { background:#f5fbfd; }
+        .fc .fc-list { overflow:hidden; border-color:var(--cal-border); border-radius:8px; }
+        .fc .fc-list-day-cushion { background:#edf5fb; }
+        .fc .fc-list-event:hover td { background:#f7fbfe; }
     }
 </style>
 

@@ -16,10 +16,28 @@
   
 </div>
 
+<style>
+    .core-info-form-table { border-collapse: collapse; width: 100%; max-width: 600px; text-align: left; }
+    .core-info-form-table select.form-select {
+        padding-right: 2.75rem;
+        background-position: right 0.75rem center;
+    }
+    @@media (max-width: 767px) {
+        .core-info-form-table, .core-info-form-table tbody, .core-info-form-table tr, .core-info-form-table td { display: block; width: 100%; }
+        .core-info-form-table tr { margin-bottom: 12px; }
+        .core-info-form-table td { padding: 4px 0 !important; }
+        .core-info-form-table td:first-child { padding-bottom: 0 !important; }
+        .core-info-form-table input:not([type="checkbox"]), .core-info-form-table select { width: 100% !important; min-height: 42px; box-sizing: border-box; }
+        .core-info-form-table input[type="checkbox"] { margin-left: 0; }
+        .core-info-save-spacing + button { min-height: 42px; padding: 10px 16px !important; }
+        .core-info-save-spacing { height: 8px; }
+    }
+</style>
+
 <form asp-action="CoreInfo" method="post">
 
 
-    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+    <table class="core-info-form-table">
 
         <tr>
             <td style="padding: 8px;"><label asp-for="MemberID">Member ID</label></td>
@@ -98,7 +116,7 @@
                 <input asp-for="Status" class="form-control" />
             </td> *@
             <td style="padding: 8px;">
-                <select name="Status" style="width: 50%;" required>
+                <select name="Status" class="form-select" style="width: 50%;" required>
                     <option value="">-- Select Status --</option>
                     <option value="Active" selected="@(Model.Status == "Active" ? "selected" : null)">Active</option>
                     <option value="InActive" selected="@(Model.Status == "InActive" ? "selected" : null)">InActive</option>
@@ -117,6 +135,6 @@
 
 
 
-    <br /><br />
+    <div class="core-info-save-spacing"></div>
     <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
 </form>

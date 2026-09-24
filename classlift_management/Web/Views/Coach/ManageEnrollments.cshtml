@@ -1,6 +1,22 @@
 ﻿@model Core.ViewModels.ManageEnrollmentsViewModel
 
 <style>
+    .manage-enrollments-page { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .manage-enrollments-header { margin-bottom: 1.25rem; }
+    .manage-enrollments-header h2 { margin: 0; color: #152238; font-size: clamp(1.7rem, 3vw, 2.2rem); font-weight: 700; }
+    .manage-enrollments-header p { margin: .35rem 0 0; color: #6b778c; }
+    .enrollment-info { margin: 1.25rem 0 2rem; padding: 1rem 1.15rem; border: 1px solid #d6e2e7; border-radius: 6px; background: #f8f9fa; color: #26343a; line-height: 1.45; }
+    .enrollment-info p { margin: .2rem 0; }
+    .enrollment-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2rem 0 .85rem; }
+    .enrollment-section-heading h5 { margin: 0; color: #1b7bab; font-size: 1.3rem; font-weight: 700; }
+    .enrollment-section-heading a { color: #1b7bab; font-weight: 600; }
+    .enrollment-notice { margin: 0 0 1rem; padding: .8rem 1rem; border: 1px solid #f2c7d9; border-radius: 7px; background: #fff3f7; color: #5f3b4b; }
+    .enrollment-table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .enrollment-table-wrapper table { min-width: 760px; margin: 0; }
+    .enrollment-table-wrapper thead th { white-space: nowrap; }
+    .enrollment-table-wrapper textarea { min-width: 220px; }
+    .enrollment-table-wrapper .row-button .btn { margin-top: .25rem; }
+    .manage-enrollments-page .alert { border-radius: 7px; }
 
 
     /* .btn-primary {
@@ -87,6 +103,7 @@
             flex-direction: column;
             align-items: stretch;
         }
+
        /*  .row-fields {
             display: flex;
             gap: 8px;
@@ -105,8 +122,8 @@
 
         .input-note {
             width: 100%;
-            height: auto;
-            min-height: 80px;
+            height: 160px !important;
+            min-height: 160px !important;
             resize: vertical;
             margin-bottom: 10px;
         }
@@ -120,12 +137,16 @@
    
 </style>
 
-<h2 class="mb-4">Manage Enrollments</h2>
+<div class="manage-enrollments-page">
+<div class="manage-enrollments-header">
+    <h2>Manage Enrollments</h2>
+    <p>Review sessions, record actual hours, and manage @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() notes.</p>
+</div>
 
 
-<a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
+<a href="/Coach/ManageCourse" class="participation-back-link">← Back to Courses List</a>
 
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+<div class="enrollment-info">
     <p><strong>Course:</strong> @Model.Course.Title</p>
     <p><strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name</p>
     @if(Model.Course.SessionCount!= null )
@@ -136,15 +157,15 @@
 </div>
 
 
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Sessions Awaiting Completion</h5></div>
+<div class="enrollment-section-heading"><h5>Sessions Awaiting Completion</h5></div>
 
-<div style="padding: 10px 10px 10px 10px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #FFDBF6; ">
+<div class="enrollment-notice">
     To complete the session, the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() is required to enter the actual hours and then click the 'Complete' button.
 </div>
 
-<div class="table-responsive">
-    <table id="scheduleTable" class="mobile-stack table table-bordered mt-3"  style="border-collapse: collapse;">
-        <thead class="table-primary">
+<div class="enrollment-table-wrapper">
+    <table id="scheduleTable" class="management-table mobile-stack table table-bordered mt-3"  style="border-collapse: collapse;">
+        <thead class="management-table-header">
             <tr>
 
                 <th>Scheduled At</th>
@@ -160,9 +181,9 @@
                 {
                     <tr>
 
-                        <td>@((schedule.ScheduledAt.HasValue) ? schedule.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
-                        <td>@schedule.ScheduledHours</td>
-                        <td>
+                        <td data-label="Scheduled At">@((schedule.ScheduledAt.HasValue) ? schedule.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
+                        <td data-label="Scheduled Hours">@schedule.ScheduledHours</td>
+                        <td data-label="Actual Hours">
 
 
                             <form method="post" action="/Coach/CompleteSession" class="complete-form">
@@ -226,62 +247,51 @@
             else
             {
                 <tr>
-                    <td colspan="3" style="text-align: center; padding: 10px;">No scheduled sessions.</td>
+                    <td colspan="3" style="text-align: center; padding: 10px;">No scheduled sessions to complete.</td>
                 </tr>
             }
 
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <tr>
-                    <td colspan="3">
-                        <div class="alert alert-success">
-                            @TempData["SuccessMessage"]
-                        </div>
-                    </td>
-                </tr>
-            }
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <tr>
-                    <td colspan="3">
-                        <div class="alert alert-danger">
-                            @TempData["ErrorMessage"]
-                        </div>
-                    </td>
-                </tr>
-            }
-
-            @if (TempData["WarningMessage"] != null)
-            {
-                <tr>
-                    <td colspan="3">
-                        <div class="alert alert-warning">
-                            @TempData["WarningMessage"]
-                        </div>
-                    </td>
-                </tr>
-            }
         </tbody>
     </table>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning mt-3">@TempData["WarningMessage"]</div>
+}
 
 <div style="padding-top: 30px"></div>
 
 
 
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Completed Sessions</h5></div>
+<div class="enrollment-section-heading">
+    <h5>Completed Sessions</h5>
+    @if (Model.Course.CourseType == "Private")
+    {
+        <a href="/Coach/ManageSchedules/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Upcoming Sessions</a>
+    }
+</div>
 
 
-<table id="completeTable" class="mobile-stack table table-bordered mt-3" >
-    <thead class="table-primary">
+<div class="enrollment-table-wrapper">
+<table id="completeTable" class="management-table mobile-stack table table-bordered mt-3" >
+    <thead class="management-table-header">
         <tr>
 
             <th>Scheduled At</th>
             <th>Scheduled Hours</th>
             <th>Actual Hours</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th class="desktop-only">My Note</th>
+            <th>My Note</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -291,79 +301,81 @@
             {
                 <tr>
 
-                    <td>@((complete.ScheduledAt.HasValue) ? complete.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
-                    <td>@complete.ScheduledHours</td>
-                    <td>@complete.ActualHours</td>
-                    <td class="desktop-only">@complete.ParentNote</td>
-                    <td class="desktop-only">@complete.CoachNote</td>
+                    <td data-label="Scheduled At">@((complete.ScheduledAt.HasValue) ? complete.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
+                    <td data-label="Scheduled Hours">@complete.ScheduledHours</td>
+                    <td data-label="Actual Hours">@complete.ActualHours</td>
+                    <td class="desktop-only" data-label="@CurrentTenant.Terminology.ParticipantSingular Note">@complete.ParentNote</td>
+                    <td data-label="My Note">
+                        <span id="coach-note-view-@complete.EnrollmentID">@complete.CoachNote</span>
+                        <textarea id="coach-note-edit-@complete.EnrollmentID" name="coachNote" form="coach-note-@complete.EnrollmentID" class="form-control" style="display: none;">@complete.CoachNote</textarea>
+                    </td>
+                    <td data-label="Action">
+                        <form id="coach-note-@complete.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="enrollmentId" value="@complete.EnrollmentID" />
+                            <input type="hidden" name="childId" value="@Model.Child.ChildID" />
+                            <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
+                            <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
+                            <input type="hidden" name="returnToManageEnrollments" value="true" />
+                            <a id="coach-note-edit-link-@complete.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@complete.EnrollmentID)">Update Note</a>
+                            <button id="coach-note-save-@complete.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
+                            <button id="coach-note-cancel-@complete.EnrollmentID" type="button" class="btn btn-secondary" style="display: none;" onclick="cancelCoachNote(@complete.EnrollmentID)">Cancel</button>
+                        </form>
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="5" style="text-align: center; padding: 10px;">No completed sessions.</td>
+                <td colspan="6" style="text-align: center; padding: 10px;">No completed sessions.</td>
             </tr>
         }
 
         
     </tbody>
 </table>
+</div>
 
+@if (TempData["CompletedSuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["CompletedSuccessMessage"]
+    </div>
+}
 
-
-
-<div style="padding-top: 30px"></div>
-
-
-
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB;"><h5>Deleted Sessions</h5></div>
-
-
-<table id="deletedTable" class="mobile-stack table table-bordered mt-3" style="border-collapse: collapse; width: 100%; text-align: left;">
-    <thead class="table-primary">
-        <tr>
-
-            <th>Scheduled At</th>
-            <th>Scheduled Hours</th>
-            <th class="desktop-only">Actual Hours</th>
-            <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th class="desktop-only">My Note</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.DeletedEnrollments.Any())
-        {
-            foreach (var deleted in Model.DeletedEnrollments)
-            {
-                <tr>
-
-                    <td>@((deleted.ScheduledAt.HasValue) ? deleted.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") : "")</td>
-                    <td>@deleted.ScheduledHours</td>
-                    <td class="desktop-only">@deleted.ActualHours</td>
-                    <td>@deleted.ParentNote</td>
-                    <td class="desktop-only">@deleted.CoachNote</td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 10px;">No Deleted sessions.</td>
-            </tr>
-        }
-
-
-    </tbody>
-</table>
+@if (TempData["CompletedErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">
+        @TempData["CompletedErrorMessage"]
+    </div>
+}
 
 
 
 
 <script>
+    function editCoachNote(enrollmentId) {
+        document.getElementById('coach-note-view-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-edit-' + enrollmentId).style.display = 'block';
+        document.getElementById('coach-note-edit-link-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-save-' + enrollmentId).style.display = 'inline-block';
+        document.getElementById('coach-note-cancel-' + enrollmentId).style.display = 'inline-block';
+    }
+
+    function cancelCoachNote(enrollmentId) {
+        document.getElementById('coach-note-edit-' + enrollmentId).value = document.getElementById('coach-note-view-' + enrollmentId).textContent;
+        document.getElementById('coach-note-edit-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-view-' + enrollmentId).style.display = 'inline';
+        document.getElementById('coach-note-edit-link-' + enrollmentId).style.display = 'inline';
+        document.getElementById('coach-note-save-' + enrollmentId).style.display = 'none';
+        document.getElementById('coach-note-cancel-' + enrollmentId).style.display = 'none';
+    }
+
         function toggleFields(id, isChecked) {
         const fieldsDiv = document.getElementById('extraFields_' + id);
         // If "Same as Schedule" is checked, hide fields; otherwise show
         fieldsDiv.style.display = isChecked ? 'none' : 'inline';
     }
 </script>
+</div>

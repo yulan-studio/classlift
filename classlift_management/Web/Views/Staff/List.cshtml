@@ -10,11 +10,24 @@
 @model IEnumerable<Staff>
 
 
-<h1>Manage Staff</h1>
+<h1 class="management-page-title">Manage Staff</h1>
 
-<a href="/Staff/Add" style="display: inline-block; margin-bottom: 20px;">Add Staff</a>
+<a href="/Staff/Add" class="list-add-link">Add Staff</a>
 
-<table style="border-collapse: collapse; width: 50%; text-align: left;">
+<style>
+    .staff-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .staff-table {
+        width: 100%;
+        min-width: 700px;
+    }
+</style>
+
+<div class="staff-table-wrapper">
+<div class="management-table-wrapper"><table class="management-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
@@ -63,6 +76,7 @@
             </tr>
         }
     </tbody>
-</table>
+</table></div>
+</div>
 
 

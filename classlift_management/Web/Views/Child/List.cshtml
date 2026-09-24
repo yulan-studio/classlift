@@ -22,7 +22,7 @@
 
 
 
-<h1>Manage @CurrentTenant.Terminology.ParticipantPlural</h1>
+<h1 class="management-page-title">Manage @CurrentTenant.Terminology.ParticipantPlural</h1>
 
 <a href="/Child/Add" class="list-add-link">Add @CurrentTenant.Terminology.ParticipantSingular</a>
 @* <label style="font-size:0.8em; color:darkslategray">
@@ -30,7 +30,7 @@
 </label> *@
 
 
-<form method="get" asp-action="List" class="list-filter mb-3">
+<form method="get" asp-action="List" class="list-filter child-list-filter mb-3">
     <input type="text" name="searchName" placeholder="Search @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant() name..."
            class="list-filter__input" value="@Context.Request.Query["searchName"]" />
 

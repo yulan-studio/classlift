@@ -1,6 +1,28 @@
 ﻿@model Core.ViewModels.ManageSchedulesViewModel
 
 <style>
+    .manage-schedule-page { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .manage-schedule-header { margin-bottom: 1.25rem; }
+    .manage-schedule-header h2 { margin: 0; color: #152238; font-size: clamp(1.7rem, 3vw, 2.2rem); font-weight: 700; }
+    .manage-schedule-header p { margin: .35rem 0 0; color: #6b778c; }
+    .manage-schedule-info { margin: 1.25rem 0 2rem; padding: 1rem 1.15rem; border: 1px solid #d6e2e7; border-radius: 6px; background: #f8f9fa; color: #26343a; line-height: 1.55; }
+    .manage-schedule-info .info-item { color: #26343a; }
+    .manage-schedule-info .info-item strong { color: #152238; }
+    .schedule-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2rem 0 .85rem; }
+    .schedule-section-heading h4 { margin: 0; color: #1b7bab; font-size: 1.35rem; font-weight: 700; }
+    .schedule-section-heading a { color: #1b7bab; font-weight: 600; }
+    .schedule-table-card { overflow: visible; }
+    .schedule-table-card .schedule-table-wrapper { padding: 0; }
+    .schedule-table-card table { margin: 0; }
+    .schedule-form-card { padding: 1.25rem 0; }
+    .schedule-form-card .schedule-form-fields { width: min(100%, 520px); }
+    .schedule-notice { margin: 0 1rem 1rem; border: 0; border-radius: 8px; background: #fff3f7; color: #5f3b4b; }
+    .manage-schedule-page .participation-back-link { margin-top: 0; }
+    .manage-schedule-page .schedule-table-wrapper table thead th { white-space: nowrap; }
+    @@media (max-width: 767px) {
+        .manage-schedule-page { padding: 1rem .75rem 2rem; }
+        .schedule-section-heading { align-items: flex-start; flex-direction: column; }
+    }
 
     /* .btn-primary {
         background-color: #1B7BAB;
@@ -36,82 +58,82 @@
         width: 40%;
     }
 
-    /* ===== Mobile card view ===== */
+    .remove-schedule-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(0, 0, 0, .45);
+    }
+
+    .remove-schedule-modal__content {
+        width: min(100%, 480px);
+        padding: 20px;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, .25);
+    }
+
+    .remove-schedule-modal__content textarea {
+        width: 100%;
+        min-height: 100px;
+        box-sizing: border-box;
+    }
+
+    .remove-schedule-link {
+        color: #0d6efd;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .schedule-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== Mobile table view ===== */
     @@media (max-width: 767px) {
         .schedule-form-fields {
             width: 100%;
         }
 
-        table.mobile-stack thead {
-            display: none;
+        .schedule-table-wrapper {
+            overflow-x: scroll;
         }
 
-        table.mobile-stack,
-        table.mobile-stack tbody,
-        table.mobile-stack tr,
-        table.mobile-stack td {
-            display: block;
-            width: 100%;
-        }
-
-        table.mobile-stack tr {
-            margin-bottom: 16px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: #fff;
-        }
-
-        table.mobile-stack td {
-            border: none;
-            padding: 6px 0;
-        }
-
-        table.mobile-stack td::before {
-            content: attr(data-label);
-            display: block;
-            font-weight: 600;
-            color: #1B7BAB;
-            margin-bottom: 2px;
-        }
-
-        /* Make inputs, textareas, buttons full-width on mobile */
-        table.mobile-stack textarea,
-        table.mobile-stack input,
-        table.mobile-stack button,
-        table.mobile-stack a {
-            width: 100%;
-            margin-top: 6px;
-        }
-
-        /* Stack buttons vertically for easier tapping */
-        table.mobile-stack td .view-mode,
-        table.mobile-stack td .edit-mode {
-            width: 100%;
-            margin-bottom: 5px;
+        table.mobile-stack {
+            min-width: 900px;
         }
     }
 </style>
 
 
 
-<h2 class="mb-4">Manage Schedule</h2>
+<div class="manage-schedule-page">
+<div class="manage-schedule-header">
+    <h2>Manage Schedule</h2>
+    <p>Review upcoming sessions and manage the course schedule.</p>
+</div>
 
-<a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
+<a href="/Coach/ManageCourse" class="participation-back-link">← Back to Courses List</a>
 
 @* btn-light  mb-3*@
 <!-- Info Panel -->
-<div class="p-3 mb-4 bg-light border rounded">
+<div class="manage-schedule-info">
     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
-    <strong>Gender:</strong> @Model.Child.Gender <br />
     @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
-    <strong>City:</strong> @Model.Child.City.Name <br />
+    <span class="d-none d-lg-inline"><strong>City:</strong> @Model.Child.City.Name <br /></span>
 
     @foreach (var pc in Model.Parents)
     {
-        <div class="d-none d-md-block">
+        <div class="d-none d-lg-block">
             <strong>@pc.Relationship:</strong> @pc.Parent.Name
             <strong>&nbsp; &nbsp; Phone:</strong> @pc.Parent.Phone
             <strong>&nbsp; &nbsp; WeChat:</strong> @pc.Parent.Wechat
@@ -120,23 +142,30 @@
         <div class="d-block d-md-none">
             <div><strong>@pc.Relationship:</strong> @pc.Parent.Name</div>
             <div><strong>Phone:</strong> @pc.Parent.Phone</div>
-            <div><strong>WeChat:</strong> @pc.Parent.Wechat</div>
         </div>
     }
 </div>
 
 
 
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-    <h4 style="margin: 0;">Upcoming Sessions</h4>
-    @if (Model.Course.CourseType == "Private" && Model.Course.SessionCount.HasValue)
+<div class="schedule-section-heading">
+    <h4>Upcoming Sessions</h4>
+    @if (Model.Course.CourseType == "Private")
     {
-        <a href="/Coach/ViewEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+        @if (Model.Course.SessionCount.HasValue)
+        {
+            <a href="/Coach/ViewEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+        }
+        else
+        {
+            <a href="/Coach/ManageEnrollments/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Completed Sessions</a>
+        }
     }
 </div>
 
-<table class="mobile-stack table table-bordered mt-3">
-    <thead class="table-primary">
+<div class="schedule-table-card"><div class="schedule-table-wrapper">
+<table class="management-table mobile-stack table table-bordered mt-3">
+    <thead class="management-table-header">
         <tr>
             <th>Date</th>
             <th>Start</th>
@@ -195,13 +224,13 @@
 
                         @if (s.Status != "Deleted" && !isWithin24Hours)
                         {
-                            <form method="post" action="/Coach/DeleteSchedule" onsubmit="return attachCoachNote(@s.EnrollmentID)" style="display:inline-block; margin-top:3px; margin-left: 5px;">
+                            <form method="post" action="/Coach/DeleteSchedule" onsubmit="return openRemoveScheduleModal(event, @s.EnrollmentID)" style="display:inline-block; margin-top:3px; margin-left: 5px;">
                                 <input type="hidden" name="enrollmentId" value="@s.EnrollmentID" />
                                 <input type="hidden" name="childId" id="childId" value="@Model.Child.ChildID" />
                                 <input type="hidden" name="courseId" id="courseId" value="@Model.Course.CourseID" />
                                 <input type="hidden" name="enrollmentId_Ref" id="enrollmentId_Ref" value="@Model.EnrollmentID" />
                                 <input type="hidden" name="coachNote" id="coachNote-@s.EnrollmentID-hidden" />
-                                <button type="submit" class="view-mode btn btn btn-primary">Remove</button>
+                                <a href="javascript:void(0);" class="remove-schedule-link" onclick="this.closest('form').requestSubmit(); return false;">Remove</a>
                             </form>
                         }
                     </td>
@@ -226,12 +255,35 @@
         }
     </tbody>
 </table>
+</div></div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["WarningMessage"]
+    </div>
+}
+
 @if (!Model.Course.SessionCount.HasValue ||
      Model.ScheduledCount + Model.CompletedCount < Model.Course.SessionCount.Value)
 {
-<form method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
+<form class="schedule-form" method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
 
-<div style="margin: 0; padding: 30px 0 15px; color: #1B7BAB;"><h4>Schedule Sessions</h4></div>
+<div class="schedule-section-heading"><h4>Schedule Sessions</h4></div>
 
 <div class="mb-3">
     <strong>Schedule Type</strong><br />
@@ -240,7 +292,7 @@
 </div>
 
 <!-- Schedule Form -->
-<div class="mt-2 p-3 bg-light border rounded">
+<div class="schedule-form-card mt-2">
     <div class="schedule-form-fields">
         <input type="hidden" name="childId" value="@Model.Child.ChildID" />
         <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
@@ -295,40 +347,50 @@
 </form>
 }
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
 
-@if (TempData["WarningMessage"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["WarningMessage"]
+<div id="removeScheduleModal" class="remove-schedule-modal" role="dialog" aria-modal="true" aria-labelledby="removeScheduleModalTitle">
+    <div class="remove-schedule-modal__content">
+        <h5 id="removeScheduleModalTitle">Confirm Remove</h5>
+        <p>Please enter a @CurrentTenant.Terminology.ProviderSingular Note before removing this session.</p>
+        <textarea id="removeScheduleNote" class="form-control" placeholder="Enter note" required></textarea>
+        <div class="mt-3 d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-danger" onclick="confirmRemoveSchedule()">Remove</button>
+            <button type="button" class="btn btn-secondary" onclick="closeRemoveScheduleModal()">Cancel</button>
+        </div>
     </div>
-}
+</div>
+
+ </div>
 
 <script>
 
-    function attachCoachNote(id) {
-        const noteInput = document.getElementById(`coachNote-${id}`);
-        const note = noteInput.value.trim();
+    let removeScheduleForm = null;
+
+    function openRemoveScheduleModal(event, id) {
+        removeScheduleForm = event.currentTarget;
+        document.getElementById('removeScheduleNote').value = document.getElementById(`coachNote-${id}`).value.trim();
+        document.getElementById('removeScheduleModal').style.display = 'flex';
+        document.getElementById('removeScheduleNote').focus();
+        return false;
+    }
+
+    function closeRemoveScheduleModal() {
+        document.getElementById('removeScheduleModal').style.display = 'none';
+        removeScheduleForm = null;
+    }
+
+    function confirmRemoveSchedule() {
+        const note = document.getElementById('removeScheduleNote').value.trim();
         if (!note) {
-            alert(`${noteInput.dataset.noteLabel} is required before removing a session.`);
-            noteInput.focus();
-            return false;
+            document.getElementById('removeScheduleNote').focus();
+            return;
         }
 
-        document.getElementById(`coachNote-${id}-hidden`).value = note;
-        return true; // allow submit
+        if (removeScheduleForm) {
+            removeScheduleForm.querySelector('input[name="coachNote"]').value = note;
+            removeScheduleForm.submit();
+        }
     }
 
 

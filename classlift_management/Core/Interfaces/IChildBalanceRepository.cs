@@ -23,6 +23,8 @@ namespace Core.Interfaces
         Task<bool> DeductActivityCostAsync(int childId, int activityId, decimal cost, int createdBy);
 
         Task<bool> DeductGroupCourseCostAsync(int childId, int courseId, decimal cost, int createdBy);
+        Task<bool> RefundCanceledSessionCostAsync(int sessionEnrollmentId, int createdBy);
+        Task<List<int>> GetRefundedSessionEnrollmentIdsAsync(int courseId);
 
         Task<List<Core.ViewModels.ChildBalance>> GetBalanceHistoryAsync(int childId);
 

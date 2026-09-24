@@ -1,8 +1,27 @@
 ﻿@model Core.ViewModels.SessionAttendanceViewModel
 
-<h2>Course Attendance</h2>
+@{
+    var nextSession = Model.Sessions
+        .Where(session => session.ScheduledAt > DateTime.UtcNow)
+        .OrderBy(session => session.ScheduledAt)
+        .FirstOrDefault();
+}
 
-<a href="/Coach/ManageCourse">Back to Courses</a>
+<style>
+    .attendance-mobile { display: none; }
+    .attendance-mobile__child { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-bottom: 1px solid #dee2e6; }
+    .attendance-mobile__child:last-child { border-bottom: 0; }
+    .attendance-mobile__status { min-width: 32px; text-align: center; }
+    .attendance-mobile h5 { font-size: 1rem; }
+    @@media (max-width: 767px) {
+        .attendance-desktop { display: none; }
+        .attendance-mobile { display: block; }
+    }
+</style>
+
+<h2 class="mb-4">Course Attendance</h2>
+
+<a href="/Coach/ManageCourse" class="participation-back-link">← Back to Courses List</a>
 
 <div style="padding-top: 40px; padding-bottom: 20px">
     <span class="badge bg-success">Finished</span>
@@ -36,7 +55,7 @@
 
 
 
-<table class="table table-bordered">
+<table class="table table-bordered attendance-desktop">
     <thead>
         <tr>
             <th>Session</th>
@@ -92,3 +111,33 @@
         }
     </tbody>
 </table>
+
+<section class="attendance-mobile" aria-label="Next upcoming session attendance">
+    @if (nextSession != null)
+    {
+        <h5 class="mb-2">
+            Next session: @nextSession.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")
+        </h5>
+        <div class="border rounded bg-white">
+            @foreach (var child in Model.ChildrenList)
+            {
+                var status = nextSession.Children.TryGetValue(child.ChildID, out var childStatus) ? childStatus : "-";
+                <div class="attendance-mobile__child">
+                    <span>@child.Name</span>
+                    <span class="attendance-mobile__status">
+                        @if (status == "Completed") { <span class="badge bg-success" title="Finished">F</span> }
+                        else if (status == "Scheduled") { <span class="badge bg-info" title="Scheduled">S</span> }
+                        else if (status == "Canceled") { <span class="badge bg-secondary" title="Canceled">C</span> }
+                        else if (status == "RequestToLeave") { <span class="badge bg-warning" title="Request To Leave">RL</span> }
+                        else if (status == "OnLeave") { <span class="badge bg-warning" title="On Leave">L</span> }
+                        else { <span>@status</span> }
+                    </span>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">No upcoming sessions.</div>
+    }
+</section>

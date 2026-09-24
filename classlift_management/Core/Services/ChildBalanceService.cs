@@ -51,6 +51,12 @@ namespace Core.Services
             return await _balanceRepository.AddBalanceAsync(newTransaction);
         }
 
+        public Task<bool> RefundCanceledSessionCostAsync(int sessionEnrollmentId, int createdBy)
+            => _balanceRepository.RefundCanceledSessionCostAsync(sessionEnrollmentId, createdBy);
+
+        public Task<List<int>> GetRefundedSessionEnrollmentIdsAsync(int courseId)
+            => _balanceRepository.GetRefundedSessionEnrollmentIdsAsync(courseId);
+
         //When a parent buys a payment package
         public async Task<bool> AddPaymentToBalanceAsync(int childId, int paymentId, decimal amount, string fileUrl, int createdBy)
         {

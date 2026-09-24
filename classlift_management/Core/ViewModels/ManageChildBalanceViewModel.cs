@@ -37,6 +37,7 @@ namespace Core.ViewModels
         public string? Calculation { get; set; } // Receipt for the payment
         public decimal BalanceChange { get; set; }
         public decimal Balance { get; set; }
+        public string? StaffName { get; set; }
 
         // fields for course sessions
         public DateTime? ScheduledAt { get; set; }

@@ -10,7 +10,22 @@
     <p><strong>Email:</strong> @Model.User.Email</p>
 </div> *@
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<style>
+    .more-info-summary-wrapper, .more-info-tabs-wrapper { width: 100%; overflow-x: auto; }
+    .more-info-summary-table { width: 100%; min-width: 760px; border-collapse: collapse; text-align: left; }
+    .more-info-tabs { flex-wrap: nowrap; min-width: max-content; }
+    @@media (max-width: 767px) {
+        .more-info-summary-wrapper, .more-info-tabs-wrapper { max-width: 100%; overflow-x: scroll; -webkit-overflow-scrolling: touch; }
+        .more-info-summary-table { width: 760px; min-width: 760px; }
+        .more-info-summary-table th, .more-info-summary-table td { padding: 6px !important; }
+        .more-info-tabs .nav-link { white-space: nowrap; }
+        #contentArea { padding: 10px !important; overflow-x: hidden; }
+        #contentArea table { display: block; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+    }
+</style>
+
+<div class="more-info-summary-wrapper">
+<table class="more-info-summary-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
@@ -45,13 +60,15 @@
         </tr>
     </tbody>
 </table>
+</div>
 
 
-<a href="/Child/List" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; margin-right: 20px; border: 1px solid #ccc;">Back to @CurrentTenant.Terminology.ParticipantPlural List</a>
+<a href="/Child/List" class="participation-back-link">Back to @CurrentTenant.Terminology.ParticipantPlural List</a>
 <a href="/Child/Participation/@Model.ChildID">Participation</a>
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
-<ul class="nav nav-tabs mb-3">
+<div class="more-info-tabs-wrapper">
+<ul class="nav nav-tabs more-info-tabs mb-3">
     <li class="nav-item"><a class ="nav-link @(ViewBag.ActiveTab == "CoreInfo" || (!CurrentTenant.Terminology.ParticipantsRequireParentSupport && ViewBag.ActiveTab == "Parents") ? "active" : "")" href="#" data-url="/Child/CoreInfo/@Model.ChildID">Core Member Information</a></li>
     <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "EmergencyContacts" ? "active" : "")" href="#" data-url="/Child/EmergencyContacts/@Model.ChildID">Emergency Contacts</a></li>
     @if (CurrentTenant.Terminology.ParticipantsRequireParentSupport)
@@ -64,6 +81,7 @@
     @* <li class="nav-item"><a class="nav-link" href="#" data-url="/Child/ManageRegistrations/@Model.ChildID">Manage Registration</a></li> *@
     @*<li class="nav-item"><a class="nav-link" href="#" data-url="/Course/List?childId=@Model.Id">Courses</a></li> *@
 </ul>
+</div>
 
 <!-- Content Area -->
 <div id="contentArea" class="border p-3">

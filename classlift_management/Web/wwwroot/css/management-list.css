@@ -1,3 +1,236 @@
+:root {
+    --classlift-blue: #1b7bab;
+    --classlift-blue-dark: #155a78;
+    --classlift-blue-light: #add8e6;
+    --classlift-link: #005a8d;
+    --classlift-border: #d6e2e7;
+    --classlift-muted-text: #3f4f56;
+    --classlift-button-radius: 5px;
+}
+
+/* Shared button geometry. Page-specific colors remain unchanged. */
+button,
+input[type="submit"],
+input[type="button"],
+.btn,
+.management-form__save,
+.management-form__cancel,
+.participation-back-link,
+a[style*="background-color"],
+.classlift-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 8px 14px !important;
+    border-radius: var(--classlift-button-radius) !important;
+    box-sizing: border-box;
+    line-height: 1.25;
+    cursor: pointer;
+}
+
+.classlift-button--secondary {
+    color: #000 !important;
+    background-color: #ddd !important;
+    border: 1px solid #ccc !important;
+}
+
+.classlift-button--secondary:hover,
+.classlift-button--secondary:focus {
+    color: #000 !important;
+    background-color: #d0d0d0 !important;
+    border-color: #bbb !important;
+}
+
+button:focus,
+input[type="submit"]:focus,
+input[type="button"]:focus,
+.btn:focus {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(27, 123, 171, 0.15);
+}
+
+.classlift-control {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid #cbd8de;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #212529;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+
+.classlift-control:focus {
+    border-color: var(--classlift-blue);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(27, 123, 171, 0.15);
+}
+
+.classlift-control:disabled,
+.classlift-control[readonly] {
+    background-color: #f2f2f2;
+    color: #5b6870;
+}
+
+.classlift-file-control {
+    min-height: 40px;
+    padding: 5px 8px;
+    box-sizing: border-box;
+    color: #3f4f56;
+    background-color: #fff;
+    border: 1px solid #cbd8de;
+    border-radius: 5px;
+}
+
+.classlift-file-control::file-selector-button {
+    margin-right: 10px;
+    padding: 7px 12px;
+    color: #3f4f56;
+    background-color: #e7eef1;
+    border: 1px solid #cbd8de;
+    border-radius: var(--classlift-button-radius);
+    cursor: pointer;
+}
+
+.classlift-file-control::file-selector-button:hover {
+    background-color: #d8e4e9;
+}
+
+.classlift-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--classlift-blue);
+    vertical-align: middle;
+}
+
+/* Shared form-control baseline for pages that do not need a page-specific class. */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="password"],
+select,
+textarea {
+    border: 1px solid #cbd8de;
+    border-radius: var(--classlift-button-radius);
+    background-color: #fff;
+    color: #212529;
+    box-sizing: border-box;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="password"],
+select {
+    min-height: 40px;
+    padding: 8px 12px;
+}
+
+/* Keep room for the native arrow on plain selects. Bootstrap .form-select
+   already provides its own arrow spacing. */
+select:not(.form-select) {
+    padding-right: 2.5rem;
+}
+
+select.form-control,
+select.classlift-control {
+    padding-right: 2.75rem;
+}
+
+textarea {
+    padding: 8px 12px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="time"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--classlift-blue);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(27, 123, 171, 0.15);
+}
+
+input:disabled,
+input[readonly],
+select:disabled,
+textarea[readonly] {
+    background-color: #f2f2f2;
+    color: #5b6870;
+}
+
+@media (max-width: 767px) {
+    button,
+    input[type="submit"],
+    input[type="button"],
+    .btn,
+    .management-form__save,
+    .management-form__cancel,
+    .participation-back-link,
+    a[style*="background-color"],
+    .classlift-button {
+        height: 42px !important;
+        min-height: 42px !important;
+    }
+
+    .classlift-control {
+        min-height: 42px;
+        font-size: 1rem;
+    }
+
+    .classlift-file-control {
+        width: 100%;
+        min-height: 42px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="time"],
+    input[type="password"],
+    select {
+        min-height: 42px;
+        font-size: 1rem;
+    }
+}
+
+.management-page-title {
+    margin: 0 0 1.5rem;
+    color: #152238;
+    font-size: clamp(1.45rem, 2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Consistent page-level headings for management and form pages. */
+main.container > h1,
+main.container > h2 {
+    margin-top: 0;
+    color: #152238;
+    font-size: clamp(1.45rem, 2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
 .management-table {
     width: 100%;
     border-collapse: collapse;
@@ -7,20 +240,46 @@
 .management-table th,
 .management-table td {
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--classlift-border);
+}
+
+.management-table tbody tr,
+.management-table tbody td {
+    --bs-table-bg: #fbfcfd;
+    background-color: #fbfcfd !important;
 }
 
 .management-table thead tr {
     background-color: #f2f2f2;
 }
 
+.management-table thead.management-table-header tr {
+    background-color: var(--classlift-blue-light);
+}
+
+.management-table thead.management-table-header th {
+    color: #000;
+    --bs-table-bg-type: var(--classlift-blue-light);
+    --bs-table-bg-state: var(--classlift-blue-light);
+    --bs-table-bg: var(--classlift-blue-light);
+    background-color: var(--classlift-blue-light) !important;
+}
+
+.management-table thead.child-management-table-header tr,
+.management-table thead.child-management-table-header th {
+    --bs-table-bg-type: #f2f2f2;
+    --bs-table-bg-state: #f2f2f2;
+    --bs-table-bg: #f2f2f2;
+    background-color: #f2f2f2 !important;
+}
+
 .management-table .sortable-header {
-    background-color: lightblue;
+    background-color: var(--classlift-blue-light);
 }
 
 .management-table .sortable-header a,
 .management-table .action-link {
-    color: #007bff;
+    color: var(--classlift-link);
     text-decoration: none;
 }
 
@@ -69,17 +328,422 @@
 }
 
 .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--classlift-blue);
+    border-color: var(--classlift-blue);
     color: white;
 }
 
 .page-link {
-    color: #007bff;
+    color: var(--classlift-link);
 }
 
 @media (max-width: 768px) {
     .management-table-wrapper {
         overflow-x: auto;
+    }
+}
+
+.management-form-table {
+    border-collapse: collapse;
+    text-align: left;
+    vertical-align: top;
+}
+
+.management-form-table--add {
+    width: 90%;
+}
+
+.management-form-table--edit {
+    width: 70%;
+}
+
+.management-form-table--coach-edit {
+    width: 50%;
+}
+
+.management-form-table td {
+    padding: 8px;
+}
+
+.management-form-table input[type="text"],
+.management-form-table input[type="number"],
+.management-form-table select {
+    max-width: 100%;
+}
+
+.management-form__input--full {
+    width: 100%;
+}
+
+.management-form__input--medium {
+    width: 60%;
+}
+
+.management-form__instruction {
+    font-size: 0.7em;
+    color: var(--classlift-muted-text);
+}
+
+.management-form__instruction--block {
+    display: block;
+}
+
+.management-form__actions {
+    text-align: left;
+    padding: 20px 16px 16px 8px !important;
+}
+
+.management-form__save,
+.management-form__cancel {
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+.schedule-info {
+    padding: 20px 0;
+}
+
+.schedule-add-panel {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+}
+
+.schedule-field {
+    margin-bottom: 10px;
+}
+
+.schedule-input {
+    width: 40%;
+    padding: 5px;
+}
+
+.schedule-input--edit {
+    width: 50%;
+}
+
+.schedule-alert {
+    margin-top: 20px;
+}
+
+.schedule-section-title {
+    color: var(--classlift-blue-dark);
+    margin-bottom: 20px;
+}
+
+.coach-more-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.more-info-summary-wrapper,
+.more-info-tabs-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.more-info-summary-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.more-info-summary-table th,
+.more-info-summary-table td {
+    padding: 8px;
+    border: 1px solid var(--classlift-border);
+}
+
+.more-info-tabs {
+    flex-wrap: nowrap;
+    min-width: max-content;
+}
+
+.coach-more-info-back {
+    margin-top: 20px;
+}
+
+.coach-more-info-table th,
+.coach-more-info-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.coach-more-info-table thead tr {
+    background-color: #f2f2f2;
+}
+
+.payment-add-panel {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #f2f2f2;
+}
+
+.payment-form-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payment-form-table td {
+    padding: 8px;
+}
+
+.payment-field {
+    width: 40%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .schedule-input {
+        width: 100%;
+    }
+
+    .schedule-input--edit {
+        width: 100%;
+    }
+}
+
+.management-form__save {
+    background-color: #1B7BAB;
+    color: white;
+    border: 1px solid #1B7BAB;
+    cursor: pointer;
+}
+
+.management-form__save:hover,
+.management-form__save:focus {
+    background-color: #23A1E0;
+    border-color: #23A1E0;
+    color: white;
+}
+
+/* Reusable secondary action used for low-emphasis save and view actions. */
+.classlift-secondary-button {
+    background-color: #7bb4dc;
+    border: 1px solid #7bb4dc;
+    color: #fff;
+}
+
+.classlift-secondary-button:hover,
+.classlift-secondary-button:focus {
+    background-color: #6aa8d3;
+    border-color: #6aa8d3;
+    color: #fff;
+}
+
+.management-form__cancel {
+    background-color: #ddd;
+    color: black;
+    border: 1px solid #ccc;
+}
+
+.participation-back-link {
+    display: inline-block;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-bottom: 1rem;
+    padding: 8px 14px;
+    color: #26343a;
+    background-color: #e2eaed;
+    border: 1px solid #cbd8de;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.participation-back-link:hover,
+.participation-back-link:focus {
+    color: #26343a;
+    background-color: #cbd8de;
+    border-color: #aebfc7;
+}
+
+.participation-back-link:active {
+    color: #fff;
+    background-color: #71838b;
+    border-color: #71838b;
+}
+
+@media (max-width: 768px) {
+    .management-form-table--add,
+    .management-form-table--edit,
+    .management-form-table--coach-edit {
+        width: 100%;
+    }
+
+    .management-form__input--medium {
+        width: 100%;
+    }
+
+    .schedule-form button {
+        width: 100%;
+    }
+
+    table.mobile-stack form {
+        display: block !important;
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    table.mobile-stack form button {
+        width: 100%;
+    }
+
+    .group-course-children-table {
+        display: none !important;
+    }
+
+    .desktop-only-link-row {
+        display: block;
+    }
+}
+
+.mobile-only-link {
+    display: none;
+}
+
+@media (max-width: 991px) {
+    .payment-add-panel {
+        margin: 20px 0;
+        padding: 12px;
+    }
+
+    .payment-form-table,
+    .payment-form-table .payment-field {
+        width: 100%;
+    }
+
+    .payment-form-table td {
+        padding: 6px 0;
+    }
+
+    .payment-form-table input:not([type="radio"]),
+    .payment-form-table select,
+    .payment-form-table button {
+        min-height: 42px;
+    }
+
+    .payment-form-table button {
+        width: 100%;
+    }
+
+    .child-list-filter {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .child-list-filter .list-filter__input,
+    .child-list-filter .list-filter__search,
+    .child-list-filter .list-filter__reset {
+        width: 100%;
+        min-height: 42px;
+        margin-left: 0;
+        box-sizing: border-box;
+    }
+
+    .child-list-filter .list-filter__search,
+    .child-list-filter .list-filter__reset {
+        text-align: center;
+    }
+
+    .child-list-filter .list-filter__reset {
+        padding: 10px 12px;
+    }
+
+    .mobile-only-link {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 12px;
+        background-color: #1B7BAB;
+        border: 1px solid #1B7BAB;
+        border-radius: 4px;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .coach-more-info-table {
+        display: block;
+        width: 100%;
+    }
+
+    .coach-more-info-table thead {
+        display: none;
+    }
+
+    .coach-more-info-table tbody,
+    .coach-more-info-table tr,
+    .coach-more-info-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .coach-more-info-table tr {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+    }
+
+    .coach-more-info-table td {
+        padding: 8px 0;
+        border: 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .coach-more-info-table td:last-child {
+        border-bottom: 0;
+    }
+
+    .coach-more-info-table td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 2px;
+        color: #1B7BAB;
+        font-weight: 600;
+    }
+
+    .coach-more-info-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .more-info-summary-wrapper,
+    .more-info-tabs-wrapper {
+        max-width: 100%;
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .more-info-summary-table {
+        width: 760px;
+        min-width: 760px;
+    }
+
+    .more-info-summary-table th,
+    .more-info-summary-table td {
+        padding: 6px !important;
+    }
+
+    .more-info-tabs .nav-link {
+        white-space: nowrap;
+    }
+
+    #contentArea {
+        padding: 10px !important;
+        overflow-x: hidden;
+    }
+
+    #contentArea table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 }

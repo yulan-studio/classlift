@@ -12,6 +12,317 @@
     
 }
 
+<style>
+    .registration-add-panel {
+        margin: 30px 0;
+        padding: 20px;
+        background-color: #f2f2f2;
+        box-sizing: border-box;
+    }
+
+    .registration-add-panel form {
+        max-width: 760px;
+    }
+
+    .registration-add-panel select,
+    .registration-add-panel input[type="number"],
+    .registration-add-panel textarea {
+        max-width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 6px 10px;
+        font: inherit;
+        line-height: 1.5;
+    }
+
+    .registration-add-panel select {
+        padding: 8px 2.75rem 8px 12px !important;
+        background-position: right 0.75rem center;
+    }
+
+    /* Match the Bootstrap select used by Course/List, including its arrow. */
+    .registration-add-panel select.form-select {
+        appearance: none;
+        padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
+        background-color: #fff;
+        background-image: var(--bs-form-select-bg-img);
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+
+    .registration-add-panel select,
+    .registration-add-panel input[type="number"] {
+        min-height: 38px;
+    }
+
+    .registration-add-panel button[type="submit"] {
+        min-width: 110px;
+    }
+
+    #specialtyId {
+        margin-right: 10px;
+    }
+
+    .registration-course-selection {
+        margin-top: 8px;
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: center;
+        row-gap: 8px;
+    }
+
+    .registration-field-row {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: center;
+        column-gap: 0;
+        margin-bottom: 10px;
+    }
+
+    .registration-field-row label {
+        margin: 0;
+    }
+
+    .registration-field-row select {
+        width: 320px;
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .registration-dropdown {
+        width: 320px !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        box-sizing: border-box;
+    }
+
+    .registration-payment-row {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: center;
+        row-gap: 8px;
+    }
+
+    .registration-payment-row > label:not([style*="font-size"]) {
+        grid-column: 1;
+        width: auto;
+        margin: 0;
+    }
+
+    .registration-payment-row > select {
+        grid-column: 2;
+        margin: 0 !important;
+    }
+
+    .registration-payment-row > label[style*="font-size"] {
+        grid-column: 2;
+        width: auto;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .registration-payment-row > span {
+        grid-column: 2;
+    }
+
+    .registration-payment-row > #feeSection {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: start;
+        row-gap: 8px;
+        width: 100%;
+        margin-left: 0;
+        text-align: left;
+    }
+
+    #feeSection > label {
+        grid-column: 1;
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    #feeSection > input,
+    #feeSection > textarea {
+        grid-column: 2;
+        grid-row: auto;
+        box-sizing: border-box;
+        max-width: 100%;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .registration-course-selection label[for="courseId"],
+    .registration-course-selection #courseId {
+        display: block;
+        vertical-align: middle;
+    }
+
+    .registration-course-selection label[for="courseId"] {
+        margin-top: 0;
+        margin-right: 0;
+    }
+
+    .registration-course-selection #courseId {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .registration-course-selection #openSessionInfo {
+        display: block;
+        vertical-align: middle;
+        grid-column: 2;
+    }
+
+    .registration-add-panel form > label,
+    .registration-add-panel form > select,
+    .registration-add-panel form > div[style*="margin-top"] > label,
+    .registration-add-panel form > div[style*="margin-top"] > select {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .registration-add-panel form > label,
+    .registration-add-panel form > div[style*="margin-top"] > label {
+        width: 150px;
+    }
+
+    .registration-add-panel form > select,
+    .registration-add-panel form > div[style*="margin-top"] > select {
+        width: 320px;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .registration-add-panel form > label,
+    .registration-add-panel form > div[style*="margin-top"] > label {
+        margin-bottom: 10px;
+    }
+
+    .registration-add-panel form > div[style*="margin-top"] {
+        margin-top: 16px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .registration-add-panel label[style*="font-size"] {
+        width: auto;
+        white-space: nowrap;
+        margin-left: 8px;
+    }
+
+    .registration-course-selection #courseId {
+        width: 320px;
+        max-width: 100%;
+    }
+
+    @@media (max-width: 767px) {
+        .registration-add-panel {
+            margin: 20px 0;
+            padding: 14px 12px;
+        }
+
+        .registration-add-panel form {
+            width: 100%;
+        }
+
+        .registration-course-selection {
+            display: block;
+        }
+
+        .registration-field-row {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .registration-payment-row {
+            display: block;
+        }
+
+        .registration-field-row select {
+            width: 100% !important;
+        }
+
+        .registration-dropdown {
+            width: 100% !important;
+        }
+
+        .registration-add-panel label,
+        .registration-add-panel select,
+        .registration-add-panel input[type="number"],
+        .registration-add-panel textarea {
+            display: block;
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .registration-add-panel form > label,
+        .registration-add-panel form > div[style*="margin-top"] > label {
+            width: 100%;
+        }
+
+        .registration-add-panel form > select,
+        .registration-add-panel form > div[style*="margin-top"] > select {
+            width: 100% !important;
+            margin-bottom: 0;
+        }
+
+        .registration-course-selection #courseId {
+            width: 100% !important;
+        }
+
+        .registration-add-panel form > label,
+        .registration-add-panel form > div[style*="margin-top"] > label {
+            margin-bottom: 0;
+        }
+
+        .registration-add-panel label[style*="font-size"] {
+            width: 100%;
+            white-space: normal;
+            margin-left: 0;
+        }
+
+        .registration-add-panel select,
+        .registration-add-panel input[type="number"] {
+            min-height: 42px;
+            margin-top: 5px;
+        }
+
+        .registration-add-panel textarea {
+            min-height: 90px;
+            margin-top: 5px;
+        }
+
+        .registration-course-selection #courseId {
+            margin-left: 0;
+        }
+
+        .registration-add-panel label[style*="font-size"] {
+            margin-top: 7px;
+            line-height: 1.35;
+        }
+
+        .registration-add-panel button[type="submit"] {
+            display: block;
+            width: 100%;
+            min-height: 42px;
+            margin-top: 8px;
+        }
+
+        .registration-add-panel #openSessionInfo,
+        .registration-add-panel #feeSection,
+        .registration-add-panel #activityFeeSection {
+            margin-left: 0 !important;
+        }
+    }
+</style>
+
 
 
 <!-- ✅ Table Showing Already Registered Courses -->
@@ -22,7 +333,7 @@
 </div>
 
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="management-table-wrapper"><table class="management-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Course</th>
@@ -98,7 +409,7 @@
                             <form method="post" action="/Child/UnregisterCourse">
                                 <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
                                 <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                                <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+                                <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
                                     Remove
                                 </button>
                             </form>
@@ -149,7 +460,7 @@
             </tr>
         }
     </tbody>
-</table>
+</table></div>
 
 
 
@@ -170,7 +481,7 @@
 
 
 
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+<div class="registration-add-panel">
 
 
 
@@ -180,31 +491,34 @@
         <input type="hidden" name="childId" value="@Model.Child.ChildID" />
 
         <!-- Select Specialty First -->
-        <label for="specialtyId">Select Specialty:</label>
-        <select id="specialtyId" name="specialtyId" required onchange="fetchCoursesBySpecialty(this.value)">
-            <option value="">-- Select Specialty --</option>
-            @foreach (var specialty in ViewBag.SpecialtyList)
-
-            {
-                <option value="@specialty.Value">@specialty.Text</option>
-            }
-        </select>
+        <div class="registration-field-row">
+            <label for="specialtyId">Select Specialty:</label>
+            <select id="specialtyId" name="specialtyId" class="registration-dropdown form-select" required onchange="fetchCoursesBySpecialty(this.value)">
+                <option value="">-- Select Specialty --</option>
+                @foreach (var specialty in ViewBag.SpecialtyList)
+                {
+                    <option value="@specialty.Value">@specialty.Text</option>
+                }
+            </select>
+        </div>
 
         <!-- Select Course Based on Specialty -->
-        <label for="courseId">Select Course:</label>
-        <select id="courseId" name="courseId" required onchange="checkIfGroupClass(this.value)">
-            <option value="">-- Select Course --</option>
-        </select>
+        <div class="registration-course-selection">
+            <label for="courseId">Select Course:</label>
+            <select id="courseId" name="courseId" class="registration-dropdown form-select" required onchange="checkIfGroupClass(this.value)">
+                <option value="">-- Select Course --</option>
+            </select>
 
-        <span id="openSessionInfo" style="display: none; margin-left: 10px; color: darkslategray;">
-            Open Sessions: <strong id="openSessionCount">0</strong>
-        </span>
+            <span id="openSessionInfo" style="display: none; margin-left: 10px; color: darkslategray;">
+                Open Sessions: <strong id="openSessionCount">0</strong>
+            </span>
+        </div>
 
         <input type="hidden" name="scheduledHours" value="0" />
-        <div style="margin-top: 20px; margin-bottom:20px;">
+        <div class="registration-payment-row" style="margin-top: 20px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label for="paymentModel">Payment Model:</label>
-            <select id="paymentModel" name="paymentModel" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
+            <select id="paymentModel" name="paymentModel" class="registration-dropdown form-select" required onchange="toggleCourseFeeInput(this);updateDescription(this);">
             <option value="">-- Select Payment Model --</option>
             <option value="Direct">Direct</option>
             @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
@@ -231,7 +545,7 @@
         </span>
         </div>
 
-        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
+        <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
     </form>
 
 </div>
@@ -245,7 +559,7 @@
     <h4 style="color:steelblue">- Activities -</h4>
 </div>
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<div class="management-table-wrapper"><table class="management-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Activity Title</th>
@@ -284,7 +598,7 @@
                         <form method="post" action="/Child/UnregisterActivity">
                             <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
                             <input type="hidden" name="childId" value="@enrollment.ChildID" />
-                            <button type="submit" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(
+                            <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer; @(
                                 enrollment.IsPaid ||
                                 enrollment.Status == "Confirmed" ||
                                 enrollment.Status == "Canceled" ||
@@ -327,7 +641,7 @@
             </tr>
         }
     </tbody>
-</table>
+</table></div>
 
 
 
@@ -345,7 +659,7 @@
     </div>
 </div>
 
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
+<div class="registration-add-panel">
 
 <!-- ✅ Form to Enroll Child in an Activity -->
 <b>Register @Model.Child.Name in Activity</b>
@@ -354,18 +668,20 @@
 <form method="post" action="/Child/RegisterActivity">
     <input type="hidden" name="childId" value="@Model.Child.ChildID" />
 
-    <label for="activityId">Select Activity:</label>
-    <select id="activityId" name="activityId" required onchange="updateActivityFeeDetails()">
+    <div class="registration-field-row">
+        <label for="activityId">Select Activity:</label>
+    <select id="activityId" name="activityId" class="form-select" required onchange="updateActivityFeeDetails()">
         <option value="">-- Select Activity --</option>
         @foreach (var activity in ViewBag.ActivityList)
         {
             <option value="@activity.Value" data-cost="@activity.Cost">@activity.Text</option>
         }
     </select>
-        <div style="margin-top: 10px; margin-bottom:20px;">
+    </div>
+        <div class="registration-payment-row" style="margin-top: 10px; margin-bottom:20px;">
         <!-- Select Payment Model -->
         <label @* for="PaymentModel2" *@>Payment Model:</label>
-            <select id="activityPaymentModel" name="paymentModel" required onchange="updateActivityFeeDetails()">
+            <select id="activityPaymentModel" name="paymentModel" class="form-select" required onchange="updateActivityFeeDetails()">
             <option value="">-- Select Payment Model --</option>
             <option value="Token">Token</option>
             <option value="Direct">Direct</option>
@@ -386,7 +702,7 @@
         </span>
      </div>
 
-    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
+    <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Register</button>
         @* <small style="color:darkslategray">   - Open activities are shown here</small> *@
 </form>
 </div>
@@ -467,12 +783,12 @@
         const feeSection = document.getElementById("feeSection");
 
         if (paymentModel === "Direct") {
-            feeSection.style.display = "block";
+            feeSection.style.display = "grid";
             document.getElementById("totalCost").setAttribute("required", "required");
         }
         else if (paymentModel === "Token") {
             if (usesSessionFee) {
-                feeSection.style.display = "block";
+            feeSection.style.display = "grid";
                 document.getElementById("totalCost").setAttribute("required", "required");
 
 
@@ -485,7 +801,7 @@
         }
         else if (paymentModel === "OAP") {
             
-                feeSection.style.display = "block";
+                feeSection.style.display = "grid";
                 document.getElementById("totalCost").setAttribute("required", "required");
          
         }
