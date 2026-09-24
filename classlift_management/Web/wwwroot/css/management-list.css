@@ -213,6 +213,14 @@ textarea[readonly] {
     }
 }
 
+.management-page-title {
+    margin: 0 0 1.5rem;
+    color: #152238;
+    font-size: clamp(1.45rem, 2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
 .management-table {
     width: 100%;
     border-collapse: collapse;
