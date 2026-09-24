@@ -1,10 +1,24 @@
 ﻿@model Core.ViewModels.ChildSchedulesToConfirmViewModel
 
 
-<h2>Confirmations</h2>
+<style>
+    .confirmations-page { width: 100%; margin: 0 auto; padding: 1.5rem 1rem 3rem; box-sizing: border-box; }
+    .confirmations-page h2 { margin: 0; color: #152238; font-size: clamp(1.6rem, 2.5vw, 2rem); font-weight: 700; }
+    .confirmations-title { margin: 0; color: #152238; font-size: clamp(1.6rem, 2.5vw, 2rem); font-weight: 700; line-height: 1.2; }
+    .confirmation-section-title { margin: 1.5rem 0 .85rem; color: #1b7bab !important; font-size: 1.25rem; font-weight: 700; }
+    .table-primary th { background-color: var(--classlift-blue-light) !important; color: #000; }
+    .card { border: 1px solid #d8e7f3; border-radius: 12px; box-shadow: 0 3px 12px rgba(24, 47, 76, .06); }
+    .btn-primary { border-color: #7bb4dc; background-color: #7bb4dc; color: #fff; }
+    .btn-primary:hover { border-color: #6aa8d3; background-color: #6aa8d3; color: #fff; }
+    @@media (max-width: 767px) {
+        table { min-width: 760px; }
+    }
+</style>
+<div class="confirmations-page">
+<h2 class="confirmations-title">Confirmations</h2>
 
 <div style="padding-top: 20px; padding-bottom: 20px">
-    <h4 style="color:steelblue">- Courses -</h4>
+    <h4 class="confirmation-section-title">Courses</h4>
 </div>
 
 @if (TempData["SuccessMessage2"] != null)
@@ -260,7 +274,7 @@
 }
 
 <div style="padding-top: 20px; padding-bottom: 20px">
-    <h4 style="color:steelblue">- Activities -</h4>
+    <h4 class="confirmation-section-title">Activities</h4>
 </div>
 
 @if (TempData["SuccessMessage3"] != null)
@@ -347,10 +361,12 @@
     }
 
 }
+</div>
 else
 {
-
+    <div class="confirmations-page">
     <div style="text-align: left; padding-top: 30px;">No activity available for confirmation.</div>
+    </div>
 
 
 
