@@ -134,8 +134,8 @@
                 }
             }
 
-            <table class="mobile-stack table table-bordered mt-3 @(course.CourseType == "Group" ? "group-course-children-table" : "")">
-                <thead class="table-primary">
+            <table class="management-table mobile-stack table table-bordered mt-3 @(course.CourseType == "Group" ? "group-course-children-table" : "")">
+                <thead class="management-table-header">
                     <tr>
                         <th>@CurrentTenant.Terminology.ParticipantSingular</th>
                         @* <th class="desktop-only">Birthday</th> *@
