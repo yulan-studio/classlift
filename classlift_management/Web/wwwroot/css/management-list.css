@@ -225,6 +225,12 @@ textarea[readonly] {
     border: 1px solid var(--classlift-border);
 }
 
+.management-table tbody tr,
+.management-table tbody td {
+    --bs-table-bg: #fbfcfd;
+    background-color: #fbfcfd !important;
+}
+
 .management-table thead tr {
     background-color: #f2f2f2;
 }
