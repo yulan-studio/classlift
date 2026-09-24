@@ -129,6 +129,35 @@
         grid-column: 2;
     }
 
+    .registration-payment-row > #feeSection {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        align-items: start;
+        row-gap: 8px;
+        width: 100%;
+        margin-left: 0;
+        text-align: left;
+    }
+
+    #feeSection > label {
+        grid-column: 1;
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    #feeSection > input,
+    #feeSection > textarea {
+        grid-column: 2;
+        grid-row: auto;
+        box-sizing: border-box;
+        max-width: 100%;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
     .registration-course-selection label[for="courseId"],
     .registration-course-selection #courseId {
         display: block;
@@ -754,12 +783,12 @@
         const feeSection = document.getElementById("feeSection");
 
         if (paymentModel === "Direct") {
-            feeSection.style.display = "block";
+            feeSection.style.display = "grid";
             document.getElementById("totalCost").setAttribute("required", "required");
         }
         else if (paymentModel === "Token") {
             if (usesSessionFee) {
-                feeSection.style.display = "block";
+            feeSection.style.display = "grid";
                 document.getElementById("totalCost").setAttribute("required", "required");
 
 
@@ -772,7 +801,7 @@
         }
         else if (paymentModel === "OAP") {
             
-                feeSection.style.display = "block";
+                feeSection.style.display = "grid";
                 document.getElementById("totalCost").setAttribute("required", "required");
          
         }
