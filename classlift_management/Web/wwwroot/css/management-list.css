@@ -221,6 +221,16 @@ textarea[readonly] {
     line-height: 1.2;
 }
 
+/* Consistent page-level headings for management and form pages. */
+main.container > h1,
+main.container > h2 {
+    margin-top: 0;
+    color: #152238;
+    font-size: clamp(1.45rem, 2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
 .management-table {
     width: 100%;
     border-collapse: collapse;
