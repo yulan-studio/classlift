@@ -76,13 +76,17 @@
 
             table.mobile-stack a {
                 display: inline-block;
+                width: 100%;
+                box-sizing: border-box;
                 margin-top: 6px;
                 padding: 6px 12px;
                 background: #1B7BAB;
                 color: #fff;
                 text-decoration: none;
                 border-radius: 4px;
+                text-align: center;
             }
+
     }
 </style>
 
@@ -105,9 +109,9 @@
                         ? $" | {course.CourseDescription}"
                         : ""))
         &nbsp; &nbsp; &nbsp;
-        @if (course.CourseType == "Group")
+                @if (course.CourseType == "Group")
                 {
-                    <a href="@Url.Action("Attendance", "Course", new { courseId = course.CourseID })">
+                    <a class="desktop-only" href="@Url.Action("Attendance", "Course", new { courseId = course.CourseID })">
                         View Attendance
                     </a>
 
@@ -120,17 +124,22 @@
                 <p class="mb-2">
                     <strong>Session Count:</strong> @course.SessionCount
                 </p>
+                @if (course.CourseType == "Group")
+                {
+                    <p class="mb-2 desktop-only-link-row">
+                        <a class="mobile-only-link" href="@Url.Action("Attendance", "Course", new { courseId = course.CourseID })">
+                            View Attendance
+                        </a>
+                    </p>
+                }
             }
 
-            <table class="mobile-stack table table-bordered mt-3">
-                <thead class="table-primary">
+            <table class="management-table mobile-stack table table-bordered mt-3 @(course.CourseType == "Group" ? "group-course-children-table" : "")">
+                <thead class="management-table-header">
                     <tr>
                         <th>@CurrentTenant.Terminology.ParticipantSingular</th>
-                        <th class="desktop-only">Gender</th>
-                        <th class="desktop-only">City</th>
                         @* <th class="desktop-only">Birthday</th> *@
-                        <th class="desktop-only">Registration Date</th>
-                        <th class="desktop-only">Scheduled</th>
+                        <th class="desktop-only">@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")</th>
                         @if (course.CourseType == "Group")
                         {
                             <th>Leave</th>
@@ -139,9 +148,8 @@
                         else
                         {
                             <th>Request to Reschedule</th>
-                            <th class="desktop-only">Deleted</th>
                         }
-                        <th>Completed</th>
+                        <th class="@(course.CourseType != "Group" ? "desktop-only" : "")">Completed</th>
 
                         @if (course.CourseType != "Group")
                         {
@@ -157,16 +165,13 @@
                         foreach (var child in course.RegisteredChildren)
                         {
                             <tr>
-                                <td data-label="@CurrentTenant.Terminology.ParticipantSingular Name">@child.Name</td>
-                                <td class="desktop-only" data-label="Gender">@child.Gender</td>
-                                <td class="desktop-only" data-label="City">@child.City</td>
+                                <td data-label="@CurrentTenant.Terminology.ParticipantSingular Name">
+                                    @child.Name
+                                </td>
                                @*  <td class="desktop-only" data-label="Birthday">
                                     @(child.BirthDate?.ToString("yyyy-MM-dd") ?? "N/A")
                                 </td> *@
-                                <td class="desktop-only" data-label="Registration Date">
-                                    @child.RegisteredDate.ToString("yyyy-MM-dd")
-                                </td>
-                                <td class="desktop-only" data-label="Scheduled">@child.Scheduled</td>
+                                <td class="@(course.CourseType == "Group" ? "desktop-only" : "")" data-label="@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")">@child.Scheduled</td>
                                 @if (course.CourseType == "Group")
                                 {
                                     <td data-label="Leave">@child.Leave</td>
@@ -174,13 +179,12 @@
                                 }
                                 else
                                 {
-                                    <td data-label="Request to Reschedule"
+                                    <td class="request-count-cell" data-label="Request to Reschedule"
                                         style="background-color:@(child.RequestToReschedule > 0 ? "#FFDBF6" : "transparent")">
                                         @child.RequestToReschedule
                                     </td>
-                                    <td class="desktop-only" data-label="Deleted">@child.Deleted</td>
                                 }
-                                <td data-label="Completed">@child.Completed</td>
+                                <td class="@(course.CourseType != "Group" ? "desktop-only" : "")" data-label="Completed">@child.Completed</td>
 
                                 @if (course.CourseType != "Group")
                                 {
@@ -206,7 +210,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="@(course.CourseType == "Group" ? 8 : 10)" class="text-center fw-bold bg-light">
+                            <td colspan="@(course.CourseType == "Group" ? 5 : 6)" class="text-center fw-bold bg-light">
                                 No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant() for this course.
                             </td>
                         </tr>

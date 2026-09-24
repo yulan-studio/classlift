@@ -15,6 +15,8 @@ using Core.Services;
 using X.PagedList;
 using Core.Email.Notifications;
 using Core.Email.Templates;
+using Web.Filters;
+using Core.Contexts;
 
 //using X.PagedList.Mvc.Core;
 
@@ -34,6 +36,8 @@ namespace Web.Controllers.Courses
         private readonly ICoachService _coachService;
         private readonly ISpecialtyService _specialtyService;
         private readonly ICourseEnrollmentService _courseEnrollmentService;
+        private readonly IChildBalanceService _childBalanceService;
+        private readonly AppDbContext _dbContext;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
         private readonly CurrentTenant _currentTenant;
@@ -41,7 +45,7 @@ namespace Web.Controllers.Courses
         private readonly ILogger<CourseController> _logger;
 
 
-        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CourseController> logger)
+        public CourseController(ICourseService courseService, ICourseEnrollmentService courseEnrollmentService, ICoachService coachService, ISpecialtyService specialtyService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CourseController> logger, IChildBalanceService childBalanceService, AppDbContext dbContext)
         {
             _courseService = courseService;
             _coachService = coachService;
@@ -52,6 +56,8 @@ namespace Web.Controllers.Courses
             _currentTenant = currentTenant;
             _emailNotifications = emailNotifications;
             _logger = logger;
+            _childBalanceService = childBalanceService;
+            _dbContext = dbContext;
         }
 
         [Authorize(Roles = "Staff")]
@@ -521,6 +527,7 @@ namespace Web.Controllers.Courses
 
             var allUpcomingSessions = await _courseEnrollmentService.GetAllUpcomingSessionsByCourseAsync(courseId);
             var allRegisteredUpcomingSessionIds = await _courseEnrollmentService.GetRegisteredUpcomingSessionsByCourseAsync(courseId);
+            var refundedSessionEnrollmentIds = await _childBalanceService.GetRefundedSessionEnrollmentIdsAsync(courseId);
 
             ViewBag.CourseID = courseId;
             var currentUser = await _userManager.GetUserAsync(User);
@@ -537,7 +544,8 @@ namespace Web.Controllers.Courses
                 //CanceledSessions = (List<CourseEnrollment>?)canceledSessions,
                 ClosedSessions = (List<CourseEnrollment>?)closedSessions,
                 AllUpcomingSessions = (List<CourseEnrollment>?)allUpcomingSessions,
-                RegisteredUpcomingSessionIds = allRegisteredUpcomingSessionIds
+                RegisteredUpcomingSessionIds = allRegisteredUpcomingSessionIds,
+                RefundedSessionEnrollmentIds = refundedSessionEnrollmentIds
 
             };
 
@@ -650,6 +658,57 @@ namespace Web.Controllers.Courses
            
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateReplacementSession(int canceledSessionId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, string? staffNote)
+        {
+            var canceled = await _courseEnrollmentService.GetAsync(canceledSessionId);
+            var user = await _userManager.GetUserAsync(User);
+            if (canceled == null || canceled.Status != "Canceled" || user == null)
+                return BadRequest("Only a canceled session can have a replacement.");
+            if ((await _childBalanceService.GetRefundedSessionEnrollmentIdsAsync(canceled.CourseID))
+                .Contains(canceledSessionId))
+                return BadRequest("A refunded session cannot also be replaced.");
+            if (!_timeZoneService.IsValidTimeZone(scheduledTimeZoneId))
+                return BadRequest("Please select a valid event time zone.");
+
+            var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
+            var utc = _timeZoneService.ConvertLocalToUtc(localTime, scheduledTimeZoneId);
+            if (utc <= DateTime.UtcNow)
+                return BadRequest("Replacement time must be in the future.");
+
+            var replacementId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
+                canceled.CourseID,
+                new ScheduleTiming { ScheduledAtUtc = utc, ScheduledLocalTime = localTime, TimeZoneId = scheduledTimeZoneId },
+                scheduledHours, location, staffNote ?? $"Replacement for canceled session on {canceled.ScheduledAt?.ToString("yyyy-MM-dd") ?? "unknown date"}", user);
+            if (replacementId <= 0)
+                return BadRequest("The replacement session could not be created.");
+
+            TempData["SuccessMessage"] = "Replacement session created successfully.";
+            return RedirectToAction("ManageSessions", new { courseId = canceled.CourseID });
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RefundSessionCost(int canceledSessionId)
+        {
+            if (!CourseCancellationPolicy.CanRefundSessionCost(_currentTenant))
+                return Forbid();
+
+            var session = await _courseEnrollmentService.GetAsync(canceledSessionId);
+            var user = await _userManager.GetUserAsync(User);
+            if (session == null || user == null || session.Status != "Canceled")
+                return BadRequest("Only a canceled session can be refunded.");
+
+            var refunded = await _childBalanceService.RefundCanceledSessionCostAsync(canceledSessionId, user.Id);
+            TempData[refunded ? "SuccessMessage" : "ErrorMessage"] = refunded
+                ? "Session cost refunded to the affected participants' course balances."
+                : "No eligible participant balance was found, or this session was already refunded.";
+            return RedirectToAction("ManageSessions", new { courseId = session.CourseID });
+        }
+
 
 
         
@@ -665,6 +724,8 @@ namespace Web.Controllers.Courses
             var registeredSessionIds = await _courseEnrollmentService
                 .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
             ViewBag.HasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
+            var currentUser = await _userManager.GetUserAsync(User);
+            ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
             return PartialView("_EditSession", session);
         }
@@ -674,7 +735,9 @@ namespace Web.Controllers.Courses
         // ✅ Save Session (Add / Edit)
         [Authorize(Roles = "Staff")]
         [HttpPost("SaveSession")]
-        public async Task<IActionResult> SaveSession(int enrollmentId, string location, string? staffNote, string status)
+        public async Task<IActionResult> SaveSession(int enrollmentId, string location, string? staffNote, string status,
+            string? cancellationResolution, DateTime? replacementScheduledAt, string? replacementTimeZoneId,
+            decimal? replacementScheduledHours, string? replacementLocation, string? replacementStaffNote)
         {
 
             if (!ModelState.IsValid)
@@ -693,14 +756,68 @@ namespace Web.Controllers.Courses
                     .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
                 var hasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
 
-                if (hasRegistrations)
+                if (hasRegistrations || status == "Canceled")
                     session.Status = status;
 
                 if (hasRegistrations && status == "Canceled")
                 {
-                    // The session and all active child registrations are canceled in one database save.
-                    result = await _courseEnrollmentService
-                        .CancelSessionAndChildRegistrationsAsync(session, staffNote);
+                    if (cancellationResolution is not ("Replacement" or "Refund"))
+                        return Json(new { success = false, message = "Choose Create Replacement or Refund Session Cost before canceling." });
+                    if (cancellationResolution == "Refund" && !CourseCancellationPolicy.CanRefundSessionCost(_currentTenant))
+                        return Json(new { success = false, message = "This tenant plan does not support balance refunds. Create a replacement session instead." });
+                    if (cancellationResolution == "Replacement" && !replacementScheduledAt.HasValue)
+                        return Json(new { success = false, message = "Enter the replacement schedule before canceling this session." });
+                    if (cancellationResolution == "Replacement")
+                    {
+                        if (string.IsNullOrWhiteSpace(replacementTimeZoneId) || !_timeZoneService.IsValidTimeZone(replacementTimeZoneId))
+                            return Json(new { success = false, message = "Choose a valid replacement time zone." });
+                        var replacementCheckLocal = DateTime.SpecifyKind(replacementScheduledAt!.Value, DateTimeKind.Unspecified);
+                        var replacementCheckUtc = _timeZoneService.ConvertLocalToUtc(replacementCheckLocal, replacementTimeZoneId);
+                        if (replacementCheckUtc <= DateTime.UtcNow || replacementScheduledHours is null || replacementScheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
+                            return Json(new { success = false, message = "Enter a valid future replacement schedule, duration, and location." });
+                    }
+
+                    await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+                    try
+                    {
+                        // The session and all active child registrations are canceled in this transaction.
+                        result = await _courseEnrollmentService
+                            .CancelSessionAndChildRegistrationsAsync(session, staffNote);
+
+                        if (result && cancellationResolution == "Refund")
+                        {
+                            result = await _childBalanceService.RefundCanceledSessionCostAsync(session.EnrollmentID, user?.Id ?? 0);
+                        }
+                        else if (result && cancellationResolution == "Replacement")
+                        {
+                            var replacementLocal = DateTime.SpecifyKind(replacementScheduledAt.Value, DateTimeKind.Unspecified);
+                            var replacementUtc = _timeZoneService.ConvertLocalToUtc(replacementLocal, replacementTimeZoneId);
+                            var replacementId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
+                                session.CourseID,
+                                new ScheduleTiming { ScheduledAtUtc = replacementUtc, ScheduledLocalTime = replacementLocal, TimeZoneId = replacementTimeZoneId },
+                                replacementScheduledHours.Value, location, staffNote ?? $"Replacement for canceled session on {session.ScheduledAt?.ToString("yyyy-MM-dd") ?? "unknown date"}", user!);
+                            result = replacementId > 0;
+                        }
+
+                        if (!result)
+                        {
+                            await transaction.RollbackAsync();
+                            return Json(new { success = false, message = "The cancellation resolution could not be completed. No changes were saved." });
+                        }
+
+                        await transaction.CommitAsync();
+                    }
+                    catch
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                }
+                else if (!hasRegistrations && status == "Canceled")
+                {
+                    // An unused session can be canceled directly because there
+                    // are no child registrations that need a replacement or refund.
+                    result = await _courseEnrollmentService.UpdateSessionAsync(session);
                 }
                 else
                 {

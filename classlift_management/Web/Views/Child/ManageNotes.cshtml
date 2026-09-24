@@ -13,7 +13,27 @@
     ViewData["Title"] = "Child Notes";
 }
 
-<div style="padding: 20px; background-color: #f2f2f2">
+<style>
+    .notes-panel .classlift-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 8px 14px !important;
+        border-radius: 5px !important;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 767px) {
+        .notes-panel .classlift-button {
+            height: 42px !important;
+            min-height: 42px !important;
+        }
+    }
+</style>
+
+<div class="notes-panel" style="padding: 20px; background-color: #f2f2f2">
 <h3 style="padding-bottom:10px">Notes</h3>
 
 
@@ -31,7 +51,7 @@
             <span asp-validation-for="Notes" class="text-danger"></span>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary classlift-button">Save</button>
     </form>
 
 

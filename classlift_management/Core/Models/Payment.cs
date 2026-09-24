@@ -11,6 +11,9 @@ namespace Core.Models
 {
     public class Payment
     {
+        [NotMapped]
+        public string? StaffName { get; set; }
+
         [Key]
         public int PaymentID { get; set; } // Primary key for the table
 

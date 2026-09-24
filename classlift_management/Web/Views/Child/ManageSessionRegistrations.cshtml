@@ -4,9 +4,41 @@
     ViewData["Title"] = "Manage Sessions";
 }
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
-    <thead>
-        <tr style="background-color: #f2f2f2;">
+<style>
+    .session-registration-section {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .session-registration-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .session-registration-table {
+        min-width: 650px;
+    }
+
+    @@media (max-width: 991px) {
+        .session-registration-table-wrapper {
+            overflow-x: scroll;
+        }
+
+        .session-registration-save-note {
+            display: block;
+            margin-top: 6px;
+        }
+    }
+</style>
+
+<div class="session-registration-section">
+<div class="session-registration-table-wrapper">
+<table class="management-table session-registration-table" style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead class="child-management-table-header">
+        <tr>
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Birth Date</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Gender</th>
@@ -32,8 +64,10 @@
         </tr>
     </tbody>
 </table>
+</div>
+</div>
 
-<div style="margin-top: 30px">
+<div class="session-registration-section" style="margin-top: 30px">
     
     <p><strong>Course Name:</strong> @Model.Course.Title</p>
     <p><strong>Session Count:</strong> @Model.Course.SessionCount</p>
@@ -45,7 +79,7 @@
   
 </div>
 
-<a href="/Child/Participation/@Model.Child.ChildID?tab=ManageRegistrations" style="display: inline-block; margin-top: 20px; background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Back to @CurrentTenant.Terminology.ParticipantSingular Courses List</a>
+<a href="/Child/Participation/@Model.Child.ChildID?tab=ManageRegistrations" class="participation-back-link">Back to @CurrentTenant.Terminology.ParticipantSingular Courses List</a>
 
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
@@ -53,12 +87,13 @@
 
 <h3>All Sessions</h3>
 
-<form method="post" asp-action="UpdateAllSessions">
+<form class="session-registration-section" method="post" asp-action="UpdateAllSessions">
     <input type="hidden" name="ChildID" value="@Model.ChildID" />
     <input type="hidden" name="CourseID" value="@Model.CourseID" />
 
-    <table class="table">
-        <thead>
+    <div class="session-registration-table-wrapper">
+    <table class="management-table table session-registration-table">
+        <thead class="child-management-table-header">
             <tr>
                 <th>Scheduled At</th>
                 <th>Scheduled Hours</th>
@@ -165,93 +200,14 @@
             }
         </tbody>
     </table>
+    </div>
 
     <div style="margin-bottom: 30px;">
-        <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button>
-        <small style="color:darkslategray"> - Click 'Save Changes' to save changes in Status/Staff Note.</small>
+        <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button>
+        <small class="session-registration-save-note" style="color: darkslategray;">- Click 'Save Changes' to save changes in Status/Staff Note.</small>
     </div>
 </form>
 
-@* <div style="margin-top: 20px;"></div>
 
-
-
-<h3>Scheduled Sessions</h3>
-
-<form method="post" asp-action="UpdateScheduledSessions">
-    <input type="hidden" name="ChildID" value="@Model.ChildID" />
-    <input type="hidden" name="CourseID" value="@Model.CourseID" />
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Scheduled At</th>
-                <th>Scheduled Hours</th>
-                <th>Status</th>
-                <th>@($"{CurrentTenant.Terminology.ParticipantSingular} Note")</th>
-                <th>Staff Note</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            @if (Model.ScheduledSessions.Any())
-            {
-                @for (int i = 0; i < Model.ScheduledSessions.Count; i++)
-                {
-                    <tr>
-                        <td>@Model.ScheduledSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
-                        <td>@Model.ScheduledSessions[i].ScheduledHours</td>
-                        <td>
-                            <select name="ScheduledSessions[@i].Status" class="form-select">
-                                <option value="Registered" selected="@("Registered" == Model.ScheduledSessions[i].Status)">Registered</option>
-                                <option value="Deleted" selected="@("Deleted" == Model.ScheduledSessions[i].Status)">Deleted</option>
-
-                            </select>
-                            <input type="hidden" name="ScheduledSessions[@i].EnrollmentID" value="@Model.ScheduledSessions[i].EnrollmentID" />
-                        </td>
-                        <td>@Model.ScheduledSessions[i].ParentNote</td>
-                        <td>
-                            <textarea name="ScheduledSessions[@i].StaffNote" class="form-control">@Model.ScheduledSessions[i].StaffNote</textarea>
-                        </td>
-                    </tr>
-                }
-            }
-
-
-
-
-            else
-            {
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 10px;">No session has been scheduled.</td>
-                </tr>
-            }
-
-            @if (TempData["SuccessMessage2"] != null)
-            {
-                <tr>
-                    <td colspan="5">
-                        <div class="alert alert-success">
-                            @TempData["SuccessMessage2"]
-                        </div>
-                    </td>
-                </tr>
-            }
-
-            @if (TempData["ErrorMessage2"] != null)
-            {
-                <tr>
-                    <td colspan="5">
-                        <div class="alert alert-danger">
-                            @TempData["ErrorMessage2"]
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save Changes</button>
-</form> *@
 
 

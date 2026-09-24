@@ -1272,6 +1272,9 @@ namespace Web.Controllers.User
         [HttpPost("RemovePayment")]
         public async Task<IActionResult> RemovePayment(int paymentID, int childId)
         {
+            TempData["ErrorMessage"] = "Payments cannot be deleted. Please record a correcting balance adjustment instead.";
+            return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+            /*
             try
             {
                 Core.Models.User user = await _userManager.GetUserAsync(User);
@@ -1328,6 +1331,8 @@ namespace Web.Controllers.User
             }
 
 
+            }
+            */
         }
 
         [Authorize(Roles = "Staff")]
@@ -1455,6 +1460,15 @@ namespace Web.Controllers.User
             var completedCourses = await _courseEnrollmentService.GetFinishedEnrollmentsByChildAsync(child.ChildID);
             var completedActivities = await _activityEnrollmentService.GetFinishedEnrollmentsByChildAsync(child.ChildID);
 
+            var courseSchedulesList = completedCourses
+                .GroupBy(e => e.Course)
+                .Select(group => new CourseSchedulesViewModel
+                {
+                    Course = group.Key,
+                    CourseID = group.Key.CourseID,
+                    Schedules = group.OrderBy(e => e.ScheduledAt).ToList()
+                }).ToList();
+
             switch (sortOrder)
             {
                 case "course":
@@ -1479,15 +1493,36 @@ namespace Web.Controllers.User
             }
 
 
-            EnrollmentsHistoryViewModel enrollmentHistory = new EnrollmentsHistoryViewModel
+            var scheduleHistory = new ChildSchedulesViewModel
             {
                 Child = child,
-                //CompletedCourses = (List<CourseEnrollment>)completedCourses,
-                CompletedCourses = completedCourses.ToList(),
-                CompletedActivities = (List<ActivityEnrollment>)completedActivities
+                ChildID = child.ChildID,
+                CoursesSchedules = courseSchedulesList,
+                ActivitySchedules = completedActivities
             };
 
-            return View("MyEnrollmentsHistory", enrollmentHistory);
+            return View("MyEnrollmentsHistory", scheduleHistory);
+        }
+
+        [Authorize(Roles = "Child")]
+        [HttpPost("SaveCompletedCourseFeedback")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveCompletedCourseFeedback(int enrollmentId, string? feedback)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var child = await _childService.GetByIdAsync(user.Id);
+            var session = await _courseEnrollmentService.GetAsync(enrollmentId);
+
+            if (child == null || session == null || session.ChildID != child.ChildID)
+                return BadRequest("The session does not belong to this participant.");
+
+            if (session.Status is not ("Completed" or "Canceled" or "OnLeave"))
+                return BadRequest("Feedback can only be saved for a finished session.");
+
+            session.ParentNote = feedback?.Trim();
+            await _courseEnrollmentService.UpdateSessionAsync(session);
+
+            return RedirectToAction(nameof(MyEnrollmentsHistory));
         }
 
 
@@ -1556,7 +1591,7 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [RequiresFeature(FeatureCodes.CreditTracking)]
         [HttpPost("FixBalance")]
-        public async Task<IActionResult> FixBalance(int childId, string actionType, decimal amount, string remarks, IFormFile file)
+        public async Task<IActionResult> FixBalance(int childId, string actionType, decimal amount, string remarks)
         {
 
             //string calculationPath = null;
@@ -1578,15 +1613,6 @@ namespace Web.Controllers.User
             //    calculationPath = $"/calculations/{uniqueFileName}";
             //}
 
-            string fileUrl = null;
-
-            if (file != null)
-            {
-                // Upload to R2
-                string fileName = String.Concat(childId, "-", DateTimeHelper.GetTorontoTime().ToString("yyyyMMdd-HHmmss"));
-                fileUrl = await _r2UploadService.UploadAsync(file, "balance", fileName);
-            }
-
             Core.Models.User user = await _userManager.GetUserAsync(User);
             //var userId = int.Parse(User.FindFirst("UserId").Value); // assuming you store UserId in claims
 
@@ -1595,7 +1621,7 @@ namespace Web.Controllers.User
                 actionType,
                 amount,
                 remarks,
-                fileUrl,
+                null,
                 user.Id
             );
 

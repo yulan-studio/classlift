@@ -20,7 +20,7 @@
 <form asp-action="Edit" method="post">
     <input type="hidden" name="coachId" value="@Model.CoachID" />
 
-    <table style="border-collapse: collapse; width: 50%; text-align: left;">
+    <table class="management-form-table management-form-table--coach-edit">
         <tr>
             <td style="padding: 8px;"><label for="name">Name:</label></td>
             <td style="padding: 8px;"><input type="text" name="name" value="@Model.Name" placeholder="Name" style="width: 100%;" /></td>
@@ -50,7 +50,7 @@
                         <option value="@specialty.Value" selected="@(isSelected ? "selected" : null)">@specialty.Text</option>
                     }
                 </select>
-                <small style="color: darkslategray;">You can hold CTRL to select multiple specialties</small>
+                <small class="management-form__instruction">You can hold CTRL to select multiple specialties</small>
             </td>
         </tr>
 
@@ -78,7 +78,7 @@
                         <option value="@city.Value" selected="@(city.Selected ? "selected" : null)">@city.Text</option>
                     }
                 </select>
-                <small id="cityHelp" style="display: block; color: darkslategray;">@(ViewBag.CityList.Count == 0 ? "Select a province first.":"") </small>
+                <small id="cityHelp" class="management-form__instruction management-form__instruction--block">@(ViewBag.CityList.Count == 0 ? "Select a province first.":"") </small>
             </td>
         </tr>
 
@@ -95,9 +95,9 @@
             <td style="padding: 8px;"><input type="text" name="password" value="@Model.Password" placeholder="Password" value="12345" style="width: 100%;" /></td>
         </tr> *@
         <tr>
-            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
-                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
-                <a href="/Coach/List" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+            <td colspan="2" class="management-form__actions">
+                <button type="submit" class="management-form__save">Save</button>
+                <a href="/Coach/List" class="management-form__cancel">Cancel</a>
             </td>
         </tr>
         <tr>

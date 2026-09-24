@@ -8,7 +8,20 @@
 <div style="padding-top: 20px;">
 </div>
 
-<table style="border-collapse: collapse; width: 100%; text-align: left;">
+<style>
+    .emergency-contacts-table-wrapper { width: 100%; overflow-x: auto; }
+    .emergency-contacts-table { width: 100%; min-width: 650px; border-collapse: collapse; text-align: left; }
+    .emergency-contact-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .emergency-contact-form input { width: 180px; min-height: 38px; padding: 6px 8px; box-sizing: border-box; }
+    @@media (max-width: 767px) {
+        .emergency-contacts-table-wrapper { overflow-x: scroll; -webkit-overflow-scrolling: touch; }
+        .emergency-contact-form { flex-direction: column; align-items: stretch; gap: 8px; }
+        .emergency-contact-form input, .emergency-contact-form button { width: 100%; min-height: 42px; box-sizing: border-box; }
+    }
+</style>
+
+<div class="emergency-contacts-table-wrapper">
+<table class="emergency-contacts-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Name</th>
@@ -37,10 +50,11 @@
         }
     </tbody>
 </table>
+</div>
 
 <div style="margin-bottom: 40px;"></div>
 
-<form asp-action="AddEmergencyContact" asp-route-coachId="@Model.CoachID" method="post">
+<form class="emergency-contact-form" asp-action="AddEmergencyContact" asp-route-coachId="@Model.CoachID" method="post">
     @Html.AntiForgeryToken()
     <input name="contactName" placeholder="Contact Name" required />
     <input name="relationship" placeholder="Relationship" required />

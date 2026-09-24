@@ -8,6 +8,49 @@
     //decimal total = ViewBag.TotalIncome;
 }
 
+<style>
+    .monthly-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .hours-details-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .hours-details-table {
+        width: 100%;
+        min-width: 520px;
+        table-layout: fixed;
+    }
+
+    .hours-details-table .hours-column {
+        text-align: right;
+    }
+
+    @@media (max-width: 767px) {
+        .monthly-summary {
+            display: block;
+        }
+
+        .monthly-summary .total-hours {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px;
+        }
+
+        .monthly-summary a {
+            display: inline-block;
+            padding: 6px 0;
+        }
+    }
+</style>
+
 @* <h2>Coach Income</h2>
 
 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
@@ -57,8 +100,8 @@
         
        
 
-        <div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom: 10px;">
-            <span style="width:16%; background-color:#f9f9f9;">
+        <div class="monthly-summary">
+            <span class="total-hours" style="background-color:#f9f9f9;">
                 <strong>Total Hours:</strong> @month.TotalHours
             </span>
 
@@ -73,13 +116,13 @@
 
      
 
-        <div id="details-@month.Year-@month.Month">
-            <table style="width:100%; table-layout:fixed;">
+        <div id="details-@month.Year-@month.Month" class="hours-details-wrapper">
+            <table class="hours-details-table">
                 <colgroup>
+                    <col style="width:15%;" />
                     <col style="width:20%;" />
-                    <col style="width:25%;" />
-                    <col style="width:35%;" />
-                    <col style="width:20%;" />
+                    <col style="width:50%;" />
+                    <col style="width:15%;" />
                 </colgroup>
 
                 <thead>
@@ -87,7 +130,7 @@
                         <th>Date</th>
                         <th>@CurrentTenant.Terminology.ParticipantSingular</th>
                         <th>Course</th>
-                        <th>Hours</th>
+                        <th class="hours-column">Hours</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,7 +140,7 @@
                             <td>@d.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToShortDateString()</td>
                             <td>@d.ChildName</td>
                             <td>@d.CourseName</td>
-                            <td>@d.Hours</td>
+                            <td class="hours-column">@d.Hours</td>
                         </tr>
                     }
                 </tbody>

@@ -12,6 +12,27 @@
     // decimal finalBalance = ViewBag.FinalBalance;
 }
 
+<style>
+    .balance-adjust-panel { margin: 30px 0; padding: 20px; background-color: #f2f2f2; box-sizing: border-box; max-width: 100%; overflow: hidden; }
+    .balance-adjust-form { margin-top: 20px; }
+    .balance-adjust-table { width: 100%; max-width: 100%; border-collapse: collapse; }
+    .balance-adjust-field { box-sizing: border-box; }
+    @@media (max-width: 991px) {
+        .balance-adjust-panel { margin: 20px 0; padding: 12px; }
+        .balance-adjust-panel, .balance-adjust-form, .balance-adjust-table { max-width: 100%; overflow-x: hidden; }
+        .balance-adjust-table, .balance-adjust-table td { white-space: normal !important; overflow-wrap: anywhere; }
+        .balance-adjust-table > tbody > tr,
+        .balance-adjust-table > tbody > tr > td { display: block; width: 100%; }
+        .balance-adjust-table > tbody > tr > td { padding: 0 0 4px !important; }
+        .balance-adjust-table > tbody > tr > td:first-child { padding-bottom: 2px !important; }
+        .balance-adjust-table > tbody > tr > td:last-child { padding-top: 2px !important; }
+        .balance-adjust-table .balance-adjust-field,
+        .balance-adjust-table button { width: 90% !important; min-height: 42px; margin: 0 !important; box-sizing: border-box; }
+        .balance-adjust-table textarea.balance-adjust-field { min-height: 100px; }
+        .balance-adjust-table > tbody > tr:last-child > td { padding-top: 6px !important; padding-bottom: 0 !important; }
+    }
+</style>
+
 <h3>Balance Statement</h3>
 
 <div style="padding-top: 20px;">
@@ -27,8 +48,8 @@
              <th style="padding: 10px; border: 1px solid #ddd;">Scheduled At</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Actual Hours</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Cost</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Screenshot</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Balance</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Staff</th>
         </tr>
     </thead>
     <tbody>
@@ -72,18 +93,8 @@
                             @($"${item.BalanceChange:F2}")
                         }
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">
-                        @if (!string.IsNullOrEmpty(item.Calculation))
-
-                        {
-                            <a href="@item.Calculation" target="_blank">
-                                <img src="@item.Calculation" alt="Calculation" width="100">
-                            </a>
-                        }
-
-                       
-                    </td>
                     <td style="padding: 10px; border: 1px solid #ddd;">$@item.Balance.ToString("F2")</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">@(item.StaffName ?? "")</td>
                 </tr>
             }
         }
@@ -130,14 +141,14 @@
 
 
 <!-- ✅ Form to Add a New Payment -->
-<div style="margin: 30px 0; padding: 20px; background-color: #f2f2f2">
-    <b>Adjust or Refund Balance</b>
+<div class="balance-adjust-panel">
+    <b>Adjust Balance or Refund</b>
     <div style="margin-bottom: 10px;"></div>
 <!-- Adjustment / Refund Form -->
-    <form method="post" asp-action="FixBalance" enctype="multipart/form-data"  style="margin-top: 20px;">
+    <form method="post" asp-action="FixBalance" enctype="multipart/form-data" class="balance-adjust-form">
     <input type="hidden" name="ChildID" value="@Model.ChildID" />
 
-    <table style="width: 100%; border-collapse: collapse;">
+    <table class="balance-adjust-table">
         <!-- Select Action Type -->
         <tr>
             <td style="padding-top: 16px; width: 200px; vertical-align: top"><label>Action Type:</label></td>
@@ -149,7 +160,7 @@
                 <label for="refundBalance">Refund</label>
                 <br/>
 
-                    <label style="font-size:0.9em; color:darkslategray">"Adjust Balance" is used for unexpected issues (Positive amount adds to the balance; negative amount subtracts from it) <br />"Refund" is used when a participant quits the course. </label>
+                    <label style="font-size:0.9em; color:darkslategray">"Adjust Balance" is used for unexpected errors (Positive amount adds to the balance; negative amount subtracts from it) <br />"Refund" is used when a participant quits the course. </label>
             </td>
         </tr>
 
@@ -157,7 +168,7 @@
         <tr>
                 <td style="padding-top: 16px; vertical-align: top"><label for="Amount">Amount:</label></td>
                 <td style="padding-top: 16px; vertical-align: top">
-                <input id="Amount" name="amount" type="number" step="0.01" required style="width: 20%;" />
+                <input id="Amount" name="amount" type="number" step="0.01" required class="balance-adjust-field classlift-control" style="width: 20%;" />
                
             </td>
         </tr>
@@ -166,21 +177,14 @@
         <tr>
                 <td style="padding-top: 16px; vertical-align: top"><label for="Remarks">Remarks:</label></td>
                 <td style="padding-top: 16px; vertical-align: top">
-                <textarea id="Remarks" name="remarks" style="width: 40%; height: 100px" required></textarea>
+                <textarea id="Remarks" name="remarks" class="balance-adjust-field" style="width: 40%; height: 100px" required></textarea>
             </td>
         </tr>
 
-        <tr>
-                <td style="padding: 8px;"><label for="calculationFile">Upload Screenshot:</label></td>
-                <td><input type="file" name="file" accept="image/*"  style="width: 40%;" /></td>
-        </tr>
-
-           
-
         <!-- Submit -->
         <tr>
-                <td style="padding-top: 16px;">
-                <button type="submit" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 5px;">
+                <td colspan="2" style="padding-top: 16px;">
+                <button type="submit" class="management-form__save">
                     Submit
                 </button>
             </td>
@@ -199,7 +203,7 @@
             </div>
             <div class="modal-body" id="remarksContent"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn classlift-button classlift-button--secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

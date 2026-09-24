@@ -22,17 +22,15 @@
 
 <h2 class="mb-4">View Enrollments</h2>
 
-<a href="/Coach/ManageCourse" class="btn btn-static-grey mb-3">← Back to Courses List</a>
+<a href="/Coach/ManageCourse" class="participation-back-link">← Back to Courses List</a>
 
 
 
 <div class="p-3 mb-4 bg-light border rounded">
-     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
+    <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
-    <strong>Gender:</strong> @Model.Child.Gender <br />
     @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
-    <strong>City:</strong> @Model.Child.City.Name
 
 
 
@@ -48,15 +46,14 @@
 
 
 
-<table class="mobile-stack table table-bordered mt-3">
-    <thead class="table-primary">
+<table class="management-table mobile-stack table table-bordered mt-3">
+    <thead class="management-table-header">
         <tr>
             <th>Scheduled At</th>
-            <th>Scheduled Hours</th>
-            <th>Actual Hours</th>
+            <th>Hours</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th class="desktop-only">@CurrentTenant.Terminology.ProviderSingular Note</th>
-            <th class="desktop-only">Action</th>
+            <th>My Note</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -66,22 +63,22 @@
             {
                 <tr>
                     <td>@(completed.ScheduledAt.HasValue ? completed.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
-                    <td>@completed.ScheduledHours</td>
                     <td>@completed.ActualHours</td>
-                    <td class="desktop-only">@completed.ParentNote</td>
-                    <td class="desktop-only">
+                    <td class="desktop-only" data-label="@CurrentTenant.Terminology.ParticipantSingular Note">@completed.ParentNote</td>
+                    <td data-label="My Note">
                         <span id="coach-note-view-@completed.EnrollmentID">@completed.CoachNote</span>
                         <textarea id="coach-note-edit-@completed.EnrollmentID" name="coachNote" form="coach-note-@completed.EnrollmentID" class="form-control" style="display: none;">@completed.CoachNote</textarea>
                     </td>
-                    <td class="desktop-only">
+                    <td data-label="Action">
                         <form id="coach-note-@completed.EnrollmentID" method="post" action="/Coach/UpdateCoachNote">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="enrollmentId" value="@completed.EnrollmentID" />
                             <input type="hidden" name="childId" value="@Model.Child.ChildID" />
                             <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
                             <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
-                            <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Edit</a>
-                            <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn btn-primary" style="display: none;">Save</button>
+                            <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Update Note</a>
+                            <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
+                            <button id="coach-note-cancel-@completed.EnrollmentID" type="button" class="btn btn-secondary" style="display: none;" onclick="cancelCoachNote(@completed.EnrollmentID)">Cancel</button>
                         </form>
                     </td>
                 </tr>
@@ -90,7 +87,7 @@
         else
         {
             <tr>
-                <td colspan="6" class="text-center">No completed sessions.</td>
+                <td colspan="5" class="text-center">No completed sessions.</td>
             </tr>
         }
     </tbody>
@@ -107,6 +104,18 @@
         noteEdit.style.display = 'block';
         editLink.style.display = 'none';
         saveButton.style.display = 'inline-block';
+        document.getElementById(`coach-note-cancel-${enrollmentId}`).style.display = 'inline-block';
         noteEdit.focus();
+    }
+
+    function cancelCoachNote(enrollmentId) {
+        const noteView = document.getElementById(`coach-note-view-${enrollmentId}`);
+        const noteEdit = document.getElementById(`coach-note-edit-${enrollmentId}`);
+        noteEdit.value = noteView.textContent;
+        noteEdit.style.display = 'none';
+        noteView.style.display = 'inline';
+        document.getElementById(`coach-note-edit-link-${enrollmentId}`).style.display = 'inline';
+        document.getElementById(`coach-note-save-${enrollmentId}`).style.display = 'none';
+        document.getElementById(`coach-note-cancel-${enrollmentId}`).style.display = 'none';
     }
 </script>
