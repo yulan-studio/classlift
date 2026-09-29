@@ -48,10 +48,57 @@ namespace Billing.Controllers
         {
             try
             {
+                var eligible = await _context.Organizations
+                    .Where(o => o.OrganizationId == id && o.IsActive == false)
+                    .Where(o => o.Tenantregistries.Any(t => !t.IsActive))
+                    .Where(o => o.OrganizationSubscriptions.Any(s => s.Status == SubscriptionStatus.Cancelled))
+                    .AnyAsync();
+
+                if (!eligible)
+                    throw new InvalidOperationException(
+                        "Organization must be inactive, have an inactive tenant registry, and have a cancelled subscription before it can be deleted.");
+
                 await _organizationService.DeleteOrganizationAsync(id);
                 TempData["Success"] = "Organization deleted successfully.";
             }
             catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost("BulkDelete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkDelete(List<int> organizationIds)
+        {
+            if (organizationIds.Count == 0)
+            {
+                TempData["Error"] = "Select at least one cancelled registration.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var deleted = 0;
+            try
+            {
+                foreach (var organizationId in organizationIds.Distinct())
+                {
+                    var eligible = await _context.Organizations
+                        .Where(o => o.OrganizationId == organizationId && o.IsActive == false)
+                        .Where(o => o.Tenantregistries.Any(t => !t.IsActive))
+                        .Where(o => o.OrganizationSubscriptions.Any(s => s.Status == SubscriptionStatus.Cancelled))
+                        .AnyAsync();
+
+                    if (!eligible) continue;
+
+                    await _organizationService.DeleteOrganizationAsync(organizationId);
+                    deleted++;
+                }
+
+                TempData["Success"] = $"Deleted {deleted} cancelled registration(s).";
+            }
+            catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
             }
@@ -70,7 +117,20 @@ namespace Billing.Controllers
                 .OrderBy(o => o.OrganizationName)
                 .ToListAsync();
 
-            return View(organizations);
+            var cancelledRegistrations = await _context.Organizations
+                .Include(o => o.OrganizationSubscriptions.OrderByDescending(s => s.CreatedAt).Take(1))
+                .Include(o => o.Tenantregistries)
+                .Where(o => o.IsActive == false)
+                .Where(o => o.Tenantregistries.Any(t => !t.IsActive))
+                .Where(o => o.OrganizationSubscriptions.Any(s => s.Status == SubscriptionStatus.Cancelled))
+                .OrderBy(o => o.OrganizationName)
+                .ToListAsync();
+
+            return View(new OrganizationsIndexViewModel
+            {
+                Organizations = organizations,
+                CancelledRegistrations = cancelledRegistrations
+            });
         }
 
         [HttpGet("Details/{id:int}")]
