@@ -27,6 +27,16 @@ public sealed class UnverifiedTenantCleanupService
 
         foreach (var tenant in tenants)
         {
+            var organization = await _context.Organizations
+                .FirstOrDefaultAsync(o => o.OrganizationId == tenant.OrganizationId);
+
+            if (organization != null && organization.IsActive != false)
+            {
+                organization.IsActive = false;
+                organization.UpdatedAt = now;
+                await _context.SaveChangesAsync();
+            }
+
             await _organizationService.DeleteOrganizationAsync(tenant.OrganizationId);
             _logger.LogInformation("Deleted unverified organization {OrganizationId} and tenant database {DatabaseName}.", tenant.OrganizationId, tenant.DatabaseName);
         }
