@@ -126,6 +126,7 @@ builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FeatureAccessService>();
 builder.Services.AddScoped<TenantProvisioningService>();
+builder.Services.AddScoped<UnverifiedTenantCleanupService>();
 builder.Services.AddScoped<IDatabaseProvisioner, RailwayDatabaseService>();
 builder.Services.AddScoped<ITenantSchemaService, TenantSchemaService>();
 builder.Services.AddScoped<ITenantSeedService, TenantSeedService>();

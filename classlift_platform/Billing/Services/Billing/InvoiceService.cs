@@ -12,7 +12,9 @@ namespace Billing.Services.Billing
         private readonly BillingDbContext _context;
         private readonly ITenantConnectionStringFactory? _tenantConnectionFactory;
 
-        public InvoiceService(BillingDbContext context, ITenantConnectionStringFactory? tenantConnectionFactory = null)
+        public InvoiceService(
+            BillingDbContext context,
+            ITenantConnectionStringFactory? tenantConnectionFactory = null)
         {
             _context = context;
             _tenantConnectionFactory = tenantConnectionFactory;
@@ -32,6 +34,28 @@ namespace Billing.Services.Billing
 
             foreach (var subscription in expiredTrials)
             {
+                var tenant = await _context.Tenantregistries
+                    .Where(t => t.OrganizationId == subscription.OrganizationId && t.IsActive)
+                    .FirstOrDefaultAsync();
+
+                var userCount = await GetTenantUserCountAsync(tenant?.DatabaseName);
+
+                if (userCount <= 2)
+                {
+                    subscription.Status = SubscriptionStatus.Cancelled;
+                    subscription.IsTrial = 0;
+                    subscription.EndDate = now;
+
+                    var organization = await _context.Organizations
+                        .FirstAsync(o => o.OrganizationId == subscription.OrganizationId);
+                    organization.IsActive = false;
+                    organization.UpdatedAt = now;
+                    if (tenant != null)
+                        tenant.IsActive = false;
+                    processed++;
+                    continue;
+                }
+
                 subscription.Status = SubscriptionStatus.Active;
                 subscription.IsTrial = 0;
                 subscription.ActivatedAt = now;
@@ -247,6 +271,23 @@ namespace Billing.Services.Billing
             await connection.OpenAsync();
 
             await using var command = new MySqlCommand("SELECT COUNT(*) FROM coaches;", connection);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
+        }
+
+        private async Task<int> GetTenantUserCountAsync(string? databaseName)
+        {
+            if (string.IsNullOrWhiteSpace(databaseName))
+                return 0;
+
+            if (_tenantConnectionFactory == null)
+                return 2;
+
+            await using var connection = new MySqlConnection(
+                _tenantConnectionFactory.BuildConnectionString(databaseName));
+            await connection.OpenAsync();
+
+            await using var command = new MySqlCommand("SELECT COUNT(*) FROM users;", connection);
             var result = await command.ExecuteScalarAsync();
             return Convert.ToInt32(result);
         }

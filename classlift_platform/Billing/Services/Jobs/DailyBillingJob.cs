@@ -8,6 +8,7 @@ namespace Billing.Services.Jobs
         private readonly InvoiceService _invoiceService;
         private readonly DunningService _dunningService;
         private readonly BillingRunService _billingRunService;
+        private readonly global::Billing.Services.Provisioning.UnverifiedTenantCleanupService _unverifiedTenantCleanupService;
         
         private readonly ILogger<DailyBillingJob> _logger;
 
@@ -15,11 +16,13 @@ namespace Billing.Services.Jobs
             InvoiceService invoiceService,
             DunningService dunningService,
             BillingRunService billingRunService,
+            global::Billing.Services.Provisioning.UnverifiedTenantCleanupService unverifiedTenantCleanupService,
             ILogger<DailyBillingJob> logger)
         {
             _invoiceService = invoiceService;
             _dunningService = dunningService;
             _billingRunService = billingRunService;
+            _unverifiedTenantCleanupService = unverifiedTenantCleanupService;
             _logger = logger;
         }
 
@@ -34,13 +37,15 @@ namespace Billing.Services.Jobs
             try
             {
                 var activated = await _invoiceService.ActivateExpiredTrialsAsync();
+                var deletedUnverified = await _unverifiedTenantCleanupService.DeleteExpiredUnverifiedTenantsAsync();
 
                 var overDued = await _dunningService.MarkOverdueInvoicesAsync();
 
                 await _billingRunService.CompleteRunAsync(run, activated, 0, overDued);
                 _logger.LogInformation(
-                    "Daily Billing Job completed successfully at {Time}.",
-                    DateTime.UtcNow);
+                    "Daily Billing Job completed successfully at {Time}. Deleted {DeletedUnverified} unverified tenant databases.",
+                    DateTime.UtcNow,
+                    deletedUnverified);
             }
             catch (Exception ex)
             {
