@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Access denied";
+}
+<div class="text-center py-5">
+    <h1>Access denied</h1>
+    <p class="text-muted">Your account does not have permission to open this page.</p>
+    @if (User.IsInRole("OrganizationAdmin"))
+    {
+        <a class="btn btn-primary" asp-controller="OrganizationPortal" asp-action="Index">Go to my organization billing</a>
+    }
+    else
+    {
+        <a class="btn btn-secondary" asp-controller="Account" asp-action="Login">Return to login</a>
+    }
+</div>
