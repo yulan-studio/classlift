@@ -20,7 +20,8 @@ namespace Billing.Controllers
         public async Task<IActionResult> Index()
         {
             var plans = await _context.Subscriptionplans
-                .OrderBy(p => p.PlanName)
+                .OrderBy(p => p.PricePerCoach)
+                .ThenBy(p => p.PlanName)
                 .ToListAsync();
 
             return View(plans);
