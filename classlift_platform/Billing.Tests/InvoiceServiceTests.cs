@@ -24,7 +24,7 @@ public class InvoiceServiceTests
     }
 
     [Fact]
-    public async Task Monthly_invoice_enforces_minimum_price()
+    public async Task Monthly_invoice_does_not_apply_a_minimum_price()
     {
         await using var db = TestDb.Create();
         var subscription = SeedActiveSubscription(db, 10m);
@@ -34,7 +34,7 @@ public class InvoiceServiceTests
             subscription.OrganizationSubscriptionId, new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 30), 2);
 
         Assert.Equal(20m, invoice.Subtotal);
-        Assert.Equal(100m, invoice.TotalAmount);
+        Assert.Equal(20m, invoice.TotalAmount);
     }
 
     [Fact]

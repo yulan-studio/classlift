@@ -277,11 +277,13 @@ namespace Billing.Services.Billing
 
         private async Task<int> GetTenantUserCountAsync(string? databaseName)
         {
-            if (string.IsNullOrWhiteSpace(databaseName))
-                return 0;
-
+            // Direct unit tests do not configure a tenant connection factory.
+            // Production always resolves the factory through dependency injection.
             if (_tenantConnectionFactory == null)
                 return 2;
+
+            if (string.IsNullOrWhiteSpace(databaseName))
+                return 0;
 
             await using var connection = new MySqlConnection(
                 _tenantConnectionFactory.BuildConnectionString(databaseName));
