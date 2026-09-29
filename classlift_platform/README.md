@@ -161,7 +161,7 @@ Hangfire registers these schedules in the Eastern time zone:
 | Job | Schedule | Purpose |
 |---|---:|---|
 | Daily dunning | Daily at 02:00 | Mark overdue invoices |
-| Daily billing | Daily at 02:30 | Activate expired trials and run dunning |
+| Daily billing | Daily at 02:30 | Clean up expired unverified signups, process expired trials, and run dunning |
 | Monthly billing | First day at 02:00 | Generate recurring invoices |
 
 ## Verification
