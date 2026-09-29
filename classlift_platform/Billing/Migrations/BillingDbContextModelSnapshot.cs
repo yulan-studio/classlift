@@ -511,7 +511,7 @@ namespace Billing.Migrations
 
                     b.Property<string>("EventType")
                         .IsRequired()
-                        .HasColumnType("enum('Created','Activated','PlanChanged','Cancelled','Expired','Suspended','Reactivated')");
+                        .HasColumnType("enum('Created','Activated','PlanChanged','Cancelled','Expired','Suspended','Reactivated','TrialStarted','TrialEnded','PaymentReceived')");
 
                     b.Property<int?>("NewPlanId")
                         .HasColumnType("int")

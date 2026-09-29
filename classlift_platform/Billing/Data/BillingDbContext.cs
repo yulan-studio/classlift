@@ -344,7 +344,7 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.EffectiveAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
-            entity.Property(e => e.EventType).HasColumnType("enum('Created','Activated','PlanChanged','Cancelled','Expired','Suspended','Reactivated')");
+            entity.Property(e => e.EventType).HasColumnType("enum('Created','Activated','PlanChanged','Cancelled','Expired','Suspended','Reactivated','TrialStarted','TrialEnded','PaymentReceived')");
             entity.Property(e => e.NewPlanId).HasColumnName("NewPlanID");
             entity.Property(e => e.NewStatus).HasMaxLength(50);
             entity.Property(e => e.OldPlanId).HasColumnName("OldPlanID");
