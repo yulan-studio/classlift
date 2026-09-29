@@ -33,7 +33,8 @@ namespace Billing.Controllers
 
             var plans = await _context.Subscriptionplans
                 .Where(p => p.IsActive)
-                .OrderBy(p => p.PlanName)
+                .OrderBy(p => p.PricePerCoach)
+                .ThenBy(p => p.PlanName)
                 .ToListAsync();
 
             var model = new ChangePlanViewModel
@@ -64,7 +65,8 @@ namespace Billing.Controllers
             {
                 var plans = await _context.Subscriptionplans
                     .Where(p => p.IsActive)
-                    .OrderBy(p => p.PlanName)
+                    .OrderBy(p => p.PricePerCoach)
+                    .ThenBy(p => p.PlanName)
                     .ToListAsync();
 
                 model.Plans = plans.Select(p => new SelectListItem
