@@ -10,7 +10,7 @@
 - Preserved subscription price snapshots so plan price changes do not affect
   existing organizations.
 - Added trial-expiry handling based on the tenant `users` count:
-  - `users <= 2`: deactivate the organization and tenant registry, cancel the
+  - `users <= 3`: deactivate the organization and tenant registry, cancel the
     subscription, and do not generate an invoice.
   - `users > 2`: activate the subscription and bill using the actual coach
     count.

@@ -127,8 +127,8 @@ fails.
 
 ### Billing
 
-When a trial expires, the tenant database user count is checked. The two
-initially seeded accounts are not considered product usage: if `users <= 2`, the
+When a trial expires, the tenant database user count is checked. The three
+initially seeded accounts are not considered product usage: if `users <= 3`, the
 organization and tenant registry are marked inactive, the trial subscription is
 cancelled, and no invoice is generated. The tenant database is retained for
 administrator review. If `users > 2`, the trial becomes active and receives a

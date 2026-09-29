@@ -40,7 +40,7 @@ namespace Billing.Services.Billing
 
                 var userCount = await GetTenantUserCountAsync(tenant?.DatabaseName);
 
-                if (userCount <= 2)
+                if (userCount <= 3)
                 {
                     subscription.Status = SubscriptionStatus.Cancelled;
                     subscription.IsTrial = 0;

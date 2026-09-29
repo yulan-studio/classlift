@@ -25,11 +25,11 @@
 ## Trial subscriptions
 
 - A new organization starts with a 30-day free trial.
-- The tenant database is initialized with two system accounts: the initial
-  administrator and staff account.
+- The tenant database is initialized with three system accounts: the initial
+  administrator and two shared support accounts.
 - When the trial expires, the system counts rows in the tenant database's
   `users` table.
-- If `users <= 2`, the organization is considered unused:
+- If `users <= 3`, the organization is considered unused:
   - `Organization.IsActive` is set to `false`.
   - `Tenantregistry.IsActive` is set to `false`.
   - The trial subscription is set to `Cancelled`.
@@ -40,7 +40,7 @@
   - The subscription becomes `Active`.
   - A prorated invoice is generated for the remainder of the current month.
   - Recurring monthly billing continues while the subscription is active.
-- The threshold of two accounts must be updated if the number of initialized
+- The threshold of three accounts must be updated if the number of initialized
   system accounts changes.
 
 ## Pricing and billing

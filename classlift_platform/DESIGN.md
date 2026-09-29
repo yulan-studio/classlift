@@ -227,7 +227,7 @@ snapshots from `OrganizationSubscription`, checks tenant account usage at trial
 expiry, guarantees one invoice per subscription/period, prorates usage, updates
 `LastBilledDate`, and records trial-ending events.
 
-Expired trials with no accounts beyond the two seeded accounts are cancelled and
+Expired trials with no accounts beyond the three seeded accounts are cancelled and
 marked inactive without an invoice. The tenant database is retained for manual
 cleanup. Expired unverified signups are handled by
 `UnverifiedTenantCleanupService` and are fully deleted after 24 hours.
@@ -418,7 +418,7 @@ intended connection between subscription entitlements and protected MVC actions.
 
 | Function | Contract and invariants |
 |---|---|
-| `InvoiceService.ActivateExpiredTrialsAsync()` | Finds expired trials, counts tenant `users`, cancels and deactivates trials with `users <= 2` without invoicing, otherwise activates them and generates a prorated invoice using the tenant `coaches` count. |
+| `InvoiceService.ActivateExpiredTrialsAsync()` | Finds expired trials, counts tenant `users`, cancels and deactivates trials with `users <= 3` without invoicing, otherwise activates them and generates a prorated invoice using the tenant `coaches` count. |
 | `InvoiceService.GenerateRecurringInvoicesAsync()` | Selects billable active non-trials for the current month, skips an existing period, generates invoices using the tenant `coaches` count, advances `LastBilledDate`, and returns created count. |
 | `GenerateMonthlyInvoiceAsync(subscriptionId, start, end, coachCount)` | Public wrapper around the common invoice calculator for a supplied period. |
 | `GenerateProratedInvoiceAsync(subscriptionId, activationDate, coachCount)` | Converts activation through month-end into a billing period and calls the common calculator. |
