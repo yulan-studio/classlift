@@ -280,7 +280,7 @@ namespace Billing.Services.Billing
             // Direct unit tests do not configure a tenant connection factory.
             // Production always resolves the factory through dependency injection.
             if (_tenantConnectionFactory == null)
-                return 2;
+                return 3;
 
             if (string.IsNullOrWhiteSpace(databaseName))
                 return 0;
