@@ -61,6 +61,13 @@
                         <a class="nav-link" href="/FeatureAccessAdmin">Feature Access</a>
                     </li>
 
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/OrganizationAdmins">Organization Admins</a>
+                        </li>
+                    }
+
                     <li class="nav-item">
                         <a class="nav-link"
                            href="/Invoices">
