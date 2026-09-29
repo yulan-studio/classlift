@@ -149,7 +149,6 @@ namespace Billing.Services.Provisioning
                     CancelledAt = null,
                     AutoRenew = 1,
                     MonthlyPricePerCoach = plan.PricePerCoach,
-                    MinimumMonthlyPrice = plan.MinimumMonthlyPrice,
                     CreatedAt = DateTime.UtcNow
                 };
 

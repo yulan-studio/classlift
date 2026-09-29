@@ -287,10 +287,6 @@ namespace Billing.Migrations
                     b.Property<DateTime?>("LastBilledDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<decimal>("MinimumMonthlyPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
                     b.Property<decimal>("MonthlyPricePerCoach")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -583,10 +579,6 @@ namespace Billing.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValueSql("'1'");
-
-                    b.Property<decimal>("MinimumMonthlyPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("PlanName")
                         .IsRequired()

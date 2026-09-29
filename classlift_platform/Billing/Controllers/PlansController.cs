@@ -64,7 +64,6 @@ namespace Billing.Controllers
             plan.PlanName = model.PlanName;
             plan.Description = model.Description;
             plan.PricePerCoach = model.PricePerCoach;
-            plan.MinimumMonthlyPrice = model.MinimumMonthlyPrice;
             plan.IsActive = model.IsActive;
 
             await _context.SaveChangesAsync();

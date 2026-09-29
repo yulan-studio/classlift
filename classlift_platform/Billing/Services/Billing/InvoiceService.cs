@@ -192,11 +192,7 @@ namespace Billing.Services.Billing
             var proratedSubtotal =
                 Math.Round(monthlySubtotal * prorateRatio, 2);
 
-            var proratedMinimum =
-                Math.Round(subscription.MinimumMonthlyPrice * prorateRatio, 2);
-
-            var total =
-                Math.Max(proratedSubtotal, proratedMinimum);
+            var total = proratedSubtotal;
 
             var invoice = new Invoice
             {

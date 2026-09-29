@@ -45,7 +45,7 @@ namespace Billing.Controllers
                 Plans = plans.Select(p => new SelectListItem
                 {
                     Value = p.PlanId.ToString(),
-                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach, min {p.MinimumMonthlyPrice:C}"
+                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach"
                 }).ToList()
             };
 
@@ -70,7 +70,7 @@ namespace Billing.Controllers
                 model.Plans = plans.Select(p => new SelectListItem
                 {
                     Value = p.PlanId.ToString(),
-                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach, min {p.MinimumMonthlyPrice:C}"
+                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach"
                 }).ToList();
 
                 return View(model);

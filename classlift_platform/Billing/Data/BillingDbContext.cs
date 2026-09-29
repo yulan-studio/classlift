@@ -210,7 +210,6 @@ public partial class BillingDbContext : IdentityDbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.MinimumMonthlyPrice).HasPrecision(10, 2);
             entity.Property(e => e.MonthlyPricePerCoach).HasPrecision(10, 2);
             entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
             entity.Property(e => e.OrganizationSubscriptionscol)
@@ -390,7 +389,6 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.IsActive)
                 .IsRequired()
                 .HasDefaultValueSql("'1'");
-            entity.Property(e => e.MinimumMonthlyPrice).HasPrecision(10, 2);
             entity.Property(e => e.PlanName).HasMaxLength(100);
             entity.Property(e => e.PricePerCoach).HasPrecision(10, 2);
         });
