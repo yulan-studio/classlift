@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Billing.Data;
 
 #nullable disable
 
 namespace Billing.Migrations;
 
+[DbContext(typeof(BillingDbContext))]
+[Migration("20260928000000_RemoveMinimumMonthlyPrice")]
 public partial class RemoveMinimumMonthlyPrice : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
