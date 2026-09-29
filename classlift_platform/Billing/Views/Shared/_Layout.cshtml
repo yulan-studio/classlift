@@ -36,6 +36,9 @@
 
                 <ul class="navbar-nav">
 
+                    @if (User.IsInRole("Admin"))
+                    {
+
                     <li class="nav-item">
                         <a class="nav-link"
                            href="/Dashboard">
@@ -102,6 +105,15 @@
                             Billing Run
                         </a>
                     </li>
+
+                    }
+
+                    @if (User.IsInRole("OrganizationAdmin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/organization">My Organization Billing</a>
+                        </li>
+                    }
 
                 </ul>
 
