@@ -82,7 +82,7 @@ public class InvoiceServiceTests
     }
 
     [Fact]
-    public async Task Expired_trials_are_activated_invoiced_and_audited()
+    public async Task Expired_trials_with_only_seed_accounts_are_cancelled_without_invoice()
     {
         await using var db = TestDb.Create();
         var subscription = SeedActiveSubscription(db, 31m);
@@ -94,10 +94,10 @@ public class InvoiceServiceTests
         var count = await new InvoiceService(db).ActivateExpiredTrialsAsync();
 
         Assert.Equal(1, count);
-        Assert.Equal(SubscriptionStatus.Active, subscription.Status);
+        Assert.Equal(SubscriptionStatus.Cancelled, subscription.Status);
         Assert.Equal(0, subscription.IsTrial);
-        Assert.Single(db.Invoices);
-        Assert.Single(db.SubscriptionEvents);
+        Assert.Empty(db.Invoices);
+        Assert.Empty(db.SubscriptionEvents);
     }
 
     [Fact]
