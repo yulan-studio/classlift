@@ -3,6 +3,7 @@ using Billing.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Text;
 
 namespace Billing.Controllers.Public
 {
@@ -15,6 +16,7 @@ namespace Billing.Controllers.Public
 
     public class PublicSignupController : ControllerBase
     {
+        private static readonly SemaphoreSlim SignupIpLogLock = new(1, 1);
         private readonly IOrganizationSignupService _signupService;
         private readonly ILogger<PublicSignupController> _logger;
 
@@ -28,6 +30,15 @@ namespace Billing.Controllers.Public
         [EnableRateLimiting("public-signup")]
         public async Task<IActionResult> Signup([FromBody] PublicSignupRequest request)
         {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+            _logger.LogInformation(
+                "Signup request from IP {IpAddress} for organization: {OrganizationName}",
+                ipAddress,
+                request.OrganizationName);
+
+            await WriteSignupIpLogAsync(ipAddress, request.OrganizationName);
+
             _logger.LogInformation("Received signup request for organization: {OrganizationName}", request.OrganizationName);
 
             try
@@ -62,6 +73,33 @@ namespace Billing.Controllers.Public
                 {
                     message = "An unexpected error occurred."
                 });
+            }
+        }
+
+        private async Task WriteSignupIpLogAsync(string ipAddress, string organizationName)
+        {
+            var logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
+            var logFile = Path.Combine(logDirectory, "signup-ip.log");
+
+            try
+            {
+                Directory.CreateDirectory(logDirectory);
+
+                var line = $"{DateTime.UtcNow:O}\tIP={ipAddress}\tOrganization={organizationName}{Environment.NewLine}";
+
+                await SignupIpLogLock.WaitAsync();
+                try
+                {
+                    await System.IO.File.AppendAllTextAsync(logFile, line, Encoding.UTF8);
+                }
+                finally
+                {
+                    SignupIpLogLock.Release();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to write signup IP log file.");
             }
         }
 
