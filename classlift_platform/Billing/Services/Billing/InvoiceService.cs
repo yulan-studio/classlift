@@ -124,14 +124,34 @@ namespace Billing.Services.Billing
 
                 var coachCount = await GetCoachCountAsync(subscription.OrganizationId);
 
-                await GenerateMonthlyInvoiceAsync(
-                    subscription.OrganizationSubscriptionId,
-                    billingPeriodStart,
-                    billingPeriodEnd,
-                    coachCount);
+                var invoiceCreated = true;
+                try
+                {
+                    await GenerateMonthlyInvoiceAsync(
+                        subscription.OrganizationSubscriptionId,
+                        billingPeriodStart,
+                        billingPeriodEnd,
+                        coachCount);
+                }
+                catch (DbUpdateException)
+                {
+                    // Another worker may have created the invoice after the
+                    // existence check. The unique database constraint makes
+                    // that race safe; treat it as already processed.
+                    var createdByAnotherWorker = await _context.Invoices.AnyAsync(i =>
+                        i.OrganizationSubscriptionId == subscription.OrganizationSubscriptionId &&
+                        i.BillingPeriodStart == billingPeriodStart &&
+                        i.BillingPeriodEnd == billingPeriodEnd);
+
+                    if (!createdByAnotherWorker)
+                        throw;
+
+                    invoiceCreated = false;
+                }
 
                 subscription.LastBilledDate = billingPeriodEndDateTime;
-                processed++;
+                if (invoiceCreated)
+                    processed++;
             }
 
             await _context.SaveChangesAsync();
