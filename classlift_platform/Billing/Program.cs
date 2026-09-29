@@ -51,6 +51,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(OrganizationAuthorization.Policy, policy =>
+        policy.RequireAuthenticatedUser());
 
 // Protect the anonymous signup endpoint before it can create tenant resources.
 builder.Services.AddRateLimiter(options =>

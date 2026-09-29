@@ -26,6 +26,8 @@ public partial class BillingDbContext : IdentityDbContext
 
     public virtual DbSet<Organization> Organizations { get; set; }
 
+    public virtual DbSet<OrganizationAdmin> OrganizationAdmins { get; set; }
+
     public virtual DbSet<OrganizationSubscription> OrganizationSubscriptions { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
@@ -190,6 +192,22 @@ public partial class BillingDbContext : IdentityDbContext
             entity.HasOne(d => d.CurrentPlan).WithMany(p => p.Organizations)
                 .HasForeignKey(d => d.CurrentPlanId)
                 .HasConstraintName("FK_Organizations_Plans");
+        });
+
+        modelBuilder.Entity<OrganizationAdmin>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationAdminId);
+            entity.ToTable("organization_admins");
+            entity.HasIndex(e => new { e.UserId, e.OrganizationId }).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.Property(e => e.UserId).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime");
+            entity.HasOne(e => e.Organization)
+                .WithMany(o => o.OrganizationAdmins)
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<OrganizationSubscription>(entity =>
