@@ -13,8 +13,6 @@ public partial class Subscriptionplan
 
     public decimal PricePerCoach { get; set; }
 
-    public decimal MinimumMonthlyPrice { get; set; }
-
     public bool IsActive { get; set; } = true;
 
     public DateTime CreatedAt { get; set; }

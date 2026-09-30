@@ -101,7 +101,7 @@ erDiagram
     INVOICE ||--o{ PAYMENT : receives
 ```
 
-The subscription stores a snapshot of the plan's per-coach and minimum prices.
+The subscription stores a snapshot of the plan's per-coach price.
 This preserves its agreed pricing when the plan definition changes.
 
 ## Key workflows
@@ -127,23 +127,33 @@ fails.
 
 ### Billing
 
-When a trial expires, it becomes active and receives a prorated invoice through
-the end of the current month. Recurring billing generates one invoice per active
-subscription and month. A unique database index and an application check protect
-against duplicate billing periods.
+When a trial expires, the tenant database user count is checked. The three
+initially seeded accounts are not considered product usage: if `users <= 3`, the
+organization and tenant registry are marked inactive, the trial subscription is
+cancelled, and no invoice is generated. The tenant database is retained for
+administrator review. If `users > 2`, the trial becomes active and receives a
+prorated invoice through the end of the current month. Recurring billing then
+generates one invoice per active subscription and month.
 
 Invoice totals are calculated as:
 
 ```text
-monthly usage charge = coach count * price per coach
+monthly usage charge = count of rows in tenant `coaches` table * price per coach
 proration ratio      = used days / days in month
-invoice total        = max(prorated usage charge, prorated minimum charge)
+invoice total        = prorated usage charge
 due date             = billing period end + 15 days
 ```
 
-The current implementation uses a placeholder coach count of `1`; tenant usage
-is not yet queried. Promotions exist in the model but are not applied during
-invoice calculation.
+The coach count is read from the tenant database's `coaches` table. Existing
+organizations keep the price snapshot stored on their subscription when a plan
+price changes. Promotions exist in the model but are not applied during invoice
+calculation.
+
+Public signups start with an inactive tenant registry until email verification.
+If the verification link is not used within 24 hours, the daily cleanup removes
+the tenant database and all related management records, including the
+organization, registry, subscription, invoices, payments, and subscription
+events.
 
 ### Payments and dunning
 
@@ -286,9 +296,10 @@ deployment is affected.
 
 ### Phase 2: make billing trustworthy
 
-- Add tests for full-month, prorated, minimum-price, duplicate, and boundary-date
+- Add tests for full-month, prorated, duplicate, and boundary-date
   calculations.
-- Integrate authoritative tenant coach counts.
+- Add integration coverage for authoritative tenant coach counts and trial
+  cleanup decisions.
 - Define plan-change billing and trial-change behavior.
 - Implement idempotent payment webhooks and refunds.
 - Apply promotions and document accounting rules.

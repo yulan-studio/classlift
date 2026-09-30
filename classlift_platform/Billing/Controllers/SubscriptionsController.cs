@@ -33,7 +33,8 @@ namespace Billing.Controllers
 
             var plans = await _context.Subscriptionplans
                 .Where(p => p.IsActive)
-                .OrderBy(p => p.PlanName)
+                .OrderBy(p => p.PricePerCoach)
+                .ThenBy(p => p.PlanName)
                 .ToListAsync();
 
             var model = new ChangePlanViewModel
@@ -45,7 +46,7 @@ namespace Billing.Controllers
                 Plans = plans.Select(p => new SelectListItem
                 {
                     Value = p.PlanId.ToString(),
-                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach, min {p.MinimumMonthlyPrice:C}"
+                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach"
                 }).ToList()
             };
 
@@ -64,13 +65,14 @@ namespace Billing.Controllers
             {
                 var plans = await _context.Subscriptionplans
                     .Where(p => p.IsActive)
-                    .OrderBy(p => p.PlanName)
+                    .OrderBy(p => p.PricePerCoach)
+                    .ThenBy(p => p.PlanName)
                     .ToListAsync();
 
                 model.Plans = plans.Select(p => new SelectListItem
                 {
                     Value = p.PlanId.ToString(),
-                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach, min {p.MinimumMonthlyPrice:C}"
+                    Text = $"{p.PlanName} - {p.PricePerCoach:C}/coach"
                 }).ToList();
 
                 return View(model);

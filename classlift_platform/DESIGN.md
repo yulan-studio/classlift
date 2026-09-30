@@ -192,7 +192,7 @@ registered as the application's normal request context.
 |---|---|
 | `Organization` | Customer account; contact data, current plan pointer, active flag, audit dates, and related commercial records. |
 | `Tenantregistry` | Maps an organization to its database, subdomain/custom domain, and active state. |
-| `Subscriptionplan` | Reusable commercial offering with per-coach price, minimum monthly charge, active flag, features, and promotions. |
+| `Subscriptionplan` | Reusable commercial offering with per-coach price, active flag, features, and promotions. |
 | `OrganizationSubscription` | Time-bounded plan enrollment; trial flags/dates, status, auto-renew flag, billing cursor, and copied prices. |
 | `SubscriptionEvent` | Append-style audit event recording old/new plan and status, effective time, actor, and reason. |
 | `Feature` | Named entitlement identified by a unique stable feature key. |
@@ -222,10 +222,15 @@ transport DTOs rather than persisted entities.
 
 #### `InvoiceService`
 
-Owns trial-to-active transitions and invoice calculations. It loads price
-snapshots from `OrganizationSubscription`, guarantees one invoice per
-subscription/period, prorates both usage and minimum charges, updates
+Owns trial lifecycle transitions and invoice calculations. It loads price
+snapshots from `OrganizationSubscription`, checks tenant account usage at trial
+expiry, guarantees one invoice per subscription/period, prorates usage, updates
 `LastBilledDate`, and records trial-ending events.
+
+Expired trials with no accounts beyond the three seeded accounts are cancelled and
+marked inactive without an invoice. The tenant database is retained for manual
+cleanup. Expired unverified signups are handled by
+`UnverifiedTenantCleanupService` and are fully deleted after 24 hours.
 
 #### `PaymentService`
 
@@ -413,11 +418,11 @@ intended connection between subscription entitlements and protected MVC actions.
 
 | Function | Contract and invariants |
 |---|---|
-| `InvoiceService.ActivateExpiredTrialsAsync()` | Finds expired trial subscriptions, changes each to active, generates a prorated invoice with placeholder coach count `1`, adds a trial-ended event, saves, and returns count. |
-| `InvoiceService.GenerateRecurringInvoicesAsync()` | Selects billable active non-trials for the current month, skips an existing period, generates invoices with coach count `1`, advances `LastBilledDate`, and returns created count. |
+| `InvoiceService.ActivateExpiredTrialsAsync()` | Finds expired trials, counts tenant `users`, cancels and deactivates trials with `users <= 3` without invoicing, otherwise activates them and generates a prorated invoice using the tenant `coaches` count. |
+| `InvoiceService.GenerateRecurringInvoicesAsync()` | Selects billable active non-trials for the current month, skips an existing period, generates invoices using the tenant `coaches` count, advances `LastBilledDate`, and returns created count. |
 | `GenerateMonthlyInvoiceAsync(subscriptionId, start, end, coachCount)` | Public wrapper around the common invoice calculator for a supplied period. |
 | `GenerateProratedInvoiceAsync(subscriptionId, activationDate, coachCount)` | Converts activation through month-end into a billing period and calls the common calculator. |
-| `GenerateInvoiceAsync(...)` | Requires an active subscription and unique positive period; prorates usage and minimum price, chooses the greater amount, creates a pending invoice due 15 days after period end, updates billing cursor, and saves. |
+| `GenerateInvoiceAsync(...)` | Requires an active subscription and unique positive period; prorates usage at the subscription's per-coach price, creates a pending invoice due 15 days after period end, updates billing cursor, and saves. |
 | `PaymentService.RecordPaymentAsync(...)` | Requires an existing unpaid/non-cancelled invoice and exact total amount; inserts a succeeded payment and marks the invoice paid. |
 | `SubscriptionService.ChangePlanAsync(...)` | Requires organization and plan; rejects the same active plan; cancels the prior active subscription, creates a new active price snapshot, updates current plan, adds event, and commits atomically. |
 | `DunningService.MarkOverdueInvoicesAsync()` | Marks pending invoices overdue when `DueDate` is before the current UTC date and returns affected count. |
@@ -551,7 +556,7 @@ behavior that an in-memory provider will not reproduce accurately.
 
 Recommended function-level test groups are:
 
-- invoice proration, minimums, date boundaries, and duplicate periods;
+- invoice proration, date boundaries, tenant coach counts, and duplicate periods;
 - trial activation and audit-event creation;
 - payment validation and state transitions;
 - subscription plan transitions and rollback;

@@ -3,6 +3,7 @@ using System.Text;
 
 namespace Billing.Services.Jobs
 {
+    [Hangfire.DisableConcurrentExecution(timeoutInSeconds: 15 * 60)]
     public class MonthlyBillingJob
     {
         private readonly InvoiceService _invoiceService;

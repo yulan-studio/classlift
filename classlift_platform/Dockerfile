@@ -2,11 +2,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# 复制项目文件
-COPY . .
-# Debug: print where we are and list files
+# Copy project metadata first so dependency restore can be cached.
+COPY Billing/Billing.csproj Billing/
+RUN dotnet restore Billing/Billing.csproj
 
-RUN echo "Folder Inside container at:" && pwd && echo "--- ls -al ---" && ls -al
+# Copy only application source after restore.
+COPY Billing/ Billing/
 RUN test -f Billing/Billing.csproj || (echo "必须从 classlift_platform/ 目录执行 docker build" && exit 1)
 RUN dotnet publish Billing/Billing.csproj -c Release -o /app/out
 

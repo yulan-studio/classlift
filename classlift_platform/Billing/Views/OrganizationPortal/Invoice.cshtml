@@ -1,0 +1,18 @@
+@model Billing.Models.Invoice
+@{
+    ViewData["Title"] = "Invoice";
+}
+<h1>Invoice #@Model.InvoiceId</h1>
+<dl class="row">
+    <dt class="col-sm-3">Billing period</dt><dd class="col-sm-9">@Model.BillingPeriodStart – @Model.BillingPeriodEnd</dd>
+    <dt class="col-sm-3">Due date</dt><dd class="col-sm-9">@Model.DueDate</dd>
+    <dt class="col-sm-3">Total</dt><dd class="col-sm-9">@Model.TotalAmount.ToString("C")</dd>
+    <dt class="col-sm-3">Status</dt><dd class="col-sm-9">@Model.InvoiceStatus</dd>
+</dl>
+<h2 class="h5">Payments</h2>
+<table class="table"><thead><tr><th>Date</th><th>Provider</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+@foreach (var payment in Model.Payments.OrderByDescending(p => p.PaymentDate))
+{
+    <tr><td>@payment.PaymentDate.ToString("yyyy-MM-dd HH:mm")</td><td>@payment.PaymentProvider</td><td>@payment.Amount.ToString("C")</td><td>@payment.PaymentStatus</td></tr>
+}
+</tbody></table>

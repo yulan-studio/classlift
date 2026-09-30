@@ -62,7 +62,6 @@ namespace Billing.Services.Billing
                     EndDate = null,
                     Status = "Active",
                     MonthlyPricePerCoach = newPlan.PricePerCoach,
-                    MinimumMonthlyPrice = newPlan.MinimumMonthlyPrice,
                 };
 
                 _context.OrganizationSubscriptions.Add(newSubscription);

@@ -12,7 +12,7 @@ public class FeatureAccessTests
     {
         await using var db = TestDb.Create();
         using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 10m, 0m);
+        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 10m);
         var feature = new Feature { FeatureKey = "ai", FeatureName = "AI" };
         db.Planfeatures.Add(new Planfeature { Plan = sub.Plan, Feature = feature });
         await db.SaveChangesAsync();
@@ -39,7 +39,7 @@ public class FeatureAccessTests
     {
         await using var db = TestDb.Create();
         using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 10m, 0m);
+        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 10m);
         var feature = new Feature { FeatureKey = "reports", FeatureName = "Reports" };
         db.Planfeatures.Add(new Planfeature { Plan = sub.Plan, Feature = feature });
         await db.SaveChangesAsync();

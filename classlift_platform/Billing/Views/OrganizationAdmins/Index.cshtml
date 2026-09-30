@@ -1,0 +1,29 @@
+@model Billing.ViewModels.OrganizationAdminManagementViewModel
+@{
+    ViewData["Title"] = "Organization Administrators";
+}
+<h1>Organization Administrators</h1>
+<p class="text-muted">Create and control billing access for organization administrators.</p>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<div class="card mb-4">
+    <div class="card-header">Create or assign administrator</div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" class="row g-3">
+            <div class="col-md-6"><label asp-for="Email" class="form-label">Email</label><input asp-for="Email" class="form-control" type="email" /></div>
+            <div class="col-md-6"><label asp-for="Password" class="form-label">Initial password</label><input asp-for="Password" class="form-control" type="password" /></div>
+            <div class="col-md-8"><label asp-for="OrganizationId" class="form-label">Organization</label><select asp-for="OrganizationId" asp-items="Model.Organizations" class="form-select"><option value="">Select an organization</option></select></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">Create and assign</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Current assignments</div>
+    <div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Email</th><th>Organization</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>
+    @foreach (var administrator in Model.Administrators)
+    {
+        <tr><td>@administrator.Email</td><td>@administrator.OrganizationName</td><td>@(administrator.IsActive ? "Active" : "Disabled")</td><td>@administrator.CreatedAt.ToString("yyyy-MM-dd")</td><td><form asp-action="Toggle" asp-route-id="@administrator.BindingId" method="post"><button class="btn btn-sm @(administrator.IsActive ? "btn-outline-danger" : "btn-outline-success")" type="submit">@(administrator.IsActive ? "Disable" : "Enable")</button></form></td></tr>
+    }
+    </tbody></table></div>
+</div>
