@@ -37,9 +37,10 @@ namespace Billing.Services.Jobs
             try
             {
                 var activated = await _invoiceService.ActivateExpiredTrialsAsync();
-                var deletedUnverified = await _unverifiedTenantCleanupService.DeleteExpiredUnverifiedTenantsAsync();
+                //var deletedUnverified = await _unverifiedTenantCleanupService.DeleteExpiredUnverifiedTenantsAsync();
+                var deletedUnverified = 0;
 
-                var overDued = await _dunningService.MarkOverdueInvoicesAsync();
+				var overDued = await _dunningService.MarkOverdueInvoicesAsync();
 
                 await _billingRunService.CompleteRunAsync(run, activated, 0, overDued);
                 _logger.LogInformation(
