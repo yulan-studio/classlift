@@ -3,9 +3,9 @@
 <h4>Organization type and role names</h4>
 <p class="text-muted">Choose how the two main user roles are named throughout your organization.</p>
 
-@if (ViewBag.SuccessMessage != null)
+@if (ViewBag.TerminologySuccessMessage != null)
 {
-    <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
+    <div class="alert alert-success" role="alert">@ViewBag.TerminologySuccessMessage</div>
 }
 
 <form asp-controller="Account" asp-action="Terminology" method="post" class="settings-subform">
