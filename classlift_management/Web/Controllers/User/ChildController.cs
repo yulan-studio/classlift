@@ -868,6 +868,12 @@ namespace Web.Controllers.User
                     : (await _courseEnrollmentService
                         .GetOpenSessionsByCourseAsync(course.CourseID))
                         .Count();
+                var registeredStudents = (await _courseEnrollmentService.GetEnrollmentsByCourseAsync(course.CourseID, "Registered"))
+                    .Concat(await _courseEnrollmentService.GetEnrollmentsByCourseAsync(course.CourseID, "Confirmed"))
+                    .Where(enrollment => enrollment.ChildID.HasValue && enrollment.EnrollmentID_Ref == null)
+                    .Select(enrollment => enrollment.ChildID!.Value)
+                    .Distinct()
+                    .Count();
 
                 courseOptions.Add(new
                 {
@@ -876,7 +882,10 @@ namespace Web.Controllers.User
                     course.CourseType,
                     course.SessionCount,
                     course.SessionCost,
-                    OpenSessionCount = openSessionCount
+                    OpenSessionCount = openSessionCount,
+                    IsFull = course.CourseType == "Group"
+                        && course.MaxCapacity.HasValue
+                        && registeredStudents >= course.MaxCapacity.Value
                 });
             }
 
