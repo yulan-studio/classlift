@@ -9,7 +9,7 @@ public class PaymentAndDunningTests
     public async Task Successful_payment_records_transaction_and_pays_invoice()
     {
         await using var db = TestDb.Create();
-        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 50m, 0m);
+        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 50m);
         var invoice = InvoiceServiceTests.NewInvoice(sub, new(2026, 7, 1), new(2026, 7, 31), 50m);
         db.Add(invoice);
         await db.SaveChangesAsync();
@@ -29,7 +29,7 @@ public class PaymentAndDunningTests
     public async Task Invalid_payments_are_rejected(string status, decimal amount, string message)
     {
         await using var db = TestDb.Create();
-        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 50m, 0m);
+        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 50m);
         var invoice = InvoiceServiceTests.NewInvoice(sub, new(2026, 7, 1), new(2026, 7, 31), 50m);
         invoice.InvoiceStatus = status;
         db.Add(invoice);
@@ -52,7 +52,7 @@ public class PaymentAndDunningTests
     public async Task Dunning_only_marks_past_due_pending_invoices()
     {
         await using var db = TestDb.Create();
-        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 10m, 0m);
+        var sub = InvoiceServiceTests.SeedActiveSubscription(db, 10m);
         var overdue = InvoiceServiceTests.NewInvoice(sub, new(2026, 1, 1), new(2026, 1, 31), 10m);
         overdue.DueDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-1));
         var future = InvoiceServiceTests.NewInvoice(sub, new(2026, 2, 1), new(2026, 2, 28), 10m);

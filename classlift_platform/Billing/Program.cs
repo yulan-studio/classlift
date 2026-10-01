@@ -51,6 +51,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(OrganizationAuthorization.Policy, policy =>
+        policy.RequireAuthenticatedUser());
 
 // Protect the anonymous signup endpoint before it can create tenant resources.
 builder.Services.AddRateLimiter(options =>
@@ -126,6 +129,7 @@ builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FeatureAccessService>();
 builder.Services.AddScoped<TenantProvisioningService>();
+builder.Services.AddScoped<UnverifiedTenantCleanupService>();
 builder.Services.AddScoped<IDatabaseProvisioner, RailwayDatabaseService>();
 builder.Services.AddScoped<ITenantSchemaService, TenantSchemaService>();
 builder.Services.AddScoped<ITenantSeedService, TenantSeedService>();

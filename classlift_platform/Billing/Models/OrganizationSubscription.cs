@@ -33,8 +33,6 @@ public partial class OrganizationSubscription
 
     public decimal MonthlyPricePerCoach { get; set; }
 
-    public decimal MinimumMonthlyPrice { get; set; }
-
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }

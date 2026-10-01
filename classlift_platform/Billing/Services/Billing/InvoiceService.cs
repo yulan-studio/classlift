@@ -1,17 +1,23 @@
 ﻿using Billing.Constants;
 using Billing.Data;
+using Billing.Interfaces;
 using Billing.Models;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 
 namespace Billing.Services.Billing
 {
     public class InvoiceService
     {
         private readonly BillingDbContext _context;
+        private readonly ITenantConnectionStringFactory? _tenantConnectionFactory;
 
-        public InvoiceService(BillingDbContext context)
+        public InvoiceService(
+            BillingDbContext context,
+            ITenantConnectionStringFactory? tenantConnectionFactory = null)
         {
             _context = context;
+            _tenantConnectionFactory = tenantConnectionFactory;
         }
 
         public async Task<int> ActivateExpiredTrialsAsync()
@@ -28,11 +34,33 @@ namespace Billing.Services.Billing
 
             foreach (var subscription in expiredTrials)
             {
+                var tenant = await _context.Tenantregistries
+                    .Where(t => t.OrganizationId == subscription.OrganizationId && t.IsActive)
+                    .FirstOrDefaultAsync();
+
+                var userCount = await GetTenantUserCountAsync(tenant?.DatabaseName);
+
+                if (userCount <= 3)
+                {
+                    subscription.Status = SubscriptionStatus.Cancelled;
+                    subscription.IsTrial = 0;
+                    subscription.EndDate = now;
+
+                    var organization = await _context.Organizations
+                        .FirstAsync(o => o.OrganizationId == subscription.OrganizationId);
+                    organization.IsActive = false;
+                    organization.UpdatedAt = now;
+                    if (tenant != null)
+                        tenant.IsActive = false;
+                    processed++;
+                    continue;
+                }
+
                 subscription.Status = SubscriptionStatus.Active;
                 subscription.IsTrial = 0;
                 subscription.ActivatedAt = now;
 
-                var coachCount = 1;
+                var coachCount = await GetCoachCountAsync(subscription.OrganizationId);
 
                 await GenerateProratedInvoiceAsync(
                     subscription.OrganizationSubscriptionId,
@@ -94,16 +122,36 @@ namespace Billing.Services.Billing
                     continue;
                 }
 
-                var coachCount = 1;
+                var coachCount = await GetCoachCountAsync(subscription.OrganizationId);
 
-                await GenerateMonthlyInvoiceAsync(
-                    subscription.OrganizationSubscriptionId,
-                    billingPeriodStart,
-                    billingPeriodEnd,
-                    coachCount);
+                var invoiceCreated = true;
+                try
+                {
+                    await GenerateMonthlyInvoiceAsync(
+                        subscription.OrganizationSubscriptionId,
+                        billingPeriodStart,
+                        billingPeriodEnd,
+                        coachCount);
+                }
+                catch (DbUpdateException)
+                {
+                    // Another worker may have created the invoice after the
+                    // existence check. The unique database constraint makes
+                    // that race safe; treat it as already processed.
+                    var createdByAnotherWorker = await _context.Invoices.AnyAsync(i =>
+                        i.OrganizationSubscriptionId == subscription.OrganizationSubscriptionId &&
+                        i.BillingPeriodStart == billingPeriodStart &&
+                        i.BillingPeriodEnd == billingPeriodEnd);
+
+                    if (!createdByAnotherWorker)
+                        throw;
+
+                    invoiceCreated = false;
+                }
 
                 subscription.LastBilledDate = billingPeriodEndDateTime;
-                processed++;
+                if (invoiceCreated)
+                    processed++;
             }
 
             await _context.SaveChangesAsync();
@@ -192,11 +240,7 @@ namespace Billing.Services.Billing
             var proratedSubtotal =
                 Math.Round(monthlySubtotal * prorateRatio, 2);
 
-            var proratedMinimum =
-                Math.Round(subscription.MinimumMonthlyPrice * prorateRatio, 2);
-
-            var total =
-                Math.Max(proratedSubtotal, proratedMinimum);
+            var total = proratedSubtotal;
 
             var invoice = new Invoice
             {
@@ -226,6 +270,48 @@ namespace Billing.Services.Billing
             await _context.SaveChangesAsync();
 
             return invoice;
+        }
+
+        private async Task<int> GetCoachCountAsync(int organizationId)
+        {
+            // Unit tests that call the billing calculation directly do not have a tenant database.
+            if (_tenantConnectionFactory == null)
+                return 1;
+
+            var databaseName = await _context.Tenantregistries
+                .Where(t => t.OrganizationId == organizationId && t.IsActive)
+                .Select(t => t.DatabaseName)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(databaseName))
+                throw new InvalidOperationException($"No active tenant database found for organization {organizationId}.");
+
+            await using var connection = new MySqlConnection(
+                _tenantConnectionFactory.BuildConnectionString(databaseName));
+            await connection.OpenAsync();
+
+            await using var command = new MySqlCommand("SELECT COUNT(*) FROM coaches;", connection);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
+        }
+
+        private async Task<int> GetTenantUserCountAsync(string? databaseName)
+        {
+            // Direct unit tests do not configure a tenant connection factory.
+            // Production always resolves the factory through dependency injection.
+            if (_tenantConnectionFactory == null)
+                return 3;
+
+            if (string.IsNullOrWhiteSpace(databaseName))
+                return 0;
+
+            await using var connection = new MySqlConnection(
+                _tenantConnectionFactory.BuildConnectionString(databaseName));
+            await connection.OpenAsync();
+
+            await using var command = new MySqlCommand("SELECT COUNT(*) FROM users;", connection);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
     }
 }

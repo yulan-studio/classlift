@@ -26,6 +26,8 @@ public partial class BillingDbContext : IdentityDbContext
 
     public virtual DbSet<Organization> Organizations { get; set; }
 
+    public virtual DbSet<OrganizationAdmin> OrganizationAdmins { get; set; }
+
     public virtual DbSet<OrganizationSubscription> OrganizationSubscriptions { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
@@ -192,6 +194,22 @@ public partial class BillingDbContext : IdentityDbContext
                 .HasConstraintName("FK_Organizations_Plans");
         });
 
+        modelBuilder.Entity<OrganizationAdmin>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationAdminId);
+            entity.ToTable("organization_admins");
+            entity.HasIndex(e => new { e.UserId, e.OrganizationId }).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.Property(e => e.UserId).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime");
+            entity.HasOne(e => e.Organization)
+                .WithMany(o => o.OrganizationAdmins)
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<OrganizationSubscription>(entity =>
         {
             entity.HasKey(e => e.OrganizationSubscriptionId).HasName("PRIMARY");
@@ -210,7 +228,6 @@ public partial class BillingDbContext : IdentityDbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.MinimumMonthlyPrice).HasPrecision(10, 2);
             entity.Property(e => e.MonthlyPricePerCoach).HasPrecision(10, 2);
             entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
             entity.Property(e => e.OrganizationSubscriptionscol)
@@ -345,7 +362,7 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.EffectiveAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
-            entity.Property(e => e.EventType).HasColumnType("enum('Created','Activated','PlanChanged','Cancelled','Expired','Suspended','Reactivated')");
+            entity.Property(e => e.EventType).HasColumnType("enum('Created','Activated','PlanChanged','Cancelled','Expired','Suspended','Reactivated','TrialStarted','TrialEnded','PaymentReceived')");
             entity.Property(e => e.NewPlanId).HasColumnName("NewPlanID");
             entity.Property(e => e.NewStatus).HasMaxLength(50);
             entity.Property(e => e.OldPlanId).HasColumnName("OldPlanID");
@@ -390,7 +407,6 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.IsActive)
                 .IsRequired()
                 .HasDefaultValueSql("'1'");
-            entity.Property(e => e.MinimumMonthlyPrice).HasPrecision(10, 2);
             entity.Property(e => e.PlanName).HasMaxLength(100);
             entity.Property(e => e.PricePerCoach).HasPrecision(10, 2);
         });

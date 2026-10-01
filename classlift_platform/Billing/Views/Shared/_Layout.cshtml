@@ -34,7 +34,10 @@
             <div class="collapse navbar-collapse"
                  id="navbarNav">
 
-                <ul class="navbar-nav">
+                <ul class="navbar-nav billing-nav">
+
+                    @if (User.IsInRole("Admin"))
+                    {
 
                     <li class="nav-item">
                         <a class="nav-link"
@@ -43,58 +46,42 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="/Plans">
-                            Plans
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Organization
                         </a>
+                        <ul class="dropdown-menu">
+                            <li><h6 class="dropdown-header">Organization management</h6></li>
+                            <li><a class="dropdown-item" href="/Plans">Plans</a></li>
+                            <li><a class="dropdown-item" href="/Organizations">Organizations</a></li>
+                            <li><a class="dropdown-item" href="/FeatureAccessAdmin">Feature Access</a></li>
+                            <li><a class="dropdown-item" href="/OrganizationAdmins">Organization Admins</a></li>
+                        </ul>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="/Organizations">
-                            Organizations
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Billing
                         </a>
+                        <ul class="dropdown-menu">
+                            <li><h6 class="dropdown-header">Billing operations</h6></li>
+                            <li><a class="dropdown-item" href="/Invoices">Invoices</a></li>
+                            <li><a class="dropdown-item" href="/Payments">Payments</a></li>
+                            <li><a class="dropdown-item" href="/SubscriptionEvents">Subscription Events</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" href="/Billing">Billing Job</a></li>
+                            <li><a class="dropdown-item" href="/BillingRuns">Billing Run</a></li>
+                        </ul>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="/FeatureAccessAdmin">Feature Access</a>
-                    </li>
+                    }
 
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="/Invoices">
-                            Invoices
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="/Payments">
-                            Payments
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="/SubscriptionEvents">
-                            Subscription Events
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="/Billing">
-                            Billing Job
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="/BillingRuns">
-                            Billing Run
-                        </a>
-                    </li>
+                    @if (User.IsInRole("OrganizationAdmin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/organization">My Organization Billing</a>
+                        </li>
+                    }
 
                 </ul>
 

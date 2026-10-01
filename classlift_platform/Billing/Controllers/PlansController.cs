@@ -20,7 +20,8 @@ namespace Billing.Controllers
         public async Task<IActionResult> Index()
         {
             var plans = await _context.Subscriptionplans
-                .OrderBy(p => p.PlanName)
+                .OrderBy(p => p.PricePerCoach)
+                .ThenBy(p => p.PlanName)
                 .ToListAsync();
 
             return View(plans);
@@ -64,7 +65,6 @@ namespace Billing.Controllers
             plan.PlanName = model.PlanName;
             plan.Description = model.Description;
             plan.PricePerCoach = model.PricePerCoach;
-            plan.MinimumMonthlyPrice = model.MinimumMonthlyPrice;
             plan.IsActive = model.IsActive;
 
             await _context.SaveChangesAsync();
