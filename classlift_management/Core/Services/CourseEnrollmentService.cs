@@ -101,25 +101,6 @@ namespace Core.Services
                 .Count();
         }
 
-        private async Task SyncGroupCourseAvailabilityAsync(Course course)
-        {
-            if (!string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase)
-                || !course.MaxCapacity.HasValue)
-            {
-                return;
-            }
-
-            var registeredStudentCount = await GetRegisteredStudentCountAsync(course.CourseID);
-            var shouldBeActive = registeredStudentCount < course.MaxCapacity.Value;
-
-            if (course.IsActive != shouldBeActive)
-            {
-                course.IsActive = shouldBeActive;
-                if (!await _courseRepository.UpdateAsync(course))
-                    throw new InvalidOperationException("The course availability could not be updated.");
-            }
-        }
-
         private async Task EnsureGroupCourseSessionsAreReadyForRegistrationAsync(Course course)
         {
             if (!string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase))
@@ -204,7 +185,6 @@ namespace Core.Services
                 if (!await _enrollmentRepository.AddAsync(enrollment))
                     throw new InvalidOperationException("The course registration could not be added.");
 
-                await SyncGroupCourseAvailabilityAsync(course);
                 return enrollment.EnrollmentID;
             }
             catch (Exception ex)
@@ -238,12 +218,6 @@ namespace Core.Services
 
             }
             var removed = await _enrollmentRepository.RemoveAsync(enrollmentId);
-            if (removed)
-            {
-                var course = await _courseRepository.GetAsync(courseId);
-                if (course != null)
-                    await SyncGroupCourseAvailabilityAsync(course);
-            }
 
             return removed;
         }
