@@ -86,14 +86,18 @@
                     contentType: false,
                     success: function (html) {
                         $("#contentArea").html(html);
-                        var updatedLogo = $("#contentArea [data-updated-logo-url]").data("updated-logo-url");
+                        var updatedLogo = $("#contentArea [data-updated-logo-url]").attr("data-updated-logo-url");
                         if (updatedLogo) {
+                            var refreshedLogoUrl = updatedLogo + (updatedLogo.indexOf("?") >= 0 ? "&" : "?") + "clientCache=" + Date.now();
+                            $("#logoPreview")
+                                .attr("src", refreshedLogoUrl)
+                                .removeAttr("onerror");
                             $(".navbar-brand img")
                                 .attr("onerror", "this.onerror=null;this.src=this.dataset.fallbackUrl;")
-                                .attr("src", updatedLogo);
+                                .attr("src", refreshedLogoUrl);
                             $("#organizationFavicon")
                                 .attr("onerror", "this.onerror=null;this.href=this.dataset.fallbackUrl;")
-                                .attr("href", updatedLogo);
+                                .attr("href", refreshedLogoUrl);
                         }
                     }
                 });
