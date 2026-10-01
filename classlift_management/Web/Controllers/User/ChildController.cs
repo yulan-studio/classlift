@@ -969,7 +969,7 @@ namespace Web.Controllers.User
                 
                 //await transaction.CommitAsync();
 
-                TempData["SuccessMessage1"] = "Child enrolled successfully!";
+                TempData["SuccessMessage1"] = $"{_currentTenant.Terminology.ParticipantSingular} registered successfully!";
                 await NotifyFamilyOfCourseRegistrationAsync(childId, course);
             }
             catch (Exception ex)
