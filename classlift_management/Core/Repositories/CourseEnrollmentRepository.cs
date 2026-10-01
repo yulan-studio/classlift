@@ -741,27 +741,6 @@ namespace Core.Repositories
                 session.UpdatedDate = now;
             }
 
-            var affectedCourses = await dbContext.Courses
-                .Where(course => affectedCourseIds.Contains(course.CourseID)
-                                 && course.MaxCapacity.HasValue)
-                .ToListAsync(cancellationToken);
-
-            foreach (var course in affectedCourses)
-            {
-                var activeRegistrationCount = await dbContext.CourseEnrollments.CountAsync(
-                    enrollment => enrollment.CourseID == course.CourseID
-                                  && enrollment.EnrollmentID_Ref == null
-                                  && enrollment.ChildID != null
-                                  && (enrollment.Status == "Registered"
-                                      || enrollment.Status == "Confirmed"),
-                    cancellationToken);
-
-                var canceledRegistrationCount = rootsToCancel.Count(
-                    root => root.CourseID == course.CourseID);
-                course.IsActive = activeRegistrationCount - canceledRegistrationCount
-                                  < course.MaxCapacity!.Value;
-            }
-
             await dbContext.SaveChangesAsync(cancellationToken);
 
             static DateTime GetCancellationDeadlineUtc(

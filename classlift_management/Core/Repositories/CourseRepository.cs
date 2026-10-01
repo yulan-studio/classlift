@@ -213,7 +213,7 @@ namespace Core.Repositories
             return await _context.Courses
                .Include(c => c.Coach)
                .Include(c => c.Specialty)
-               .Where(c => c.CoachID == coachId && c.SpecialtyID == specialId)  // Coach course management includes full courses.
+               .Where(c => c.CoachID == coachId && c.SpecialtyID == specialId && c.IsActive == true)  // Only active courses are shown to Coaches.
                .ToListAsync();
         }
 

@@ -49,7 +49,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. Refund Session Cost is available only when the tenant's plan includes Credit Tracking (Balance). If the plan does not include it, Staff must create a replacement session; the refund operation is hidden in the page and rejected by the server.
 6. When Staff chooses Refund Session Cost instead of creating a replacement, the course's final Session Count is reduced by one. Creating a replacement does not reduce Session Count. The reduction is applied only once with the refund operation.
 7. When Staff creates a replacement for a canceled Group session, the cancellation Staff Note and replacement Staff Note are entered separately. Each note is saved only to the corresponding session workflow.
-8. A Group course reaching Max Capacity stops new registrations but does not make the course inactive or hide it from the assigned Coach while the course is still being managed.
+8. Only courses with IsActive set to true are shown to Coaches and in Staff's course-registration choices. A Group course reaching Max Capacity stops new registrations but remains active and visible until the course ends or Staff deactivates it.
 
 ## Private-course scheduling
 
