@@ -555,7 +555,7 @@ namespace Web.Controllers.Courses
 
 
         [Authorize(Roles = "Staff")]
-        [HttpPost]
+        [HttpPost("AddSession")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddSession(int courseId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, string staffNote, string repeatType, int repeatCount)
         {
@@ -659,7 +659,7 @@ namespace Web.Controllers.Courses
         }
 
         [Authorize(Roles = "Staff")]
-        [HttpPost]
+        [HttpPost("CreateReplacementSession")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateReplacementSession(int canceledSessionId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, string? staffNote)
         {
@@ -690,7 +690,7 @@ namespace Web.Controllers.Courses
         }
 
         [Authorize(Roles = "Staff")]
-        [HttpPost]
+        [HttpPost("RefundSessionCost")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RefundSessionCost(int canceledSessionId)
         {
