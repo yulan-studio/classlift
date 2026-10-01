@@ -1,6 +1,8 @@
 @model Core.ViewModels.ManageEnrollmentsViewModel
 
 <style>
+    .completed-note-actions { display: inline-flex; align-items: center; gap: .4rem; }
+
     table.mobile-stack {
         width: 100%;
         border-collapse: collapse;
@@ -76,9 +78,11 @@
                             <input type="hidden" name="childId" value="@Model.Child.ChildID" />
                             <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
                             <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
-                            <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Update Note</a>
-                            <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
-                            <button id="coach-note-cancel-@completed.EnrollmentID" type="button" class="btn btn-secondary" style="display: none;" onclick="cancelCoachNote(@completed.EnrollmentID)">Cancel</button>
+                            <span class="completed-note-actions">
+                                <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Update Note</a>
+                                <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
+                                <button id="coach-note-cancel-@completed.EnrollmentID" type="button" class="btn btn-secondary" style="display: none;" onclick="cancelCoachNote(@completed.EnrollmentID)">Cancel</button>
+                            </span>
                         </form>
                     </td>
                 </tr>
