@@ -3,9 +3,9 @@
 <h4>Home page</h4>
 <p class="text-muted">Enter the website that should appear inside the Home page.</p>
 
-@if (ViewBag.SuccessMessage != null)
+@if (ViewBag.HomePageSuccessMessage != null)
 {
-    <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
+    <div class="alert alert-success" role="alert">@ViewBag.HomePageSuccessMessage</div>
 }
 
 <form asp-controller="Account" asp-action="HomePage" method="post" class="settings-subform">
