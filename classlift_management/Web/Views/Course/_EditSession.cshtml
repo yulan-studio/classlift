@@ -57,7 +57,7 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
                 <select id="replacementTimeZoneId" name="replacementTimeZoneId" class="form-select" required>
                     @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
                     {
-                        <option value="@zone.Id">@zone.DisplayName (@zone.Id)</option>
+                        <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.UserTimeZoneId)">@zone.DisplayName (@zone.Id)</option>
                     }
                 </select>
             </div>
@@ -71,8 +71,15 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
     </div>
 
     <div class="schedule-field">
-        <strong>Staff Note:</strong><br />
+        <strong>Cancellation Staff Note:</strong><br />
         <textarea name="staffNote" rows="3" class="schedule-input schedule-input--edit" >@Model.StaffNote</textarea>
+        @if (hasRegistrations)
+        {
+            <div id="replacementStaffNoteField" style="display:none; margin-top:8px;">
+                <label for="replacementStaffNote" class="form-label" style="display:block;"><strong>Replacement Staff Note:</strong></label>
+                <textarea id="replacementStaffNote" name="replacementStaffNote" rows="3" class="schedule-input schedule-input--edit"></textarea>
+            </div>
+        }
     </div>
 
     <button type="button" onclick="saveSession()" class="management-form__save">Save</button>
@@ -89,5 +96,7 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
     document.getElementById('cancellationResolution')?.addEventListener('change', function () {
         const fields = document.getElementById('replacementFields');
         if (fields) fields.style.display = this.value === 'Replacement' ? 'block' : 'none';
+        const noteField = document.getElementById('replacementStaffNoteField');
+        if (noteField) noteField.style.display = this.value === 'Replacement' ? 'block' : 'none';
     });
 </script>
