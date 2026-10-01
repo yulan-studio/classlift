@@ -215,9 +215,7 @@
                                     </td>
 
                                     <td data-label="My Note">
-                                        <textarea name="Schedules[@i].ParentNote" class="form-control" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" ? "disabled" : "")>
-                                            @courseSchedules.Schedules[i].ParentNote
-                                        </textarea>
+                                        <textarea name="Schedules[@i].ParentNote" class="form-control" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" ? "disabled" : "")>@courseSchedules.Schedules[i].ParentNote</textarea>
                                     </td>
 
                                 </tr>

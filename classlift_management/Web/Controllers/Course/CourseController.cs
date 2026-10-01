@@ -725,6 +725,7 @@ namespace Web.Controllers.Courses
                 .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
             ViewBag.HasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
             var currentUser = await _userManager.GetUserAsync(User);
+            ViewBag.UserTimeZoneId = currentUser?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
             ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
             return PartialView("_EditSession", session);
@@ -795,7 +796,12 @@ namespace Web.Controllers.Courses
                             var replacementId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
                                 session.CourseID,
                                 new ScheduleTiming { ScheduledAtUtc = replacementUtc, ScheduledLocalTime = replacementLocal, TimeZoneId = replacementTimeZoneId },
-                                replacementScheduledHours.Value, location, staffNote ?? $"Replacement for canceled session on {session.ScheduledAt?.ToString("yyyy-MM-dd") ?? "unknown date"}", user!);
+                                replacementScheduledHours.Value,
+                                location,
+                                string.IsNullOrWhiteSpace(replacementStaffNote)
+                                    ? $"Replacement for canceled session on {session.ScheduledAt?.ToString("yyyy-MM-dd") ?? "unknown date"}"
+                                    : replacementStaffNote,
+                                user!);
                             result = replacementId > 0;
                         }
 
