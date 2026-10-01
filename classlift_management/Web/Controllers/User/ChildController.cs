@@ -868,8 +868,8 @@ namespace Web.Controllers.User
                     : (await _courseEnrollmentService
                         .GetOpenSessionsByCourseAsync(course.CourseID))
                         .Count();
-                var registeredStudents = (await _courseEnrollmentService.GetEnrollmentsByCourseAsync(course.CourseID, "Registered"))
-                    .Concat(await _courseEnrollmentService.GetEnrollmentsByCourseAsync(course.CourseID, "Confirmed"))
+                var registeredStudents = (await _courseEnrollmentService.GetRegisteredEnrollmentsByCourseAsync(course.CourseID))
+                    .Concat(await _courseEnrollmentService.GetConfirmedEnrollmentsByCourseAsync(course.CourseID))
                     .Where(enrollment => enrollment.ChildID.HasValue && enrollment.EnrollmentID_Ref == null)
                     .Select(enrollment => enrollment.ChildID!.Value)
                     .Distinct()

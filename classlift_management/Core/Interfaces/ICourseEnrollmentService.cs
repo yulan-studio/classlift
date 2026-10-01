@@ -45,6 +45,7 @@ namespace Core.Interfaces
         Task<IEnumerable<CourseEnrollment>> GetScheduledEnrollmentsByCourseAsync(int courseId);
 
         Task<IEnumerable<CourseEnrollment>> GetRegisteredEnrollmentsByCourseAsync(int courseId);
+        Task<IEnumerable<CourseEnrollment>> GetConfirmedEnrollmentsByCourseAsync(int courseId);
 
         Task<IEnumerable<CourseEnrollment>> GetOpenSessionsByCourseAsync(int courseId);
 
