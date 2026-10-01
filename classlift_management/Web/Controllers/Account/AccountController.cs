@@ -201,7 +201,7 @@ namespace Web.Controllers.Account
             ViewBag.Terminology = ToTerminologyViewModel(_currentTenant.Terminology);
             return PartialView("_Branding", new BrandingSettingsViewModel
             {
-                CurrentLogoUrl = GetTenantLogoUrl()
+                CurrentLogoUrl = GetTenantLogoUrl(cacheBust: true)
             });
         }
 
@@ -211,7 +211,7 @@ namespace Web.Controllers.Account
         [RequestSizeLimit(MaxLogoSize + 64 * 1024)]
         public async Task<IActionResult> Branding(BrandingSettingsViewModel model)
         {
-            model.CurrentLogoUrl = GetTenantLogoUrl();
+            model.CurrentLogoUrl = GetTenantLogoUrl(cacheBust: true);
             ViewBag.HomePageUrl = await GetHomePageUrlAsync();
             ViewBag.Terminology = ToTerminologyViewModel(_currentTenant.Terminology);
 
@@ -324,8 +324,13 @@ namespace Web.Controllers.Account
             return PartialView("_HomePage", model);
         }
 
-        private string GetTenantLogoUrl() =>
-            _storageService.GetPublicUrl(GetTenantLogoKey());
+        private string GetTenantLogoUrl(bool cacheBust = false)
+        {
+            var url = _storageService.GetPublicUrl(GetTenantLogoKey());
+            return cacheBust
+                ? $"{url}?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}"
+                : url;
+        }
 
         private string GetTenantLogoKey()
         {
