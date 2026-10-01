@@ -241,7 +241,7 @@ namespace Web.Controllers.Account
                 model.CurrentLogoUrl = $"{logoUrl}?v={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
                 model.Logo = null;
                 ModelState.Clear();
-                ViewBag.SuccessMessage = "Your logo has been updated.";
+                ViewBag.LogoSuccessMessage = "Your logo has been updated.";
             }
             catch
             {
@@ -275,7 +275,7 @@ namespace Web.Controllers.Account
 
                 await _terminologyService.SaveAsync(GetTenantDatabaseName(), terminology);
                 _currentTenant.Terminology = terminology;
-                ViewBag.SuccessMessage = "Organization settings have been updated.";
+                ViewBag.TerminologySuccessMessage = "Organization settings have been updated.";
             }
             catch
             {
@@ -314,7 +314,7 @@ namespace Web.Controllers.Account
             try
             {
                 await _storageService.UploadTextAsync(GetTenantHomePageUrlKey(), model.PageUrl);
-                ViewBag.SuccessMessage = "The Home page URL has been updated.";
+                ViewBag.HomePageSuccessMessage = "The Home page URL has been updated.";
             }
             catch
             {

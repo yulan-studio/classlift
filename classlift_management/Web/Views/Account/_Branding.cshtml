@@ -3,9 +3,9 @@
 <h4>Organization logo</h4>
 <p class="text-muted">Upload a PNG, JPEG, or WebP image up to 2 MB. It will appear in the navigation bar for everyone in your organization.</p>
 
-@if (ViewBag.SuccessMessage != null)
+@if (ViewBag.LogoSuccessMessage != null)
 {
-    <div class="alert alert-success" role="alert">@ViewBag.SuccessMessage</div>
+    <div class="alert alert-success" role="alert">@ViewBag.LogoSuccessMessage</div>
     <span data-updated-logo-url="@Model.CurrentLogoUrl" hidden></span>
 }
 
