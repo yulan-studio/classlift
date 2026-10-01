@@ -321,6 +321,11 @@ namespace Core.Services
             return await _enrollmentRepository.GetEnrollmentsByCourseAsync(courseId, "Registered");
         }
 
+        public async Task<IEnumerable<CourseEnrollment>> GetConfirmedEnrollmentsByCourseAsync(int courseId)
+        {
+            return await _enrollmentRepository.GetEnrollmentsByCourseAsync(courseId, "Confirmed");
+        }
+
         //This is for Group Course (When Status is set to 'Open', means it is open for registration)
         public async Task<IEnumerable<CourseEnrollment>> GetOpenSessionsByCourseAsync(int courseId)
         {

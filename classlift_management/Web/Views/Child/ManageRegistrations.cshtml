@@ -512,6 +512,9 @@
             <span id="openSessionInfo" style="display: none; margin-left: 10px; color: darkslategray;">
                 Open Sessions: <strong id="openSessionCount">0</strong>
             </span>
+            <span id="courseCapacityInfo" style="display: none; margin-top: 6px; color: #b02a37;">
+                This course is full.
+            </span>
         </div>
 
         <input type="hidden" name="scheduledHours" value="0" />
@@ -714,6 +717,7 @@
         function fetchCoursesBySpecialty(specialtyId) {
             document.getElementById("openSessionInfo").style.display = "none";
             document.getElementById("openSessionCount").textContent = "0";
+            document.getElementById("courseCapacityInfo").style.display = "none";
 
             if (!specialtyId) {
                 document.getElementById('courseId').innerHTML = '<option value="">-- Select Course --</option>';
@@ -733,6 +737,7 @@
                         option.setAttribute("data-session-count", course.sessionCount ?? "");
                         option.setAttribute("data-session-cost", course.sessionCost ?? "");
                         option.setAttribute("data-open-session-count", course.openSessionCount);
+                        option.setAttribute("data-is-full", course.isFull ? "true" : "false");
                         courseDropdown.add(option);
                     });
                 });
@@ -747,10 +752,12 @@
         const courseType = selectedOption.getAttribute("data-course-type");
         const sessionCount = selectedOption.getAttribute("data-session-count");
         const openSessionCount = Number(selectedOption.getAttribute("data-open-session-count") || 0);
+        const isFull = selectedOption.getAttribute("data-is-full") === "true";
         const sessionCost = Number(selectedOption.getAttribute("data-session-cost") || 0);
         usesSessionFee = courseType === "Group" || (courseType === "Private" && sessionCount !== "");
         const requiresTokenPayment = courseType === "Private" && sessionCount === "";
         const openSessionInfo = document.getElementById("openSessionInfo");
+        const courseCapacityInfo = document.getElementById("courseCapacityInfo");
         const paymentModelDropdown = courseDropdown.closest("form").querySelector("[name='paymentModel']");
 
         Array.from(paymentModelDropdown.options).forEach(option => {
@@ -762,6 +769,7 @@
         }
 
         openSessionInfo.style.display = usesSessionFee ? "inline" : "none";
+        courseCapacityInfo.style.display = isFull ? "block" : "none";
         document.getElementById("openSessionCount").textContent = openSessionCount;
 
         const totalCostInput = document.getElementById("totalCost");

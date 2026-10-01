@@ -31,6 +31,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - If the total is higher, registration is blocked because the course session data is inconsistent.
    - Canceled, Deleted, and child-session copies are not included in this count.
    - No registration, fee, balance, or child-session data is created when this validation fails.
+5. In the Staff course-registration selector, a full Group course remains selectable and is labeled as full; the server still rejects the registration if capacity is reached.
 
 ## Course completion and reporting
 
