@@ -15,6 +15,7 @@
     .enrollment-table-wrapper table { min-width: 760px; margin: 0; }
     .enrollment-table-wrapper thead th { white-space: nowrap; }
     .enrollment-table-wrapper textarea { min-width: 220px; }
+    .enrollment-table-wrapper .row-button { margin-bottom: .5rem; }
     .enrollment-table-wrapper .row-button .btn { margin-top: .25rem; }
     .manage-enrollments-page .alert { border-radius: 7px; }
 
@@ -212,7 +213,9 @@
                                            step="0.25"
                                            min="0"
                                            style="width:50px"
-                                           class="input-hours" />
+                                           class="input-hours"
+                                           oninput="updateActualHoursMinutes(this, 'actualHoursMinutes_@schedule.EnrollmentID');" />
+                                    <span id="actualHoursMinutes_@schedule.EnrollmentID" class="actual-hours-minutes" aria-live="polite"></span>
 
                                     @* <input name="coachNote"
                                            value="@schedule.CoachNote"
@@ -371,6 +374,20 @@
         document.getElementById('coach-note-save-' + enrollmentId).style.display = 'none';
         document.getElementById('coach-note-cancel-' + enrollmentId).style.display = 'none';
     }
+
+        function updateActualHoursMinutes(input, outputId) {
+            const hours = Number.parseFloat(input.value);
+            const output = document.getElementById(outputId);
+            if (!output) return;
+
+            output.textContent = Number.isFinite(hours) && hours >= 0
+                ? `(${Math.round(hours * 60)} minutes)`
+                : '';
+        }
+
+        document.querySelectorAll('input[name="actualHours"]').forEach(input => {
+            updateActualHoursMinutes(input, input.parentElement.querySelector('.actual-hours-minutes')?.id);
+        });
 
         function toggleFields(id, isChecked) {
         const fieldsDiv = document.getElementById('extraFields_' + id);
