@@ -144,6 +144,86 @@ namespace Web.Controllers.Account
             return View();
         }
 
+        [Authorize(Roles = "Coach")]
+        [HttpGet("CoachContactSettings")]
+        public async Task<IActionResult> CoachContactSettings()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var coach = user == null
+                ? null
+                : await _dbContext.Coaches.SingleOrDefaultAsync(coach => coach.UserID == user.Id);
+
+            if (coach == null)
+                return NotFound();
+
+            await PopulateCoachProfileOptionsAsync();
+            return PartialView("_CoachContactSettings", new CoachContactSettingsViewModel
+            {
+                PreferedName = coach.PreferedName,
+                Wechat = coach.Wechat,
+                WhatsApp = coach.WhatsApp,
+                CityID = coach.CityID,
+                Address = coach.Address,
+                PostCode = coach.PostCode,
+                Status = coach.Status ?? "Active",
+                PhotoConsent = coach.PhotoConsent
+            });
+        }
+
+        [Authorize(Roles = "Coach")]
+        [HttpPost("CoachContactSettings")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CoachContactSettings(CoachContactSettingsViewModel model)
+        {
+            model.Wechat = model.Wechat?.Trim();
+            model.WhatsApp = model.WhatsApp?.Trim();
+
+            if (model.Status is not ("Active" or "InActive"))
+                ModelState.AddModelError(nameof(model.Status), "Please select Active or InActive.");
+
+            if (!ModelState.IsValid)
+            {
+                await PopulateCoachProfileOptionsAsync();
+                return PartialView("_CoachContactSettings", model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            var coach = user == null
+                ? null
+                : await _dbContext.Coaches.SingleOrDefaultAsync(coach => coach.UserID == user.Id);
+
+            if (coach == null)
+                return NotFound();
+
+            if (!await _dbContext.Cities.AnyAsync(city => city.CityID == model.CityID))
+            {
+                ModelState.AddModelError(nameof(model.CityID), "Please select a valid city.");
+                await PopulateCoachProfileOptionsAsync();
+                return PartialView("_CoachContactSettings", model);
+            }
+
+            coach.PreferedName = string.IsNullOrWhiteSpace(model.PreferedName) ? null : model.PreferedName.Trim();
+            coach.Wechat = string.IsNullOrWhiteSpace(model.Wechat) ? null : model.Wechat;
+            coach.WhatsApp = string.IsNullOrWhiteSpace(model.WhatsApp) ? null : model.WhatsApp;
+            coach.CityID = model.CityID;
+            coach.Address = string.IsNullOrWhiteSpace(model.Address) ? null : model.Address.Trim();
+            coach.PostCode = string.IsNullOrWhiteSpace(model.PostCode) ? null : model.PostCode.Trim();
+            coach.Status = model.Status;
+            coach.PhotoConsent = model.PhotoConsent;
+            await _dbContext.SaveChangesAsync();
+
+            ViewBag.SuccessMessage = "Profile details have been updated.";
+            await PopulateCoachProfileOptionsAsync();
+            return PartialView("_CoachContactSettings", model);
+        }
+
+        private async Task PopulateCoachProfileOptionsAsync()
+        {
+            ViewBag.Cities = await _dbContext.Cities
+                .OrderBy(city => city.Name)
+                .ToListAsync();
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("EmailSettings")]
         public async Task<IActionResult> EmailSettings(CancellationToken cancellationToken)

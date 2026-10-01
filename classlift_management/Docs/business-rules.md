@@ -68,6 +68,10 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Accounts and user manual
 
+1. Coaches can maintain their chosen name, contact details, city, address, status, and photo consent from Account Settings. The coach address is used only for tax documents and formal document delivery. Member ID and bank payment details remain Staff-managed. Blank optional values clear the corresponding details.
+2. ClassLift keeps course operations and their directly related financial workflows with the Staff role. Staff who manage attendance, course registration, withdrawals, refunds, balances, and related financial records may complete that workflow without transferring the task to a separate Finance role.
+3. Bank, Transit, and Account details remain restricted sensitive information. They are not part of the ordinary Coach self-service profile and should be visible only to Admin or specifically authorized Staff.
+
 ## Payments and balance history
 
 1. Payment records are financial audit records. Staff must not delete them; the payment list does not offer a Remove action, and the server rejects deletion requests.
