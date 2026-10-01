@@ -48,6 +48,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. If Staff chooses Refund Session Cost, the system credits each affected participant's course balance by that course's Session Cost and records the canceled session and participant session in the balance history. A refund cannot be applied twice to the same participant session.
 5. Refund Session Cost is available only when the tenant's plan includes Credit Tracking (Balance). If the plan does not include it, Staff must create a replacement session; the refund operation is hidden in the page and rejected by the server.
 6. When Staff chooses Refund Session Cost instead of creating a replacement, the course's final Session Count is reduced by one. Creating a replacement does not reduce Session Count. The reduction is applied only once with the refund operation.
+7. When Staff creates a replacement for a canceled Group session, the cancellation Staff Note and replacement Staff Note are entered separately. Each note is saved only to the corresponding session workflow.
 
 ## Private-course scheduling
 
