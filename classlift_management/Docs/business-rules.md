@@ -12,6 +12,10 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. Max Capacity is optional for a Group course. When supplied, it limits active registrations.
 5. The Staff course list is paginated and can be filtered by Specialty, Provider, Course Type, and active status. Sorting and active filters are preserved while paging.
 
+## Course registration messaging
+
+1. After a participant is successfully registered in a course, Staff sees a success message using the organization's configured participant term and the wording "registered successfully".
+
 ## Group-course registration
 
 1. A newly created Group-course registration remains pending until it is confirmed.
@@ -34,6 +38,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 2. Private sessions without a fixed Session Count are completed manually by the coach using actual hours.
 3. Standard course reports include completed child sessions that have Actual Hours recorded.
 4. My Enrollment History returns only course sessions with status Completed. Canceled and OnLeave sessions are excluded.
+5. The Enrollments History course table uses the organization's configured provider term instead of a fixed Coach heading.
 
 ## Canceled course sessions
 
