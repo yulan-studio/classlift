@@ -31,7 +31,7 @@
 <h2 class="mb-4">View Enrollments</h2>
 
 <p class="enrollment-page-help">
-    View completed course sessions and update the Coach Note for completed sessions here.
+    Review completed sessions and manage @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() notes.
 </p>
 
 <a href="/Coach/ManageCourse" class="participation-back-link enrollment-back-link">← Back to Courses List</a>
@@ -62,7 +62,6 @@
     <thead class="management-table-header">
         <tr>
             <th>Scheduled At</th>
-            <th>Hours</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th>My Note</th>
             <th>Action</th>
@@ -75,7 +74,6 @@
             {
                 <tr>
                     <td>@(completed.ScheduledAt.HasValue ? completed.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
-                    <td>@completed.ActualHours</td>
                     <td class="desktop-only" data-label="@CurrentTenant.Terminology.ParticipantSingular Note">@completed.ParentNote</td>
                     <td data-label="My Note">
                         <span id="coach-note-view-@completed.EnrollmentID">@completed.CoachNote</span>
@@ -101,7 +99,7 @@
         else
         {
             <tr>
-                <td colspan="5" class="text-center">No completed sessions.</td>
+                <td colspan="4" class="text-center">No completed sessions.</td>
             </tr>
         }
     </tbody>
