@@ -1827,11 +1827,15 @@ namespace Web.Controllers.User
 
 
 
-                    TempData["SuccessMessage1"] = "Schedules updated successfully.";
-                    TempData["CourseID"] = model.CourseID;
                     if (submittedRequests.Count > 0)
                     {
                         await NotifyScheduleChangeRequestAsync(child, course, submittedRequests);
+                    }
+
+                    if (TempData["WarningMessage1"] == null)
+                    {
+                        TempData["SuccessMessage1"] = "Schedules updated successfully.";
+                        TempData["CourseID"] = model.CourseID;
                     }
                 }
 
