@@ -5,6 +5,10 @@
 <h2 class="management-page-title mb-4">Settings</h2>
 
 <style>
+    html {
+        overflow-y: scroll;
+    }
+
     #contentArea h4 {
         margin-bottom: 1rem;
         color: #26364d;
@@ -33,6 +37,14 @@
            href="#"
            data-url="/Account/TimeZone">Time Zone</a>
     </li>
+    @if (User.IsInRole("Coach"))
+    {
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "CoachContactSettings" ? "active" : "")"
+               href="#"
+               data-url="/Account/CoachContactSettings">Profile Details</a>
+        </li>
+    }
     @if (User.IsInRole("Admin") || User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
     {
         <li class="nav-item">

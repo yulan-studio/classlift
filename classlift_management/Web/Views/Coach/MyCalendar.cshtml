@@ -2,8 +2,8 @@
 
 <style>
     :root { --cal-primary:#2673ad; --cal-dark:#152238; --cal-accent:#6eaed8; --cal-ink:#26364d; --cal-border:#dbe5ee; }
-    .calendar-shell { padding:18px; overflow:hidden; border:1px solid var(--cal-border); border-radius:8px; background:#fff; box-shadow:0 5px 18px rgba(24,47,76,.07); }
-    #calendar { max-width:100%; }
+    .calendar-shell { margin-bottom:32px; padding:18px; overflow:hidden; border:1px solid var(--cal-border); border-radius:8px; background:#fff; box-shadow:0 5px 18px rgba(24,47,76,.07); }
+    #calendar { max-width:100%; padding:12px; border-radius:6px; background:#fff; }
     .fc { font-family: inherit; }
     .fc .fc-toolbar-title { color:#152238; font-size:clamp(1.35rem, 2.2vw, 1.75rem); font-weight:700; }
     .fc .fc-toolbar.fc-header-toolbar { margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid #edf1f5; }
@@ -11,7 +11,7 @@
     .fc-theme-standard td,.fc-theme-standard th { border-color:var(--cal-border); }
     .fc .fc-col-header-cell { padding:10px 0; background:#edf5fb; }
     .fc .fc-col-header-cell-cushion { color:var(--cal-dark); font-size:.76rem; font-weight:800; letter-spacing:.08em; text-decoration:none; text-transform:uppercase; }
-    .fc .fc-daygrid-day { transition:background-color .18s ease; }
+    .fc .fc-daygrid-day { background:#f8fbfd; transition:background-color .18s ease; }
     .fc .fc-daygrid-day:hover { background:#f7fbfe; }
     .fc .fc-day-today { background:#f0f7fc !important; box-shadow:inset 0 3px 0 var(--cal-accent); }
     .fc .fc-daygrid-day-number { padding:7px 9px; color:var(--cal-ink); font-weight:650; text-decoration:none; }
