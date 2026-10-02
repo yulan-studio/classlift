@@ -2,6 +2,12 @@
 
 <style>
     .completed-note-actions { display: inline-flex; align-items: center; gap: .4rem; }
+    .enrollment-page-help { margin: -0.75rem 0 1.25rem; max-width: 900px; color: #65748b; font-size: .95rem; line-height: 1.55; }
+    .enrollment-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2rem 0 .85rem; }
+    .enrollment-section-heading h4 { margin: 0; color: #1b7bab; font-size: 1.35rem; font-weight: 700; }
+    .enrollment-section-heading a { color: #1b7bab; font-weight: 600; }
+    .enrollment-back-link { margin-top: 0; margin-bottom: 1rem; }
+    .enrollment-info-panel { margin-top: 1.25rem; }
 
     table.mobile-stack {
         width: 100%;
@@ -24,11 +30,15 @@
 
 <h2 class="mb-4">View Enrollments</h2>
 
-<a href="/Coach/ManageCourse" class="participation-back-link">← Back to Courses List</a>
+<p class="enrollment-page-help">
+    View completed course sessions and update the Coach Note for completed sessions here.
+</p>
+
+<a href="/Coach/ManageCourse" class="participation-back-link enrollment-back-link">← Back to Courses List</a>
 
 
 
-<div class="p-3 mb-4 bg-light border rounded">
+<div class="enrollment-info-panel p-3 mb-4 bg-light border rounded">
     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
@@ -38,8 +48,8 @@
 
 </div>
 
-<div style="margin: 0; padding: 30px 0; color: #1B7BAB; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-    <h4 style="margin: 0;">Completed Sessions</h4>
+<div class="enrollment-section-heading">
+    <h4>Completed Sessions</h4>
     @if (Model.Course.CourseType == "Private" && Model.Course.SessionCount.HasValue)
     {
         <a href="/Coach/ManageSchedules/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Upcoming Sessions</a>
