@@ -1,0 +1,73 @@
+@model Core.ViewModels.CoachContactSettingsViewModel
+
+<h4>Profile Details</h4>
+<p class="text-muted">Update your profile and contact details. Member ID and bank payment details are managed by Staff.</p>
+
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+}
+
+<form id="coachProfileSettingsForm" class="settings-form" asp-controller="Account" asp-action="CoachContactSettings" method="post" style="width: 100%; max-width: 560px;">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="PreferedName" class="form-label"></label>
+        <input asp-for="PreferedName" class="form-control" />
+        <span asp-validation-for="PreferedName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WhatsApp" class="form-label"></label>
+        <input asp-for="WhatsApp" class="form-control" autocomplete="tel" />
+        <span asp-validation-for="WhatsApp" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Wechat" class="form-label"></label>
+        <input asp-for="Wechat" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Wechat" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CityID" class="form-label"></label>
+        <select asp-for="CityID" class="form-select">
+            <option value="">-- Select City --</option>
+            @foreach (var city in (IEnumerable<Core.Models.City>)ViewBag.Cities)
+            {
+                <option value="@city.CityID">@city.Name</option>
+            }
+        </select>
+        <span asp-validation-for="CityID" class="text-danger"></span>
+    </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <input asp-for="Address" class="form-control" />
+            <div class="form-text" style="color: #17365d;">This address is used only for tax documents and formal document delivery.</div>
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+    <div class="mb-3">
+        <label asp-for="PostCode" class="form-label"></label>
+        <input asp-for="PostCode" class="form-control" />
+        <span asp-validation-for="PostCode" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-select">
+            <option value="Active">Active</option>
+            <option value="InActive">InActive</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="PhotoConsent" class="form-check-input" />
+        <label asp-for="PhotoConsent" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary classlift-button">Save contact details</button>
+</form>
