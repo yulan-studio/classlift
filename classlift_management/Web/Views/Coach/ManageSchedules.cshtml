@@ -1,9 +1,9 @@
 ﻿@model Core.ViewModels.ManageSchedulesViewModel
 
 <style>
-    .manage-schedule-page { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .manage-schedule-page { width: 100%; margin: 0; padding: 0 0 3rem; }
     .manage-schedule-header { margin-bottom: 1.25rem; }
-    .manage-schedule-header h2 { margin: 0; color: #152238; font-size: clamp(1.7rem, 3vw, 2.2rem); font-weight: 700; }
+    .manage-schedule-header h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; line-height: 1.2; }
     .manage-schedule-header p { margin: .35rem 0 0; color: #6b778c; }
     .manage-schedule-info { margin: 1.25rem 0 2rem; padding: 1rem 1.15rem; border: 1px solid #d6e2e7; border-radius: 6px; background: #f8f9fa; color: #26343a; line-height: 1.55; }
     .manage-schedule-info .info-item { color: #26343a; }
@@ -17,10 +17,10 @@
     .schedule-form-card { padding: 1.25rem 0; }
     .schedule-form-card .schedule-form-fields { width: min(100%, 520px); }
     .schedule-notice { margin: 0 1rem 1rem; border: 0; border-radius: 8px; background: #fff3f7; color: #5f3b4b; }
-    .manage-schedule-page .participation-back-link { margin-top: 0; }
+    .manage-schedule-page .participation-back-link { margin-top: 0; margin-bottom: 1rem; }
     .manage-schedule-page .schedule-table-wrapper table thead th { white-space: nowrap; }
     @@media (max-width: 767px) {
-        .manage-schedule-page { padding: 1rem .75rem 2rem; }
+        .manage-schedule-page { padding: 0 0 2rem; }
         .schedule-section-heading { align-items: flex-start; flex-direction: column; }
     }
 
@@ -173,7 +173,7 @@
             <th>Location</th>
             <th>Status</th>
             <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
+            <th>My Note</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -205,7 +205,7 @@
                         
                     </td>
 
-                    <td data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FFDBF6" : "transparent")">@s.Status</td>
+                    <td class="@(s.Status == "RequestToReschedule" ? "request-to-reschedule-cell" : s.Status == "Deleted" ? "on-leave-cell" : "")" data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FCE8F2" : "transparent")">@s.Status</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">@s.ParentNote</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")"><textarea id="coachNote-@s.EnrollmentID" class="form-control" data-note-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")" required>@s.CoachNote</textarea></td>
 

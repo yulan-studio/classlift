@@ -20,9 +20,11 @@
     .schedule-status-badge strong { color: #26364d; }
     .schedule-status-badge strong[class^="status-"] { display: inline-flex; min-width: 1.35rem; justify-content: center; padding: .08rem .35rem; border-radius: 999px; font-size: .9rem; font-weight: 800; }
     .schedule-status-badge .status-scheduled { color: #146c43; background: #d1e7dd; }
-    .schedule-status-badge .status-canceled { color: #b02a37; background: #f8d7da; }
-    .schedule-status-badge .status-deleted { color: #b02a37; background: #f8d7da; }
-    .schedule-status-badge .status-request { color: #9a5b00; background: #ffe5b4; }
+    .schedule-status-badge .status-canceled { color: #856404; background: #fff3cd; }
+    .schedule-status-badge .status-deleted,
+    .schedule-status-badge .status-on-leave { color: #185681; background: #dceeff; }
+    .schedule-status-badge .status-request-to-leave,
+    .schedule-status-badge .status-request-to-reschedule { color: #8c4a68; background: #fce8f2; }
     .schedule-toggle { flex: 0 0 auto; border: 1px solid #d6e4f2; border-radius: 7px; padding: .5rem .75rem; color: #2673ad; background: #f1f7fc; font-size: .85rem; }
     .schedule-toggle:hover, .schedule-toggle:focus { color: #185681; background: #e5f1fa; border-color: #b9d5eb; }
     .schedule-details { border-top: 1px solid #e5eaf0; padding: 0 1.15rem 1.15rem; }
@@ -95,15 +97,15 @@
                     }
                     @if (courseSchedules.Course.CourseType == "Group")
                     {
-                        <span class="schedule-status-badge">On Leave <strong class="status-request">@onLeaveCount</strong></span>
+                        <span class="schedule-status-badge">On Leave <strong class="status-on-leave">@onLeaveCount</strong></span>
                     }
                     @if (courseSchedules.Course.CourseType == "Group")
                     {
-                        <span class="schedule-status-badge">Request to Leave <strong class="status-request">@requestToLeaveCount</strong></span>
+                        <span class="schedule-status-badge">Request to Leave <strong class="status-request-to-leave">@requestToLeaveCount</strong></span>
                     }
                     @if (courseSchedules.Course.CourseType == "Private")
                     {
-                        <span class="schedule-status-badge">Request to Reschedule <strong class="status-request">@requestToRescheduleCount</strong></span>
+                        <span class="schedule-status-badge">Request to Reschedule <strong class="status-request-to-reschedule">@requestToRescheduleCount</strong></span>
                     }
                 </div>
             </div>
@@ -182,7 +184,7 @@
                                         @courseSchedules.Schedules[i].Location
                                     </td>
 
-                                    <td data-label="Status">
+                                    <td class="@(courseSchedules.Schedules[i].Status == "RequestToLeave" ? "request-to-leave-cell" : courseSchedules.Schedules[i].Status == "OnLeave" || courseSchedules.Schedules[i].Status == "Deleted" ? "on-leave-cell" : courseSchedules.Schedules[i].Status == "Canceled" ? "canceled-cell" : courseSchedules.Schedules[i].Status == "RequestToReschedule" ? "request-to-reschedule-cell" : "")" data-label="Status">
                                             <select name="Schedules[@i].Status" class="form-select" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" || courseSchedules.Schedules[i].Status == "OnLeave" || isWithin24Hours ? "disabled" : "")> 
                                                 <option value="Scheduled" selected="@(courseSchedules.Schedules[i].Status == "Scheduled")">Scheduled</option> 
                                                 @if (courseSchedules.Course.CourseType == "Private") 

@@ -933,8 +933,12 @@ namespace Web.Controllers.User
 
             if (result)
             {
-                TempData["SuccessMessage"] = "Schedule deleted successfully.";
                 await NotifyFamilyOfDeletedSessionAsync(child, course, coach.Name, enrollment);
+
+                if (TempData["WarningMessage"] == null)
+                {
+                    TempData["SuccessMessage"] = "Schedule deleted successfully.";
+                }
             }
             else
             {

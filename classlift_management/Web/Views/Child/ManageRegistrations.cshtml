@@ -387,7 +387,7 @@
                     <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC;">@enrollment.CompletedSessions</td>
                     <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC; @(enrollment.CanceledSessions > 0 ? "color: red" : "")">@enrollment.CanceledSessions</td>
                   @*   <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC; color:@((enrollment.RequestToRescheduleSessions > 0) && enrollment.CourseType == "Group"? "red" : "black");" >@enrollment.RequestToRescheduleSessions</td> *@
-                    <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC; background-color:@(enrollment.RequestToLeaveSessions > 0 ? "#FFDBF6" : "#EDFDFC");">@enrollment.RequestToLeaveSessions</td>
+                    <td class="@(enrollment.RequestToLeaveSessions > 0 ? "request-to-leave-cell" : "")" style="padding: 8px; border: 1px solid #ddd; @(enrollment.RequestToLeaveSessions > 0 ? "background-color: #FCE8F2;" : "")">@enrollment.RequestToLeaveSessions</td>
                     <td style="padding: 8px; border: 1px solid #ddd; background-color:#EDFDFC;">@enrollment.OnLeaveSessions</td>
                    
                     <td style="padding: 8px; border: 1px solid #ddd;">
