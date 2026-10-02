@@ -273,6 +273,14 @@ main.container > h2 {
     background-image: none !important;
 }
 
+.management-table tbody td.canceled-cell {
+    --bs-table-bg: #FFF3CD !important;
+    --bs-table-bg-type: #FFF3CD !important;
+    --bs-table-bg-state: #FFF3CD !important;
+    background-color: #FFF3CD !important;
+    background-image: none !important;
+}
+
 .management-table thead tr {
     background-color: #f2f2f2;
 }

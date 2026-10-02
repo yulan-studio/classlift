@@ -205,7 +205,7 @@
                         
                     </td>
 
-                    <td class="@(s.Status == "RequestToReschedule" ? "request-to-reschedule-cell" : "")" data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FCE8F2" : "transparent")">@s.Status</td>
+                    <td class="@(s.Status == "RequestToReschedule" ? "request-to-reschedule-cell" : s.Status == "Deleted" ? "on-leave-cell" : "")" data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FCE8F2" : "transparent")">@s.Status</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">@s.ParentNote</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")"><textarea id="coachNote-@s.EnrollmentID" class="form-control" data-note-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")" required>@s.CoachNote</textarea></td>
 
