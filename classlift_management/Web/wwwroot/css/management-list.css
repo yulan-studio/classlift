@@ -249,6 +249,12 @@ main.container > h2 {
     background-color: #fbfcfd !important;
 }
 
+/* Preserve the staff-facing RequestToLeave highlight over the default table fill. */
+.management-table tbody td[style*="F8C3DF"],
+.management-table tbody td[style*="FFDBF6"] {
+    background-color: #F8C3DF !important;
+}
+
 .management-table thead tr {
     background-color: #f2f2f2;
 }
