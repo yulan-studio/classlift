@@ -182,7 +182,7 @@
                                         @courseSchedules.Schedules[i].Location
                                     </td>
 
-                                    <td data-label="Status">
+                                    <td class="@(courseSchedules.Schedules[i].Status == "RequestToLeave" ? "request-to-leave-cell" : courseSchedules.Schedules[i].Status == "OnLeave" || courseSchedules.Schedules[i].Status == "Deleted" ? "on-leave-cell" : courseSchedules.Schedules[i].Status == "RequestToReschedule" ? "request-to-reschedule-cell" : "")" data-label="Status">
                                             <select name="Schedules[@i].Status" class="form-select" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" || courseSchedules.Schedules[i].Status == "OnLeave" || isWithin24Hours ? "disabled" : "")> 
                                                 <option value="Scheduled" selected="@(courseSchedules.Schedules[i].Status == "Scheduled")">Scheduled</option> 
                                                 @if (courseSchedules.Course.CourseType == "Private") 

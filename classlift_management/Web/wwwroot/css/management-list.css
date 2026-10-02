@@ -249,10 +249,28 @@ main.container > h2 {
     background-color: #fbfcfd !important;
 }
 
-/* Preserve the staff-facing RequestToLeave highlight over the default table fill. */
-.management-table tbody td[style*="F8C3DF"],
-.management-table tbody td[style*="FFDBF6"] {
-    background-color: #F8C3DF !important;
+.management-table tbody td.request-to-leave-cell {
+    --bs-table-bg: #FCE8F2 !important;
+    --bs-table-bg-type: #FCE8F2 !important;
+    --bs-table-bg-state: #FCE8F2 !important;
+    background-color: #FCE8F2 !important;
+    background-image: none !important;
+}
+
+.management-table tbody td.on-leave-cell {
+    --bs-table-bg: #DCEEFF !important;
+    --bs-table-bg-type: #DCEEFF !important;
+    --bs-table-bg-state: #DCEEFF !important;
+    background-color: #DCEEFF !important;
+    background-image: none !important;
+}
+
+.management-table tbody td.request-to-reschedule-cell {
+    --bs-table-bg: #FCE8F2 !important;
+    --bs-table-bg-type: #FCE8F2 !important;
+    --bs-table-bg-state: #FCE8F2 !important;
+    background-color: #FCE8F2 !important;
+    background-image: none !important;
 }
 
 .management-table thead tr {
