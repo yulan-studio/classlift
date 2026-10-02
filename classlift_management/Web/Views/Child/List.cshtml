@@ -166,7 +166,7 @@
                     </td>*@
 
 
-                    <td style="padding: 8px; border: 1px solid #ddd; @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "background-color: #F8C3DF;" : ""))">
+                    <td class="@(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "request-to-leave-cell" : "")" style="padding: 8px; border: 1px solid #ddd; @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "background-color: #FCE8F2;" : "")">
                         @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "Yes" : "")
                     </td>
                      @*<td style="padding: 8px; border: 1px solid #ddd;">

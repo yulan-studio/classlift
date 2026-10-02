@@ -179,8 +179,8 @@
                                 }
                                 else
                                 {
-                                    <td class="request-count-cell" data-label="Request to Reschedule"
-                                        style="background-color:@(child.RequestToReschedule > 0 ? "#FFDBF6" : "transparent")">
+                                    <td class="request-count-cell @(child.RequestToReschedule > 0 ? "request-to-reschedule-cell" : "")" data-label="Request to Reschedule"
+                                        style="background-color:@(child.RequestToReschedule > 0 ? "#FCE8F2" : "transparent")">
                                         @child.RequestToReschedule
                                     </td>
                                 }

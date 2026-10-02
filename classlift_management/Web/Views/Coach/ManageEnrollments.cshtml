@@ -1,9 +1,9 @@
 ﻿@model Core.ViewModels.ManageEnrollmentsViewModel
 
 <style>
-    .manage-enrollments-page { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .manage-enrollments-page { width: 100%; margin: 0; padding: 0 0 3rem; }
     .manage-enrollments-header { margin-bottom: 1.25rem; }
-    .manage-enrollments-header h2 { margin: 0; color: #152238; font-size: clamp(1.7rem, 3vw, 2.2rem); font-weight: 700; }
+    .manage-enrollments-header h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; line-height: 1.2; }
     .manage-enrollments-header p { margin: .35rem 0 0; color: #6b778c; }
     .enrollment-info { margin: 1.25rem 0 2rem; padding: 1rem 1.15rem; border: 1px solid #d6e2e7; border-radius: 6px; background: #f8f9fa; color: #26343a; line-height: 1.45; }
     .enrollment-info p { margin: .2rem 0; }
@@ -18,6 +18,7 @@
     .enrollment-table-wrapper .row-button { margin-bottom: .5rem; }
     .enrollment-table-wrapper .row-button .btn { margin-top: .25rem; }
     .manage-enrollments-page .alert { border-radius: 7px; }
+    .manage-enrollments-page .participation-back-link { margin-top: 0; }
 
 
     /* .btn-primary {
@@ -141,7 +142,7 @@
 <div class="manage-enrollments-page">
 <div class="manage-enrollments-header">
     <h2>Manage Enrollments</h2>
-    <p>Review sessions, record actual hours, and manage @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() notes.</p>
+    <p>Review completed sessions, record actual hours, and manage @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() notes.</p>
 </div>
 
 

@@ -111,7 +111,7 @@
                     <tr>
                         <td>@Model.AllSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
                         <td>@Model.AllSessions[i].ScheduledHours</td>
-                        <td style="@(Model.AllSessions[i].Status == "RequestToLeave" ? "background-color: #F8C3DF;" : "")">
+                        <td class="@(Model.AllSessions[i].Status == "RequestToLeave" ? "request-to-leave-cell" : Model.AllSessions[i].Status == "OnLeave" ? "on-leave-cell" : "")" style="@(Model.AllSessions[i].Status == "RequestToLeave" ? "background-color: #FCE8F2;" : "")">
                             <select name="AllSessions[@i].Status" class="form-select">
 
                                @*  <option value="Registered" selected="@("Registered" == Model.AllSessions[i].Status)">Registered</option>
