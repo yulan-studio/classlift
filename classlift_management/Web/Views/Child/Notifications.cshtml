@@ -62,7 +62,7 @@
         @foreach (var courseGroup in Model.Items.GroupBy(item => item.CourseTitle).OrderBy(group => group.Key))
         {
             <section class="child-notification-section">
-                <h4>Course: @courseGroup.Key</h4>
+                <h4>Course: <a href="/Child/MySchedules?courseId=@courseGroup.First().CourseId">@courseGroup.Key</a></h4>
                 <div class="table-responsive"><table class="management-table table table-bordered">
                     <thead class="management-table-header"><tr><th>Scheduled</th><th>Status</th></tr></thead>
                     <tbody>
