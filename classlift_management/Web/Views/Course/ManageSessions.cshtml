@@ -61,7 +61,8 @@
     ViewData["Title"] = "Manage Group Course Sessions";
     Layout = "~/Views/Shared/_Layout.cshtml";
     int courseId = (int)ViewBag.CourseID;
-    int countedSessionCount = (Model.OpenSessions?.Count ?? 0) + (Model.FinishedSessions?.Count ?? 0);
+    int completedSessionCount = Model.FinishedSessions?.Count(session => session.Status == "Completed") ?? 0;
+    int countedSessionCount = (Model.OpenSessions?.Count ?? 0) + completedSessionCount;
     bool canAddSessions = !Model.Course.SessionCount.HasValue
         || countedSessionCount < Model.Course.SessionCount.Value;
 }
