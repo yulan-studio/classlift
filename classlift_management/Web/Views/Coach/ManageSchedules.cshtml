@@ -219,7 +219,7 @@
                             <button type="button" class="edit-mode btn classlift-secondary-button" style="display:none" onclick="saveSchedule(@s.EnrollmentID)">Save</button>
 
 
-                            <button type="button" class="edit-mode btn btn-secondary" style="display:none" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
+                            <button type="button" class="edit-mode btn btn-secondary cancel-button" style="display:none" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
                         }
 
                         @if (s.Status != "Deleted" && !isWithin24Hours)
@@ -356,7 +356,7 @@
         <textarea id="removeScheduleNote" class="form-control" placeholder="Enter note" required></textarea>
         <div class="mt-3 d-flex gap-2 justify-content-end">
             <button type="button" class="btn btn-danger" onclick="confirmRemoveSchedule()">Remove</button>
-            <button type="button" class="btn btn-secondary" onclick="closeRemoveScheduleModal()">Cancel</button>
+            <button type="button" class="btn btn-secondary cancel-button" onclick="closeRemoveScheduleModal()">Cancel</button>
         </div>
     </div>
 </div>

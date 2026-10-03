@@ -221,6 +221,36 @@ textarea[readonly] {
     line-height: 1.2;
 }
 
+/* Keep every grey Cancel action readable on its light background. */
+.cancel-button,
+.btn.btn-secondary.cancel-button {
+    color: #000 !important;
+}
+
+main a.cancel-button,
+main a.cancel-button:hover,
+main a.cancel-button:focus,
+main a.cancel-button:active,
+main button.cancel-button,
+main button.cancel-button:hover,
+main button.cancel-button:focus,
+main button.cancel-button:active {
+    color: #000 !important;
+}
+
+/* Legacy grey Cancel links use inline background styles. Keep their text black too. */
+main a.management-form__cancel,
+main a.management-form__cancel:hover,
+main a.management-form__cancel:focus,
+main a.management-form__cancel:active,
+a.classlift-button[style*="background-color: #ddd"],
+a.classlift-button[style*="background-color: #ddd"]:hover,
+a.classlift-button[style*="background-color: #ddd"]:focus,
+a.classlift-button[style*="background-color: #ddd"]:active,
+a[style*="background-color: #ddd"]:not(.btn) {
+    color: #000 !important;
+}
+
 main a:not(.btn):not(.text-danger) {
     color: var(--classlift-link) !important;
 }
@@ -639,7 +669,7 @@ main.container > h2 {
 
 .management-form__cancel {
     background-color: #ddd;
-    color: black;
+    color: #000 !important;
     border: 1px solid #ccc;
 }
 
