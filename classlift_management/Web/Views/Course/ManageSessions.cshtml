@@ -211,7 +211,7 @@
                         {
                             <span style="color:#6c757d; font-style:italic;">Resolved during cancellation</span>
                         }
-                        @if (!(s.Status =="Canceled")&&!(s.Status == "completed"))
+                        @if (!(s.Status == "Canceled") && !(s.Status == "Completed"))
                         {
                             <a href="#" onclick="loadEditSessionForm(@s.EnrollmentID); return false;" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                         }
