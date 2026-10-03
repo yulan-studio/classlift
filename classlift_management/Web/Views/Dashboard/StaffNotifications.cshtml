@@ -69,7 +69,7 @@
             {
                 @if (group.Item2.Count > 0)
                 {
-                    <section class="notification-group"><h4>@group.Item1 (@group.Item2.Count)</h4><div class="table-responsive"><table class="management-table table table-bordered"><thead class="management-table-header"><tr><th data-sort-key="participant">@CurrentTenant.Terminology.ParticipantSingular</th><th data-sort-key="course">Course</th>@if (group.Item1.Contains("Group")) { <th data-sort-key="date">First registered session</th> }<th class="notification-action-header">Action</th></tr></thead><tbody>@foreach (var item in group.Item2) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td>@if (group.Item1.Contains("Group")) { <td data-sort-value="@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")">@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td> }<td><a href="@item.Link">Review</a></td></tr> }</tbody></table></div></section>
+                    <section class="notification-group"><h4>@group.Item1 (@group.Item2.Count)</h4><div class="table-responsive"><table class="management-table table table-bordered"><thead class="management-table-header"><tr><th data-sort-key="participant">@CurrentTenant.Terminology.ParticipantSingular</th><th data-sort-key="course">Course</th><th class="notification-action-header">Action</th></tr></thead><tbody>@foreach (var item in group.Item2) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td><a href="@item.Link">Review</a></td></tr> }</tbody></table></div></section>
                 }
             }
         }
