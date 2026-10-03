@@ -4,6 +4,7 @@ using Core.Email.Notifications;
 using Core.Email.Templates;
 using Core.Interfaces;
 using Core.Models;
+using Core.Contexts;
 using Core.Repositories;
 using Core.Services;
 using Core.ViewModels;
@@ -52,6 +53,7 @@ namespace Web.Controllers.User
         private readonly CurrentTenant _currentTenant;
         private readonly IOrganizationEmailNotificationService _emailNotifications;
         private readonly ILogger<CoachController> _logger;
+        private readonly AppDbContext _db;
 
         private string ProviderName =>
             _currentTenant.Terminology.ProviderSingular;
@@ -59,7 +61,7 @@ namespace Web.Controllers.User
         private string ProviderNameLower =>
             ProviderName.ToLowerInvariant();
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CoachController> logger)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CoachController> logger, AppDbContext db)
         {
             _coachService = coachService;
             _incomeService = incomeService;
@@ -80,6 +82,7 @@ namespace Web.Controllers.User
             _currentTenant = currentTenant;
             _emailNotifications = emailNotifications;
             _logger = logger;
+            _db = db;
             
         }
 
@@ -1263,6 +1266,52 @@ namespace Web.Controllers.User
 
             return Json(schedules);
 
+        }
+
+        [Authorize(Roles = "Coach")]
+        [HttpGet("Notifications")]
+        public async Task<IActionResult> Notifications()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var now = DateTime.UtcNow;
+            var sessions = await _db.CourseEnrollments
+                .AsNoTracking()
+                .Include(e => e.Child)
+                .Include(e => e.Course)
+                .Where(e => e.Course.CoachID == coach.CoachID && e.ChildID.HasValue && e.ScheduledAt.HasValue)
+                .ToListAsync();
+
+            static CoachNotificationItem ToItem(CourseEnrollment session, string link)
+                => new()
+                {
+                    ParticipantName = session.Child!.Name,
+                    CourseTitle = session.Course.Title,
+                    ScheduledAt = session.ScheduledAt,
+                    Status = session.Status,
+                    Link = link
+                };
+
+            var rescheduleRequests = sessions
+                .Where(e => e.Status == "RequestToReschedule")
+                .OrderBy(e => e.Child!.Name)
+                .ThenBy(e => e.Course.Title)
+                .ThenBy(e => e.ScheduledAt)
+                .Select(e => ToItem(e, $"/Coach/ManageSchedules/{e.ChildID}?courseId={e.CourseID}&enrollmentId={e.EnrollmentID_Ref ?? e.EnrollmentID}"))
+                .ToList();
+
+            var sessionsToComplete = sessions
+                .Where(e => e.Course.CourseType == "Private" && !e.Course.SessionCount.HasValue && e.Status == "Scheduled" && e.ScheduledHours.HasValue && e.ScheduledAt.Value.AddHours((double)e.ScheduledHours.Value) <= now)
+                .OrderBy(e => e.ScheduledAt)
+                .ThenBy(e => e.Child!.Name)
+                .Select(e => ToItem(e, $"/Coach/ManageEnrollments/{e.ChildID}?courseId={e.CourseID}&enrollmentId={e.EnrollmentID_Ref ?? e.EnrollmentID}"))
+                .ToList();
+
+            return View(new CoachNotificationsViewModel
+            {
+                RescheduleRequests = rescheduleRequests,
+                SessionsToComplete = sessionsToComplete
+            });
         }
 
         [Authorize(Roles = "Coach")]
