@@ -1183,7 +1183,7 @@ namespace Web.Controllers.User
                         var emailWarning = TempData["WarningMessage"]?.ToString();
                         TempData["SuccessMessage"] = emailWarning == null
                             ? "Course Completed successfully."
-                            : $"Course Completed successfully. {emailWarning}";
+                            : "Course Completed successfully, but the notification email could not be sent.";
                         TempData.Remove("WarningMessage");
                     }
                     else
