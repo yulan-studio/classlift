@@ -40,6 +40,7 @@ namespace Web.Controllers.User
     public class ChildController : Controller
     {
         private readonly IChildService _childService;
+        private readonly AppDbContext _db;
         private readonly ICourseService _courseService;
         private readonly IParentService _parentService;
         private readonly ICityService _cityService;
@@ -63,7 +64,7 @@ namespace Web.Controllers.User
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<ChildController> logger/*, AppDbContext context*/)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<ChildController> logger, AppDbContext db)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -86,6 +87,7 @@ namespace Web.Controllers.User
             _timeZoneService = timeZoneService;
             _emailNotifications = emailNotifications;
             _logger = logger;
+            _db = db;
 
             //_context = context;   // For transaction
         }
@@ -1414,7 +1416,7 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Child")]
         [HttpGet("MySchedules")]
-        public async Task<IActionResult> MySchedules()
+        public async Task<IActionResult> MySchedules(int? courseId = null)
         {
             // Get the currently logged-in user
             Core.Models.User user = await _userManager.GetUserAsync(User);
@@ -1445,7 +1447,41 @@ namespace Web.Controllers.User
                 ActivitySchedules = activityEnrollments
             };
 
+            ViewBag.OpenCourseId = courseId;
+
             return View("MySchedules", viewModel);
+        }
+
+        [Authorize(Roles = "Child")]
+        [HttpGet("Notifications")]
+        public async Task<IActionResult> Notifications()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
+
+            var now = DateTime.UtcNow;
+            var statuses = new[] { "Canceled", "Deleted", "RequestToReschedule", "RequestToLeave", "OnLeave" };
+            var items = await _db.CourseEnrollments
+                .AsNoTracking()
+                .Include(e => e.Course)
+                .Where(e => e.ChildID == child.ChildID
+                    && e.ScheduledAt.HasValue
+                    && e.ScheduledAt.Value >= now
+                    && statuses.Contains(e.Status))
+                .OrderBy(e => e.ScheduledAt)
+                .ThenBy(e => e.Course.Title)
+                .Select(e => new ChildNotificationItem
+                {
+                    CourseId = e.CourseID,
+                    CourseTitle = e.Course.Title,
+                    ScheduledAt = e.ScheduledAt!.Value,
+                    Status = e.Status
+                })
+                .ToListAsync();
+
+            return View(new ChildNotificationsViewModel { Items = items });
         }
 
 
