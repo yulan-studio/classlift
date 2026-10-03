@@ -279,12 +279,12 @@
     </header>
 
     @{
-        string mainClass = "container mt-4 px-3";
+        string mainClass = "site-main";
 
         if (ViewContext.RouteData.Values["Controller"]?.ToString() == "Home"
         && ViewContext.RouteData.Values["Action"]?.ToString() == "Index")
         {
-            mainClass = "container-fluid mt-4 px-3";
+            mainClass = "site-main site-main--fluid";
         }
     }
 

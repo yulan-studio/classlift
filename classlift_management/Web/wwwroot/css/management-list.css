@@ -221,6 +221,25 @@ textarea[readonly] {
     line-height: 1.2;
 }
 
+/* Shared outer page container for consistent content alignment. */
+.site-main {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+    box-sizing: border-box;
+}
+
+.site-main--fluid {
+    max-width: none;
+}
+
+@media (max-width: 767px) {
+    .site-main {
+        padding: 1rem .75rem 2rem;
+    }
+}
+
 /* Consistent page-level headings for management and form pages. */
 main.container > h1,
 main.container > h2 {
