@@ -13,6 +13,8 @@
     .card { border: 1px solid #d8e7f3; border-radius: 12px; box-shadow: 0 3px 12px rgba(24, 47, 76, .06); }
     .confirmations-page div[style*="background-color: #f8f9fa"] { border-radius: 8px; }
     .confirmations-page .empty-schedules { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
+    .confirmations-page #deleteRegistrationModal .modal-header,
+    .confirmations-page #deleteRegistrationModal .modal-footer { border: 0; }
     .btn-primary { border-color: #7bb4dc; background-color: #7bb4dc; color: #fff; }
     .btn-primary:hover { border-color: #6aa8d3; background-color: #6aa8d3; color: #fff; }
     @@media (max-width: 767px) {
@@ -171,8 +173,8 @@
                     <span style="color: #b35a6a; margin-left: 12px;">Please click <strong>"Delete"</strong> to remove this registration.</span>
                 </div>
                 <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
-                <button type="submit" name="actionType" value="Delete" class="btn btn-outline-danger mt-2 ms-2"
-                        onclick="return confirm('Are you sure you want to remove this registration?');">Delete</button>
+                <button type="button" class="btn btn-outline-danger mt-2 ms-2"
+                        onclick="openDeleteRegistrationModal(this.form);">Delete</button>
             </div>
         </form>
 
@@ -273,8 +275,8 @@
                     <span style="color: #b35a6a; margin-left: 12px;">Please click <strong>"Delete"</strong> to remove this registration.</span>
                 </div>
                 <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
-                <button type="submit" name="actionType" value="Delete" class="btn btn-outline-danger mt-2 ms-2"
-                        onclick="return confirm('Are you sure you want to remove this registration?');">Delete</button>
+                <button type="button" class="btn btn-outline-danger mt-2 ms-2"
+                        onclick="openDeleteRegistrationModal(this.form);">Delete</button>
 
             </div>
         </form>
@@ -294,6 +296,44 @@
 <div style="padding-top: 20px; padding-bottom: 20px">
     <h4 class="confirmation-section-title">Activities</h4>
 </div>
+
+<div id="deleteRegistrationModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Registration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to remove this registration?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteRegistration();">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let deleteRegistrationForm = null;
+
+    function openDeleteRegistrationModal(form) {
+        deleteRegistrationForm = form;
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteRegistrationModal')).show();
+    }
+
+    function confirmDeleteRegistration() {
+        if (!deleteRegistrationForm) return;
+
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'actionType';
+        actionInput.value = 'Delete';
+        deleteRegistrationForm.appendChild(actionInput);
+        deleteRegistrationForm.submit();
+    }
+</script>
 
 @if (TempData["SuccessMessage3"] != null)
 {
