@@ -15,7 +15,14 @@
     .registration-notice a { color: #1b7bab; font-weight: 600; }
     .registrations-table-wrapper table { min-width: 760px; margin: 0; }
     .registrations-table-wrapper thead th { white-space: nowrap; }
-    .registrations-page .empty-row { padding: 1rem; color: #6b778c; background: #f9fbfd; }
+    .registrations-page .empty-row {
+        padding: 1.5rem;
+        color: #6b778c;
+        background: #f9fbfd;
+        border: 1px dashed #ccd6e2 !important;
+        border-radius: 10px;
+    }
+    .registrations-page .empty-schedules { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
     /* ===== Desktop default ===== */
     table.mobile-stack {
         width: 100%;
@@ -69,6 +76,8 @@
     Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the courses you have registered for. To view upcoming course and activity schedules, please check the <a href="/Child/MySchedules">Schedules</a> section. To review completed courses, activities, and update your notes, please visit the <a href="/Child/MyEnrollmentsHistory">Completed</a> section.
 </div>
 <h4 class="registration-section-title">Courses</h4>
+@if (Model.CourseEnrollments.Any())
+{
 <div class="registrations-table-wrapper">
 <table class="management-table mobile-stack table table-bordered mt-3" @* class="mobile-stack" *@>
     <thead class="management-table-header">
@@ -119,6 +128,11 @@
     </tbody>
 </table>
 </div>
+}
+else
+{
+    <div class="empty-schedules p-4 text-center">No courses enrolled.</div>
+}
 
 
 
@@ -130,6 +144,8 @@
 
 <!-- ✅ Table Showing Already Enrolled Activities -->
 <h4 class="registration-section-title">Activities</h4>
+@if (Model.ActivityEnrollments.Any())
+{
 <div class="registrations-table-wrapper">
 <table class="management-table mobile-stack table table-bordered mt-3" @* class="mobile-stack" *@>
  
@@ -184,6 +200,11 @@
     </tbody>
 </table>
 </div>
+}
+else
+{
+    <div class="empty-schedules p-4 text-center">No activities enrolled.</div>
+}
 
 
 

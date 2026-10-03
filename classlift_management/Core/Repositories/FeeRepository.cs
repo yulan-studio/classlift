@@ -172,8 +172,8 @@ namespace Core.Repositories
         public async Task<Fee> GetAsync(int id)
         {
             return await _context.Fees
-                //.Include(s => s.CreatedByUser)
-                //.Include(s => s.UpdatedByUser)
+                .Include(f => f.CourseEnrollment)
+                .Include(f => f.ActivityEnrollment)
                 .FirstOrDefaultAsync(s => s.FeeID == id);
         }
 

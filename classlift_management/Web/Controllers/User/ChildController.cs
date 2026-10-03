@@ -1207,6 +1207,21 @@ namespace Web.Controllers.User
 
             try
             {
+                if (feeId.HasValue)
+                {
+                    var fee = await _feeService.GetAsync(feeId.Value);
+                    var belongsToChild = fee?.CourseEnrollment?.ChildID == childId
+                        || fee?.ActivityEnrollment?.ChildID == childId;
+                    var registrationStatus = fee?.CourseEnrollment?.Status
+                        ?? fee?.ActivityEnrollment?.Status;
+
+                    if (!belongsToChild || !string.Equals(registrationStatus, "Confirmed", StringComparison.Ordinal))
+                    {
+                        TempData["ErrorMessage"] = "Please ask the participant to confirm this registration before adding a payment.";
+                        return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+                    }
+                }
+
                 string receiptPath = null;
 
                 // ✅ Save the receipt file
