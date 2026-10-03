@@ -18,7 +18,11 @@
     }
 </style>
 
-<ul class="nav nav-tabs mb-3">
+<style>
+    .settings-tabs .nav-link,.settings-tabs .nav-link:hover,.settings-tabs .nav-link:focus,.settings-tabs .nav-link.active { color:#000 !important; }
+</style>
+
+<ul class="nav nav-tabs settings-tabs mb-3">
     @if (User.IsInRole("Admin"))
     {
         <li class="nav-item">

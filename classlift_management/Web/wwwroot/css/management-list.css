@@ -227,6 +227,14 @@ textarea[readonly] {
     color: #000 !important;
 }
 
+/* Shared tab text color for the management detail, settings, and report pages. */
+.more-info-tabs .nav-link,
+.participation-tabs .nav-link,
+.settings-tabs .nav-link,
+#reportTabs .nav-link {
+    color: #000 !important;
+}
+
 main a.cancel-button,
 main a.cancel-button:hover,
 main a.cancel-button:focus,
