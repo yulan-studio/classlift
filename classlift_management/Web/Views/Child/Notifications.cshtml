@@ -2,7 +2,7 @@
 @{ ViewData["Title"] = "Notifications"; }
 
 <style>
-    .child-notifications { width:100%; margin:0 auto; padding:1.5rem 1rem 3rem; box-sizing:border-box; }
+    .child-notifications { width:100%; margin:0 auto; padding:0; box-sizing:border-box; }
     .child-notifications h2 { margin:0 0 1.5rem; color:#152238; font-size:clamp(1.45rem, 2vw, 1.75rem); font-weight:700; line-height:1.2; }
     .child-notifications-intro { margin:-.75rem 0 1.5rem; color:#6b778c; font-size:.95rem; }
     .child-notification-section { margin:2.5rem 0; }
@@ -17,7 +17,7 @@
     .status-canceled { background:#fff3cd; }
     .status-deleted, .status-onleave { background:#dceeff; }
     .status-requesttoreschedule, .status-requesttoleave { background:#fce8f2; }
-    @@media (max-width:767px) { .child-notifications { padding:1rem .75rem 2rem; } }
+    @@media (max-width:767px) { .child-notifications { padding:0; } }
 </style>
 
 <div class="child-notifications">
