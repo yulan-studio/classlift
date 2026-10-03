@@ -264,7 +264,30 @@ main.container > h2 {
 
 .action-column {
     width: 1%;
+    min-width: max-content;
+    white-space: nowrap !important;
+}
+
+.action-column a,
+.action-column button,
+.action-column form {
+    display: inline-block;
     white-space: nowrap;
+}
+
+/* Any table that marks its Actions/Action header uses the same compact,
+   single-line layout for the final action cell. */
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child a,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child button,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child form {
+    white-space: nowrap !important;
+}
+
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child a,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child button,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child form {
+    display: inline-block;
 }
 
 .management-table tbody tr,

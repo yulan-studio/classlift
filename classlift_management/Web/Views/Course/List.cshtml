@@ -183,8 +183,8 @@
                     }
                 </a>
             </th>
-            <th class="action-column" style="width: 15%">Actions</th>
-            <th style="width: 5%">Group Sessions</th>
+            <th class="action-column">Actions</th>
+            <th class="action-column">Group Sessions</th>
         </tr>
     </thead>
     <tbody>
@@ -203,19 +203,19 @@
                     <th>@course.MaxCapacity</th>
                     @*  <td style="padding: 8px; border: 1px solid #ddd;">@course.HourlyCost</td>*@
         
-                    <td>
+                    <td class="action-column">
                         <a asp-action="Registrations" asp-route-courseId="@course.CourseID">
                             @course.RegisteredChildrenCount
                         </a>
                     </td>
                     <td>@course.IsActive</td>
-                    <td>
+                    <td class="action-column">
                        
                       @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
                         <a class="action-link" href="/Course/ConfirmDelete/@course.CourseID" style="@(course.RegisteredChildrenCount == 0 ?"":"display: none;")">Delete</a>
                         <a class="action-link" href="/Course/Edit/@course.CourseID">Edit</a>
                     </td>
-                    <td>
+                    <td class="action-column">
 
                         @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
                         <a class="action-link" href="/Course/ManageSessions/@course.CourseID" style="@(course.CourseType == "Group" ?"":"display: none;")">Manage</a>

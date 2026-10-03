@@ -47,7 +47,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">#</th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" style="color: black; text-decoration: none; ">
-                    Member ID
+                    ID
                     @if ((string)ViewData["CurrentSort"] == "id")
                     {
                         <span>▲</span>
