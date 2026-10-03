@@ -24,7 +24,7 @@
         <section class="child-notification-section">
             <h4>Registrations to confirm (@Model.PendingConfirmations.Count)</h4>
             <div class="table-responsive"><table class="management-table table table-bordered">
-                <thead class="management-table-header"><tr><th>Type</th><th>Course/Activity</th><th>Action</th></tr></thead>
+                <thead class="management-table-header"><tr><th>Type</th><th>Course/Activity</th><th class="action-column">Action</th></tr></thead>
                 <tbody>
                 @foreach (var item in Model.PendingConfirmations)
                 {

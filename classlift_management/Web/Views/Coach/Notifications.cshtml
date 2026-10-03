@@ -21,7 +21,7 @@
         else
         {
             <div class="table-responsive"><table class="management-table table table-bordered">
-                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th>Action</th></tr></thead>
+                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th class="action-column">Action</th></tr></thead>
                 <tbody>@foreach (var item in Model.RescheduleRequests) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td>@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td><td><a href="@item.Link">Review</a></td></tr> }</tbody>
             </table></div>
         }
@@ -36,7 +36,7 @@
         else
         {
             <div class="table-responsive"><table class="management-table table table-bordered">
-                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th>Action</th></tr></thead>
+                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th class="action-column">Action</th></tr></thead>
                 <tbody>@foreach (var item in Model.SessionsToComplete) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td>@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td><td><a href="@item.Link">Complete</a></td></tr> }</tbody>
             </table></div>
         }

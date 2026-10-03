@@ -262,6 +262,11 @@ main.container > h2 {
     border: 1px solid var(--classlift-border);
 }
 
+.action-column {
+    width: 1%;
+    white-space: nowrap;
+}
+
 .management-table tbody tr,
 .management-table tbody td {
     --bs-table-bg: #fbfcfd;

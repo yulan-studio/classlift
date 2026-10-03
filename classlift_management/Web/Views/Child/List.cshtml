@@ -116,10 +116,10 @@
                 </a>
             </th>
 
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Payments</th> *@
-            <th style="padding: 8px; border: 1px solid #ddd;">Participation</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Participation</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Has Request</th>
             @*  <th style="padding: 8px; border: 1px solid #ddd;">Enrollments</th> *@
         </tr>
@@ -144,7 +144,7 @@
             </tr> *@
 
 
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/Edit/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                         @if (childWithDelete.CanDelete)
                         {
@@ -154,11 +154,11 @@
                     @* <td style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/ManageParents/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
                     </td>*@
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/MoreInfo/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
                     </td>
 
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/Participation/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
                     </td>
                     @*<td style="padding: 8px; border: 1px solid #ddd;">

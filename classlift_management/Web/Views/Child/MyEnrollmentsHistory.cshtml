@@ -65,7 +65,7 @@
             </div>
         <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper">
             <table class="management-table history-table table table-bordered">
-                <thead class="management-table-header"><tr><th class="date-column">Date</th><th>Status</th><th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th><th class="note-column">My Note</th><th>Action</th></tr></thead>
+                <thead class="management-table-header"><tr><th class="date-column">Date</th><th>Status</th><th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th><th class="note-column">My Note</th><th class="action-column">Action</th></tr></thead>
                 <tbody>
                 @foreach (var schedule in courseSchedules.Schedules)
                 {
