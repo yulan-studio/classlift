@@ -2,7 +2,12 @@
     ViewData["Title"] = "Settings";
 }
 
-<h2 class="management-page-title mb-4">Settings</h2>
+<style>
+    .settings-page { width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
+</style>
+
+<div class="settings-page">
+<h2 class="management-page-title">Settings</h2>
 
 <style>
     html {
@@ -18,7 +23,11 @@
     }
 </style>
 
-<ul class="nav nav-tabs mb-3">
+<style>
+    .settings-tabs .nav-link,.settings-tabs .nav-link:hover,.settings-tabs .nav-link:focus,.settings-tabs .nav-link.active { color:#000 !important; }
+</style>
+
+<ul class="nav nav-tabs settings-tabs mb-3">
     @if (User.IsInRole("Admin"))
     {
         <li class="nav-item">
@@ -149,3 +158,5 @@
         });
     </script>
 }
+
+</div>

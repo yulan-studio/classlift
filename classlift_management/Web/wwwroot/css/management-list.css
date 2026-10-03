@@ -2,7 +2,7 @@
     --classlift-blue: #1b7bab;
     --classlift-blue-dark: #155a78;
     --classlift-blue-light: #add8e6;
-    --classlift-link: #005a8d;
+    --classlift-link: #23a1e0;
     --classlift-border: #d6e2e7;
     --classlift-muted-text: #3f4f56;
     --classlift-button-radius: 5px;
@@ -221,6 +221,81 @@ textarea[readonly] {
     line-height: 1.2;
 }
 
+/* Keep every grey Cancel action readable on its light background. */
+.cancel-button,
+.btn.btn-secondary.cancel-button {
+    color: #000 !important;
+}
+
+/* Shared tab text color for the management detail, settings, and report pages. */
+.more-info-tabs .nav-link,
+.participation-tabs .nav-link,
+.settings-tabs .nav-link,
+#reportTabs .nav-link {
+    color: #000 !important;
+}
+
+main a.cancel-button,
+main a.cancel-button:hover,
+main a.cancel-button:focus,
+main a.cancel-button:active,
+main button.cancel-button,
+main button.cancel-button:hover,
+main button.cancel-button:focus,
+main button.cancel-button:active {
+    color: #000 !important;
+}
+
+/* Legacy grey Cancel links use inline background styles. Keep their text black too. */
+main a.management-form__cancel,
+main a.management-form__cancel:hover,
+main a.management-form__cancel:focus,
+main a.management-form__cancel:active,
+a.classlift-button[style*="background-color: #ddd"],
+a.classlift-button[style*="background-color: #ddd"]:hover,
+a.classlift-button[style*="background-color: #ddd"]:focus,
+a.classlift-button[style*="background-color: #ddd"]:active,
+a[style*="background-color: #ddd"]:not(.btn) {
+    color: #000 !important;
+}
+
+main a:not(.btn):not(.text-danger) {
+    color: var(--classlift-link) !important;
+}
+
+/* Table header colors are controlled by each table's existing header style. */
+.management-table thead a,
+.management-table th a,
+.child-management-table-header a {
+    color: #000 !important;
+}
+
+main table.management-table thead th a,
+main table.management-table thead th a:visited,
+main table.management-table thead th a:hover,
+main table.management-table thead th a:active {
+    color: #000 !important;
+}
+
+/* Shared outer page container for consistent content alignment. */
+.site-main {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+    box-sizing: border-box;
+}
+
+.site-main--fluid {
+    max-width: none;
+}
+
+@media (max-width: 767px) {
+    .site-main {
+        padding: 1rem .75rem 2rem;
+    }
+}
+
 /* Consistent page-level headings for management and form pages. */
 main.container > h1,
 main.container > h2 {
@@ -241,6 +316,40 @@ main.container > h2 {
 .management-table td {
     padding: 8px;
     border: 1px solid var(--classlift-border);
+}
+
+.action-column {
+    width: 1%;
+    min-width: max-content;
+    white-space: nowrap !important;
+}
+
+.compact-column {
+    width: 1%;
+    min-width: max-content;
+    white-space: nowrap;
+}
+
+.action-column a,
+.action-column button,
+.action-column form {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* Any table that marks its Actions/Action header uses the same compact,
+   single-line layout for the final action cell. */
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child a,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child button,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child form {
+    white-space: nowrap !important;
+}
+
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child a,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child button,
+.management-table:has(> thead th.action-column) > tbody > tr > td:last-child form {
+    display: inline-block;
 }
 
 .management-table tbody tr,
@@ -568,17 +677,17 @@ main.container > h2 {
 
 .management-form__cancel {
     background-color: #ddd;
-    color: black;
+    color: #000 !important;
     border: 1px solid #ccc;
 }
 
-.participation-back-link {
+main .participation-back-link {
     display: inline-block;
     margin-top: 20px;
     margin-right: 20px;
     margin-bottom: 1rem;
     padding: 8px 14px;
-    color: #26343a;
+    color: #000 !important;
     background-color: #e2eaed;
     border: 1px solid #cbd8de;
     border-radius: 5px;
@@ -586,15 +695,15 @@ main.container > h2 {
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.participation-back-link:hover,
-.participation-back-link:focus {
-    color: #26343a;
+main .participation-back-link:hover,
+main .participation-back-link:focus {
+    color: #000 !important;
     background-color: #cbd8de;
     border-color: #aebfc7;
 }
 
-.participation-back-link:active {
-    color: #fff;
+main .participation-back-link:active {
+    color: #000 !important;
     background-color: #71838b;
     border-color: #71838b;
 }

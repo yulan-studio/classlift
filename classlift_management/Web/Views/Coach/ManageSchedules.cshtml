@@ -120,7 +120,7 @@
     <p>Review upcoming sessions and manage the course schedule.</p>
 </div>
 
-<a href="/Coach/ManageCourse" class="participation-back-link">← Back to Courses List</a>
+<a href="/Coach/ManageCourse" class="participation-back-link" style="color: #000 !important;">← Back to Courses List</a>
 
 @* btn-light  mb-3*@
 <!-- Info Panel -->
@@ -174,7 +174,7 @@
             <th>Status</th>
             <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th>My Note</th>
-            <th>Actions</th>
+            <th class="action-column">Actions</th>
         </tr>
     </thead>
 
@@ -219,7 +219,7 @@
                             <button type="button" class="edit-mode btn classlift-secondary-button" style="display:none" onclick="saveSchedule(@s.EnrollmentID)">Save</button>
 
 
-                            <button type="button" class="edit-mode btn btn-secondary" style="display:none" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
+                            <button type="button" class="edit-mode btn btn-secondary cancel-button" style="display:none" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
                         }
 
                         @if (s.Status != "Deleted" && !isWithin24Hours)
@@ -241,7 +241,7 @@
                 <td colspan="8">
                     
                     <label style="font-size:0.9em; color:darkslategray"> - If a session is added by mistake and should be deleted, please type <strong>MISTAKE</strong> in @CurrentTenant.Terminology.ProviderSingular Note before clicking the 'Remove' button.</label><br />
-                    <label style="font-size:0.9em; color:darkslategray"> - If a session needs to be rescheduled (requested by the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() or @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant()), please type <strong>RESCHEDULED</strong> in @CurrentTenant.Terminology.ProviderSingular Note before clicking the 'Remove' button.</label>
+                    <label style="font-size:0.9em; color:darkslategray"> - If a session needs to be rescheduled (requested by the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() or @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant()), please type <strong>RESCHEDULED</strong> in @CurrentTenant.Terminology.ProviderSingular Note before clicking the 'Remove' button.</label><br/>
                     <label style="font-size:0.9em; color:darkslategray"> - A session cannot be removed/rescheduled within 24 hours of its scheduled start time.</label>
                 </td>
             </tr>
@@ -356,7 +356,7 @@
         <textarea id="removeScheduleNote" class="form-control" placeholder="Enter note" required></textarea>
         <div class="mt-3 d-flex gap-2 justify-content-end">
             <button type="button" class="btn btn-danger" onclick="confirmRemoveSchedule()">Remove</button>
-            <button type="button" class="btn btn-secondary" onclick="closeRemoveScheduleModal()">Cancel</button>
+            <button type="button" class="btn btn-secondary cancel-button" onclick="closeRemoveScheduleModal()">Cancel</button>
         </div>
     </div>
 </div>

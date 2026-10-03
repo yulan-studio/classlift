@@ -20,13 +20,13 @@
     }
 
     .page-item.active .page-link {
-        background-color: #007bff;
-        border-color: #007bff;
+        background-color: var(--classlift-blue);
+        border-color: var(--classlift-blue);
         color: white;
     }
 
     .page-link {
-        color: #007bff;
+        color: var(--classlift-link);
     }
 </style>
 
@@ -85,7 +85,7 @@
 
             </th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["ScheduledAtSortParm"]" style="color: black; text-decoration: none; ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["ScheduledAtSortParm"]" style="color: #000 !important; text-decoration: none; ">
                     Scheduled At
                     @if ((string)ViewData["CurrentSort"] == "scheduledAt")
                     {
@@ -102,7 +102,7 @@
           @*   <th style="padding: 8px; border: 1px solid #ddd;">Contact</th> *@
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Is Active</th> *@
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" style="color: black; text-decoration: none;  ">
+                <a asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" style="color: #000 !important; text-decoration: none;  ">
                     Status
                     @if ((string)ViewData["CurrentSort"] == "status")
                     {
@@ -115,7 +115,7 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -127,14 +127,14 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Address</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.MaxCapacity</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.RegisteredChildrenCount</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">@activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
+                <td style="padding: 8px; border: 1px solid #ddd; color: #000;">@activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
               @*   <td style="padding: 8px; border: 1px solid #ddd;">@(activity.Cost.ToString("C"))</td> *@
             @*     <td style="padding: 8px; border: 1px solid #ddd;">@activity.IsActive</td> *@
-                <td style="padding: 8px; border: 1px solid #ddd;">@activity.Status</td>
+                <td style="padding: 8px; border: 1px solid #ddd; color: #000;">@activity.Status</td>
               @*   <td style="padding: 8px; border: 1px solid #ddd;">@activity.Contact</td> *@
                 <td style="padding: 8px; border: 1px solid #ddd;">
-                    <a href="/Activity/ConfirmDelete/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed"||activity.RegisteredChildrenCount>0 ?"display: none;":"")">Delete</a>
                     <a href="/Activity/Edit/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed" ?"display: none;":"")">Edit</a>
+                    <a href="/Activity/ConfirmDelete/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed"||activity.RegisteredChildrenCount>0 ?"display: none;":"")">Delete</a>
                 </td>
             </tr>
         }
@@ -164,7 +164,7 @@
 </table></div>
 
 
-<div style="margin-top: 20px; text-align: center;">
+<div class="list-pagination">
     @Html.PagedListPager(
     Model,
     page => Url.Action("List", new { page, sortOrder = ViewData["CurrentSort"] }),

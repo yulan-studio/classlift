@@ -2,41 +2,78 @@
 @{ ViewData["Title"] = "Notifications"; }
 
 <style>
-    .child-notifications { width:100%; margin:0 auto; padding:1.5rem 1rem 3rem; box-sizing:border-box; }
+    .child-notifications { width:100%; margin:0 auto; padding:0; box-sizing:border-box; }
+    .child-notification-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1.5rem; align-items:start; }
     .child-notifications h2 { margin:0 0 1.5rem; color:#152238; font-size:clamp(1.45rem, 2vw, 1.75rem); font-weight:700; line-height:1.2; }
-    .child-notification-section { margin:2.5rem 0; }
+    .child-notifications-intro { margin:-.75rem 0 1.5rem; color:#6b778c; font-size:.95rem; }
+    .child-notification-section { min-width:0; margin:0; }
     .child-notification-section h4 { margin-bottom:1.75rem; color:#1b7bab; font-size:1.2rem; font-weight:700; }
-    .child-notification-section table { width:100%; }
-    .child-notification-empty { padding:1rem; border:1px dashed #ccd6e2; border-radius:7px; color:#6b778c; background:#f9fbfd; }
+    .child-notification-section table { width:100%; table-layout:fixed; }
+    .child-notification-section table th,
+    .child-notification-section table td { width:50%; }
+    .child-notification-section .confirmation-table-header th {
+        --bs-table-bg-type: #fff3cd !important;
+        --bs-table-bg-state: #fff3cd !important;
+        --bs-table-bg: #fff3cd !important;
+        background-color: #fff3cd !important;
+        color: #000 !important;
+    }
+    .child-notification-section thead.confirmation-table-header,
+    .child-notification-section thead.confirmation-table-header tr {
+        background-color: #fff3cd !important;
+    }
+    .child-notification-empty { grid-column:1 / -1; padding:1rem; border:1px dashed #ccd6e2; border-radius:7px; color:#6b778c; background:#f9fbfd; }
     .child-notifications a { color:#1b7bab; font-weight:600; }
+    .child-notifications table a,
+    .child-notifications table a:hover,
+    .child-notifications table a:focus,
+    .child-notifications table a:active { font-weight:400; }
     .status-canceled { background:#fff3cd; }
     .status-deleted, .status-onleave { background:#dceeff; }
     .status-requesttoreschedule, .status-requesttoleave { background:#fce8f2; }
-    @@media (max-width:767px) { .child-notifications { padding:1rem .75rem 2rem; } }
+    @@media (max-width:767px) {
+        .child-notifications { padding:0; }
+        .child-notification-grid { grid-template-columns:1fr; gap:0; }
+        .child-notification-section { margin:1.5rem 0; }
+    }
 </style>
 
 <div class="child-notifications">
     <h2>Notifications</h2>
-    @if (Model.Items.Count == 0)
+    <p class="child-notifications-intro">This page shows course change notifications. To view newly added sessions, please check <a href="/Child/MySchedules">Schedules</a>.</p>
+    <div class="child-notification-grid">
+    @foreach (var item in Model.PendingConfirmations.OrderBy(item => item.Type).ThenBy(item => item.Title))
+    {
+        <section class="child-notification-section">
+            <h4>@item.Type: @item.Title</h4>
+            <div class="table-responsive"><table class="management-table table table-bordered">
+                <thead class="management-table-header confirmation-table-header"><tr><th style="background-color: #fff3cd !important; color: #000 !important;">Status</th><th class="action-column" style="background-color: #fff3cd !important; color: #000 !important;">Action</th></tr></thead>
+                <tbody><tr><td>Registered</td><td><a href="/Child/MyConfirmations">Confirm</a></td></tr></tbody>
+            </table></div>
+        </section>
+    }
+
+    @if (Model.Items.Count == 0 && Model.PendingConfirmations.Count == 0)
     {
         <div class="child-notification-empty">No upcoming session notifications.</div>
     }
     else
     {
-        @foreach (var group in Model.Items.GroupBy(item => item.Status))
+        @foreach (var courseGroup in Model.Items.GroupBy(item => item.CourseTitle).OrderBy(group => group.Key))
         {
             <section class="child-notification-section">
-                <h4>@group.Key (@group.Count())</h4>
+                <h4>Course: <a href="/Child/MySchedules?courseId=@courseGroup.First().CourseId">@courseGroup.Key</a></h4>
                 <div class="table-responsive"><table class="management-table table table-bordered">
-                    <thead class="management-table-header"><tr><th>Course</th><th>Scheduled</th></tr></thead>
+                    <thead class="management-table-header"><tr><th>Scheduled</th><th>Status</th></tr></thead>
                     <tbody>
-                    @foreach (var item in group.OrderBy(item => item.ScheduledAt).ThenBy(item => item.CourseTitle))
+                    @foreach (var item in courseGroup.OrderBy(item => item.ScheduledAt))
                     {
-                        <tr><td><a href="/Child/MySchedules?courseId=@item.CourseId">@item.CourseTitle</a></td><td>@item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt")</td></tr>
+                        <tr><td>@item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt")</td><td>@item.Status</td></tr>
                     }
                     </tbody>
                 </table></div>
             </section>
         }
     }
+    </div>
 </div>

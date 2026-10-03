@@ -47,7 +47,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">#</th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" style="color: black; text-decoration: none; ">
-                    Member ID
+                    ID
                     @if ((string)ViewData["CurrentSort"] == "id")
                     {
                         <span>▲</span>
@@ -116,11 +116,11 @@
                 </a>
             </th>
 
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Payments</th> *@
-            <th style="padding: 8px; border: 1px solid #ddd;">Participation</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Has Request</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Participation</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Has Request</th>
             @*  <th style="padding: 8px; border: 1px solid #ddd;">Enrollments</th> *@
         </tr>
     </thead>
@@ -144,7 +144,7 @@
             </tr> *@
 
 
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/Edit/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                         @if (childWithDelete.CanDelete)
                         {
@@ -154,11 +154,11 @@
                     @* <td style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/ManageParents/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
                     </td>*@
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/MoreInfo/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
                     </td>
 
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Child/Participation/@childWithDelete.Child.ChildID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
                     </td>
                     @*<td style="padding: 8px; border: 1px solid #ddd;">
@@ -166,7 +166,7 @@
                     </td>*@
 
 
-                    <td class="@(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "request-to-leave-cell" : "")" style="padding: 8px; border: 1px solid #ddd; @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "background-color: #FCE8F2;" : "")">
+                    <td class="action-column @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "request-to-leave-cell" : "")" style="padding: 8px; border: 1px solid #ddd; @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "background-color: #FCE8F2;" : "")">
                         @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "Yes" : "")
                     </td>
                      @*<td style="padding: 8px; border: 1px solid #ddd;">

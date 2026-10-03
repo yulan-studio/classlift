@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Core.Interfaces;
 using Core.Models;
+using Core.Contexts;
+using Core.ViewModels;
 
 using System.Diagnostics;
 using Core.Repositories;
@@ -21,15 +23,56 @@ namespace Web.Controllers.User
     {
         private readonly IStaffService _staffService;
         private readonly UserManager<Core.Models.User> _userManager;
+        private readonly AppDbContext _db;
 
 
-        public StaffController(IStaffService staffService, UserManager<Core.Models.User> userManager)
+        public StaffController(IStaffService staffService, UserManager<Core.Models.User> userManager, AppDbContext db)
         {
             _staffService = staffService;
             _userManager = userManager;
-          
+            _db = db;
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("Notifications")]
+        public async Task<IActionResult> Notifications()
+        {
+            var roots = _db.CourseEnrollments
+                .AsNoTracking()
+                .Where(e => e.EnrollmentID_Ref == null && e.ChildID.HasValue);
+
+            var model = new StaffNotificationsViewModel
+            {
+                UnconfirmedPrivate = await GetNotificationItems(roots.Where(e => e.Status == "Registered" && e.Course.CourseType == "Private" && !_db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
+                UnconfirmedGroup = await GetNotificationItems(roots.Where(e => e.Status == "Registered" && e.Course.CourseType == "Group" && !_db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
+                PaidUnconfirmedPrivate = await GetNotificationItems(roots.Where(e => e.Status == "Registered" && e.Course.CourseType == "Private" && _db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
+                PaidUnconfirmedGroup = await GetNotificationItems(roots.Where(e => e.Status == "Registered" && e.Course.CourseType == "Group" && _db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
+                UnpaidPrivate = await GetNotificationItems(roots.Where(e => e.Status == "Confirmed" && e.Course.CourseType == "Private" && _db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && !f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
+                UnpaidGroup = await GetNotificationItems(roots.Where(e => e.Status == "Confirmed" && e.Course.CourseType == "Group" && _db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && !f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations", true),
+                LeaveRequests = await GetNotificationItems(_db.CourseEnrollments.AsNoTracking().Where(e => e.EnrollmentID_Ref != null && e.ChildID.HasValue && e.Status == "RequestToLeave"), "/Child/ManageSessionRegistrations?childId={0}&courseId={1}")
+            };
+
+            return View(model);
+        }
+
+        private async Task<List<StaffNotificationItem>> GetNotificationItems(IQueryable<Core.Models.CourseEnrollment> query, string linkFormat, bool useFirstChildSessionDate = false)
+        {
+            var rows = await query.Include(e => e.Child).Include(e => e.Course)
+                .OrderBy(e => e.Child!.Name).ThenBy(e => e.Course.Title).ThenBy(e => e.ScheduledAt).ToListAsync();
+            var firstSessionDates = useFirstChildSessionDate
+                ? await _db.CourseEnrollments.Where(e => e.EnrollmentID_Ref.HasValue && rows.Select(root => root.EnrollmentID).Contains(e.EnrollmentID_Ref.Value) && e.ScheduledAt.HasValue)
+                    .GroupBy(e => e.EnrollmentID_Ref!.Value).Select(group => new { EnrollmentId = group.Key, FirstDate = group.Min(e => e.ScheduledAt) })
+                    .ToDictionaryAsync(item => item.EnrollmentId, item => item.FirstDate)
+                : new Dictionary<int, DateTime?>();
+
+            return rows.Select(e => new StaffNotificationItem
+            {
+                EnrollmentId = e.EnrollmentID, ChildId = e.ChildID!.Value, CourseId = e.CourseID,
+                ParticipantName = e.Child!.Name, CourseTitle = e.Course.Title, Status = e.Status,
+                ScheduledAt = firstSessionDates.TryGetValue(e.EnrollmentID, out var firstDate) ? firstDate : e.ScheduledAt,
+                Link = string.Format(linkFormat, e.ChildID.Value, e.CourseID)
+            }).ToList();
+        }
 
 
         [Authorize(Roles = "Admin")]

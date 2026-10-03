@@ -1207,6 +1207,21 @@ namespace Web.Controllers.User
 
             try
             {
+                if (feeId.HasValue)
+                {
+                    var fee = await _feeService.GetAsync(feeId.Value);
+                    var belongsToChild = fee?.CourseEnrollment?.ChildID == childId
+                        || fee?.ActivityEnrollment?.ChildID == childId;
+                    var registrationStatus = fee?.CourseEnrollment?.Status
+                        ?? fee?.ActivityEnrollment?.Status;
+
+                    if (!belongsToChild || !string.Equals(registrationStatus, "Confirmed", StringComparison.Ordinal))
+                    {
+                        TempData["ErrorMessage"] = "Please ask the participant to confirm this registration before adding a payment.";
+                        return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+                    }
+                }
+
                 string receiptPath = null;
 
                 // ✅ Save the receipt file
@@ -1481,7 +1496,39 @@ namespace Web.Controllers.User
                 })
                 .ToListAsync();
 
-            return View(new ChildNotificationsViewModel { Items = items });
+            var pendingCourseConfirmations = await _db.CourseEnrollments
+                .AsNoTracking()
+                .Include(e => e.Course)
+                .Where(e => e.ChildID == child.ChildID
+                    && e.Status == "Registered"
+                    && e.EnrollmentID_Ref == null)
+                .Select(e => new ChildConfirmationNotificationItem
+                {
+                    Type = "Course",
+                    Title = e.Course.Title
+                })
+                .ToListAsync();
+
+            var pendingActivityConfirmations = await _db.ActivityEnrollments
+                .AsNoTracking()
+                .Include(e => e.Activity)
+                .Where(e => e.ChildID == child.ChildID && e.Status == "Registered")
+                .Select(e => new ChildConfirmationNotificationItem
+                {
+                    Type = "Activity",
+                    Title = e.Activity.Title
+                })
+                .ToListAsync();
+
+            return View(new ChildNotificationsViewModel
+            {
+                Items = items,
+                PendingConfirmations = pendingCourseConfirmations
+                    .Concat(pendingActivityConfirmations)
+                    .OrderBy(item => item.Type)
+                    .ThenBy(item => item.Title)
+                    .ToList()
+            });
         }
 
 
@@ -1985,7 +2032,12 @@ namespace Web.Controllers.User
 
             
 
-            //else if (actionType == "Confirm")
+            if (actionType == "Delete")
+            {
+                await RemovePendingCourseRegistrationAsync(child.ChildID, model.CourseID);
+                return RedirectToAction("MyConfirmations");
+            }
+
             if (actionType == "Confirm")
             {
                 var fee = await _feeService.GetByChildIdCourseIdAsync(child.ChildID, model.CourseID);
@@ -2054,8 +2106,10 @@ namespace Web.Controllers.User
 
                     if (result4)
                     {
-                        TempData["SuccessMessage2"] = "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
-                        await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
+                        var notificationsSent = await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
+                        TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                            ? "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
+                            : "The course schedules were confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. However, the organization notification email could not be sent.";
                     }
                 }
             }
@@ -2078,6 +2132,12 @@ namespace Web.Controllers.User
             if (child == null)
                 return NotFound("Child not found.");
 
+
+            if (actionType == "Delete")
+            {
+                await RemovePendingCourseRegistrationAsync(child.ChildID, model.CourseID);
+                return RedirectToAction("MyConfirmations");
+            }
 
             if (actionType == "Confirm")
             {
@@ -2116,8 +2176,10 @@ namespace Web.Controllers.User
                 if (result1 && result2 && result3)
                 {
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
-                    TempData["SuccessMessage2"] = "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>.";
-                    await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
+                    var notificationsSent = await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
+                    TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                        ? "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
+                        : "The course was confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
                 }
 
 
@@ -2129,6 +2191,26 @@ namespace Web.Controllers.User
             }
 
             return RedirectToAction("MyConfirmations");
+        }
+
+        private async Task RemovePendingCourseRegistrationAsync(int childId, int courseId)
+        {
+            var enrollmentId = await _courseEnrollmentService
+                .GetEnrollmentIdByChildAndCourseAsync(courseId, childId, "Registered");
+
+            if (!enrollmentId.HasValue)
+            {
+                TempData["ErrorMessage2"] = "This registration is no longer available for removal.";
+                return;
+            }
+
+            var feeRemoved = await _feeService.DeleteCourseFeeAsync(enrollmentId.Value);
+            var enrollmentRemoved = feeRemoved
+                && await _courseEnrollmentService.RemoveRegisteredEnrollmentAsync(enrollmentId.Value);
+
+            TempData[enrollmentRemoved ? "SuccessMessage2" : "ErrorMessage2"] = enrollmentRemoved
+                ? "Registration removed successfully."
+                : "The registration could not be removed.";
         }
 
 
@@ -2184,7 +2266,7 @@ namespace Web.Controllers.User
             return RedirectToAction("MyConfirmations");
         }
 
-        private async Task NotifyGroupCourseConfirmedAsync(Child child, int courseId)
+        private async Task<bool> NotifyGroupCourseConfirmedAsync(Child child, int courseId)
         {
             try
             {
@@ -2197,8 +2279,7 @@ namespace Web.Controllers.User
                         $"/Child/ManageSessionRegistrations?childId={child.ChildID}&courseId={course.CourseID}",
                         course.Coach?.Name));
 
-                if (!delivery.IsSuccessful)
-                    TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+                return delivery.IsSuccessful;
             }
             catch (Exception exception)
             {
@@ -2207,11 +2288,11 @@ namespace Web.Controllers.User
                     "Group course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
                     child.ChildID,
                     courseId);
-                TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+                return false;
             }
         }
 
-        private async Task NotifyPrivateCourseConfirmedAsync(Child child, int courseId, int enrollmentId)
+        private async Task<bool> NotifyPrivateCourseConfirmedAsync(Child child, int courseId, int enrollmentId)
         {
             try
             {
@@ -2226,8 +2307,7 @@ namespace Web.Controllers.User
                         course.Coach?.Name,
                         $"/Coach/ManageSchedules/{child.ChildID}?courseId={course.CourseID}&enrollmentId={enrollmentId}"));
 
-                if (!delivery.IsSuccessful)
-                    TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+                return delivery.IsSuccessful;
             }
             catch (Exception exception)
             {
@@ -2236,7 +2316,7 @@ namespace Web.Controllers.User
                     "Private course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
                     child.ChildID,
                     courseId);
-                TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+                return false;
             }
         }
 

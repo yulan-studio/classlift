@@ -38,7 +38,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Wechat</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -50,13 +50,13 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">@admin.User.Email</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@admin.Phone</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@admin.Wechat</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">
+                <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                
+                    <a href="/Admin/Edit/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                     @if (canDeleteAdmin)
                     {
                         <a href="/Admin/ConfirmDelete/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
                     }
-                    <a href="/Admin/Edit/@admin.AdminID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                 </td>
             </tr>
         }

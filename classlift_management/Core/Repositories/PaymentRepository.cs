@@ -148,6 +148,7 @@ namespace Core.Repositories
                                            Type = "Course",
                                            Title = c.Title,
                                            TotalCost = f.TotalCost,
+                                           Status = ce.Status,
                                            FeeID = f.FeeID
                                        }).ToListAsync();
 
@@ -162,6 +163,7 @@ namespace Core.Repositories
                                               Type = "Activity",
                                               Title = a.Title,
                                               TotalCost = f.TotalCost,
+                                              Status = ae.Status,
                                               FeeID = f.FeeID
                                           }).ToListAsync();
 

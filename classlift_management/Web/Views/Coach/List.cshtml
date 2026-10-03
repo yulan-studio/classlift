@@ -58,7 +58,7 @@
 
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]">
-                    Member ID
+                    ID
                     @if ((string)ViewData["CurrentSort"] == "id")
                     {
                         <span>▲</span>
@@ -131,9 +131,9 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Hours</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Hours</th>
         </tr>
     </thead>
     <tbody>
@@ -165,18 +165,18 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Phone</td>
                     @*   <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Wechat</td> *@
                     <td style="padding: 8px; border: 1px solid #ddd;">@(coachWithDelete.Coach.City != null ? coachWithDelete.Coach.City.Name : "N/A")</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
+                        <a href="/Coach/Edit/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                         @if (coachWithDelete.CanDelete)
                         {
                             <a href="/Coach/ConfirmDelete/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
                         }
-                        <a href="/Coach/Edit/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
 
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Coach/MoreInfo/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
                         <a href="/Coach/Hours/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Show</a>
                     </td>
                 </tr>
