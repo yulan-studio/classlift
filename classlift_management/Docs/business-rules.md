@@ -19,7 +19,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Group-course registration
 
 1. A newly created Group-course registration remains pending until it is confirmed.
-2. A parent must confirm a Group-course registration before the first Group session date begins, using the first session's local time zone. If the root registration is still unconfirmed at midnight (00:00) at the start of that date:
+2. A participant may remove their own pending course registration from the Confirmations page before confirmation. The removal removes the pending registration, its unconfirmed session registrations, and its associated course fee record; confirmed or completed registrations are not removed by this action.
+3. A parent must confirm a Group-course registration before the first Group session date begins, using the first session's local time zone. If the root registration is still unconfirmed at midnight (00:00) at the start of that date:
    - cancel the root registration;
    - cancel all of its non-terminal child-session registrations;
    - preserve Completed and Deleted session history; and

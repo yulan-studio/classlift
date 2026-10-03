@@ -399,7 +399,7 @@
                             </a>
                       
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Status</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; @(enrollment.Status == "Registered" ? "color: red;" : "")">@enrollment.Status</td>
                     <td style="padding: 8px; border: 1px solid #ddd; @(enrollment.IsPaid == false ? "color: red" : "")">@enrollment.IsPaid</td>
                     
 

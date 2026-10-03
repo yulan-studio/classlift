@@ -165,9 +165,13 @@
             }
 
             <div style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
-                Please click 'Confirm' to complete your course registration.<br />
-                <br />
+                <div style="margin-bottom: 16px;">
+                    Please click <strong>"Confirm"</strong> to complete your course registration.
+                    <span style="color: #b35a6a; margin-left: 12px;">Please click <strong>"Delete"</strong> to remove this registration.</span>
+                </div>
                 <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
+                <button type="submit" name="actionType" value="Delete" class="btn btn-outline-danger mt-2 ms-2"
+                        onclick="return confirm('Are you sure you want to remove this registration?');">Delete</button>
             </div>
         </form>
 
@@ -263,9 +267,13 @@
 
 
             <div @* class="alert alert-danger" *@  style="padding: 20px 20px 20px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
-                Please click 'Confirm' to complete your course registration.<br />
-                <br />
+                <div style="margin-bottom: 16px;">
+                    Please click <strong>"Confirm"</strong> to complete your course registration.
+                    <span style="color: #b35a6a; margin-left: 12px;">Please click <strong>"Delete"</strong> to remove this registration.</span>
+                </div>
                 <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
+                <button type="submit" name="actionType" value="Delete" class="btn btn-outline-danger mt-2 ms-2"
+                        onclick="return confirm('Are you sure you want to remove this registration?');">Delete</button>
 
             </div>
         </form>

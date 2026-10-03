@@ -1985,7 +1985,12 @@ namespace Web.Controllers.User
 
             
 
-            //else if (actionType == "Confirm")
+            if (actionType == "Delete")
+            {
+                await RemovePendingCourseRegistrationAsync(child.ChildID, model.CourseID);
+                return RedirectToAction("MyConfirmations");
+            }
+
             if (actionType == "Confirm")
             {
                 var fee = await _feeService.GetByChildIdCourseIdAsync(child.ChildID, model.CourseID);
@@ -2079,6 +2084,12 @@ namespace Web.Controllers.User
                 return NotFound("Child not found.");
 
 
+            if (actionType == "Delete")
+            {
+                await RemovePendingCourseRegistrationAsync(child.ChildID, model.CourseID);
+                return RedirectToAction("MyConfirmations");
+            }
+
             if (actionType == "Confirm")
             {
                 var fee = await _feeService.GetFeeForCourseEnrollmentAsync(model.EnrollmentID);
@@ -2129,6 +2140,26 @@ namespace Web.Controllers.User
             }
 
             return RedirectToAction("MyConfirmations");
+        }
+
+        private async Task RemovePendingCourseRegistrationAsync(int childId, int courseId)
+        {
+            var enrollmentId = await _courseEnrollmentService
+                .GetEnrollmentIdByChildAndCourseAsync(courseId, childId, "Registered");
+
+            if (!enrollmentId.HasValue)
+            {
+                TempData["ErrorMessage2"] = "This registration is no longer available for removal.";
+                return;
+            }
+
+            var feeRemoved = await _feeService.DeleteCourseFeeAsync(enrollmentId.Value);
+            var enrollmentRemoved = feeRemoved
+                && await _courseEnrollmentService.RemoveRegisteredEnrollmentAsync(enrollmentId.Value);
+
+            TempData[enrollmentRemoved ? "SuccessMessage2" : "ErrorMessage2"] = enrollmentRemoved
+                ? "Registration removed successfully."
+                : "The registration could not be removed.";
         }
 
 
