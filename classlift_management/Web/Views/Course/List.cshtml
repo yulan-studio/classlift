@@ -212,8 +212,8 @@
                     <td class="action-column">
                        
                       @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
-                        <a class="action-link" href="/Course/ConfirmDelete/@course.CourseID" style="@(course.RegisteredChildrenCount == 0 ?"":"display: none;")">Delete</a>
                         <a class="action-link" href="/Course/Edit/@course.CourseID">Edit</a>
+                        <a class="action-link" href="/Course/ConfirmDelete/@course.CourseID" style="@(course.RegisteredChildrenCount == 0 ?"":"display: none;")">Delete</a>
                     </td>
                     <td class="action-column">
 

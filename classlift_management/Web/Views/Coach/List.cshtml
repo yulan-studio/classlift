@@ -166,11 +166,11 @@
                     @*   <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Wechat</td> *@
                     <td style="padding: 8px; border: 1px solid #ddd;">@(coachWithDelete.Coach.City != null ? coachWithDelete.Coach.City.Name : "N/A")</td>
                     <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">
+                        <a href="/Coach/Edit/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                         @if (coachWithDelete.CanDelete)
                         {
                             <a href="/Coach/ConfirmDelete/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
                         }
-                        <a href="/Coach/Edit/@coachWithDelete.Coach.CoachID" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
 
                     </td>
                     <td class="action-column" style="padding: 8px; border: 1px solid #ddd;">

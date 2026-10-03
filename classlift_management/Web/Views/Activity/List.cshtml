@@ -133,8 +133,8 @@
                 <td style="padding: 8px; border: 1px solid #ddd; color: #000;">@activity.Status</td>
               @*   <td style="padding: 8px; border: 1px solid #ddd;">@activity.Contact</td> *@
                 <td style="padding: 8px; border: 1px solid #ddd;">
-                    <a href="/Activity/ConfirmDelete/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed"||activity.RegisteredChildrenCount>0 ?"display: none;":"")">Delete</a>
                     <a href="/Activity/Edit/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed" ?"display: none;":"")">Edit</a>
+                    <a href="/Activity/ConfirmDelete/@activity.ActivityID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(activity.Status == "Canceled"||activity.Status == "Completed"||activity.RegisteredChildrenCount>0 ?"display: none;":"")">Delete</a>
                 </td>
             </tr>
         }
