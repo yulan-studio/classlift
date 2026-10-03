@@ -634,13 +634,16 @@ namespace Web.Controllers.Courses
 
                 if (createdMasterSessionIds.Count == timings.Count)
                 {
-                    TempData["SuccessMessage"] = "Session(s) added successfully.";
-                    await NotifyFamiliesOfStaffScheduleCreationAsync(
+                    var notificationsSent = await NotifyFamiliesOfStaffScheduleCreationAsync(
                         course,
                         createdMasterSessionIds,
                         timings,
                         scheduledHours,
                         location);
+                    TempData[notificationsSent ? "SuccessMessage" : "WarningMessage"] =
+                        notificationsSent
+                            ? "Session(s) added successfully."
+                            : "Session(s) were added successfully, but one or more notification emails could not be sent.";
                 }
                 else
                 {
@@ -852,7 +855,7 @@ namespace Web.Controllers.Courses
 
         }
 
-        private async Task NotifyFamiliesOfStaffScheduleCreationAsync(
+        private async Task<bool> NotifyFamiliesOfStaffScheduleCreationAsync(
             Course course,
             IReadOnlyList<int> masterSessionIds,
             IReadOnlyList<ScheduleTiming> timings,
@@ -900,9 +903,10 @@ namespace Web.Controllers.Courses
 
                 if (notificationFailed)
                 {
-                    TempData["WarningMessage"] =
-                        "The sessions were created, but one or more notification emails could not be sent.";
+                    return false;
                 }
+
+                return true;
             }
             catch (Exception exception)
             {
@@ -910,8 +914,7 @@ namespace Web.Controllers.Courses
                     exception,
                     "Group sessions were created, but family notifications could not be processed. CourseId={CourseId}",
                     course.CourseID);
-                TempData["WarningMessage"] =
-                    "The sessions were created, but notification emails could not be sent.";
+                return false;
             }
         }
 

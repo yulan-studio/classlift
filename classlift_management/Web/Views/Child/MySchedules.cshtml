@@ -111,11 +111,12 @@
             </div>
             <button class="schedule-toggle" type="button"
                     data-bs-toggle="collapse"
-                    data-bs-target="#collapseCourse_@courseSchedules.Course.CourseID">
+                    data-bs-target="#collapseCourse_@courseSchedules.Course.CourseID"
+                    aria-expanded="@(ViewBag.OpenCourseId == courseSchedules.Course.CourseID ? "true" : "false")">
                 View sessions
             </button>
         </div>
-        <div id="collapseCourse_@courseSchedules.Course.CourseID" class="collapse schedule-details">
+        <div id="collapseCourse_@courseSchedules.Course.CourseID" class="collapse @(ViewBag.OpenCourseId == courseSchedules.Course.CourseID ? "show" : "") schedule-details">
                  <div class="card-body">
 
             <form method="post" asp-action="UpdateSchedules">

@@ -1,0 +1,125 @@
+@model Core.ViewModels.StaffNotificationsViewModel
+@{ ViewData["Title"] = "Notifications"; }
+
+<style>
+    .notification-page h2 { margin-bottom:.35rem; color:#152238; font-size:1.75rem; font-weight:700; }
+    .notification-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.5rem; margin-bottom:1.25rem; border-bottom:1px solid #dbe5ee; }
+    .notification-tab { margin-bottom:-1px; padding:.7rem 1rem; border:1px solid transparent; border-radius:7px 7px 0 0; color:#526176; background:transparent; font-weight:600; cursor:pointer; }
+    .notification-tab:focus { outline:none; box-shadow:none; }
+    .notification-tab.active { border-color:#dbe5ee #dbe5ee #fff; color:#1b7bab; background:#fff; }
+    .notification-tab-count { display:inline-block; min-width:1.5rem; margin-left:.35rem; padding:.1rem .35rem; border-radius:999px; color:#26364d; background:#edf5fb; font-size:.78rem; text-align:center; }
+    .notification-panel { display:none; }
+    .notification-panel.active { display:block; }
+    .notification-group { margin:1.25rem 0 2rem; }
+    .notification-group h4 { margin-bottom:.75rem; color:#1b7bab; font-size:1.15rem; font-weight:700; }
+    .notification-group table { width:100%; }
+    .notification-group th[data-sort-key] { cursor:pointer; user-select:none; }
+    .notification-group th[data-sort-key]::after { content:'' !important; }
+    .notification-group th.sort-asc::after { content:' ▲' !important; color:inherit; font-size:inherit; }
+    .notification-group th.sort-desc::after { content:' ▼' !important; color:inherit; font-size:inherit; }
+    .notification-group thead th.notification-action-header {
+        --bs-table-bg-type:#f2f2f2 !important;
+        --bs-table-bg-state:#f2f2f2 !important;
+        --bs-table-bg:#f2f2f2 !important;
+        background-color:#f2f2f2 !important;
+        background-image:none !important;
+    }
+    .notification-page a { color:#1b7bab; font-weight:600; }
+    .notification-empty { padding:1rem; border:1px dashed #ccd6e2; border-radius:7px; color:#6b778c; background:#f9fbfd; }
+</style>
+
+@{
+    var confirmationCount = Model.UnconfirmedPrivate.Count + Model.UnconfirmedGroup.Count + Model.PaidUnconfirmedPrivate.Count + Model.PaidUnconfirmedGroup.Count;
+    var unpaidCount = Model.UnpaidPrivate.Count + Model.UnpaidGroup.Count;
+}
+
+<div class="notification-page">
+    <h2>Notifications</h2>
+    <p class="text-muted">Review registrations, payments, and Group course leave requests that need Staff attention.</p>
+    <div class="notification-tabs" role="tablist">
+        <button class="notification-tab active" type="button" data-tab="confirmation-panel">Needs confirmation <span class="notification-tab-count">@confirmationCount</span></button>
+        <button class="notification-tab" type="button" data-tab="unpaid-panel">Confirmed but unpaid <span class="notification-tab-count">@unpaidCount</span></button>
+        <button class="notification-tab" type="button" data-tab="leave-panel">Leave requests <span class="notification-tab-count">@Model.LeaveRequests.Count</span></button>
+    </div>
+
+    <div id="confirmation-panel" class="notification-panel active">
+        @if (confirmationCount == 0) { <div class="notification-empty">No registrations need confirmation.</div> }
+        else
+        {
+            @foreach (var group in new[] {
+                ("Unpaid and unconfirmed Private course registrations", Model.UnconfirmedPrivate),
+                ("Unpaid and unconfirmed Group course registrations", Model.UnconfirmedGroup),
+                ("Paid but unconfirmed Private course registrations", Model.PaidUnconfirmedPrivate),
+                ("Paid but unconfirmed Group course registrations", Model.PaidUnconfirmedGroup)
+            })
+            {
+                @if (group.Item2.Count > 0)
+                {
+                    <section class="notification-group"><h4>@group.Item1 (@group.Item2.Count)</h4><div class="table-responsive"><table class="management-table table table-bordered"><thead class="management-table-header"><tr><th data-sort-key="participant">@CurrentTenant.Terminology.ParticipantSingular</th><th data-sort-key="course">Course</th>@if (group.Item1.Contains("Group")) { <th data-sort-key="date">First registered session</th> }<th class="notification-action-header">Action</th></tr></thead><tbody>@foreach (var item in group.Item2) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td>@if (group.Item1.Contains("Group")) { <td data-sort-value="@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")">@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td> }<td><a href="@item.Link">Review</a></td></tr> }</tbody></table></div></section>
+                }
+            }
+        }
+    </div>
+
+    <div id="unpaid-panel" class="notification-panel">
+        @if (unpaidCount == 0) { <div class="notification-empty">No confirmed registrations require payment follow-up.</div> }
+        else
+        {
+            @foreach (var group in new[] {
+                ("Confirmed but unpaid Private course registrations", Model.UnpaidPrivate),
+                ("Confirmed but unpaid Group course registrations", Model.UnpaidGroup)
+            })
+            {
+                @if (group.Item2.Count > 0)
+                {
+                    <section class="notification-group"><h4>@group.Item1 (@group.Item2.Count)</h4><div class="table-responsive"><table class="management-table table table-bordered"><thead class="management-table-header"><tr><th data-sort-key="participant">@CurrentTenant.Terminology.ParticipantSingular</th><th data-sort-key="course">Course</th><th class="notification-action-header">Action</th></tr></thead><tbody>@foreach (var item in group.Item2) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td><a href="@item.Link">Review</a></td></tr> }</tbody></table></div></section>
+                }
+            }
+        }
+    </div>
+
+    <div id="leave-panel" class="notification-panel">
+        @if (Model.LeaveRequests.Count == 0) { <div class="notification-empty">No Group course leave requests.</div> }
+        else
+        {
+            <section class="notification-group"><h4>Group course leave requests (@Model.LeaveRequests.Count)</h4><div class="table-responsive"><table class="management-table table table-bordered"><thead class="management-table-header"><tr><th data-sort-key="participant">@CurrentTenant.Terminology.ParticipantSingular</th><th data-sort-key="course">Course</th><th data-sort-key="date">Scheduled</th><th class="notification-action-header">Action</th></tr></thead><tbody>@foreach (var item in Model.LeaveRequests) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td data-sort-value="@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")">@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td><td><a href="@item.Link">Review</a></td></tr> }</tbody></table></div></section>
+        }
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.notification-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.notification-tab').forEach(function (item) { item.classList.remove('active'); });
+            document.querySelectorAll('.notification-panel').forEach(function (panel) { panel.classList.remove('active'); });
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    document.querySelectorAll('.notification-group table').forEach(function (table) {
+        table.querySelectorAll('th[data-sort-key]').forEach(function (header) {
+            header.addEventListener('click', function () {
+                const columnIndex = Array.from(header.parentElement.children).indexOf(header);
+                const ascending = header.dataset.direction !== 'asc';
+                table.querySelectorAll('th[data-sort-key]').forEach(function (item) {
+                    item.dataset.direction = '';
+                    item.classList.remove('sort-asc', 'sort-desc');
+                });
+                header.dataset.direction = ascending ? 'asc' : 'desc';
+                header.classList.add(ascending ? 'sort-asc' : 'sort-desc');
+
+                const body = table.tBodies[0];
+                Array.from(body.rows)
+                    .sort(function (left, right) {
+                        const leftCell = left.cells[columnIndex];
+                        const rightCell = right.cells[columnIndex];
+                        const leftValue = leftCell.dataset.sortValue || leftCell.textContent.trim().toLowerCase();
+                        const rightValue = rightCell.dataset.sortValue || rightCell.textContent.trim().toLowerCase();
+                        return leftValue.localeCompare(rightValue, undefined, { numeric: true }) * (ascending ? 1 : -1);
+                    })
+                    .forEach(function (row) { body.appendChild(row); });
+            });
+        });
+    });
+</script>
