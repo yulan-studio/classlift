@@ -4,6 +4,7 @@
 <style>
     .child-notifications { width:100%; margin:0 auto; padding:1.5rem 1rem 3rem; box-sizing:border-box; }
     .child-notifications h2 { margin:0 0 1.5rem; color:#152238; font-size:clamp(1.45rem, 2vw, 1.75rem); font-weight:700; line-height:1.2; }
+    .child-notifications-intro { margin:-.75rem 0 1.5rem; color:#6b778c; font-size:.95rem; }
     .child-notification-section { margin:2.5rem 0; }
     .child-notification-section h4 { margin-bottom:1.75rem; color:#1b7bab; font-size:1.2rem; font-weight:700; }
     .child-notification-section table { width:100%; }
@@ -17,7 +18,28 @@
 
 <div class="child-notifications">
     <h2>Notifications</h2>
-    @if (Model.Items.Count == 0)
+    <p class="child-notifications-intro">This page shows course change notifications. To view newly added sessions, please check <a href="/Child/MySchedules">Schedules</a>.</p>
+    @if (Model.PendingConfirmations.Count > 0)
+    {
+        <section class="child-notification-section">
+            <h4>Registrations to confirm (@Model.PendingConfirmations.Count)</h4>
+            <div class="table-responsive"><table class="management-table table table-bordered">
+                <thead class="management-table-header"><tr><th>Type</th><th>Course/Activity</th><th>Action</th></tr></thead>
+                <tbody>
+                @foreach (var item in Model.PendingConfirmations)
+                {
+                    <tr>
+                        <td>@item.Type</td>
+                        <td>@item.Title</td>
+                        <td><a href="/Child/MyConfirmations">Confirm</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        </section>
+    }
+
+    @if (Model.Items.Count == 0 && Model.PendingConfirmations.Count == 0)
     {
         <div class="child-notification-empty">No upcoming session notifications.</div>
     }

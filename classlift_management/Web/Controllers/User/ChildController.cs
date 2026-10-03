@@ -1496,7 +1496,39 @@ namespace Web.Controllers.User
                 })
                 .ToListAsync();
 
-            return View(new ChildNotificationsViewModel { Items = items });
+            var pendingCourseConfirmations = await _db.CourseEnrollments
+                .AsNoTracking()
+                .Include(e => e.Course)
+                .Where(e => e.ChildID == child.ChildID
+                    && e.Status == "Registered"
+                    && e.EnrollmentID_Ref == null)
+                .Select(e => new ChildConfirmationNotificationItem
+                {
+                    Type = "Course",
+                    Title = e.Course.Title
+                })
+                .ToListAsync();
+
+            var pendingActivityConfirmations = await _db.ActivityEnrollments
+                .AsNoTracking()
+                .Include(e => e.Activity)
+                .Where(e => e.ChildID == child.ChildID && e.Status == "Registered")
+                .Select(e => new ChildConfirmationNotificationItem
+                {
+                    Type = "Activity",
+                    Title = e.Activity.Title
+                })
+                .ToListAsync();
+
+            return View(new ChildNotificationsViewModel
+            {
+                Items = items,
+                PendingConfirmations = pendingCourseConfirmations
+                    .Concat(pendingActivityConfirmations)
+                    .OrderBy(item => item.Type)
+                    .ThenBy(item => item.Title)
+                    .ToList()
+            });
         }
 
 
