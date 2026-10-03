@@ -6,7 +6,7 @@
     ViewData["Title"] = Model.PackageID == 0 ? "Add Payment Package" : "Edit Payment Package";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h1 class="management-page-title">@ViewData["Title"]</h1>
 <div style="padding-top: 20px;"></div>
 
 <style>
@@ -115,7 +115,7 @@
                 <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">
                     Save
                 </button>
-                <a href="/PaymentPackage/List" class="classlift-button" style="background-color: #ddd; color: black; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
+                <a href="/PaymentPackage/List" class="classlift-button cancel-button" style="background-color: #ddd; color: #000 !important; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
             </td>
         </tr>
     </table>

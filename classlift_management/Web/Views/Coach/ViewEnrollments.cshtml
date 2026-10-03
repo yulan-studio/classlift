@@ -34,7 +34,7 @@
     Review completed sessions and manage @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() notes.
 </p>
 
-<a href="/Coach/ManageCourse" class="participation-back-link enrollment-back-link">← Back to Courses List</a>
+<a href="/Coach/ManageCourse" class="participation-back-link enrollment-back-link" style="color: #000 !important;">← Back to Courses List</a>
 
 
 
@@ -64,7 +64,7 @@
             <th>Scheduled At</th>
             <th class="desktop-only">@CurrentTenant.Terminology.ParticipantSingular Note</th>
             <th>My Note</th>
-            <th>Action</th>
+            <th class="action-column">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -89,7 +89,7 @@
                             <span class="completed-note-actions">
                                 <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Update Note</a>
                                 <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
-                                <button id="coach-note-cancel-@completed.EnrollmentID" type="button" class="btn btn-secondary" style="display: none;" onclick="cancelCoachNote(@completed.EnrollmentID)">Cancel</button>
+                                <button id="coach-note-cancel-@completed.EnrollmentID" type="button" class="btn btn-secondary cancel-button" style="display: none;" onclick="cancelCoachNote(@completed.EnrollmentID)">Cancel</button>
                             </span>
                         </form>
                     </td>

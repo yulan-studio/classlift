@@ -6,12 +6,13 @@
     .coach-notification-section { margin:2.5rem 0; }
     .coach-notification-section h4 { margin-bottom:1.75rem; color:#1b7bab; font-size:1.2rem; font-weight:700; }
     .coach-notification-section table { width:100%; }
+    .coach-notification-section td a { font-weight:400; }
     .coach-notification-empty { padding:1rem; border:1px dashed #ccd6e2; border-radius:7px; color:#6b778c; background:#f9fbfd; }
     .coach-notifications a { color:#1b7bab; font-weight:600; }
 </style>
 
 <div class="coach-notifications">
-    <h2>Notifications</h2>
+    <h1 class="management-page-title">Notifications</h1>
     <section class="coach-notification-section">
         <h4>Reschedule requests (@Model.RescheduleRequests.Count)</h4>
         @if (Model.RescheduleRequests.Count == 0)
@@ -21,7 +22,7 @@
         else
         {
             <div class="table-responsive"><table class="management-table table table-bordered">
-                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th>Action</th></tr></thead>
+                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th class="action-column">Action</th></tr></thead>
                 <tbody>@foreach (var item in Model.RescheduleRequests) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td>@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td><td><a href="@item.Link">Review</a></td></tr> }</tbody>
             </table></div>
         }
@@ -36,7 +37,7 @@
         else
         {
             <div class="table-responsive"><table class="management-table table table-bordered">
-                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th>Action</th></tr></thead>
+                <thead class="management-table-header"><tr><th>Participant</th><th>Course</th><th>Scheduled</th><th class="action-column">Action</th></tr></thead>
                 <tbody>@foreach (var item in Model.SessionsToComplete) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td>@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td><td><a href="@item.Link">Complete</a></td></tr> }</tbody>
             </table></div>
         }

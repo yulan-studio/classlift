@@ -1172,7 +1172,6 @@ namespace Web.Controllers.User
                 if (operationSucceeded)
                     //if (result1)
                     {
-                    TempData["SuccessMessage"] = "Course Completed successfully.";
                     if (hoursToUse > 0)
                     {
                         await NotifyFamilyOfCompletedSessionAsync(
@@ -1180,9 +1179,16 @@ namespace Web.Controllers.User
                             course,
                             courseEnrollment,
                             hoursToUse);
+
+                        var emailWarning = TempData["WarningMessage"]?.ToString();
+                        TempData["SuccessMessage"] = emailWarning == null
+                            ? "Course Completed successfully."
+                            : "Course Completed successfully, but the notification email could not be sent.";
+                        TempData.Remove("WarningMessage");
                     }
                     else
                     {
+                        TempData["SuccessMessage"] = "Course Completed successfully.";
                         await NotifyFamilyOfDeletedSessionAsync(
                             child,
                             course,

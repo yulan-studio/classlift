@@ -1,7 +1,7 @@
 @model Core.ViewModels.ChildSchedulesViewModel
 
 <style>
-    .completed-page { width: 100%; margin: 0 auto; padding: 1.5rem 1rem 3rem; box-sizing: border-box; }
+    .completed-page { width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
     .completed-page-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
     .completed-page-header h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; }
     .completed-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
@@ -19,11 +19,12 @@
     .history-table th, .history-table td { vertical-align: top; }
     .history-table .date-column { width: 110px; white-space: nowrap; }
     .history-table .note-column { min-width: 260px; }
-    .history-table textarea { min-width: 180px; border: 1px solid #d9e1eb; border-radius: 5px; padding: .4rem; }
+    .history-table textarea { width: 100%; min-width: 180px; box-sizing: border-box; border: 1px solid #d9e1eb; border-radius: 5px; padding: .4rem; }
     .history-table .note-actions { white-space: nowrap; }
+    .history-table .cancel-button { color: #000 !important; background-color: #ddd !important; border-color: #ccc !important; }
     .empty-history { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
     @@media (max-width: 640px) {
-        .completed-page { padding: 1rem .75rem 2rem; }
+        .completed-page { padding: 0; }
         .completed-page-header { display: block; margin-bottom: 1rem; }
         .course-summary { align-items: flex-start; flex-direction: column; }
         .completed-toggle { width: 100%; }
@@ -65,7 +66,7 @@
             </div>
         <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper">
             <table class="management-table history-table table table-bordered">
-                <thead class="management-table-header"><tr><th class="date-column">Date</th><th>Status</th><th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th><th class="note-column">My Note</th><th>Action</th></tr></thead>
+                <thead class="management-table-header"><tr><th class="date-column">Date</th><th>Status</th><th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th><th class="note-column">My Note</th><th class="action-column">Action</th></tr></thead>
                 <tbody>
                 @foreach (var schedule in courseSchedules.Schedules)
                 {
@@ -74,9 +75,9 @@
                     <tr>
                         <td class="date-column">@(scheduledAt?.ToString("yyyy-MM-dd") ?? "N/A")</td>
                         <td>@schedule.Status</td>
-                        <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "-" : providerNote)</td>
+                        <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "" : providerNote)</td>
                         <td class="note-column">
-                            <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "-" : schedule.ParentNote)</span>
+                            <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "" : schedule.ParentNote)</span>
                             <textarea id="my-note-edit-@schedule.EnrollmentID" name="feedback" rows="2" form="my-note-form-@schedule.EnrollmentID" style="display: none;">@schedule.ParentNote</textarea>
                         </td>
                         <td class="note-actions">
@@ -85,7 +86,7 @@
                                 <input type="hidden" name="enrollmentId" value="@schedule.EnrollmentID" />
                                 <a id="my-note-update-@schedule.EnrollmentID" href="javascript:void(0);" onclick="editMyNote(@schedule.EnrollmentID)">Update Note</a>
                                 <button id="my-note-save-@schedule.EnrollmentID" type="submit" class="btn classlift-secondary-button btn-save mt-2" style="display: none;">Save</button>
-                                <button id="my-note-cancel-@schedule.EnrollmentID" type="button" class="btn btn-secondary mt-2" style="display: none;" onclick="cancelMyNote(@schedule.EnrollmentID)">Cancel</button>
+                                <button id="my-note-cancel-@schedule.EnrollmentID" type="button" class="btn btn-secondary cancel-button mt-2" style="display: none;" onclick="cancelMyNote(@schedule.EnrollmentID)">Cancel</button>
                             </form>
                         </td>
                     </tr>

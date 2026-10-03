@@ -18,6 +18,8 @@ namespace Core.ViewModels
         public string Title { get; set; }
         public decimal? TotalCost { get; set; }
 
+        public string Status { get; set; }
+
         public int FeeID { get; set; }
     }
 }

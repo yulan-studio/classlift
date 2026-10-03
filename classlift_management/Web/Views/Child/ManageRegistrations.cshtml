@@ -356,7 +356,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Paid</th>
             
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Group Sessions</th>
         </tr>
     </thead>
@@ -399,7 +399,7 @@
                             </a>
                       
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Status</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; @(enrollment.Status == "Registered" ? "color: red;" : "")">@enrollment.Status</td>
                     <td style="padding: 8px; border: 1px solid #ddd; @(enrollment.IsPaid == false ? "color: red" : "")">@enrollment.IsPaid</td>
                     
 
@@ -571,7 +571,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Total Cost</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Is Paid</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
         </tr>
     </thead>
     <tbody>

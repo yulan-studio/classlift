@@ -4,15 +4,29 @@
 <style>
     .notification-page h2 { margin-bottom:.35rem; color:#152238; font-size:1.75rem; font-weight:700; }
     .notification-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.5rem; margin-bottom:1.25rem; border-bottom:1px solid #dbe5ee; }
-    .notification-tab { margin-bottom:-1px; padding:.7rem 1rem; border:1px solid transparent; border-radius:7px 7px 0 0; color:#526176; background:transparent; font-weight:600; cursor:pointer; }
+    .notification-tab { margin-bottom:-1px; padding:.7rem 1rem; border:1px solid transparent; border-radius:7px 7px 0 0; color:#23a1e0; background:transparent; font-weight:400; cursor:pointer; }
     .notification-tab:focus { outline:none; box-shadow:none; }
-    .notification-tab.active { border-color:#dbe5ee #dbe5ee #fff; color:#1b7bab; background:#fff; }
+    .notification-tab.active { border-color:#dbe5ee #dbe5ee #fff; color:#000; background:#fff; }
     .notification-tab-count { display:inline-block; min-width:1.5rem; margin-left:.35rem; padding:.1rem .35rem; border-radius:999px; color:#26364d; background:#edf5fb; font-size:.78rem; text-align:center; }
     .notification-panel { display:none; }
     .notification-panel.active { display:block; }
     .notification-group { margin:1.25rem 0 2rem; }
-    .notification-group h4 { margin-bottom:.75rem; color:#1b7bab; font-size:1.15rem; font-weight:700; }
-    .notification-group table { width:100%; }
+    .notification-group h4 { margin-bottom:.75rem; color:#1b7bab; font-size:1.15rem; font-weight:400; }
+    .notification-group table { width:100%; table-layout:fixed; }
+    .notification-group table:has(> thead > tr > th:nth-child(3):last-child) th:nth-child(1),
+    .notification-group table:has(> thead > tr > th:nth-child(3):last-child) td:nth-child(1) { width:20%; }
+    .notification-group table:has(> thead > tr > th:nth-child(3):last-child) th:nth-child(2),
+    .notification-group table:has(> thead > tr > th:nth-child(3):last-child) td:nth-child(2) { width:60%; }
+    .notification-group table:has(> thead > tr > th:nth-child(3):last-child) th:nth-child(3),
+    .notification-group table:has(> thead > tr > th:nth-child(3):last-child) td:nth-child(3) { width:20%; }
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) th:nth-child(1),
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) td:nth-child(1) { width:20%; }
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) th:nth-child(2),
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) td:nth-child(2) { width:40%; }
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) th:nth-child(3),
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) td:nth-child(3),
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) th:nth-child(4),
+    .notification-group table:has(> thead > tr > th:nth-child(4):last-child) td:nth-child(4) { width:20%; }
     .notification-group th[data-sort-key] { cursor:pointer; user-select:none; }
     .notification-group th[data-sort-key]::after { content:'' !important; }
     .notification-group th.sort-asc::after { content:' ▲' !important; color:inherit; font-size:inherit; }
@@ -24,7 +38,7 @@
         background-color:#f2f2f2 !important;
         background-image:none !important;
     }
-    .notification-page a { color:#1b7bab; font-weight:600; }
+    .notification-page a { color:var(--classlift-link, #23a1e0) !important; font-weight:400; }
     .notification-empty { padding:1rem; border:1px dashed #ccd6e2; border-radius:7px; color:#6b778c; background:#f9fbfd; }
 </style>
 
@@ -55,7 +69,7 @@
             {
                 @if (group.Item2.Count > 0)
                 {
-                    <section class="notification-group"><h4>@group.Item1 (@group.Item2.Count)</h4><div class="table-responsive"><table class="management-table table table-bordered"><thead class="management-table-header"><tr><th data-sort-key="participant">@CurrentTenant.Terminology.ParticipantSingular</th><th data-sort-key="course">Course</th>@if (group.Item1.Contains("Group")) { <th data-sort-key="date">First registered session</th> }<th class="notification-action-header">Action</th></tr></thead><tbody>@foreach (var item in group.Item2) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td>@if (group.Item1.Contains("Group")) { <td data-sort-value="@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")">@(item.ScheduledAt?.ToString("yyyy-MM-dd") ?? "")</td> }<td><a href="@item.Link">Review</a></td></tr> }</tbody></table></div></section>
+                    <section class="notification-group"><h4>@group.Item1 (@group.Item2.Count)</h4><div class="table-responsive"><table class="management-table table table-bordered"><thead class="management-table-header"><tr><th data-sort-key="participant">@CurrentTenant.Terminology.ParticipantSingular</th><th data-sort-key="course">Course</th><th class="notification-action-header">Action</th></tr></thead><tbody>@foreach (var item in group.Item2) { <tr><td>@item.ParticipantName</td><td>@item.CourseTitle</td><td><a href="@item.Link">Review</a></td></tr> }</tbody></table></div></section>
                 }
             }
         }

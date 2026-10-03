@@ -14,6 +14,14 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 
 <style>
+    #addPaymentButton:disabled {
+        background-color: #ddd !important;
+        border-color: #ccc !important;
+        color: #000 !important;
+        cursor: not-allowed;
+        opacity: 1;
+    }
+
     .payment-add-panel { margin: 30px 0; padding: 20px; background-color: #f2f2f2; }
     .payment-form-table { width: 100%; border-collapse: collapse; }
     .payment-form-table td { padding: 8px; }
@@ -199,10 +207,11 @@
                                            name="selectedFeeId"
                                            value="@item.FeeID"
                                            data-cost="@item.TotalCost"
+                                           data-status="@item.Status"
                                            data-feeId="@item.FeeID"
                                            id="fee_@item.FeeID"
                                            onchange="updateAmountFromFee(this)" /> 
-                                    <label for="fee_@item.FeeID">[@item.Type] @item.Title (@item.TotalCost.ToString("C"))</label>
+                                     <label for="fee_@item.FeeID">[@item.Type] @item.Title (@item.TotalCost.ToString("C"))</label>
                                 </div>
                                
                                 @* <label for="fee_@item.FeeID">@item.Type: @item.Title (@item.TotalCost.ToString("C"))</label> *@
@@ -240,7 +249,10 @@
             <!-- Submit -->
             <tr>
                 <td colspan="2" style="padding: 8px;">
-                    <button type="submit" class="management-form__save">
+                    <div id="directPaymentConfirmationWarning" class="alert alert-warning" style="display: none;">
+                        Please ask the participant to confirm this registration before adding a payment.
+                    </div>
+                    <button type="submit" id="addPaymentButton" class="management-form__save">
                         Add Payment
                     </button>
                 </td>
@@ -289,6 +301,20 @@
         if (!isPackage) {
             document.getElementById('amount').value = ''; // clear for manual entry
         }
+
+        updateDirectPaymentConfirmationState();
+    }
+
+    function updateDirectPaymentConfirmationState() {
+        const selectedFee = document.querySelector("input[name='selectedFeeId']:checked");
+        const warning = document.getElementById('directPaymentConfirmationWarning');
+        const addPaymentButton = document.getElementById('addPaymentButton');
+        const isDirect = document.getElementById('manualPayment')?.checked === true;
+        const isConfirmed = selectedFee?.dataset.status === 'Confirmed';
+        const shouldBlock = isDirect && selectedFee && !isConfirmed;
+
+        warning.style.display = shouldBlock ? 'block' : 'none';
+        addPaymentButton.disabled = shouldBlock;
     }
 
     // Fetch package amount (existing function)
@@ -324,6 +350,7 @@
         const feeId = radio.getAttribute('data-feeId');
         document.getElementById('amount').value = cost;
         document.getElementById('feeId').value = feeId;
+        updateDirectPaymentConfirmationState();
     }
 
 
