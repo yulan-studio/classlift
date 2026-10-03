@@ -21,6 +21,7 @@
     .history-table .note-column { min-width: 260px; }
     .history-table textarea { width: 100%; min-width: 180px; box-sizing: border-box; border: 1px solid #d9e1eb; border-radius: 5px; padding: .4rem; }
     .history-table .note-actions { white-space: nowrap; }
+    .history-table .cancel-button { color: #000 !important; background-color: #ddd !important; border-color: #ccc !important; }
     .empty-history { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
     @@media (max-width: 640px) {
         .completed-page { padding: 0; }
@@ -74,9 +75,9 @@
                     <tr>
                         <td class="date-column">@(scheduledAt?.ToString("yyyy-MM-dd") ?? "N/A")</td>
                         <td>@schedule.Status</td>
-                        <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "-" : providerNote)</td>
+                        <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "" : providerNote)</td>
                         <td class="note-column">
-                            <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "-" : schedule.ParentNote)</span>
+                            <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "" : schedule.ParentNote)</span>
                             <textarea id="my-note-edit-@schedule.EnrollmentID" name="feedback" rows="2" form="my-note-form-@schedule.EnrollmentID" style="display: none;">@schedule.ParentNote</textarea>
                         </td>
                         <td class="note-actions">
