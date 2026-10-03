@@ -2059,8 +2059,10 @@ namespace Web.Controllers.User
 
                     if (result4)
                     {
-                        TempData["SuccessMessage2"] = "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
-                        await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
+                        var notificationsSent = await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
+                        TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                            ? "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
+                            : "The course schedules were confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. However, the organization notification email could not be sent.";
                     }
                 }
             }
@@ -2127,8 +2129,10 @@ namespace Web.Controllers.User
                 if (result1 && result2 && result3)
                 {
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
-                    TempData["SuccessMessage2"] = "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>.";
-                    await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
+                    var notificationsSent = await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
+                    TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                        ? "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
+                        : "The course was confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
                 }
 
 
@@ -2215,7 +2219,7 @@ namespace Web.Controllers.User
             return RedirectToAction("MyConfirmations");
         }
 
-        private async Task NotifyGroupCourseConfirmedAsync(Child child, int courseId)
+        private async Task<bool> NotifyGroupCourseConfirmedAsync(Child child, int courseId)
         {
             try
             {
@@ -2228,8 +2232,7 @@ namespace Web.Controllers.User
                         $"/Child/ManageSessionRegistrations?childId={child.ChildID}&courseId={course.CourseID}",
                         course.Coach?.Name));
 
-                if (!delivery.IsSuccessful)
-                    TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+                return delivery.IsSuccessful;
             }
             catch (Exception exception)
             {
@@ -2238,11 +2241,11 @@ namespace Web.Controllers.User
                     "Group course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
                     child.ChildID,
                     courseId);
-                TempData["WarningMessage2"] = "The course was confirmed, but the organization notification email could not be sent.";
+                return false;
             }
         }
 
-        private async Task NotifyPrivateCourseConfirmedAsync(Child child, int courseId, int enrollmentId)
+        private async Task<bool> NotifyPrivateCourseConfirmedAsync(Child child, int courseId, int enrollmentId)
         {
             try
             {
@@ -2257,8 +2260,7 @@ namespace Web.Controllers.User
                         course.Coach?.Name,
                         $"/Coach/ManageSchedules/{child.ChildID}?courseId={course.CourseID}&enrollmentId={enrollmentId}"));
 
-                if (!delivery.IsSuccessful)
-                    TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+                return delivery.IsSuccessful;
             }
             catch (Exception exception)
             {
@@ -2267,7 +2269,7 @@ namespace Web.Controllers.User
                     "Private course confirmation notification failed. ChildId={ChildId}, CourseId={CourseId}",
                     child.ChildID,
                     courseId);
-                TempData["WarningMessage2"] = "The course was confirmed, but one or more notification emails could not be sent.";
+                return false;
             }
         }
 
