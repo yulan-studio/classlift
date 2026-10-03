@@ -2,7 +2,7 @@
     --classlift-blue: #1b7bab;
     --classlift-blue-dark: #155a78;
     --classlift-blue-light: #add8e6;
-    --classlift-link: #005a8d;
+    --classlift-link: #23a1e0;
     --classlift-border: #d6e2e7;
     --classlift-muted-text: #3f4f56;
     --classlift-button-radius: 5px;
@@ -219,6 +219,24 @@ textarea[readonly] {
     font-size: clamp(1.45rem, 2vw, 1.75rem);
     font-weight: 700;
     line-height: 1.2;
+}
+
+main a:not(.btn):not(.text-danger) {
+    color: var(--classlift-link) !important;
+}
+
+/* Table header colors are controlled by each table's existing header style. */
+.management-table thead a,
+.management-table th a,
+.child-management-table-header a {
+    color: #000 !important;
+}
+
+main table.management-table thead th a,
+main table.management-table thead th a:visited,
+main table.management-table thead th a:hover,
+main table.management-table thead th a:active {
+    color: #000 !important;
 }
 
 /* Shared outer page container for consistent content alignment. */
