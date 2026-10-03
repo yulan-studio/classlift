@@ -286,6 +286,12 @@ main.container > h2 {
     white-space: nowrap !important;
 }
 
+.compact-column {
+    width: 1%;
+    min-width: max-content;
+    white-space: nowrap;
+}
+
 .action-column a,
 .action-column button,
 .action-column form {
@@ -637,13 +643,13 @@ main.container > h2 {
     border: 1px solid #ccc;
 }
 
-.participation-back-link {
+main .participation-back-link {
     display: inline-block;
     margin-top: 20px;
     margin-right: 20px;
     margin-bottom: 1rem;
     padding: 8px 14px;
-    color: #26343a;
+    color: #000 !important;
     background-color: #e2eaed;
     border: 1px solid #cbd8de;
     border-radius: 5px;
@@ -651,15 +657,15 @@ main.container > h2 {
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.participation-back-link:hover,
-.participation-back-link:focus {
-    color: #26343a;
+main .participation-back-link:hover,
+main .participation-back-link:focus {
+    color: #000 !important;
     background-color: #cbd8de;
     border-color: #aebfc7;
 }
 
-.participation-back-link:active {
-    color: #fff;
+main .participation-back-link:active {
+    color: #000 !important;
     background-color: #71838b;
     border-color: #71838b;
 }

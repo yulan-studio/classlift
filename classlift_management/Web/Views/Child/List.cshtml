@@ -120,7 +120,7 @@
             <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">More Profile</th>
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Payments</th> *@
             <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Participation</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Has Request</th>
+            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Has Request</th>
             @*  <th style="padding: 8px; border: 1px solid #ddd;">Enrollments</th> *@
         </tr>
     </thead>
@@ -166,7 +166,7 @@
                     </td>*@
 
 
-                    <td class="@(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "request-to-leave-cell" : "")" style="padding: 8px; border: 1px solid #ddd; @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "background-color: #FCE8F2;" : "")">
+                    <td class="action-column @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "request-to-leave-cell" : "")" style="padding: 8px; border: 1px solid #ddd; @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "background-color: #FCE8F2;" : "")">
                         @(requestConcernIds.Contains(childWithDelete.Child.ChildID) ? "Yes" : "")
                     </td>
                      @*<td style="padding: 8px; border: 1px solid #ddd;">
