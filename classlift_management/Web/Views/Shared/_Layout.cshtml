@@ -251,11 +251,11 @@
                         <li class="nav-item"><a class="nav-link" href="/Child/MyEnrollmentsHistory">Completed</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyCalendar">Calendar</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/Notifications">Notifications</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Child/MyPayments">Payments</a></li>
                         @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                         {
                             <li class="nav-item"><a class="nav-link" href="/Child/MyBalance">Balance</a></li>
                         }
-                        <li class="nav-item"><a class="nav-link" href="/Child/MyPayments">Payments</a></li>
                     }
 
                     @if (User.Identity.IsAuthenticated)

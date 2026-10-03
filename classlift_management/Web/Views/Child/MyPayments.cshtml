@@ -11,6 +11,7 @@
     .payments-page-header { margin-bottom: 1.5rem; }
     .payments-page-header h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; }
     .payments-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
+    .payments-empty-panel { padding: 1.5rem; border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; text-align: center; }
     .payments-page .desktop-table { width: 100%; overflow-x: auto; }
 
     /* Hide desktop table on mobile */
@@ -59,6 +60,12 @@
     <p>Review your payment history and receipts.</p>
 </div>
 
+@if (!Model.Payments.Any())
+{
+    <div class="payments-empty-panel">No payments found.</div>
+}
+else
+{
 <!-- ===================== -->
 <!-- DESKTOP TABLE VIEW -->
 <!-- ===================== -->
@@ -187,4 +194,5 @@
         </div>
     }
 </div>
-</div>
+
+}

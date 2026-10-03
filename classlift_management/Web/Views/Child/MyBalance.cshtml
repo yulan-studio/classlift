@@ -12,6 +12,7 @@
     .balance-page-header h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; }
     .balance-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
     .balance-table { width: 100%; overflow-x: auto; }
+    .balance-empty-panel { padding: 1.5rem; border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; text-align: center; }
 
     /* ===== Desktop default ===== */
     table.mobile-stack {
@@ -84,6 +85,8 @@
     <p>Review your balance history and current balance.</p>
 </div>
 
+@if (Model.Any())
+{
 <div class="balance-table">
 <table class="management-table mobile-stack table table-bordered mt-3">
     <thead class="management-table-header">
@@ -168,6 +171,11 @@
     </tbody>
 </table>
 </div>
+}
+else
+{
+    <div class="balance-empty-panel">No balance history available for this child.</div>
+}
 
 <div>
     <h5 class="mt-4">
