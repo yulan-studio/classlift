@@ -232,12 +232,14 @@
                         <li class="nav-item"><a class="nav-link" href="/Course/List">Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Activity/List">Activities</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/List">@CurrentTenant.Terminology.ParticipantPlural</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Staff/Notifications">Notifications</a></li>
                     }
                     @if (User.IsInRole("Coach"))
                     {
                         @* <li class="nav-item"><a class="nav-link" href="/Home/Index">NSNS Programs</a></li> *@
                         <li class="nav-item"><a class="nav-link" href="/Coach/ManageCourse">Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Coach/MyCalendar">Calendar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Coach/Notifications">Notifications</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Coach/MyHours">Hours</a></li>
                     }
                     @if (User.IsInRole("Child"))
@@ -248,6 +250,7 @@
                         <li class="nav-item"><a class="nav-link" href="/Child/MySchedules">Schedules</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyEnrollmentsHistory">Completed</a></li>
                         <li class="nav-item"><a class="nav-link" href="/Child/MyCalendar">Calendar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Child/Notifications">Notifications</a></li>
                         @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                         {
                             <li class="nav-item"><a class="nav-link" href="/Child/MyBalance">Balance</a></li>

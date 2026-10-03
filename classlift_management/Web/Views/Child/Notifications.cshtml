@@ -1,0 +1,42 @@
+@model Core.ViewModels.ChildNotificationsViewModel
+@{ ViewData["Title"] = "Notifications"; }
+
+<style>
+    .child-notifications { width:100%; margin:0 auto; padding:1.5rem 1rem 3rem; box-sizing:border-box; }
+    .child-notifications h2 { margin:0 0 1.5rem; color:#152238; font-size:clamp(1.45rem, 2vw, 1.75rem); font-weight:700; line-height:1.2; }
+    .child-notification-section { margin:2.5rem 0; }
+    .child-notification-section h4 { margin-bottom:1.75rem; color:#1b7bab; font-size:1.2rem; font-weight:700; }
+    .child-notification-section table { width:100%; }
+    .child-notification-empty { padding:1rem; border:1px dashed #ccd6e2; border-radius:7px; color:#6b778c; background:#f9fbfd; }
+    .child-notifications a { color:#1b7bab; font-weight:600; }
+    .status-canceled { background:#fff3cd; }
+    .status-deleted, .status-onleave { background:#dceeff; }
+    .status-requesttoreschedule, .status-requesttoleave { background:#fce8f2; }
+    @@media (max-width:767px) { .child-notifications { padding:1rem .75rem 2rem; } }
+</style>
+
+<div class="child-notifications">
+    <h2>Notifications</h2>
+    @if (Model.Items.Count == 0)
+    {
+        <div class="child-notification-empty">No upcoming session notifications.</div>
+    }
+    else
+    {
+        @foreach (var group in Model.Items.GroupBy(item => item.Status))
+        {
+            <section class="child-notification-section">
+                <h4>@group.Key (@group.Count())</h4>
+                <div class="table-responsive"><table class="management-table table table-bordered">
+                    <thead class="management-table-header"><tr><th>Course</th><th>Scheduled</th></tr></thead>
+                    <tbody>
+                    @foreach (var item in group.OrderBy(item => item.ScheduledAt).ThenBy(item => item.CourseTitle))
+                    {
+                        <tr><td><a href="/Child/MySchedules?courseId=@item.CourseId">@item.CourseTitle</a></td><td>@item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt")</td></tr>
+                    }
+                    </tbody>
+                </table></div>
+            </section>
+        }
+    }
+</div>
