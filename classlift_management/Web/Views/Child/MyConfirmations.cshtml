@@ -15,8 +15,11 @@
     .confirmations-page .empty-schedules { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
     .confirmation-target { scroll-margin-top: 1rem; transition: box-shadow .25s ease, background-color .25s ease; }
     .confirmation-target--highlight { background-color: #fff8d8 !important; box-shadow: 0 0 0 3px #f0c36d; border-radius: 8px; }
-    .confirmations-page #deleteRegistrationModal .modal-header,
-    .confirmations-page #deleteRegistrationModal .modal-footer { border: 0; }
+    .confirmations-page #deleteRegistrationModal .modal-header { border-bottom: 1px solid var(--bs-border-color); }
+    .confirmations-page #deleteRegistrationModal .modal-footer { border-top: 1px solid var(--bs-border-color); }
+    .confirmations-page #deleteRegistrationModal .cancel-button,
+    .confirmations-page #deleteRegistrationModal .cancel-button:hover,
+    .confirmations-page #deleteRegistrationModal .cancel-button:focus { color: #fff !important; }
     .btn-primary { border-color: #7bb4dc; background-color: #7bb4dc; color: #fff; }
     .btn-primary:hover { border-color: #6aa8d3; background-color: #6aa8d3; color: #fff; }
     @@media (max-width: 767px) {
@@ -312,8 +315,8 @@
                 Are you sure you want to remove this registration?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary cancel-button" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" onclick="confirmDeleteRegistration();">Delete</button>
+                <button type="button" class="btn btn-secondary cancel-button" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -373,8 +376,8 @@
             <input type="hidden" name="TotalCost" value="@enrollment.TotalCost" />
             <input type="hidden" name="PaymentModel" value="@enrollment.PaymentModel" />
             <table style="border-collapse: collapse; width: 100%; text-align: left;">
-                <thead>
-                    <tr style="background-color: #f2f2f2;">
+                <thead class="table-primary">
+                    <tr>
                         <th style="padding: 8px; border: 1px solid #ddd;">Activity</th>
                         <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
                         <th style="padding: 8px; border: 1px solid #ddd;">Address</th>
