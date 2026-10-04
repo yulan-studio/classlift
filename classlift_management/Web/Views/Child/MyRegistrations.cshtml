@@ -74,7 +74,7 @@
 
 <!-- ✅ Table Showing Already Registered Courses -->
 <div class="registration-notice">
-    Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the courses you have registered for. To view upcoming course and activity schedules, please check the <a href="/Child/MySchedules">Schedules</a> section. To review completed courses, activities, and update your notes, please visit the <a href="/Child/MyEnrollmentsHistory">Completed</a> section.
+    Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the courses you have registered for. To view upcoming course and activity schedules, please check the <a href="/Child/MySchedules">Schedules</a> section. To review completed courses, activities, and update your notes, please visit the <a href="/Child/MyCompletedEnrollments">Completed</a> section.
 </div>
 <h4 class="registration-section-title">Courses</h4>
 @if (Model.CourseEnrollments.Any())
@@ -164,7 +164,6 @@ else
     <thead class="management-table-header">
         <tr>
             <th>Activity</th>
-            <th>Description</th>
             <th>Address</th>
             <th>Scheduled At</th>
             <th>Status</th>
@@ -180,7 +179,6 @@ else
             {
                 <tr>
                     <td data-label="Activity">@enrollment.Title</td>
-                    <td data-label="Description">@enrollment.Description</td>
                     <td data-label="Address">@enrollment.Address</td>
                     <td data-label="Scheduled At">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                     <td data-label="Status">
@@ -213,7 +211,7 @@ else
         else
         {
             <tr>
-                <td colspan="6" class="empty-row text-center">No activities enrolled.</td>
+                <td colspan="5" class="empty-row text-center">No activities enrolled.</td>
             </tr>
         }
 

@@ -1538,8 +1538,8 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Child")]
-        [HttpGet("MyEnrollmentsHistory")]
-        public async Task<IActionResult> MyEnrollmentsHistory(string sortOrder)
+        [HttpGet("MyCompletedEnrollments")]
+        public async Task<IActionResult> MyCompletedEnrollments(string sortOrder)
         {
             ViewData["CurrentSort"] = sortOrder;
 
@@ -1595,7 +1595,7 @@ namespace Web.Controllers.User
                 ActivitySchedules = completedActivities
             };
 
-            return View("MyEnrollmentsHistory", scheduleHistory);
+            return View("MyCompletedEnrollments", scheduleHistory);
         }
 
         [Authorize(Roles = "Child")]
@@ -1616,7 +1616,7 @@ namespace Web.Controllers.User
             session.ParentNote = feedback?.Trim();
             await _courseEnrollmentService.UpdateSessionAsync(session);
 
-            return RedirectToAction(nameof(MyEnrollmentsHistory));
+            return RedirectToAction(nameof(MyCompletedEnrollments));
         }
 
 
