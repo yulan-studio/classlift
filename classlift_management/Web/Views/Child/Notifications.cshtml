@@ -85,7 +85,7 @@
         {
             var notificationCount = courseGroup.Count();
             <section class="child-notification-section">
-                <h4><span>Course: <a href="/Child/MySchedules?courseId=@courseGroup.First().CourseId">@courseGroup.Key</a></span><span class="notification-count">@notificationCount notification@(notificationCount == 1 ? "" : "s")</span></h4>
+                <h4><span>Course: <a href="/Child/MySchedules?courseId=@courseGroup.First().CourseId#course-schedule-@courseGroup.First().CourseId">@courseGroup.Key</a></span><span class="notification-count">@notificationCount notification@(notificationCount == 1 ? "" : "s")</span></h4>
                 <div class="table-responsive"><table class="management-table table table-bordered">
                     <thead class="management-table-header"><tr><th>Scheduled</th><th>Status</th></tr></thead>
                     <tbody>

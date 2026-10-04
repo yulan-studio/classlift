@@ -35,6 +35,7 @@
     .schedule-table-wrapper table { min-width: 760px; }
     .schedule-details .card-body { padding: 0; }
     .empty-schedules { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
+    .schedule-card--highlight { box-shadow: 0 0 0 3px #f0c36d; background-color: #fff8d8; transition: box-shadow .25s ease, background-color .25s ease; }
 
     @@media (max-width: 768px) {
         .btn-save {
@@ -69,7 +70,7 @@
         var requestToRescheduleCount = courseSchedules.Schedules.Count(s => s.Status == "RequestToReschedule");
         @* <div style="padding: 10px 20px 10px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
  *@
-        <section class="schedule-card">
+        <section id="course-schedule-@courseSchedules.Course.CourseID" class="schedule-card">
         <div class="schedule-summary">
             <div>
                 <h5>@courseSchedules.Course.Title</h5>
@@ -336,5 +337,23 @@ else
     <div class="empty-schedules p-4 text-center">No activities enrolled.</div>
 }
 </div>
+
+<script>
+    (function () {
+        function highlightSelectedCourse() {
+            const target = document.getElementById(window.location.hash.substring(1));
+            if (!target) return;
+
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            target.classList.add('schedule-card--highlight');
+            window.setTimeout(function () {
+                target.classList.remove('schedule-card--highlight');
+            }, 3000);
+        }
+
+        window.addEventListener('load', highlightSelectedCourse);
+        window.addEventListener('hashchange', highlightSelectedCourse);
+    })();
+</script>
 
 
