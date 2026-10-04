@@ -2113,7 +2113,7 @@ namespace Web.Controllers.User
                     if (result4)
                     {
                         var notificationsSent = await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
-                        TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                        TempData["SuccessMessage2"] = notificationsSent
                             ? "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
                             : "The course schedules were confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. However, the organization notification email could not be sent.";
                     }
@@ -2183,7 +2183,7 @@ namespace Web.Controllers.User
                 {
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     var notificationsSent = await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
-                    TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                    TempData["SuccessMessage2"] = notificationsSent
                         ? "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
                         : "The course was confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
                 }

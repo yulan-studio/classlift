@@ -23,6 +23,13 @@
         width: 100%;
         min-width: 620px;
     }
+
+    .management-table thead.management-table-header th.specialty-neutral-header {
+        --bs-table-bg-type: #f2f2f2;
+        --bs-table-bg-state: #f2f2f2;
+        --bs-table-bg: #f2f2f2;
+        background-color: #f2f2f2 !important;
+    }
 </style>
 
 <h1 class="management-page-title">Manage Specialties</h1>
@@ -52,8 +59,8 @@
                 </a>
             </th>
 
-            <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
-            <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="specialty-neutral-header" style="padding: 8px; border: 1px solid #ddd;">Description</th>
+            <th class="action-column specialty-neutral-header" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
         </tr>
     </thead>
     <tbody>

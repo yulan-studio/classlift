@@ -55,7 +55,7 @@
 @if (TempData["WarningMessage2"] != null)
 {
     <div class="alert alert-warning">
-        @TempData["WarningMessage2"]
+        @Html.Raw(TempData["WarningMessage2"])
     </div>
 }
 
