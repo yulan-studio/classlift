@@ -221,6 +221,23 @@ textarea[readonly] {
     line-height: 1.2;
 }
 
+.management-page-header {
+    margin-bottom: 1.25rem;
+}
+
+.management-page-header h2 {
+    margin: 0;
+    color: #152238;
+    font-size: clamp(1.45rem, 2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.management-page-header p {
+    margin: .35rem 0 0;
+    color: #6b778c;
+}
+
 /* Keep every grey Cancel action readable on its light background. */
 .cancel-button,
 .btn.btn-secondary.cancel-button {

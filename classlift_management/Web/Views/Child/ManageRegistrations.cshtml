@@ -129,7 +129,8 @@
         grid-column: 2;
     }
 
-    .registration-payment-row > #feeSection {
+    .registration-payment-row > #feeSection,
+    .registration-payment-row > #activityFeeSection {
         grid-column: 1 / -1;
         display: grid;
         grid-template-columns: 150px minmax(0, 1fr);
@@ -140,7 +141,8 @@
         text-align: left;
     }
 
-    #feeSection > label {
+    #feeSection > label,
+    #activityFeeSection > label {
         grid-column: 1;
         display: block;
         margin-left: 0;
@@ -148,7 +150,9 @@
     }
 
     #feeSection > input,
-    #feeSection > textarea {
+    #feeSection > textarea,
+    #activityFeeSection > input,
+    #activityFeeSection > textarea {
         grid-column: 2;
         grid-row: auto;
         box-sizing: border-box;
@@ -854,21 +858,25 @@
             totalCostInput.removeAttribute("required");
             totalCostInput.value = "";
             descriptionInput.value = "";
+            descriptionInput.readOnly = false;
             return;
         }
 
         const cost = Number(selectedActivity.getAttribute("data-cost") || 0);
         const formattedCost = cost.toFixed(2);
-        feeSection.style.display = "block";
+        feeSection.style.display = "grid";
         totalCostInput.setAttribute("required", "required");
         totalCostInput.value = formattedCost;
 
         if (cost === 0) {
-            descriptionInput.value = "Free";
+            descriptionInput.value = "Free registration — no payment is required.";
+            descriptionInput.readOnly = true;
         } else if (paymentModel === "Token") {
             descriptionInput.value = `Use Token - $${formattedCost} will be deducted from your balance once confirmed.`;
+            descriptionInput.readOnly = false;
         } else {
             descriptionInput.value = `Please email transfer $${formattedCost} to [youremail_address], and send screenshot to customer service.`;
+            descriptionInput.readOnly = false;
         }
     }
 
@@ -882,20 +890,21 @@
 
         const paymentModel = paymentModelDropdown.value;
         const totalCost = totalCostInput.value.trim();
+        descriptionInput.readOnly = totalCost !== "" && Number(totalCost) === 0;
 
-        if (paymentModel === "Token" && totalCost && totalCost !== "0") {
+        if (paymentModel === "Token" && totalCost && Number(totalCost) !== 0) {
             descriptionInput.value = `Use Token - $${totalCost} will be deducted from your balance once confirmed.`;
-        } else if (paymentModel === "Direct" && totalCost && totalCost !== "0") {
+        } else if (paymentModel === "Direct" && totalCost && Number(totalCost) !== 0) {
             descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
         } 
-        else if (paymentModel === "OAP" && totalCost && totalCost !== "0") {
+        else if (paymentModel === "OAP" && totalCost && Number(totalCost) !== 0) {
             descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
         }
         // else if (paymentModel === "Token" && totalCost === null) {
         //     descriptionInput.value = "To be charged in sessions";
         // }
         else {
-            descriptionInput.value = "Free";
+            descriptionInput.value = "Free registration — no payment is required.";
         }
     }
 

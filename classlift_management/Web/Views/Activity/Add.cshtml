@@ -28,18 +28,18 @@
         <tr>
             <td style="padding: 8px;"><label for="Description">Description:</label></td>
             <td style="padding: 8px;">
-                <textarea name="Description" placeholder="Enter activity description" style="width: 70%;" rows="3"></textarea>
+                <textarea name="Description" placeholder="Enter activity description" style="width: 70%;" rows="3" required></textarea>
             </td>
         </tr>
 
         <tr>
             <td style="padding: 8px;"><label for="Address">Address:</label></td>
-            <td style="padding: 8px;"><input type="text" name="Address" placeholder="Activity Address" style="width: 70%;" /></td>
+            <td style="padding: 8px;"><input type="text" name="Address" placeholder="Activity Address" style="width: 70%;" required /></td>
         </tr>
 
         <tr>
             <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
-            <td style="padding: 8px;"><input type="number" name="MaxCapacity" placeholder="Enter max participants" step="1" value="50" min="0" style="width: 25%;" /></td>
+            <td style="padding: 8px;"><input type="number" name="MaxCapacity" placeholder="Enter max participants" step="1" value="50" min="0" style="width: 25%;" required /></td>
         </tr>
 
         <tr>
@@ -62,6 +62,14 @@
         <tr>
             <td style="padding: 8px;"><label for="ScheduledAt">Scheduled Date:</label></td>
             <td style="padding: 8px;"><input type="datetime-local" name="ScheduledAt" style="width: 25%;" required /></td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="ScheduledHours">Scheduled Hours:</label></td>
+            <td style="padding: 8px;">
+                <input type="number" id="ScheduledHours" name="ScheduledHours" placeholder="Enter duration in hours" step="0.25" min="0.25" style="width: 25%;" required oninput="updateScheduledMinutes()" />
+                <span id="scheduledMinutes" style="margin-left: 8px; color: #6b778c;"></span>
+            </td>
         </tr>
         
 
@@ -102,6 +110,20 @@
         </tr>
     </table>
 </form>
+
+<script>
+    function updateScheduledMinutes() {
+        const hours = Number(document.getElementById('ScheduledHours').value);
+        const minutesElement = document.getElementById('scheduledMinutes');
+
+        if (!Number.isFinite(hours) || hours <= 0) {
+            minutesElement.textContent = '';
+            return;
+        }
+
+        minutesElement.textContent = `${Math.round(hours * 60)} minutes`;
+    }
+</script>
 
 
 

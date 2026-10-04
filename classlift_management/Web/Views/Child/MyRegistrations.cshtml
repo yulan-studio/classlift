@@ -12,7 +12,8 @@
     .registrations-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
     .registration-section-title { margin: 1.5rem 0 .85rem; color: #1b7bab; font-size: 1.25rem; font-weight: 700; }
     .registration-notice { margin-bottom: 1rem; padding: .85rem 1rem; border: 1px solid #d6e2e7; border-radius: 8px; background: #f8f9fa; color: #526176; }
-    .registration-notice a { color: #1b7bab; font-weight: 600; }
+    .registration-notice a { color: #1b7bab !important; font-weight: 400 !important; text-decoration: none; }
+    .registration-notice a:hover { color: #185681; text-decoration: underline; }
     .registrations-table-wrapper table { min-width: 760px; margin: 0; }
     .registrations-table-wrapper thead th { white-space: nowrap; }
     .registrations-page .empty-row {
@@ -73,7 +74,7 @@
 
 <!-- ✅ Table Showing Already Registered Courses -->
 <div class="registration-notice">
-    Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the courses you have registered for. To view upcoming course and activity schedules, please check the <a href="/Child/MySchedules">Schedules</a> section. To review completed courses, activities, and update your notes, please visit the <a href="/Child/MyEnrollmentsHistory">Completed</a> section.
+    Please go to the <a href="/Child/MyConfirmations">Confirmations</a> to confirm the courses you have registered for. To view upcoming course and activity schedules, please check the <a href="/Child/MySchedules">Schedules</a> section. To review completed courses, activities, and update your notes, please visit the <a href="/Child/MyCompletedEnrollments">Completed</a> section.
 </div>
 <h4 class="registration-section-title">Courses</h4>
 @if (Model.CourseEnrollments.Any())
@@ -96,7 +97,17 @@
             {
                 <tr>
                     <td class="course-title" data-label="Course">@enrollment.Title</td>
-                    <td data-label="Status">@enrollment.Status</td>
+                    <td data-label="Status">
+                        @if (enrollment.Status == "Registered")
+                        {
+                            <a href="/Child/MyConfirmations#course-enrollment-@enrollment.EnrollmentID"
+                               aria-label="Open confirmation for @enrollment.Title">Registered</a>
+                        }
+                        else
+                        {
+                            @enrollment.Status
+                        }
+                    </td>
                     <td data-label="Is Paid">
                         @if (!enrollment.IsPaid)
                         {
@@ -153,7 +164,6 @@ else
     <thead class="management-table-header">
         <tr>
             <th>Activity</th>
-            <th>Description</th>
             <th>Address</th>
             <th>Scheduled At</th>
             <th>Status</th>
@@ -169,12 +179,21 @@ else
             {
                 <tr>
                     <td data-label="Activity">@enrollment.Title</td>
-                    <td data-label="Description">@enrollment.Description</td>
                     <td data-label="Address">@enrollment.Address</td>
                     <td data-label="Scheduled At">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
-                    <td data-label="Status">@enrollment.Status</td>
+                    <td data-label="Status">
+                        @if (enrollment.Status == "Registered")
+                        {
+                            <a href="/Child/MyConfirmations#activity-enrollment-@enrollment.EnrollmentID"
+                               aria-label="Open confirmation for @enrollment.Title">Registered</a>
+                        }
+                        else
+                        {
+                            @enrollment.Status
+                        }
+                    </td>
                     <td data-label="Is Paid">
-                        @if (!enrollment.IsPaid)
+                        @if (!enrollment.IsPaid && enrollment.TotalCost.GetValueOrDefault() > 0)
                         {
                             <a href="javascript:void(0);" onclick="showPaymentModal('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(enrollment.PaymentDescription))')">
                                 False
@@ -182,7 +201,7 @@ else
                         }
                         else
                         {
-                            @enrollment.IsPaid
+                            @(enrollment.IsPaid || enrollment.TotalCost.GetValueOrDefault() == 0)
                         }
                     </td>
 
@@ -192,7 +211,7 @@ else
         else
         {
             <tr>
-                <td colspan="6" class="empty-row text-center">No activities enrolled.</td>
+                <td colspan="5" class="empty-row text-center">No activities enrolled.</td>
             </tr>
         }
 

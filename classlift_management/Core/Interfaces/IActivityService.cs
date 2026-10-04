@@ -13,7 +13,7 @@ namespace Core.Interfaces
     public interface IActivityService
     {
 
-        Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, /*bool isActive,*/ string status, User user);
+        Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal scheduledHours, decimal cost, /*bool isActive,*/ string status, User user);
 
         Task<bool> RemoveAsync(int userId);
 

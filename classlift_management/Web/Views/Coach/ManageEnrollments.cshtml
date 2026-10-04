@@ -19,6 +19,10 @@
     .enrollment-table-wrapper .row-button .btn { margin-top: .25rem; }
     .manage-enrollments-page .alert { border-radius: 7px; }
     .manage-enrollments-page .participation-back-link { margin-top: 0; color: #000 !important; }
+    main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel,
+    main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:hover,
+    main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:focus,
+    main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:active { color: #fff !important; }
 
 
     /* .btn-primary {
@@ -323,7 +327,7 @@
                             <input type="hidden" name="returnToManageEnrollments" value="true" />
                             <a id="coach-note-edit-link-@complete.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@complete.EnrollmentID)">Update Note</a>
                             <button id="coach-note-save-@complete.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
-                            <button id="coach-note-cancel-@complete.EnrollmentID" type="button" class="btn btn-secondary cancel-button" style="display: none;" onclick="cancelCoachNote(@complete.EnrollmentID)">Cancel</button>
+                            <button id="coach-note-cancel-@complete.EnrollmentID" type="button" class="btn btn-secondary cancel-button coach-note-cancel" style="display: none;" onclick="cancelCoachNote(@complete.EnrollmentID)">Cancel</button>
                         </form>
                     </td>
                 </tr>

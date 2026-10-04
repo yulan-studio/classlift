@@ -6,9 +6,16 @@
     .child-notification-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1.5rem; align-items:start; }
     .child-notifications h2 { margin:0 0 1.5rem; color:#152238; font-size:clamp(1.45rem, 2vw, 1.75rem); font-weight:700; line-height:1.2; }
     .child-notifications-intro { margin:-.75rem 0 1.5rem; color:#6b778c; font-size:.95rem; }
-    .child-notification-section { min-width:0; margin:0; }
-    .child-notification-section h4 { margin-bottom:1.75rem; color:#1b7bab; font-size:1.2rem; font-weight:700; }
-    .child-notification-section table { width:100%; table-layout:fixed; }
+    .child-notifications-intro a { color:#1b7bab !important; font-weight:400 !important; text-decoration:none; }
+    .child-notifications-intro a:hover { color:#185681; text-decoration:underline; }
+    .child-notification-section { min-width:0; margin:0; overflow:hidden; border:1px solid #d8e7f3; border-radius:10px; background:#fff; box-shadow:0 3px 12px rgba(24,47,76,.06); }
+    .child-notification-section h4 { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin:0; padding:.85rem 1rem; color:#1b7bab; background:#f1f7fc; font-size:1.05rem; font-weight:650; line-height:1.35; }
+    .child-notification-section h4 a { color:#1b7bab; font-weight:400 !important; text-decoration:none; }
+    .child-notification-section h4 a:hover,
+    .child-notification-section h4 a:focus { color:#1b7bab; text-decoration:underline; }
+    .notification-count { flex:0 0 auto; padding:.18rem .5rem; border-radius:999px; color:#185681; background:#dceeff; font-size:.76rem; font-weight:700; white-space:nowrap; }
+    .child-notification-section .table-responsive { padding:0 .75rem .75rem; }
+    .child-notification-section table { width:100%; margin:0; table-layout:fixed; border-color:#e2ebf2; }
     .child-notification-section table th,
     .child-notification-section table td { width:50%; }
     .child-notification-section .confirmation-table-header th {
@@ -28,9 +35,17 @@
     .child-notifications table a:hover,
     .child-notifications table a:focus,
     .child-notifications table a:active { font-weight:400; }
-    .status-canceled { background:#fff3cd; }
-    .status-deleted, .status-onleave { background:#dceeff; }
-    .status-requesttoreschedule, .status-requesttoleave { background:#fce8f2; }
+    .notification-status { display:inline-flex; padding:.2rem .5rem; border-radius:999px; font-size:.78rem; font-weight:650; }
+    .child-notifications table tbody td.status-canceled,
+    .child-notifications table tbody td.status-deleted,
+    .child-notifications table tbody td.status-onleave,
+    .child-notifications table tbody td.status-requesttoreschedule,
+    .child-notifications table tbody td.status-requesttoleave { background:#fff !important; }
+    .status-canceled .notification-status { color:#856404; background:#fff3cd; }
+    .status-deleted .notification-status,
+    .status-onleave .notification-status { color:#185681; background:#dceeff; }
+    .status-requesttoreschedule .notification-status,
+    .status-requesttoleave .notification-status { color:#8c4a68; background:#fce8f2; }
     @@media (max-width:767px) {
         .child-notifications { padding:0; }
         .child-notification-grid { grid-template-columns:1fr; gap:0; }
@@ -45,10 +60,19 @@
     @foreach (var item in Model.PendingConfirmations.OrderBy(item => item.Type).ThenBy(item => item.Title))
     {
         <section class="child-notification-section">
-            <h4>@item.Type: @item.Title</h4>
+            <h4><span>@item.Type: @item.Title</span><span class="notification-count">1 notification</span></h4>
             <div class="table-responsive"><table class="management-table table table-bordered">
                 <thead class="management-table-header confirmation-table-header"><tr><th style="background-color: #fff3cd !important; color: #000 !important;">Status</th><th class="action-column" style="background-color: #fff3cd !important; color: #000 !important;">Action</th></tr></thead>
-                <tbody><tr><td>Registered</td><td><a href="/Child/MyConfirmations">Confirm</a></td></tr></tbody>
+                <tbody>
+                    <tr>
+                        <td>Registered</td>
+                        <td>
+                            <a href="/Child/MyConfirmations#@(item.Type == "Activity" ? "activity" : "course")-enrollment-@item.EnrollmentId">
+                                Confirm
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
             </table></div>
         </section>
     }
@@ -61,14 +85,15 @@
     {
         @foreach (var courseGroup in Model.Items.GroupBy(item => item.CourseTitle).OrderBy(group => group.Key))
         {
+            var notificationCount = courseGroup.Count();
             <section class="child-notification-section">
-                <h4>Course: <a href="/Child/MySchedules?courseId=@courseGroup.First().CourseId">@courseGroup.Key</a></h4>
+                <h4><span>Course: <a href="/Child/MySchedules?courseId=@courseGroup.First().CourseId#course-schedule-@courseGroup.First().CourseId">@courseGroup.Key</a></span><span class="notification-count">@notificationCount notification@(notificationCount == 1 ? "" : "s")</span></h4>
                 <div class="table-responsive"><table class="management-table table table-bordered">
                     <thead class="management-table-header"><tr><th>Scheduled</th><th>Status</th></tr></thead>
                     <tbody>
                     @foreach (var item in courseGroup.OrderBy(item => item.ScheduledAt))
                     {
-                        <tr><td>@item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt")</td><td>@item.Status</td></tr>
+                        <tr><td>@item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt")</td><td class="status-@item.Status.ToLowerInvariant().Replace(" ", "")"><span class="notification-status">@item.Status</span></td></tr>
                     }
                     </tbody>
                 </table></div>

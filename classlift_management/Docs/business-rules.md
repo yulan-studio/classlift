@@ -34,6 +34,15 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - No registration, fee, balance, or child-session data is created when this validation fails.
 5. In the Staff course-registration selector, a full Group course remains selectable and is labeled as full; the server still rejects the registration if capacity is reached.
 
+## Activity registration
+
+1. A participant may remove their own pending activity registration from the Confirmations page before confirmation. The removal removes the pending registration and its associated activity fee record.
+
+## Activity completion
+
+1. An Activity is considered ended when its scheduled start time plus its Scheduled Hours has passed. The background status updater then changes the Activity and its Confirmed participant registrations to Completed.
+2. All Activity creation fields are required, including description, address, capacity, cost, time zone, scheduled date, scheduled hours, and registration status.
+
 ## Course completion and reporting
 
 1. Fixed-session Group and private sessions are completed automatically after their scheduled end time.
@@ -41,6 +50,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. Standard course reports include completed child sessions that have Actual Hours recorded.
 4. My Enrollment History returns only course sessions with status Completed. Canceled and OnLeave sessions are excluded.
 5. The Enrollments History course table uses the organization's configured provider term instead of a fixed Coach heading.
+6. Staff can view current Group-course schedules and participant attendance in a read-only page grouped by course and Session.
 
 ## Canceled course sessions
 
@@ -75,10 +85,12 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Payments and balance history
 
-1. Payment records are financial audit records. Staff must not delete them; the payment list does not offer a Remove action, and the server rejects deletion requests.
-2. A participant's balance continues to use the balance snapshot created by each balance transaction. Since the system has not entered formal use, historical balance repair is not part of this rule.
-3. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
-4. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
+1. When a course or activity registration has a fee of zero, its fee record is marked paid and its description is `Free registration — no payment is required.`.
+
+2. Payment records are financial audit records. Staff must not delete them; the payment list does not offer a Remove action, and the server rejects deletion requests.
+3. A participant's balance continues to use the balance snapshot created by each balance transaction. Since the system has not entered formal use, historical balance repair is not part of this rule.
+4. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
+5. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.

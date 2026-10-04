@@ -1,0 +1,122 @@
+@model IReadOnlyList<Core.ViewModels.SessionAttendanceViewModel>
+
+@{
+    ViewData["Title"] = "Group Course Attendance";
+    var now = DateTime.UtcNow;
+}
+
+<style>
+    .group-attendance-page { padding-bottom: 3rem; }
+    .group-attendance-help { color: #6b778c; margin-bottom: 1.5rem; }
+    .attendance-course { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border: 1px solid #d6e2e7; border-radius: 8px; background: #f8fbfc; margin-bottom: .55rem; padding: .55rem .75rem; box-shadow: 0 1px 3px rgba(21, 34, 56, .06); }
+    .attendance-course__title { color: #1b7bab; font-weight: 700; overflow-wrap: anywhere; text-decoration: none; }
+    .attendance-course__title:hover,
+    .attendance-course__title:focus { color: #145d80; text-decoration: underline; }
+    .attendance-course__meta { display: flex; flex-wrap: wrap; gap: .25rem .5rem; margin-top: .15rem; color: #6b778c; font-size: .8rem; }
+    .attendance-course__meta span { white-space: nowrap; }
+    .attendance-modal-title { font-size: 1rem; font-weight: 600; }
+    .attendance-summary { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .75rem; }
+    .attendance-summary .badge { font-weight: 500; }
+    .attendance-course-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55rem; }
+    .attendance-course-list .attendance-course { margin-bottom: 0; min-width: 0; }
+    .attendance-session { border: 1px solid #e1e7eb; border-radius: 6px; margin: .35rem 0; }
+    .attendance-session--completed { background: #f2f2f2; border-color: #d8d8d8; }
+    .attendance-session > summary { cursor: pointer; padding: .5rem .7rem; font-weight: 600; }
+    .attendance-session > summary:hover,
+    .attendance-session > summary:focus { background: #f8fafb; text-decoration: underline; }
+    .attendance-session__body { border-top: 1px solid #e1e7eb; padding: .5rem .7rem; }
+    .attendance-status { white-space: nowrap; }
+    .attendance-session table th,
+    .attendance-session table td { padding: .35rem .5rem; vertical-align: middle; }
+    .attendance-session table tbody td { background-color: #f8fbfc !important; }
+    @@media (max-width: 991px) {
+        .attendance-course-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @@media (max-width: 575px) {
+        .attendance-course-list { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="group-attendance-page">
+    <h1 class="management-page-title">Group Course Attendance</h1>
+    <a href="/Course/List" class="list-add-link">All Courses</a>
+    <p class="group-attendance-help">View upcoming session times and the attendance status of enrolled participants.</p>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info mt-4">There are no current Group courses with upcoming sessions.</div>
+    }
+    else
+    {
+        <div class="attendance-course-list mt-3">
+            @foreach (var courseAttendance in Model)
+            {
+                <div class="attendance-course">
+                    <div>
+                        <a href="#attendance-modal-@courseAttendance.Course.CourseID" class="attendance-course__title" data-bs-toggle="modal" aria-controls="attendance-modal-@courseAttendance.Course.CourseID">@courseAttendance.Course.Title</a>
+                        <div class="attendance-course__meta">
+                            <span>@courseAttendance.Sessions.Count session(s)</span>
+                            <span>·</span>
+                            <span>@courseAttendance.ChildrenList.Count participant(s)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="attendance-modal-@courseAttendance.Course.CourseID" tabindex="-1" aria-labelledby="attendance-modal-title-@courseAttendance.Course.CourseID" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title attendance-modal-title" id="attendance-modal-title-@courseAttendance.Course.CourseID">@courseAttendance.Course.Title</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                @{
+                                    var sessionStatuses = courseAttendance.Sessions
+                                        .SelectMany(session => session.Children.Values)
+                                        .ToList();
+                                }
+                                <div class="attendance-summary" aria-label="Attendance summary">
+                                    <span class="badge bg-success">Completed: @sessionStatuses.Count(status => status == "Completed")</span>
+                                    <span class="badge bg-info">Scheduled: @sessionStatuses.Count(status => status == "Scheduled")</span>
+                                    <span class="badge bg-warning">On Leave: @sessionStatuses.Count(status => status == "OnLeave" || status == "RequestToLeave")</span>
+                                    <span class="badge bg-secondary">Canceled: @sessionStatuses.Count(status => status == "Canceled")</span>
+                                </div>
+                                @foreach (var session in courseAttendance.Sessions)
+                                {
+                                    <details class="attendance-session@(session.ScheduledAt <= now ? " attendance-session--completed" : "")">
+                                        <summary>@session.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("dddd, MMMM d, yyyy h:mm tt")</summary>
+                                        <div class="attendance-session__body">
+                                            <div class="table-responsive">
+                                                <table class="table management-table table-sm table-bordered mb-0">
+                                                    <thead class="management-table-header"><tr><th>Participant</th><th>Status</th></tr></thead>
+                                                    <tbody>
+                                                        @foreach (var child in courseAttendance.ChildrenList.OrderBy(child => child.Name))
+                                                        {
+                                                            var status = session.Children.TryGetValue(child.ChildID, out var childStatus) ? childStatus : "-";
+                                                            <tr>
+                                                                <td>@child.Name</td>
+                                                                <td class="attendance-status">
+                                                                    @if (status == "Completed") { <span class="badge bg-success">Completed</span> }
+                                                                    else if (status == "Scheduled") { <span class="badge bg-info">Scheduled</span> }
+                                                                    else if (status == "Canceled") { <span class="badge bg-secondary">Canceled</span> }
+                                                                    else if (status == "RequestToLeave") { <span class="badge bg-warning">Request To Leave</span> }
+                                                                    else if (status == "OnLeave") { <span class="badge bg-warning">On Leave</span> }
+                                                                    else { <span class="badge bg-secondary">@status</span> }
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </details>
+                                }
+                            </div>
+                            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

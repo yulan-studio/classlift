@@ -69,7 +69,7 @@ namespace Core.Services
                 Description = description,
                 CreatedBy = user.Id,
                 CreatedAt = DateTime.UtcNow,
-                //IsPaid = false
+                IsPaid = totalCost == 0
             };
             return await _feeRepository.AddAsync(fee);
         }
