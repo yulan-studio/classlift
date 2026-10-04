@@ -16,7 +16,8 @@
 <h1 class="management-page-title">@ViewData["Title"]</h1>
 
 
-<a href="/Course/Add" class="list-add-link">Add Course</a>
+<a href="/Course/Add" class="list-add-link" style="margin-right: 20px;">Add Course</a>
+<a href="/Staff/GroupCourseAttendance" class="list-add-link">Group Course Attendance</a>
 
 <form method="get" asp-action="List" class="row g-2 align-items-end mb-3">
     <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />

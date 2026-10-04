@@ -7,9 +7,8 @@
 
 <style>
     .group-attendance-page { padding-bottom: 3rem; }
-    .group-attendance-page > h2 { margin-bottom: .4rem; }
     .group-attendance-help { color: #6b778c; margin-bottom: 1.5rem; }
-    .attendance-course { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border: 1px solid #d6e2e7; border-radius: 8px; background: #fff; margin-bottom: .55rem; padding: .55rem .75rem; box-shadow: 0 1px 3px rgba(21, 34, 56, .06); }
+    .attendance-course { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border: 1px solid #d6e2e7; border-radius: 8px; background: #f8fbfc; margin-bottom: .55rem; padding: .55rem .75rem; box-shadow: 0 1px 3px rgba(21, 34, 56, .06); }
     .attendance-course__title { color: #1b7bab; font-weight: 700; overflow-wrap: anywhere; text-decoration: none; }
     .attendance-course__title:hover,
     .attendance-course__title:focus { color: #145d80; text-decoration: underline; }
@@ -39,7 +38,8 @@
 </style>
 
 <div class="group-attendance-page">
-    <h2>Group Course Attendance</h2>
+    <h1 class="management-page-title">Group Course Attendance</h1>
+    <a href="/Course/List" class="list-add-link">All Courses</a>
     <p class="group-attendance-help">View upcoming session times and the attendance status of enrolled participants.</p>
 
     @if (Model.Count == 0)
