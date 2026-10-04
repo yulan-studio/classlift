@@ -28,6 +28,10 @@
     .schedule-status-badge .status-on-leave { color: #185681; background: #dceeff; }
     .schedule-status-badge .status-request-to-leave,
     .schedule-status-badge .status-request-to-reschedule { color: #8c4a68; background: #fce8f2; }
+    .activity-status-badge { display: inline-flex; margin-left: .45rem; padding: .2rem .5rem; border-radius: 999px; font-size: .75rem; font-weight: 650; vertical-align: middle; }
+    .activity-status-confirmed { color: #146c43; background: #d1e7dd; }
+    .activity-status-canceled { color: #856404; background: #fff3cd; }
+    .activity-status-other { color: #185681; background: #dceeff; }
     .schedule-toggle { flex: 0 0 auto; border: 1px solid #d6e4f2; border-radius: 7px; padding: .5rem .75rem; color: #2673ad; background: #f1f7fc; font-size: .85rem; }
     .schedule-toggle:hover, .schedule-toggle:focus { color: #185681; background: #e5f1fa; border-color: #b9d5eb; }
     .schedule-details { border-top: 1px solid #e5eaf0; padding: 0 1.15rem 1.15rem; }
@@ -321,7 +325,21 @@ else
         <div id="activity-schedule-@enrollment.ActivityID" class="schedule-card">
             <div class="schedule-summary">
                 <div>
-                    <h5>@enrollment.Activity.Title</h5>
+                    <h5>
+                        @enrollment.Activity.Title
+                        @if (enrollment.Status == "Confirmed")
+                        {
+                            <span class="activity-status-badge activity-status-confirmed">Confirmed</span>
+                        }
+                        else if (enrollment.Status == "Canceled")
+                        {
+                            <span class="activity-status-badge activity-status-canceled">Canceled</span>
+                        }
+                        else
+                        {
+                            <span class="activity-status-badge activity-status-other">@enrollment.Status</span>
+                        }
+                    </h5>
                     <div class="schedule-meta">
                         <span><strong>Scheduled:</strong> @enrollment.Activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</span>
                         <span><strong>Address:</strong> @(string.IsNullOrWhiteSpace(enrollment.Activity.Address) ? "N/A" : enrollment.Activity.Address)</span>
