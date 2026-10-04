@@ -1,11 +1,13 @@
 ﻿using Core.Interfaces;
 using Core.Models;
+using Core.Contexts;
 using Core.Services;
 using Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Data.SqlClient;
 using X.PagedList;
 using X.PagedList.Extensions;
@@ -24,15 +26,46 @@ namespace Web.Controllers.Activity
         private readonly IActivityEnrollmentService _activityEnrollmentService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
+        private readonly AppDbContext _db;
 
 
 
-        public ActivityController(IActivityService activityService, IActivityEnrollmentService activityEnrollmentService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService)
+        public ActivityController(IActivityService activityService, IActivityEnrollmentService activityEnrollmentService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext db)
         {
             _activityService = activityService;
             _activityEnrollmentService = activityEnrollmentService;
             _userManager = userManager;
             _timeZoneService = timeZoneService;
+            _db = db;
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpGet("Registrations/{activityId:int}")]
+        public async Task<IActionResult> Registrations(int activityId)
+        {
+            var activity = await _activityService.GetAsync(activityId);
+            if (activity == null)
+                return NotFound();
+
+            var students = await _db.ActivityEnrollments
+                .AsNoTracking()
+                .Include(e => e.Child)
+                .Where(e => e.ActivityID == activityId)
+                .OrderBy(e => e.Child.Name)
+                .Select(e => new ActivityRegisteredStudentViewModel
+                {
+                    ChildID = e.ChildID,
+                    Name = e.Child.Name,
+                    Status = e.Status
+                })
+                .ToListAsync();
+
+            return View(new ActivityRegistrationsViewModel
+            {
+                ActivityID = activity.ActivityID,
+                ActivityTitle = activity.Title,
+                Students = students
+            });
         }
 
 
