@@ -147,7 +147,7 @@ namespace Web.Controllers.User
 
         [HttpGet("List")]
         // ✅ List all children
-        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity)
+        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity, string searchGender)
         {
             var children = await _childService.GetAllAsync();
             var childrenWithRequestOrConcerns = await _courseEnrollmentService.GetChildrenWithRequestsOrConcernsAsync();
@@ -164,6 +164,13 @@ namespace Web.Controllers.User
             {
                 children = children
                     .Where(c => c.City?.Name?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchGender))
+            {
+                children = children
+                    .Where(c => string.Equals(c.Gender, searchGender, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
 
