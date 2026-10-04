@@ -907,7 +907,6 @@ namespace Web.Controllers.User
 
                 if (allSuccess)
                 {
-                    TempData["SuccessMessage"] = "Session(s) scheduled successfully.";
                     await NotifyFamilyOfCreatedSessionsAsync(
                         child,
                         course,
@@ -915,6 +914,12 @@ namespace Web.Controllers.User
                         timings,
                         scheduledHours,
                         location);
+
+                    var notificationWarning = TempData["WarningMessage"] != null;
+                    TempData["SuccessMessage"] = notificationWarning
+                        ? "The sessions were scheduled, but the notification email could not be sent."
+                        : "Session(s) scheduled successfully.";
+                    TempData.Remove("WarningMessage");
                 }
                 else
                 {

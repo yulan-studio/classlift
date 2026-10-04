@@ -61,6 +61,10 @@
         .navbar-nav .nav-link {
             padding: 0.75rem 1rem;
         }
+        .navbar-nav .nav-link.active {
+            color: #1b7bab !important;
+            font-weight: 600;
+        }
 
 
         .btn-primary {
@@ -294,6 +298,24 @@
     <footer class="text-center bg-light">
         <p class="mb-0">&copy; @DateTime.UtcNow.Year - ClassLift</p>
     </footer>
+
+    <script>
+        (function () {
+            const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+            const links = Array.from(document.querySelectorAll('#navbarNav a.nav-link[href]'))
+                .filter(link => link.getAttribute('href') !== '#');
+            const matchingLinks = links.filter(link => {
+                const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, '') || '/';
+                return currentPath === linkPath || currentPath.startsWith(linkPath + '/');
+            });
+            const activeLink = matchingLinks.sort((a, b) => b.href.length - a.href.length)[0];
+
+            if (activeLink) {
+                activeLink.classList.add('active');
+                activeLink.setAttribute('aria-current', 'page');
+            }
+        })();
+    </script>
 
     @RenderSection("Scripts", required: false)
 </body>
