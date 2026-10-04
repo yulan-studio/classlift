@@ -77,7 +77,7 @@
         </section>
     }
 
-    @if (Model.Items.Count == 0 && Model.PendingConfirmations.Count == 0)
+    @if (Model.Items.Count == 0 && Model.ActivityItems.Count == 0 && Model.PendingConfirmations.Count == 0)
     {
         <div class="child-notification-empty">No upcoming session notifications.</div>
     }
@@ -94,6 +94,23 @@
                     @foreach (var item in courseGroup.OrderBy(item => item.ScheduledAt))
                     {
                         <tr><td>@item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt")</td><td class="status-@item.Status.ToLowerInvariant().Replace(" ", "")"><span class="notification-status">@item.Status</span></td></tr>
+                    }
+                    </tbody>
+                </table></div>
+            </section>
+        }
+
+        @foreach (var activityGroup in Model.ActivityItems.GroupBy(item => item.ActivityTitle).OrderBy(group => group.Key))
+        {
+            var notificationCount = activityGroup.Count();
+            <section class="child-notification-section">
+                <h4><span>Activity: <a href="/Child/MySchedules#activity-schedule-@activityGroup.First().ActivityId">@activityGroup.Key</a></span><span class="notification-count">@notificationCount notification@(notificationCount == 1 ? "" : "s")</span></h4>
+                <div class="table-responsive"><table class="management-table table table-bordered">
+                    <thead class="management-table-header"><tr><th>Scheduled</th><th>Status</th></tr></thead>
+                    <tbody>
+                    @foreach (var item in activityGroup.OrderBy(item => item.ScheduledAt))
+                    {
+                        <tr><td>@item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt")</td><td class="status-canceled"><span class="notification-status">@item.Status</span></td></tr>
                     }
                     </tbody>
                 </table></div>

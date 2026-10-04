@@ -1454,6 +1454,27 @@ namespace Web.Controllers.User
 
             var activityEnrollments = await _activityEnrollmentService.GetUpcomingEnrollmentsByChildAsync(child.ChildID);
 
+            var notificationStatuses = new[] { "Canceled", "Deleted", "RequestToReschedule", "RequestToLeave", "OnLeave" };
+            var notificationCount = await _db.CourseEnrollments
+                .AsNoTracking()
+                .CountAsync(e => e.ChildID == child.ChildID
+                    && e.ScheduledAt.HasValue
+                    && e.ScheduledAt.Value >= DateTime.UtcNow
+                    && notificationStatuses.Contains(e.Status));
+            notificationCount += await _db.CourseEnrollments
+                .AsNoTracking()
+                .CountAsync(e => e.ChildID == child.ChildID
+                    && e.Status == "Registered"
+                    && e.EnrollmentID_Ref == null);
+            notificationCount += await _db.ActivityEnrollments
+                .AsNoTracking()
+                .CountAsync(e => e.ChildID == child.ChildID && e.Status == "Registered");
+            notificationCount += await _db.ActivityEnrollments
+                .AsNoTracking()
+                .CountAsync(e => e.ChildID == child.ChildID
+                    && e.Activity.ScheduledAt >= DateTime.UtcNow
+                    && e.Status == "Canceled");
+
 
             var viewModel = new ChildSchedulesViewModel
             {
@@ -1464,6 +1485,7 @@ namespace Web.Controllers.User
             };
 
             ViewBag.OpenCourseId = courseId;
+            ViewBag.NotificationCount = notificationCount;
 
             return View("MySchedules", viewModel);
         }
@@ -1523,9 +1545,27 @@ namespace Web.Controllers.User
                 })
                 .ToListAsync();
 
+            var activityItems = await _db.ActivityEnrollments
+                .AsNoTracking()
+                .Include(e => e.Activity)
+                .Where(e => e.ChildID == child.ChildID
+                    && e.Activity.ScheduledAt >= now
+                    && e.Status == "Canceled")
+                .OrderBy(e => e.Activity.ScheduledAt)
+                .ThenBy(e => e.Activity.Title)
+                .Select(e => new ChildActivityNotificationItem
+                {
+                    ActivityId = e.ActivityID,
+                    ActivityTitle = e.Activity.Title,
+                    ScheduledAt = e.Activity.ScheduledAt,
+                    Status = e.Status
+                })
+                .ToListAsync();
+
             return View(new ChildNotificationsViewModel
             {
                 Items = items,
+                ActivityItems = activityItems,
                 PendingConfirmations = pendingCourseConfirmations
                     .Concat(pendingActivityConfirmations)
                     .OrderBy(item => item.Type)

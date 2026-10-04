@@ -43,6 +43,11 @@ This file is the concise, canonical record of business rules confirmed by the pr
 1. An Activity is considered ended when its scheduled start time plus its Scheduled Hours has passed. The background status updater then changes the Activity and its Confirmed participant registrations to Completed.
 2. All Activity creation fields are required, including description, address, capacity, cost, time zone, scheduled date, scheduled hours, and registration status.
 
+## Canceled activities and refunds
+
+1. When Staff cancels an Activity, all active registrations with status Registered, Confirmed, or Scheduled become Canceled.
+2. When Credit Tracking is enabled, each canceled registration with a paid Fee receives one balance refund using the Fee's original Total Cost. The Fee record remains unchanged, and the refund is recorded in child balance history. Unpaid registrations are canceled without a refund.
+
 ## Course completion and reporting
 
 1. Fixed-session Group and private sessions are completed automatically after their scheduled end time.

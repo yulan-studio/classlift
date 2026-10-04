@@ -126,7 +126,7 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Description</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Address</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.MaxCapacity</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">@activity.RegisteredChildrenCount</td>
+                <td style="padding: 8px; border: 1px solid #ddd;"><a href="/Activity/Registrations/@activity.ActivityID">@activity.RegisteredChildrenCount</a></td>
                 <td style="padding: 8px; border: 1px solid #ddd; color: #000;">@activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
               @*   <td style="padding: 8px; border: 1px solid #ddd;">@(activity.Cost.ToString("C"))</td> *@
             @*     <td style="padding: 8px; border: 1px solid #ddd;">@activity.IsActive</td> *@

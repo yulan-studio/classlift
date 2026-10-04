@@ -32,7 +32,9 @@ namespace Core.Repositories
             return await _context.ActivityEnrollments
                 .Include(e => e.Activity)
                 //.Include(e => e.Child)
-                .Where(e => e.ChildID == childId && e.Activity.ScheduledAt >= torontoNow && e.Status == "Confirmed")
+                .Where(e => e.ChildID == childId
+                    && e.Activity.ScheduledAt >= torontoNow
+                    && (e.Status == "Confirmed" || e.Status == "Canceled"))
                 .OrderBy(e => e.Activity.ScheduledAt)
                 .ToListAsync();
         }
@@ -309,7 +311,8 @@ namespace Core.Repositories
         {
 
             var enrollments = await _context.ActivityEnrollments
-                .Where(e => e.Status == "Scheduled" && e.Activity.ActivityID == activityId)
+                .Where(e => e.ActivityID == activityId
+                    && (e.Status == "Registered" || e.Status == "Confirmed" || e.Status == "Scheduled"))
                 .ToListAsync();
 
             foreach (var enrollment in enrollments)
