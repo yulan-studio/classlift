@@ -34,6 +34,10 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - No registration, fee, balance, or child-session data is created when this validation fails.
 5. In the Staff course-registration selector, a full Group course remains selectable and is labeled as full; the server still rejects the registration if capacity is reached.
 
+## Activity registration
+
+1. A participant may remove their own pending activity registration from the Confirmations page before confirmation. The removal removes the pending registration and its associated activity fee record.
+
 ## Course completion and reporting
 
 1. Fixed-session Group and private sessions are completed automatically after their scheduled end time.

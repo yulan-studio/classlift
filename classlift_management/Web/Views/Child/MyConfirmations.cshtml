@@ -350,11 +350,7 @@
 
 @if (TempData["ErrorMessage3"] != null)
 {
-
-    <div class="alert alert-danger">
-        @* @TempData["ErrorMessage3"] *@
-
-    </div>
+    <div class="alert alert-danger">@TempData["ErrorMessage3"]</div>
 
 }
 
@@ -413,8 +409,12 @@
 
             <div @* class="alert alert-danger" *@  style="padding: 20px 20px 20px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
                 Please click 'Confirm' to complete your activity registration.<br />
-                请点击"Confirm"以完成活动注册。<br /><br />
-                <button type="submit" name="actionType" value="Confirm" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Confirm</button>
+                <span style="color: #8b1e2d;">If you want to cancel this activity registration, click <strong>Delete</strong>.</span><br /><br />
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button type="submit" name="actionType" value="Confirm" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Confirm</button>
+                    <button type="button" class="btn btn-outline-danger"
+                            onclick="openDeleteRegistrationModal(this.form);">Delete</button>
+                </div>
 
             </div>
         </form>

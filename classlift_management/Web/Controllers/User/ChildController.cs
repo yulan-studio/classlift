@@ -2231,8 +2231,27 @@ namespace Web.Controllers.User
             if (child == null)
                 return NotFound("Child not found.");
 
-           
-            if (actionType == "Confirm")
+            var enrollment = (await _activityEnrollmentService
+                .GetAllEnrollmentsViewByChildAsync(child.ChildID))
+                .FirstOrDefault(e => e.EnrollmentID == model.EnrollmentID);
+
+            if (enrollment == null || enrollment.Status != "Registered")
+            {
+                TempData["ErrorMessage3"] = "This activity registration is no longer available for confirmation or removal.";
+                return RedirectToAction("MyConfirmations");
+            }
+
+            if (actionType == "Delete")
+            {
+                var feeRemoved = await _feeService.DeleteActivityFeeAsync(model.EnrollmentID);
+                var enrollmentRemoved = feeRemoved
+                    && await _activityEnrollmentService.RemoveRegisteredEnrollmentAsync(model.EnrollmentID);
+
+                TempData[enrollmentRemoved ? "SuccessMessage3" : "ErrorMessage3"] = enrollmentRemoved
+                    ? "The activity registration was removed successfully."
+                    : "The activity registration could not be removed.";
+            }
+            else if (actionType == "Confirm")
             {
                 // Handle Confirm logic
 
