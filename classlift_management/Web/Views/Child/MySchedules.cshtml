@@ -51,7 +51,7 @@
 <div class="schedules-page">
 <div class="schedules-page-header">
     <h2>Upcoming Schedules</h2>
-    <p>View and manage your upcoming course sessions. Check <a href="/Child/Notifications">Notifications</a> for course changes.</p>
+    <p>View and manage your upcoming course sessions. Check <a href="/Child/Notifications">Notifications (@ViewBag.NotificationCount)</a> for course changes.</p>
 </div>
 
 <h4 class="schedule-section-title">Courses</h4>
@@ -318,7 +318,7 @@ else
 {
     @foreach (var enrollment in Model.ActivitySchedules)
     {
-        <div class="schedule-card">
+        <div id="activity-schedule-@enrollment.ActivityID" class="schedule-card">
             <div class="schedule-summary">
                 <div>
                     <h5>@enrollment.Activity.Title</h5>

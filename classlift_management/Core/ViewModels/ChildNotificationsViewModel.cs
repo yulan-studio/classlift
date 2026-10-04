@@ -3,6 +3,7 @@ namespace Core.ViewModels;
 public class ChildNotificationsViewModel
 {
     public List<ChildNotificationItem> Items { get; set; } = new();
+    public List<ChildActivityNotificationItem> ActivityItems { get; set; } = new();
     public List<ChildConfirmationNotificationItem> PendingConfirmations { get; set; } = new();
 }
 
@@ -19,4 +20,12 @@ public class ChildConfirmationNotificationItem
     public int EnrollmentId { get; set; }
     public string Type { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
+}
+
+public class ChildActivityNotificationItem
+{
+    public int ActivityId { get; set; }
+    public string ActivityTitle { get; set; } = string.Empty;
+    public DateTime ScheduledAt { get; set; }
+    public string Status { get; set; } = string.Empty;
 }
