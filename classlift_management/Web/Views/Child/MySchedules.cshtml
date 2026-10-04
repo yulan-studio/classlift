@@ -7,6 +7,9 @@
     .schedules-page { width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
     .schedules-page-header { margin-bottom: 1.5rem; }
     .schedules-page-header h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; }
+    .schedules-page-header a { color: #1b7bab; font-weight: 400; text-decoration: none; }
+    .schedules-page-header p a { margin-left: .25rem; }
+    .schedules-page-header a:hover { color: #185681; text-decoration: underline; }
     .schedules-page-header p { margin: .35rem 0 0; color: #6b778c; font-size: .95rem; }
     .schedule-section-title { margin: 1.5rem 0 .85rem; color: #1b7bab; font-size: 1.25rem; font-weight: 700; }
     .schedule-card { margin-bottom: 1rem; border: 1px solid #d8e7f3; border-radius: 8px; background: #fff; box-shadow: 0 3px 12px rgba(24, 47, 76, .06); overflow: hidden; }
@@ -32,6 +35,7 @@
     .schedule-table-wrapper table { min-width: 760px; }
     .schedule-details .card-body { padding: 0; }
     .empty-schedules { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
+    .schedule-card--highlight { box-shadow: 0 0 0 3px #f0c36d; background-color: #fff8d8; transition: box-shadow .25s ease, background-color .25s ease; }
 
     @@media (max-width: 768px) {
         .btn-save {
@@ -47,7 +51,7 @@
 <div class="schedules-page">
 <div class="schedules-page-header">
     <h2>Upcoming Schedules</h2>
-    <p>View and manage your upcoming course sessions.</p>
+    <p>View and manage your upcoming course sessions. Check <a href="/Child/Notifications">Notifications</a> for course changes.</p>
 </div>
 
 <h4 class="schedule-section-title">Courses</h4>
@@ -66,7 +70,7 @@
         var requestToRescheduleCount = courseSchedules.Schedules.Count(s => s.Status == "RequestToReschedule");
         @* <div style="padding: 10px 20px 10px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
  *@
-        <section class="schedule-card">
+        <section id="course-schedule-@courseSchedules.Course.CourseID" class="schedule-card">
         <div class="schedule-summary">
             <div>
                 <h5>@courseSchedules.Course.Title</h5>
@@ -333,5 +337,23 @@ else
     <div class="empty-schedules p-4 text-center">No activities enrolled.</div>
 }
 </div>
+
+<script>
+    (function () {
+        function highlightSelectedCourse() {
+            const target = document.getElementById(window.location.hash.substring(1));
+            if (!target) return;
+
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            target.classList.add('schedule-card--highlight');
+            window.setTimeout(function () {
+                target.classList.remove('schedule-card--highlight');
+            }, 3000);
+        }
+
+        window.addEventListener('load', highlightSelectedCourse);
+        window.addEventListener('hashchange', highlightSelectedCourse);
+    })();
+</script>
 
 

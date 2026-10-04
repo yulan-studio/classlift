@@ -147,36 +147,33 @@ namespace Web.Controllers.User
 
         [HttpGet("List")]
         // ✅ List all children
-        public async Task<IActionResult> List(string sortOrder, int? page, string searchName)
+        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity, string searchGender)
         {
             var children = await _childService.GetAllAsync();
             var childrenWithRequestOrConcerns = await _courseEnrollmentService.GetChildrenWithRequestsOrConcernsAsync();
             var childrenWithDelete = new List<ChildWithDeleteViewModel>();
 
-            // 🔍 If searching → ignore paging & sorting
-            if (!string.IsNullOrEmpty(searchName))
+            if (!string.IsNullOrWhiteSpace(searchName))
             {
-                var filteredChildren = children
-                    .Where(c => c.Name.Contains(searchName))
+                children = children
+                    .Where(c => c.Name?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true)
                     .ToList();
-
-                foreach (Child c in filteredChildren)
-                {
-                    var canDelete = !await _childService.CheckPaidAsync(c.ChildID) && !await _childService.CheckRegisteredAsync(c.ChildID);
-                    var childWithDelete = new ChildWithDeleteViewModel();
-                    childWithDelete.Child = c;
-                    childWithDelete.CanDelete = canDelete;
-                    childrenWithDelete.Add(childWithDelete);
-                }
-
-                // convert to IPagedList just to match your View model
-                return View(childrenWithDelete.ToPagedList(1, childrenWithDelete.Count == 0 ? 1 : childrenWithDelete.Count));
-
-                
             }
 
+            if (!string.IsNullOrWhiteSpace(searchCity))
+            {
+                children = children
+                    .Where(c => c.City?.Name?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true)
+                    .ToList();
+            }
 
-            else
+            if (!string.IsNullOrWhiteSpace(searchGender))
+            {
+                children = children
+                    .Where(c => string.Equals(c.Gender, searchGender, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
             {
                 ViewData["RequestConcernChildIds"] = childrenWithRequestOrConcerns;
                 ViewData["MemberIDParm"] = sortOrder == "id" ? "id_desc" : "id";
@@ -951,6 +948,10 @@ namespace Web.Controllers.User
                     //totalCost = 0;
                     description = "Use Token - Fee will be deducted from your balance per session"; // Ensure description is not null
                 }
+                else if (totalCost == 0)
+                {
+                    description = "Free registration — no payment is required.";
+                }
 
 
                 bool success = await _feeService.AddCourseFeeAsync(newEnrollmentId, paymentModel, totalCost, description, user);
@@ -1073,7 +1074,7 @@ namespace Web.Controllers.User
                 var activity = await _activityService.GetAsync(activityId);
                 totalCost = activity.Cost ?? 0;
                 description = totalCost == 0
-                    ? "Free"
+                    ? "Free registration — no payment is required."
                     : paymentModel == "Token"
                         ? $"Use Token - ${totalCost:F2} will be deducted from your balance once confirmed."
                         : $"Please email transfer ${totalCost:F2} to [youremail_address], and send screenshot to customer service.";
@@ -1504,6 +1505,7 @@ namespace Web.Controllers.User
                     && e.EnrollmentID_Ref == null)
                 .Select(e => new ChildConfirmationNotificationItem
                 {
+                    EnrollmentId = e.EnrollmentID,
                     Type = "Course",
                     Title = e.Course.Title
                 })
@@ -1515,6 +1517,7 @@ namespace Web.Controllers.User
                 .Where(e => e.ChildID == child.ChildID && e.Status == "Registered")
                 .Select(e => new ChildConfirmationNotificationItem
                 {
+                    EnrollmentId = e.EnrollmentID,
                     Type = "Activity",
                     Title = e.Activity.Title
                 })
@@ -1536,8 +1539,8 @@ namespace Web.Controllers.User
 
 
         [Authorize(Roles = "Child")]
-        [HttpGet("MyEnrollmentsHistory")]
-        public async Task<IActionResult> MyEnrollmentsHistory(string sortOrder)
+        [HttpGet("MyCompletedEnrollments")]
+        public async Task<IActionResult> MyCompletedEnrollments(string sortOrder)
         {
             ViewData["CurrentSort"] = sortOrder;
 
@@ -1593,7 +1596,7 @@ namespace Web.Controllers.User
                 ActivitySchedules = completedActivities
             };
 
-            return View("MyEnrollmentsHistory", scheduleHistory);
+            return View("MyCompletedEnrollments", scheduleHistory);
         }
 
         [Authorize(Roles = "Child")]
@@ -1614,7 +1617,7 @@ namespace Web.Controllers.User
             session.ParentNote = feedback?.Trim();
             await _courseEnrollmentService.UpdateSessionAsync(session);
 
-            return RedirectToAction(nameof(MyEnrollmentsHistory));
+            return RedirectToAction(nameof(MyCompletedEnrollments));
         }
 
 
@@ -2107,7 +2110,7 @@ namespace Web.Controllers.User
                     if (result4)
                     {
                         var notificationsSent = await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
-                        TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                        TempData["SuccessMessage2"] = notificationsSent
                             ? "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
                             : "The course schedules were confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. However, the organization notification email could not be sent.";
                     }
@@ -2177,7 +2180,7 @@ namespace Web.Controllers.User
                 {
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     var notificationsSent = await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
-                    TempData[notificationsSent ? "SuccessMessage2" : "WarningMessage2"] = notificationsSent
+                    TempData["SuccessMessage2"] = notificationsSent
                         ? "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
                         : "The course was confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
                 }
@@ -2229,8 +2232,27 @@ namespace Web.Controllers.User
             if (child == null)
                 return NotFound("Child not found.");
 
-           
-            if (actionType == "Confirm")
+            var enrollment = (await _activityEnrollmentService
+                .GetAllEnrollmentsViewByChildAsync(child.ChildID))
+                .FirstOrDefault(e => e.EnrollmentID == model.EnrollmentID);
+
+            if (enrollment == null || enrollment.Status != "Registered")
+            {
+                TempData["ErrorMessage3"] = "This activity registration is no longer available for confirmation or removal.";
+                return RedirectToAction("MyConfirmations");
+            }
+
+            if (actionType == "Delete")
+            {
+                var feeRemoved = await _feeService.DeleteActivityFeeAsync(model.EnrollmentID);
+                var enrollmentRemoved = feeRemoved
+                    && await _activityEnrollmentService.RemoveRegisteredEnrollmentAsync(model.EnrollmentID);
+
+                TempData[enrollmentRemoved ? "SuccessMessage3" : "ErrorMessage3"] = enrollmentRemoved
+                    ? "The activity registration was removed successfully."
+                    : "The activity registration could not be removed.";
+            }
+            else if (actionType == "Confirm")
             {
                 // Handle Confirm logic
 
@@ -2255,9 +2277,10 @@ namespace Web.Controllers.User
 
                 if (result1 && result2 && result3)
                 {
-                   // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
-                    TempData["SuccessMessage3"] = "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
-                    await NotifyActivityConfirmedAsync(child, model.ActivityID);
+                    var notificationSent = await NotifyActivityConfirmedAsync(child, model.ActivityID);
+                    TempData["SuccessMessage3"] = notificationSent
+                        ? "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
+                        : "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. The organization notification email could not be sent.";
                 }
 
                     
@@ -2320,7 +2343,7 @@ namespace Web.Controllers.User
             }
         }
 
-        private async Task NotifyActivityConfirmedAsync(Child child, int activityId)
+        private async Task<bool> NotifyActivityConfirmedAsync(Child child, int activityId)
         {
             try
             {
@@ -2333,8 +2356,7 @@ namespace Web.Controllers.User
                         DateTime.SpecifyKind(activity.ScheduledAt, DateTimeKind.Utc),
                         activity.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId));
 
-                if (!delivery.IsSuccessful)
-                    TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+                return delivery.IsSuccessful;
             }
             catch (Exception exception)
             {
@@ -2343,7 +2365,7 @@ namespace Web.Controllers.User
                     "Activity confirmation notification failed. ChildId={ChildId}, ActivityId={ActivityId}",
                     child.ChildID,
                     activityId);
-                TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+                return false;
             }
         }
 

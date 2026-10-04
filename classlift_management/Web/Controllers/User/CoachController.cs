@@ -269,7 +269,7 @@ namespace Web.Controllers.User
         // GET: Add View
         [HttpGet("List")]
         //[HttpGet]
-        public async Task<IActionResult> List(string sortOrder, int? page, string searchName)
+        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity, string searchSpecialty, string searchGender)
         {
 
             
@@ -285,19 +285,36 @@ namespace Web.Controllers.User
             }
             
 
-            if (!string.IsNullOrEmpty(searchName))
+            if (!string.IsNullOrWhiteSpace(searchName))
             {
-                var filteredCoaches = coaches
-                    .Where(c => c.Coach.Name.Contains(searchName))
+                coaches = coaches
+                    .Where(c => c.Coach.Name?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true)
                     .ToList();
-
-                // convert to IPagedList just to match your View model
-                return View(filteredCoaches.ToPagedList(1, filteredCoaches.Count == 0 ? 1 : filteredCoaches.Count));
-
-
             }
 
-            else {
+            if (!string.IsNullOrWhiteSpace(searchCity))
+            {
+                coaches = coaches
+                    .Where(c => c.Coach.City?.Name?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchSpecialty))
+            {
+                coaches = coaches
+                    .Where(c => c.Coach.CoachSpecialties?.Any(cs =>
+                        cs.Specialty?.Title?.Contains(searchSpecialty, StringComparison.OrdinalIgnoreCase) == true) == true)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchGender))
+            {
+                coaches = coaches
+                    .Where(c => string.Equals(c.Coach.Gender, searchGender, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            {
                 ViewData["MemberIDParm"] = sortOrder == "id" ? "id_desc" : "id";
                 ViewData["NameSortParm"] = sortOrder == "name" ? "name_desc" : "name";
                 ViewData["StatusSortParm"] = sortOrder == "status" ? "status_desc" : "status";
@@ -890,7 +907,6 @@ namespace Web.Controllers.User
 
                 if (allSuccess)
                 {
-                    TempData["SuccessMessage"] = "Session(s) scheduled successfully.";
                     await NotifyFamilyOfCreatedSessionsAsync(
                         child,
                         course,
@@ -898,6 +914,12 @@ namespace Web.Controllers.User
                         timings,
                         scheduledHours,
                         location);
+
+                    var notificationWarning = TempData["WarningMessage"] != null;
+                    TempData["SuccessMessage"] = notificationWarning
+                        ? "The sessions were scheduled, but the notification email could not be sent."
+                        : "Session(s) scheduled successfully.";
+                    TempData.Remove("WarningMessage");
                 }
                 else
                 {

@@ -11,6 +11,19 @@
     table.mobile-stack {
         display: table;
         width: 100%;
+        table-layout: fixed;
+    }
+
+    @@media (min-width: 768px) {
+    table.mobile-stack:has(> thead > tr > th:nth-child(6)) > thead > tr > th,
+    table.mobile-stack:has(> thead > tr > th:nth-child(6)) > tbody > tr > td { width: 20%; }
+    table.mobile-stack:has(> thead > tr > th:nth-child(6)) > thead > tr > th:nth-child(5),
+    table.mobile-stack:has(> thead > tr > th:nth-child(6)) > tbody > tr > td:nth-child(5),
+    table.mobile-stack:has(> thead > tr > th:nth-child(6)) > thead > tr > th:nth-child(6),
+    table.mobile-stack:has(> thead > tr > th:nth-child(6)) > tbody > tr > td:nth-child(6) { width: 10%; }
+
+    table.mobile-stack:not(:has(> thead > tr > th:nth-child(6))) > thead > tr > th,
+    table.mobile-stack:not(:has(> thead > tr > th:nth-child(6))) > tbody > tr > td { width: 20%; }
     }
 
         table.mobile-stack thead {
@@ -139,7 +152,16 @@
                     <tr>
                         <th>@CurrentTenant.Terminology.ParticipantSingular</th>
                         @* <th class="desktop-only">Birthday</th> *@
-                        <th class="desktop-only">@(course.CourseType == "Private" && !course.SessionCount.HasValue ? "Scheduled + Waiting Completion" : "Scheduled")</th>
+                        <th class="desktop-only">
+                            @if (course.CourseType == "Private" && !course.SessionCount.HasValue)
+                            {
+                                <text>Scheduled +<br />Waiting Completion</text>
+                            }
+                            else
+                            {
+                                <text>Scheduled</text>
+                            }
+                        </th>
                         @if (course.CourseType == "Group")
                         {
                             <th>Leave</th>
@@ -210,7 +232,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="@(course.CourseType == "Group" ? 5 : 6)" class="text-center fw-bold bg-light">
+                            <td colspan="@(course.CourseType == "Group" ? 5 : 6)" class="text-center bg-light">
                                 No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant() for this course.
                             </td>
                         </tr>

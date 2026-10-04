@@ -22,13 +22,15 @@ namespace Web.Controllers.User
     public class StaffController : Controller
     {
         private readonly IStaffService _staffService;
+        private readonly ICourseEnrollmentService _courseEnrollmentService;
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly AppDbContext _db;
 
 
-        public StaffController(IStaffService staffService, UserManager<Core.Models.User> userManager, AppDbContext db)
+        public StaffController(IStaffService staffService, ICourseEnrollmentService courseEnrollmentService, UserManager<Core.Models.User> userManager, AppDbContext db)
         {
             _staffService = staffService;
+            _courseEnrollmentService = courseEnrollmentService;
             _userManager = userManager;
             _db = db;
         }
@@ -53,6 +55,35 @@ namespace Web.Controllers.User
             };
 
             return View(model);
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpGet("GroupCourseAttendance")]
+        public async Task<IActionResult> GroupCourseAttendance()
+        {
+            var activeGroupCourses = await _db.Courses
+                .AsNoTracking()
+                .Where(c => c.IsActive && c.CourseType == "Group")
+                .OrderBy(c => c.Title)
+                .ToListAsync();
+
+            var attendance = new List<SessionAttendanceViewModel>();
+            var now = DateTime.UtcNow;
+
+            foreach (var course in activeGroupCourses)
+            {
+                var courseAttendance = await _courseEnrollmentService.GetAttendanceAsync(course.CourseID);
+                courseAttendance.Sessions = courseAttendance.Sessions
+                    .OrderBy(session => session.ScheduledAt)
+                    .ToList();
+
+                if (courseAttendance.Sessions.Any(session => session.ScheduledAt > now))
+                {
+                    attendance.Add(courseAttendance);
+                }
+            }
+
+            return View(attendance);
         }
 
         private async Task<List<StaffNotificationItem>> GetNotificationItems(IQueryable<Core.Models.CourseEnrollment> query, string linkFormat, bool useFirstChildSessionDate = false)

@@ -30,8 +30,11 @@ namespace Core.Services
             _activityRepository = activityRepository;
         }
 
-        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, string status, User user)
+        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal scheduledHours, decimal cost, string status, User user)
         {
+            if (scheduledHours <= 0)
+                throw new ArgumentOutOfRangeException(nameof(scheduledHours), "Scheduled hours must be greater than zero.");
+
             if (cost < 0)
                 throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
 
@@ -46,6 +49,7 @@ namespace Core.Services
                 ScheduledAt = timing.ScheduledAtUtc,
                 ScheduledLocalTime = timing.ScheduledLocalTime,
                 ScheduledTimeZoneId = timing.TimeZoneId,
+                ScheduledHours = scheduledHours,
                 Cost = cost,
                 //IsActive = isActive,
                 Status = status,

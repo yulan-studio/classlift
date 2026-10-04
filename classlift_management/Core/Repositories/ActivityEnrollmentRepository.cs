@@ -263,7 +263,10 @@ namespace Core.Repositories
             
             var enrollments = await _context.ActivityEnrollments
                 .Include(e => e.Activity)
-                .Where(e => ((DateTime)e.Activity.ScheduledAt).AddDays(1)  <= torontoNow && e.Status == "Confirmed")
+                .Where(e => e.Activity.ScheduledHours.HasValue
+                    && e.Activity.ScheduledHours > 0
+                    && e.Activity.ScheduledAt.AddHours((double)e.Activity.ScheduledHours.Value) <= torontoNow
+                    && e.Status == "Confirmed")
                 .ToListAsync();
 
             foreach (var enrollment in enrollments)
@@ -284,7 +287,10 @@ namespace Core.Repositories
 
             var enrollments = await dbContext.ActivityEnrollments
                 .Include(e => e.Activity)
-                .Where(e => ((DateTime)e.Activity.ScheduledAt).AddDays(1) <= torontoNow && e.Status == "Confirmed")
+                .Where(e => e.Activity.ScheduledHours.HasValue
+                    && e.Activity.ScheduledHours > 0
+                    && e.Activity.ScheduledAt.AddHours((double)e.Activity.ScheduledHours.Value) <= torontoNow
+                    && e.Status == "Confirmed")
                 .ToListAsync(cancellationToken);
 
             foreach (var enrollment in enrollments)
@@ -292,7 +298,7 @@ namespace Core.Repositories
                 enrollment.Status = "Completed";
             }
 
-            var changes = await _context.SaveChangesAsync(cancellationToken);
+            var changes = await dbContext.SaveChangesAsync(cancellationToken);
             return enrollments;
         }
 
