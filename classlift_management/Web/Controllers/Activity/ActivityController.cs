@@ -27,16 +27,18 @@ namespace Web.Controllers.Activity
         private readonly UserManager<Core.Models.User> _userManager;
         private readonly ITimeZoneService _timeZoneService;
         private readonly AppDbContext _db;
+        private readonly CurrentTenant _currentTenant;
 
 
 
-        public ActivityController(IActivityService activityService, IActivityEnrollmentService activityEnrollmentService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext db)
+        public ActivityController(IActivityService activityService, IActivityEnrollmentService activityEnrollmentService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext db, CurrentTenant currentTenant)
         {
             _activityService = activityService;
             _activityEnrollmentService = activityEnrollmentService;
             _userManager = userManager;
             _timeZoneService = timeZoneService;
             _db = db;
+            _currentTenant = currentTenant;
         }
 
         [Authorize(Roles = "Staff")]
@@ -288,6 +290,10 @@ namespace Web.Controllers.Activity
                 if(status == "Canceled")
                 {
                     await _activityEnrollmentService.UpdateActivityStatusToCanceledAsync(activityId);
+                    if (_currentTenant.HasFeature(Core.FeatureCodes.CreditTracking))
+                    {
+                        await RefundCanceledActivityRegistrationsAsync(activityId, user!.Id);
+                    }
                 }
 
                 TempData["SuccessMessage"] = "Activity information updated successfully.";
@@ -302,6 +308,65 @@ namespace Web.Controllers.Activity
                 ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
                 return View(activity);
             }
+        }
+
+        private async Task RefundCanceledActivityRegistrationsAsync(int activityId, int createdBy)
+        {
+            var canceledRegistrations = await _db.ActivityEnrollments
+                .Include(e => e.Activity)
+                .Where(e => e.ActivityID == activityId && e.Status == "Canceled")
+                .ToListAsync();
+
+            var registrationIds = canceledRegistrations.Select(e => e.EnrollmentID).ToList();
+            var paidFees = await _db.Fees
+                .Where(f => f.ActivityEnrollmentID.HasValue
+                    && registrationIds.Contains(f.ActivityEnrollmentID.Value)
+                    && f.IsPaid
+                    && f.TotalCost.HasValue
+                    && f.TotalCost.Value > 0)
+                .ToDictionaryAsync(f => f.ActivityEnrollmentID!.Value);
+
+            var balanceByChild = new Dictionary<int, decimal>();
+            foreach (var registration in canceledRegistrations)
+            {
+                if (!paidFees.TryGetValue(registration.EnrollmentID, out var fee))
+                    continue;
+
+                var alreadyRefunded = await _db.ChildBalances.AnyAsync(b =>
+                    b.ActivityID == activityId
+                    && b.ChildID == registration.ChildID
+                    && b.TransactionType == "Refund");
+                if (alreadyRefunded)
+                    continue;
+
+                if (!balanceByChild.TryGetValue(registration.ChildID, out var currentBalance))
+                {
+                    currentBalance = await _db.ChildBalances
+                        .Where(b => b.ChildID == registration.ChildID)
+                        .OrderByDescending(b => b.BalanceID)
+                        .Select(b => b.Balance ?? 0)
+                        .FirstOrDefaultAsync();
+                }
+
+                var refundAmount = fee.TotalCost!.Value;
+                var newBalance = currentBalance + refundAmount;
+                _db.ChildBalances.Add(new Core.Models.ChildBalance
+                {
+                    ChildID = registration.ChildID,
+                    ActivityID = activityId,
+                    TransactionType = "Refund",
+                    Remarks = $"Refund for canceled activity: {registration.Activity.Title}",
+                    BalanceChange = refundAmount,
+                    Balance = newBalance,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = createdBy,
+                    UpdatedBy = createdBy,
+                    UpdatedDate = DateTime.UtcNow
+                });
+                balanceByChild[registration.ChildID] = newBalance;
+            }
+
+            await _db.SaveChangesAsync();
         }
 
         private ScheduleTiming CreateTiming(DateTime localTime, string timeZoneId)

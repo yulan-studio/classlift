@@ -311,7 +311,8 @@ namespace Core.Repositories
         {
 
             var enrollments = await _context.ActivityEnrollments
-                .Where(e => e.Status == "Scheduled" && e.Activity.ActivityID == activityId)
+                .Where(e => e.ActivityID == activityId
+                    && (e.Status == "Registered" || e.Status == "Confirmed" || e.Status == "Scheduled"))
                 .ToListAsync();
 
             foreach (var enrollment in enrollments)
