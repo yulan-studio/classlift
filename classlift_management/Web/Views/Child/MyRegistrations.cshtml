@@ -97,7 +97,17 @@
             {
                 <tr>
                     <td class="course-title" data-label="Course">@enrollment.Title</td>
-                    <td data-label="Status">@enrollment.Status</td>
+                    <td data-label="Status">
+                        @if (enrollment.Status == "Registered")
+                        {
+                            <a href="/Child/MyConfirmations#course-enrollment-@enrollment.EnrollmentID"
+                               aria-label="Open confirmation for @enrollment.Title">Registered</a>
+                        }
+                        else
+                        {
+                            @enrollment.Status
+                        }
+                    </td>
                     <td data-label="Is Paid">
                         @if (!enrollment.IsPaid)
                         {
@@ -173,7 +183,17 @@ else
                     <td data-label="Description">@enrollment.Description</td>
                     <td data-label="Address">@enrollment.Address</td>
                     <td data-label="Scheduled At">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
-                    <td data-label="Status">@enrollment.Status</td>
+                    <td data-label="Status">
+                        @if (enrollment.Status == "Registered")
+                        {
+                            <a href="/Child/MyConfirmations#activity-enrollment-@enrollment.EnrollmentID"
+                               aria-label="Open confirmation for @enrollment.Title">Registered</a>
+                        }
+                        else
+                        {
+                            @enrollment.Status
+                        }
+                    </td>
                     <td data-label="Is Paid">
                         @if (!enrollment.IsPaid)
                         {

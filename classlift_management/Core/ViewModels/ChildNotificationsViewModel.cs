@@ -16,6 +16,7 @@ public class ChildNotificationItem
 
 public class ChildConfirmationNotificationItem
 {
+    public int EnrollmentId { get; set; }
     public string Type { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
 }

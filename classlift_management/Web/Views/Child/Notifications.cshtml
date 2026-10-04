@@ -61,7 +61,16 @@
             <h4><span>@item.Type: @item.Title</span><span class="notification-count">1 notification</span></h4>
             <div class="table-responsive"><table class="management-table table table-bordered">
                 <thead class="management-table-header confirmation-table-header"><tr><th style="background-color: #fff3cd !important; color: #000 !important;">Status</th><th class="action-column" style="background-color: #fff3cd !important; color: #000 !important;">Action</th></tr></thead>
-                <tbody><tr><td>Registered</td><td><a href="/Child/MyConfirmations">Confirm</a></td></tr></tbody>
+                <tbody>
+                    <tr>
+                        <td>Registered</td>
+                        <td>
+                            <a href="/Child/MyConfirmations#@(item.Type == "Activity" ? "activity" : "course")-enrollment-@item.EnrollmentId">
+                                Confirm
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
             </table></div>
         </section>
     }

@@ -1504,6 +1504,7 @@ namespace Web.Controllers.User
                     && e.EnrollmentID_Ref == null)
                 .Select(e => new ChildConfirmationNotificationItem
                 {
+                    EnrollmentId = e.EnrollmentID,
                     Type = "Course",
                     Title = e.Course.Title
                 })
@@ -1515,6 +1516,7 @@ namespace Web.Controllers.User
                 .Where(e => e.ChildID == child.ChildID && e.Status == "Registered")
                 .Select(e => new ChildConfirmationNotificationItem
                 {
+                    EnrollmentId = e.EnrollmentID,
                     Type = "Activity",
                     Title = e.Activity.Title
                 })

@@ -13,6 +13,8 @@
     .card { border: 1px solid #d8e7f3; border-radius: 12px; box-shadow: 0 3px 12px rgba(24, 47, 76, .06); }
     .confirmations-page div[style*="background-color: #f8f9fa"] { border-radius: 8px; }
     .confirmations-page .empty-schedules { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
+    .confirmation-target { scroll-margin-top: 1rem; transition: box-shadow .25s ease, background-color .25s ease; }
+    .confirmation-target--highlight { background-color: #fff8d8 !important; box-shadow: 0 0 0 3px #f0c36d; border-radius: 8px; }
     .confirmations-page #deleteRegistrationModal .modal-header,
     .confirmations-page #deleteRegistrationModal .modal-footer { border: 0; }
     .btn-primary { border-color: #7bb4dc; background-color: #7bb4dc; color: #fff; }
@@ -69,7 +71,7 @@
             Please confirm this Group course registration before 12:00 AM on the day of its first session. If it is not confirmed by then, the registration will be canceled.
         </div>
 
-        <form method="post" asp-action="UpdateSchedulesToConform">
+        <form id="course-enrollment-@courseSchedulesToConfirm.Fee.CourseEnrollmentID" class="confirmation-target" method="post" asp-action="UpdateSchedulesToConform">
             <input type="hidden" name="CourseID" value="@courseSchedulesToConfirm.Course.CourseID" />
             <input type="hidden" name="Fee.PaymentModel" value="@courseSchedulesToConfirm.Fee.PaymentModel" />
             <input type="hidden" name="Fee.TotalCost" value="@courseSchedulesToConfirm.Fee.TotalCost" />
@@ -216,7 +218,7 @@
     {
 
 
-        <form method="post" asp-action="UpdateCourseToConform">
+        <form id="course-enrollment-@enrollment.EnrollmentID" class="confirmation-target" method="post" asp-action="UpdateCourseToConform">
             <input type="hidden" name="CourseID" value="@enrollment.CourseID" />
             <input type="hidden" name="EnrollmentID" value="@enrollment.EnrollmentID" />
             <input type="hidden" name="TotalCost" value="@enrollment.TotalCost" />
@@ -369,7 +371,7 @@
     {
 
 
-        <form method="post" asp-action="UpdateActivityToConform">
+        <form id="activity-enrollment-@enrollment.EnrollmentID" class="confirmation-target" method="post" asp-action="UpdateActivityToConform">
             <input type="hidden" name="ActivityID" value="@enrollment.ActivityID" />
             <input type="hidden" name="EnrollmentID" value="@enrollment.EnrollmentID" />
             <input type="hidden" name="TotalCost" value="@enrollment.TotalCost" />
@@ -426,6 +428,34 @@ else
     <div class="empty-schedules p-4 text-center">No activity available for confirmation.</div>
 }
 </div>
+
+<script>
+    (function () {
+        function focusConfirmation() {
+            const target = document.getElementById(window.location.hash.substring(1));
+            if (!target) return;
+
+            const collapsed = target.querySelector('.collapse');
+            if (collapsed && !collapsed.classList.contains('show') && window.bootstrap) {
+                collapsed.addEventListener('shown.bs.collapse', reveal, { once: true });
+                window.bootstrap.Collapse.getOrCreateInstance(collapsed).show();
+            } else {
+                reveal();
+            }
+
+            function reveal() {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                target.classList.add('confirmation-target--highlight');
+                window.setTimeout(function () {
+                    target.classList.remove('confirmation-target--highlight');
+                }, 3000);
+            }
+        }
+
+        window.addEventListener('load', focusConfirmation);
+        window.addEventListener('hashchange', focusConfirmation);
+    })();
+</script>
 
 
 
