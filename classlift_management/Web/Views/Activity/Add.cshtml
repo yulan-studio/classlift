@@ -63,6 +63,14 @@
             <td style="padding: 8px;"><label for="ScheduledAt">Scheduled Date:</label></td>
             <td style="padding: 8px;"><input type="datetime-local" name="ScheduledAt" style="width: 25%;" required /></td>
         </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="ScheduledHours">Scheduled Hours:</label></td>
+            <td style="padding: 8px;">
+                <input type="number" id="ScheduledHours" name="ScheduledHours" placeholder="Enter duration in hours" step="0.25" min="0.25" style="width: 25%;" required oninput="updateScheduledMinutes()" />
+                <span id="scheduledMinutes" style="margin-left: 8px; color: #6b778c;"></span>
+            </td>
+        </tr>
         
 
      
@@ -102,6 +110,20 @@
         </tr>
     </table>
 </form>
+
+<script>
+    function updateScheduledMinutes() {
+        const hours = Number(document.getElementById('ScheduledHours').value);
+        const minutesElement = document.getElementById('scheduledMinutes');
+
+        if (!Number.isFinite(hours) || hours <= 0) {
+            minutesElement.textContent = '';
+            return;
+        }
+
+        minutesElement.textContent = `${Math.round(hours * 60)} minutes`;
+    }
+</script>
 
 
 

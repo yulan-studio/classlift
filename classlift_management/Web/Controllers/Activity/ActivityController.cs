@@ -153,7 +153,7 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Add")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, decimal cost, /*bool isActive,*/ string status)
+        public async Task<IActionResult> Add(string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, decimal cost, /*bool isActive,*/ string status)
         {
             //createdBy = 1; //temparary set
 
@@ -169,7 +169,7 @@ namespace Web.Controllers.Activity
                 var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
                 if (timing.ScheduledAtUtc <= DateTime.UtcNow)
                     throw new ArgumentException("Scheduled time must be in the future.");
-                var result = await _activityService.AddAsync(title, description, address, maxCapacity, timing, cost, status, user!);
+                var result = await _activityService.AddAsync(title, description, address, maxCapacity, timing, scheduledHours, cost, status, user!);
 
                 if (!result)
                 {
