@@ -45,6 +45,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. Standard course reports include completed child sessions that have Actual Hours recorded.
 4. My Enrollment History returns only course sessions with status Completed. Canceled and OnLeave sessions are excluded.
 5. The Enrollments History course table uses the organization's configured provider term instead of a fixed Coach heading.
+6. Staff can view current Group-course schedules and participant attendance in a read-only page grouped by course and Session.
 
 ## Canceled course sessions
 
