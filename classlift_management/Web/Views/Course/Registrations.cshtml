@@ -4,7 +4,7 @@
     ViewData["Title"] = "Course Registrations";
 }
 
-<h2>Course Registrations</h2>
+<h1 class="management-page-title">Course Registrations</h1>
 
 <p><strong>Course:</strong> @Model.CourseTitle</p>
 
@@ -12,7 +12,7 @@
 
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
-<table class="table table-bordered" style="max-width: 700px;">
+<div class="management-table-wrapper"><table class="management-table">
     <thead class="table-primary">
         <tr>
             <th>#</th>
@@ -42,4 +42,4 @@
             </tr>
         }
     </tbody>
-</table>
+</table></div>
