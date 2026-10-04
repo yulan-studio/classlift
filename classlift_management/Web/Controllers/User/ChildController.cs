@@ -951,6 +951,10 @@ namespace Web.Controllers.User
                     //totalCost = 0;
                     description = "Use Token - Fee will be deducted from your balance per session"; // Ensure description is not null
                 }
+                else if (totalCost == 0)
+                {
+                    description = "Free registration — no payment is required.";
+                }
 
 
                 bool success = await _feeService.AddCourseFeeAsync(newEnrollmentId, paymentModel, totalCost, description, user);
@@ -1073,7 +1077,7 @@ namespace Web.Controllers.User
                 var activity = await _activityService.GetAsync(activityId);
                 totalCost = activity.Cost ?? 0;
                 description = totalCost == 0
-                    ? "Free"
+                    ? "Free registration — no payment is required."
                     : paymentModel == "Token"
                         ? $"Use Token - ${totalCost:F2} will be deducted from your balance once confirmed."
                         : $"Please email transfer ${totalCost:F2} to [youremail_address], and send screenshot to customer service.";

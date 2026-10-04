@@ -79,10 +79,12 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Payments and balance history
 
-1. Payment records are financial audit records. Staff must not delete them; the payment list does not offer a Remove action, and the server rejects deletion requests.
-2. A participant's balance continues to use the balance snapshot created by each balance transaction. Since the system has not entered formal use, historical balance repair is not part of this rule.
-3. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
-4. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
+1. When a course or activity registration has a fee of zero, its fee record is marked paid and its description is `Free registration — no payment is required.`.
+
+2. Payment records are financial audit records. Staff must not delete them; the payment list does not offer a Remove action, and the server rejects deletion requests.
+3. A participant's balance continues to use the balance snapshot created by each balance transaction. Since the system has not entered formal use, historical balance repair is not part of this rule.
+4. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
+5. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.
