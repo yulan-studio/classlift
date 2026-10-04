@@ -19,7 +19,7 @@ namespace Core.Services
 
         public List<ChildReportDto> GetChildDetails(DateTime? from, DateTime? to)
         {
-            var data = _repo.GetCompletedEnrollments(from, to);
+            var data = _repo.GetCompletedEnrollments(from, to).ToList();
 
             return data
                 .GroupBy(e => e.Child)
@@ -46,7 +46,7 @@ namespace Core.Services
 
         public List<CoachReportDto> GetCoachDetails(DateTime? from, DateTime? to)
         {
-            var data = _repo.GetCompletedEnrollments(from, to);
+            var data = _repo.GetCompletedEnrollments(from, to).ToList();
 
             return data
                 .GroupBy(e => e.Course.Coach)
@@ -82,7 +82,7 @@ namespace Core.Services
 
         public List<CourseReportDto> GetCourseDetails(DateTime? from, DateTime? to)
         {
-            var data = _repo.GetCompletedEnrollments(from, to);
+            var data = _repo.GetCompletedEnrollments(from, to).ToList();
 
             return data
                 .GroupBy(e => e.Course)
