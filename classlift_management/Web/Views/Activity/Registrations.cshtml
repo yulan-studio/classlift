@@ -4,12 +4,12 @@
     ViewData["Title"] = "Activity Registrations";
 }
 
-<h2>Activity Registrations</h2>
+<h1 class="management-page-title">Activity Registrations</h1>
 <p><strong>Activity:</strong> @Model.ActivityTitle</p>
 <a asp-action="List" class="participation-back-link" style="color: #000 !important;">Back to Activities List</a>
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
-<table class="table table-bordered" style="max-width: 700px;">
+<div class="management-table-wrapper"><table class="management-table">
     <thead class="table-primary">
         <tr><th>#</th><th>@CurrentTenant.Terminology.ParticipantSingular</th><th>Status</th></tr>
     </thead>
@@ -27,4 +27,4 @@
             <tr><td colspan="3" class="text-center">No registered @CurrentTenant.Terminology.ParticipantPlural.ToLowerInvariant().</td></tr>
         }
     </tbody>
-</table>
+</table></div>
