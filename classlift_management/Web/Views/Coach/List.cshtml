@@ -48,6 +48,8 @@
            class="list-filter__input" value="@Context.Request.Query["searchName"]" />
     <input type="text" name="searchCity" placeholder="Search city..."
            class="list-filter__input" value="@Context.Request.Query["searchCity"]" />
+    <input type="text" name="searchSpecialty" placeholder="Search specialty..."
+           class="list-filter__input" value="@Context.Request.Query["searchSpecialty"]" />
 
     <button type="submit" class="list-filter__search">Search</button>
     <a href="/Coach/List" class="list-filter__reset">Reset</a>
@@ -59,7 +61,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">#</th>
 
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchSpecialty="@Context.Request.Query["searchSpecialty"]">
                     ID
                     @if ((string)ViewData["CurrentSort"] == "id")
                     {
@@ -73,7 +75,7 @@
                 </a>
             </th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchSpecialty="@Context.Request.Query["searchSpecialty"]">
                     Name
                     @if ((string)ViewData["CurrentSort"] == "name")
                     {
@@ -88,7 +90,7 @@
             </th>
 
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchSpecialty="@Context.Request.Query["searchSpecialty"]">
                     Status
                     @if ((string)ViewData["CurrentSort"] == "status")
                     {
@@ -103,7 +105,7 @@
             </th>
             <th style="padding: 8px; border: 1px solid #ddd;">Specialties</th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["GenderSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["GenderSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchSpecialty="@Context.Request.Query["searchSpecialty"]">
                     Gender
                     @if ((string)ViewData["CurrentSort"] == "gender")
                     {
@@ -120,7 +122,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Phone</th>
             @* <th style="padding: 8px; border: 1px solid #ddd;">Wechat</th> *@
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["CitySortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["CitySortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchSpecialty="@Context.Request.Query["searchSpecialty"]">
                     City
                     @if ((string)ViewData["CurrentSort"] == "city")
                     {
@@ -219,7 +221,7 @@
 <div class="list-pagination">
     @Html.PagedListPager(
     Model,
-    page => Url.Action("List", new { page, sortOrder = ViewData["CurrentSort"], searchName = Context.Request.Query["searchName"], searchCity = Context.Request.Query["searchCity"] }),
+    page => Url.Action("List", new { page, sortOrder = ViewData["CurrentSort"], searchName = Context.Request.Query["searchName"], searchCity = Context.Request.Query["searchCity"], searchSpecialty = Context.Request.Query["searchSpecialty"] }),
         new PagedListRenderOptions
         {
             DisplayLinkToFirstPage = PagedListDisplayMode.Always,

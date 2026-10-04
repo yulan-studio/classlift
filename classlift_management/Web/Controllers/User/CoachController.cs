@@ -269,7 +269,7 @@ namespace Web.Controllers.User
         // GET: Add View
         [HttpGet("List")]
         //[HttpGet]
-        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity)
+        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity, string searchSpecialty)
         {
 
             
@@ -296,6 +296,14 @@ namespace Web.Controllers.User
             {
                 coaches = coaches
                     .Where(c => c.Coach.City?.Name?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchSpecialty))
+            {
+                coaches = coaches
+                    .Where(c => c.Coach.CoachSpecialties?.Any(cs =>
+                        cs.Specialty?.Title?.Contains(searchSpecialty, StringComparison.OrdinalIgnoreCase) == true) == true)
                     .ToList();
             }
 
