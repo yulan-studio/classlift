@@ -193,7 +193,7 @@ else
                         }
                     </td>
                     <td data-label="Is Paid">
-                        @if (!enrollment.IsPaid)
+                        @if (!enrollment.IsPaid && enrollment.TotalCost.GetValueOrDefault() > 0)
                         {
                             <a href="javascript:void(0);" onclick="showPaymentModal('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(enrollment.PaymentDescription))')">
                                 False
@@ -201,7 +201,7 @@ else
                         }
                         else
                         {
-                            @enrollment.IsPaid
+                            @(enrollment.IsPaid || enrollment.TotalCost.GetValueOrDefault() == 0)
                         }
                     </td>
 
