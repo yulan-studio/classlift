@@ -78,7 +78,9 @@ namespace Core.Repositories
             var torontoNow = DateTime.UtcNow;
 
             var activities = await _context.Activities
-                .Where(a => ((DateTime)a.ScheduledAt).AddDays(1) <= torontoNow /*&& a.IsActive == true*/)
+                .Where(a => a.ScheduledHours.HasValue
+                    && a.ScheduledHours > 0
+                    && a.ScheduledAt.AddHours((double)a.ScheduledHours.Value) <= torontoNow /*&& a.IsActive == true*/)
                 .ToListAsync();
 
             foreach (var activity in activities)
@@ -99,7 +101,9 @@ namespace Core.Repositories
             var torontoNow = DateTime.UtcNow;
 
             var activities = await dbContext.Activities
-                .Where(a => ((DateTime)a.ScheduledAt).AddDays(1) <= torontoNow /*&& a.IsActive == true*/)
+                .Where(a => a.ScheduledHours.HasValue
+                    && a.ScheduledHours > 0
+                    && a.ScheduledAt.AddHours((double)a.ScheduledHours.Value) <= torontoNow /*&& a.IsActive == true*/)
                 .ToListAsync(cancellationToken);
 
             foreach (var activity in activities)

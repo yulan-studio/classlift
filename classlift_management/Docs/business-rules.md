@@ -38,6 +38,11 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 1. A participant may remove their own pending activity registration from the Confirmations page before confirmation. The removal removes the pending registration and its associated activity fee record.
 
+## Activity completion
+
+1. An Activity is considered ended when its scheduled start time plus its Scheduled Hours has passed. The background status updater then changes the Activity and its Confirmed participant registrations to Completed.
+2. All Activity creation fields are required, including description, address, capacity, cost, time zone, scheduled date, scheduled hours, and registration status.
+
 ## Course completion and reporting
 
 1. Fixed-session Group and private sessions are completed automatically after their scheduled end time.
