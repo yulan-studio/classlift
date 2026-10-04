@@ -147,36 +147,26 @@ namespace Web.Controllers.User
 
         [HttpGet("List")]
         // ✅ List all children
-        public async Task<IActionResult> List(string sortOrder, int? page, string searchName)
+        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity)
         {
             var children = await _childService.GetAllAsync();
             var childrenWithRequestOrConcerns = await _courseEnrollmentService.GetChildrenWithRequestsOrConcernsAsync();
             var childrenWithDelete = new List<ChildWithDeleteViewModel>();
 
-            // 🔍 If searching → ignore paging & sorting
-            if (!string.IsNullOrEmpty(searchName))
+            if (!string.IsNullOrWhiteSpace(searchName))
             {
-                var filteredChildren = children
-                    .Where(c => c.Name.Contains(searchName))
+                children = children
+                    .Where(c => c.Name?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true)
                     .ToList();
-
-                foreach (Child c in filteredChildren)
-                {
-                    var canDelete = !await _childService.CheckPaidAsync(c.ChildID) && !await _childService.CheckRegisteredAsync(c.ChildID);
-                    var childWithDelete = new ChildWithDeleteViewModel();
-                    childWithDelete.Child = c;
-                    childWithDelete.CanDelete = canDelete;
-                    childrenWithDelete.Add(childWithDelete);
-                }
-
-                // convert to IPagedList just to match your View model
-                return View(childrenWithDelete.ToPagedList(1, childrenWithDelete.Count == 0 ? 1 : childrenWithDelete.Count));
-
-                
             }
 
+            if (!string.IsNullOrWhiteSpace(searchCity))
+            {
+                children = children
+                    .Where(c => c.City?.Name?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true)
+                    .ToList();
+            }
 
-            else
             {
                 ViewData["RequestConcernChildIds"] = childrenWithRequestOrConcerns;
                 ViewData["MemberIDParm"] = sortOrder == "id" ? "id_desc" : "id";
