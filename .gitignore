@@ -183,3 +183,5 @@
 /classlift_management/Web/buildcheck/Debug/net8.0
 /classlift_management/Web/bin/Debug/net8.0
 /classlift_management/Test/bin/Debug/net8.0/Core.pdb
+/classlift_management/Core/bin/ReportBuildCheck/Debug/net8.0
+/classlift_management/Web/bin/ReportBuildCheck/Debug/net8.0
