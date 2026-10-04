@@ -269,7 +269,7 @@ namespace Web.Controllers.User
         // GET: Add View
         [HttpGet("List")]
         //[HttpGet]
-        public async Task<IActionResult> List(string sortOrder, int? page, string searchName)
+        public async Task<IActionResult> List(string sortOrder, int? page, string searchName, string searchCity)
         {
 
             
@@ -285,19 +285,21 @@ namespace Web.Controllers.User
             }
             
 
-            if (!string.IsNullOrEmpty(searchName))
+            if (!string.IsNullOrWhiteSpace(searchName))
             {
-                var filteredCoaches = coaches
-                    .Where(c => c.Coach.Name.Contains(searchName))
+                coaches = coaches
+                    .Where(c => c.Coach.Name?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true)
                     .ToList();
-
-                // convert to IPagedList just to match your View model
-                return View(filteredCoaches.ToPagedList(1, filteredCoaches.Count == 0 ? 1 : filteredCoaches.Count));
-
-
             }
 
-            else {
+            if (!string.IsNullOrWhiteSpace(searchCity))
+            {
+                coaches = coaches
+                    .Where(c => c.Coach.City?.Name?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true)
+                    .ToList();
+            }
+
+            {
                 ViewData["MemberIDParm"] = sortOrder == "id" ? "id_desc" : "id";
                 ViewData["NameSortParm"] = sortOrder == "name" ? "name_desc" : "name";
                 ViewData["StatusSortParm"] = sortOrder == "status" ? "status_desc" : "status";
