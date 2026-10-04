@@ -2280,9 +2280,10 @@ namespace Web.Controllers.User
 
                 if (result1 && result2 && result3)
                 {
-                   // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
-                    TempData["SuccessMessage3"] = "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>.";
-                    await NotifyActivityConfirmedAsync(child, model.ActivityID);
+                    var notificationSent = await NotifyActivityConfirmedAsync(child, model.ActivityID);
+                    TempData["SuccessMessage3"] = notificationSent
+                        ? "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
+                        : "The activity has been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. The organization notification email could not be sent.";
                 }
 
                     
@@ -2345,7 +2346,7 @@ namespace Web.Controllers.User
             }
         }
 
-        private async Task NotifyActivityConfirmedAsync(Child child, int activityId)
+        private async Task<bool> NotifyActivityConfirmedAsync(Child child, int activityId)
         {
             try
             {
@@ -2358,8 +2359,7 @@ namespace Web.Controllers.User
                         DateTime.SpecifyKind(activity.ScheduledAt, DateTimeKind.Utc),
                         activity.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId));
 
-                if (!delivery.IsSuccessful)
-                    TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+                return delivery.IsSuccessful;
             }
             catch (Exception exception)
             {
@@ -2368,7 +2368,7 @@ namespace Web.Controllers.User
                     "Activity confirmation notification failed. ChildId={ChildId}, ActivityId={ActivityId}",
                     child.ChildID,
                     activityId);
-                TempData["WarningMessage3"] = "The activity was confirmed, but the organization notification email could not be sent.";
+                return false;
             }
         }
 
