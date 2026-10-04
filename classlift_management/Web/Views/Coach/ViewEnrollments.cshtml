@@ -9,6 +9,10 @@
     .enrollment-section-heading a { color: #1b7bab; font-weight: 600; }
     .view-enrollments-page .enrollment-back-link { margin-top: 0; margin-bottom: 1rem; }
     .enrollment-info-panel { margin-top: 1.25rem; }
+    main .view-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel,
+    main .view-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:hover,
+    main .view-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:focus,
+    main .view-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:active { color: #fff !important; }
 
     table.mobile-stack {
         width: 100%;
@@ -92,7 +96,7 @@
                             <span class="completed-note-actions">
                                 <a id="coach-note-edit-link-@completed.EnrollmentID" href="javascript:void(0);" onclick="editCoachNote(@completed.EnrollmentID)">Update Note</a>
                                 <button id="coach-note-save-@completed.EnrollmentID" type="submit" class="btn classlift-secondary-button" style="display: none;">Save</button>
-                                <button id="coach-note-cancel-@completed.EnrollmentID" type="button" class="btn btn-secondary cancel-button" style="display: none;" onclick="cancelCoachNote(@completed.EnrollmentID)">Cancel</button>
+                                <button id="coach-note-cancel-@completed.EnrollmentID" type="button" class="btn btn-secondary cancel-button coach-note-cancel" style="display: none;" onclick="cancelCoachNote(@completed.EnrollmentID)">Cancel</button>
                             </span>
                         </form>
                     </td>
