@@ -232,7 +232,7 @@ body { font-family: 'Inter', sans-serif; }
                     </div>
                 </form>
 
-                <div id="message" class="mt-5 text-center text-sm"></div>
+                <div id="message" class="mt-5 text-center text-sm" aria-live="polite"></div>
             </div>
 
         </div>
@@ -395,6 +395,39 @@ function showPasswordValidation() {
     return isValid;
 }
 
+function showNextSignupSuccessMessage(messageElement) {
+    const successMessages = [
+     
+"1. JJ,I want you to know that I care about you deeply and miss you. I respect that you are an adult and want you to be safe, happy, and able to choose your own path.",
+"2. I'm sorry if I have made you feel ignored, worried, or misunderstood. I'm trying to understand your feelings better and rebuild our connection with respect and patience. I don't want to pressure you or take away your independence.",
+"3. I hope you are doing okay. If you ever need help, I'm here, and you can contact me in whatever way feels comfortable for you. If you're willing, I would be grateful to hear from you—even a short message. Please take care of yourself and make safe choices.",
+"4. I love you unconditionally, and I will give you space while keeping the door open."
+
+    ];
+    const storageKey = "classlift.signupSuccessMessageIndex";
+    let messageIndex = 0;
+
+    try {
+        const savedIndex = Number.parseInt(localStorage.getItem(storageKey), 10);
+        if (Number.isInteger(savedIndex) && savedIndex >= 0) {
+            messageIndex = savedIndex % successMessages.length;
+        }
+    } catch {
+        // Use the first message if browser storage is unavailable.
+    }
+
+    messageElement.textContent = successMessages[messageIndex];
+
+    try {
+        localStorage.setItem(
+            storageKey,
+            String((messageIndex + 1) % successMessages.length)
+        );
+    } catch {
+        // The message can still be shown if browser storage is unavailable.
+    }
+}
+
 document.getElementById("signupForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -460,10 +493,9 @@ document.getElementById("signupForm").addEventListener("submit", async function 
         }
 
         signupSucceeded = true;
-        message.innerText = result.message ||
-            "Organization created. Check your email to activate it.";
         message.className = "mt-5 text-center text-sm text-green-700";
         submitBtn.innerText = "Check Your Email";
+        showNextSignupSuccessMessage(message);
 
     } catch (error) {
         message.innerText = "Something went wrong. Please try again.";
