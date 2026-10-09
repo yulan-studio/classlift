@@ -1385,6 +1385,20 @@ namespace Web.Controllers.User
             return View("EnrollmentsHistory", enrollmentHistory);
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("PrivateProgress/{childId}/{courseId}/{enrollmentId}")]
+        public async Task<IActionResult> PrivateProgress(int childId, int courseId, int enrollmentId)
+        {
+            var registration = await _courseEnrollmentService.GetAsync(enrollmentId);
+            var sessions = await _courseEnrollmentService.GetPrivateProgressSessionsAsync(enrollmentId, childId, courseId);
+            if (sessions == null)
+            {
+                return NotFound();
+            }
+            ViewBag.CourseTitle = registration.Course.Title;
+            return PartialView("_PrivateProgress", sessions);
+        }
+
 
         [Authorize(Roles = "Child")]
         [HttpGet("MyConfirmations")]
