@@ -152,6 +152,10 @@
 
 <a href="/Coach/ManageCourse" class="participation-back-link" style="color: #000 !important;">← Back to Courses List</a>
 
+<div class="alert alert-info" role="note" style="padding-top: .5rem; padding-bottom: .5rem;">
+    After each session, please remove any schedule or preparation messages that are no longer relevant and update the note with the course summary. A summary is optional.
+</div>
+
 <div class="enrollment-info">
     <p><strong>Course:</strong> @Model.Course.Title</p>
     <p><strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name</p>
@@ -230,7 +234,7 @@
 
                                     <textarea name="coachNote"
                                       class="input-note form-control"
-                                      placeholder="Please enter notes if the hours are different.">@schedule.CoachNote</textarea>
+                                      placeholder="Optional: enter the course summary. Remove any schedule or preparation messages first.">@schedule.CoachNote</textarea>
                                      
                                     
 
