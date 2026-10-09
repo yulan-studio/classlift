@@ -797,6 +797,22 @@ namespace Core.Services
         public async Task<IEnumerable<CourseEnrollment>> GetDeletedByRootEnrollmentAsync(int rootEnrollmentId) =>
             await _enrollmentRepository.GetSessionsByRootEnrollmentAsync(rootEnrollmentId, "Deleted");
 
+        public async Task<IEnumerable<CourseEnrollment>?> GetPrivateProgressSessionsAsync(int rootEnrollmentId, int childId, int courseId)
+        {
+            var registration = await _enrollmentRepository.GetAsync(rootEnrollmentId);
+            if (registration == null
+                || registration.ChildID != childId
+                || registration.CourseID != courseId
+                || registration.EnrollmentID_Ref != null
+                || registration.Status != "Confirmed"
+                || registration.Course?.CourseType != "Private")
+            {
+                return null;
+            }
+
+            return await _enrollmentRepository.GetPrivateProgressSessionsAsync(rootEnrollmentId, childId, courseId);
+        }
+
         public async Task<IEnumerable<CourseEnrollment>> GetUpcomingByRootEnrollmentAsync(int rootEnrollmentId) =>
             await _enrollmentRepository.GetUpcomingSessionsByRootEnrollmentAsync(rootEnrollmentId);
 

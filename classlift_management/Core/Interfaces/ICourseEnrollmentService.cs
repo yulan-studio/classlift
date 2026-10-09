@@ -33,6 +33,7 @@ namespace Core.Interfaces
         Task<IEnumerable<CourseEnrollment>> GetWaitToCompleteByRootEnrollmentAsync(int rootEnrollmentId);
         Task<IEnumerable<CourseEnrollment>> GetCompletesByRootEnrollmentAsync(int rootEnrollmentId);
         Task<IEnumerable<CourseEnrollment>> GetDeletedByRootEnrollmentAsync(int rootEnrollmentId);
+        Task<IEnumerable<CourseEnrollment>?> GetPrivateProgressSessionsAsync(int rootEnrollmentId, int childId, int courseId);
         Task<IEnumerable<CourseEnrollment>> GetUpcomingByRootEnrollmentAsync(int rootEnrollmentId);
         Task<int> GetCountedSessionCountByRootEnrollmentAsync(int rootEnrollmentId);
 

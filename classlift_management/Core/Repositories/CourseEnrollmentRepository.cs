@@ -135,6 +135,18 @@ namespace Core.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<CourseEnrollment>> GetPrivateProgressSessionsAsync(int rootEnrollmentId, int childId, int courseId)
+        {
+            return await _context.CourseEnrollments
+                .Where(e => e.EnrollmentID_Ref == rootEnrollmentId
+                    && e.ChildID == childId
+                    && e.CourseID == courseId
+                    && e.Status != "Deleted"
+                    && e.ScheduledAt.HasValue)
+                .OrderBy(e => e.ScheduledAt)
+                .ToListAsync();
+        }
+
         //Get Registered/Completed records of root course registration
         public async Task<IEnumerable<CourseEnrollment>> GetRootEnrollmentsByChildAsync(int childId, string status)
         {
