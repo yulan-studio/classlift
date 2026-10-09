@@ -152,10 +152,6 @@
 
 <a href="/Coach/ManageCourse" class="participation-back-link" style="color: #000 !important;">← Back to Courses List</a>
 
-<div class="alert alert-info" role="note" style="padding-top: .5rem; padding-bottom: .5rem;">
-    After each session, please remove any schedule or preparation messages that are no longer relevant and update the note with the course summary. A summary is optional.
-</div>
-
 <div class="enrollment-info">
     <p><strong>Course:</strong> @Model.Course.Title</p>
     <p><strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name</p>
@@ -290,6 +286,9 @@
     {
         <a href="/Coach/ManageSchedules/@Model.Child.ChildID?courseId=@Model.Course.CourseID&enrollmentId=@Model.EnrollmentID">Upcoming Sessions</a>
     }
+</div>
+<div class="alert alert-info" role="note" style="display: block; width: 100%; margin-top: .5rem; padding-top: .5rem; padding-bottom: .5rem; background-color: #f4fbfd; border-color: #9fcbd6;">
+    After each session, please remove any schedule or preparation messages that are no longer relevant and update the note with the course summary. A summary is optional.
 </div>
 
 
