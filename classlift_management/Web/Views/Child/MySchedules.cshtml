@@ -146,12 +146,12 @@
                         
                             @if (courseSchedules.Course.CourseType == "Private")
                             {
-                                <th width="20%">@CurrentTenant.Terminology.ProviderSingular Note</th>
+                                <th width="20%">Coach Note</th>
                             }
 
                             @if (courseSchedules.Course.CourseType == "Group")
                             {
-                                <th width="20%">@CurrentTenant.Terminology.ProviderSingular Note</th>
+                                <th width="20%">Staff Note</th>
                             }
 
                             <th width="20%">My Note</th>
@@ -214,7 +214,7 @@
                                             </select>
                                     </td>
 
-                                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")">
+                                    <td data-label="@(courseSchedules.Course.CourseType == "Private" ? "Coach Note" : "Staff Note")">
                                         @if (courseSchedules.Course.CourseType == "Private")
                                         {
                                             @courseSchedules.Schedules[i].CoachNote
