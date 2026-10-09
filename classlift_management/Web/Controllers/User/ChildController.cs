@@ -1580,6 +1580,7 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Child")]
         [HttpGet("MyCompletedEnrollments")]
+        [HttpGet("MyProgress")]
         public async Task<IActionResult> MyCompletedEnrollments(string sortOrder)
         {
             ViewData["CurrentSort"] = sortOrder;
