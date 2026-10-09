@@ -66,6 +66,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. Progress observation dimensions are configured separately by each organization and are not shared across organizations.
 6. Deactivating an observation dimension prevents future use but does not delete or hide historical progress records that used it.
 7. After a session, the Coach must remove or replace Teacher Note content that is unrelated to the lesson or participant progress, such as completed scheduling or preparation communication. A post-session summary is optional.
+8. The participant/family can edit or clear their own note on a completed session from My Progress. My Note may contain a question or comment about the class for the Coach's preparation for the next lesson; outdated schedule or preparation messages may be removed. This applies to both Private and Group courses.
 
 ## Canceled course sessions
 
