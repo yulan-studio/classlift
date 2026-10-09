@@ -71,7 +71,7 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
     </div>
 
     <div class="schedule-field">
-        <strong>Cancellation Staff Note:</strong><br />
+        <strong id="staffNoteLabel">@(selectedStatus == "Canceled" ? "Cancellation Staff Note:" : "Staff Note:")</strong><br />
         <textarea name="staffNote" rows="3" class="schedule-input schedule-input--edit" >@Model.StaffNote</textarea>
         @if (hasRegistrations)
         {
@@ -92,6 +92,8 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
     document.getElementById('statusSelect')?.addEventListener('change', function () {
         const fields = document.getElementById('cancellationResolutionFields');
         if (fields) fields.style.display = this.value === 'Canceled' ? 'block' : 'none';
+        const noteLabel = document.getElementById('staffNoteLabel');
+        if (noteLabel) noteLabel.textContent = this.value === 'Canceled' ? 'Cancellation Staff Note:' : 'Staff Note:';
     });
     document.getElementById('cancellationResolution')?.addEventListener('change', function () {
         const fields = document.getElementById('replacementFields');
