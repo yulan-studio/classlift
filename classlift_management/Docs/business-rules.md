@@ -57,6 +57,17 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. The Enrollments History course table uses the organization's configured provider term instead of a fixed Coach heading.
 6. Staff can view current Group-course schedules and participant attendance in a read-only page grouped by course and Session.
 
+## Student progress
+
+1. Student Progress does not use numeric scores or ratings.
+2. Administrators can configure progress indicators or observation areas. After each lesson, the Coach records a qualitative progress update and a short summary.
+3. The Teacher Note for each completed session is used to record the participant's qualitative progress and lesson summary; Student Progress does not require a separate per-session progress record.
+4. Teacher Note is visible to the participant/family. Before a session, it may be used for schedule-change communication or lesson preparation. After a session, it may be used for a lesson summary and homework reminders.
+5. Progress observation dimensions are configured separately by each organization and are not shared across organizations.
+6. Deactivating an observation dimension prevents future use but does not delete or hide historical progress records that used it.
+7. After a session, the Coach must remove or replace Teacher Note content that is unrelated to the lesson or participant progress, such as completed scheduling or preparation communication. A post-session summary is optional.
+8. The participant/family can edit or clear their own note on a completed session from My Progress. My Note may contain a question or comment about the class for the Coach's preparation for the next lesson; outdated schedule or preparation messages may be removed. This applies to both Private and Group courses.
+
 ## Canceled course sessions
 
 1. When Staff cancels a Group course session, the affected child sessions are canceled as part of the same operation.
@@ -143,4 +154,5 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Open questions
 
-- None currently.
+- For Student Progress, decide which non-numeric status options are available for an observation dimension, if structured statuses are added.
+- For Student Progress, decide whether Coaches need a separate internal-only note field.

@@ -418,6 +418,17 @@
                                 </button>
                             </form>
                         }
+                        @if (enrollment.CourseType == "Private" && enrollment.Status == "Confirmed")
+                        {
+                            <a href="#"
+                               class="view-progress-link"
+                               data-child-id="@enrollment.ChildID"
+                               data-course-id="@enrollment.CourseID"
+                               data-enrollment-id="@enrollment.EnrollmentID"
+                               style="display: inline-block; margin-top: 6px; color: #007bff; text-decoration: none;">
+                                View Progress
+                            </a>
+                        }
                     </td>
                     <td style="padding: 8px; border: 1px solid #ddd; @(concernIds.Contains(@enrollment.EnrollmentID) ? "background-color: #F8C3DF;" : "")">
                         <a href="/Child/ManageSessionRegistrations?childId=@enrollment.ChildID&courseId=@enrollment.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(enrollment.CourseType == "Group" ?"":"display: none;")">Manage</a>
@@ -465,6 +476,32 @@
         }
     </tbody>
 </table></div>
+
+<div class="modal fade" id="privateProgressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content" id="privateProgressModalContent"></div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.view-progress-link').forEach(function (link) {
+        link.addEventListener('click', async function (event) {
+            event.preventDefault();
+
+            const childId = link.dataset.childId;
+            const courseId = link.dataset.courseId;
+            const enrollmentId = link.dataset.enrollmentId;
+            const content = document.getElementById('privateProgressModalContent');
+            content.innerHTML = '<div class="modal-body">Loading progress...</div>';
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('privateProgressModal')).show();
+
+            const response = await fetch(`/Child/PrivateProgress/${childId}/${courseId}/${enrollmentId}`);
+            content.innerHTML = response.ok
+                ? await response.text()
+                : '<div class="modal-body"><div class="alert alert-danger mb-0">Progress could not be loaded.</div></div>';
+        });
+    });
+</script>
 
 
 

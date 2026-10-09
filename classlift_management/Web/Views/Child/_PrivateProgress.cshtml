@@ -1,0 +1,38 @@
+@model IEnumerable<Core.Models.CourseEnrollment>
+
+<div class="modal-header">
+    <h5 class="modal-title">Progress - @ViewBag.CourseTitle</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="management-table table table-bordered align-middle">
+                <thead class="management-table-header">
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Teacher Note</th>
+                        <th>Participant Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var session in Model)
+                {
+                    <tr>
+                        <td>@(session.ScheduledAt.ToUserTime(User, AppTimeZoneService)?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")</td>
+                        <td>@session.Status</td>
+                        <td>@(string.IsNullOrWhiteSpace(session.CoachNote) ? "" : session.CoachNote)</td>
+                        <td>@(string.IsNullOrWhiteSpace(session.ParentNote) ? "" : session.ParentNote)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p class="mb-0">No sessions have been scheduled for this course.</p>
+    }
+</div>
