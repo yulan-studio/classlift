@@ -108,7 +108,11 @@
             {
                 @for (int i = 0; i < Model.AllSessions.Count; i++)
                 {
-                    <tr>
+                    var sessionStatus = Model.AllSessions[i].Status;
+                    var completedOrCanceledRowStyle = sessionStatus is "Completed" or "Canceled"
+                        ? "background-color: #eaf6fb;"
+                        : "";
+                    <tr style="@completedOrCanceledRowStyle">
                         <td>@Model.AllSessions[i].ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("g")</td>
                         <td>@Model.AllSessions[i].ScheduledHours</td>
                         <td class="@(Model.AllSessions[i].Status == "RequestToLeave" ? "request-to-leave-cell" : Model.AllSessions[i].Status == "OnLeave" ? "on-leave-cell" : "")" style="@(Model.AllSessions[i].Status == "RequestToLeave" ? "background-color: #FCE8F2;" : "")">
