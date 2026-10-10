@@ -37,9 +37,12 @@
         <div>
             <h2>My Progress</h2>
             <p>Review your completed lesson summaries and course notes.</p>
-            <div class="alert alert-info mb-0" role="note" style="margin-top: .75rem; padding-top: .5rem; padding-bottom: .5rem; background-color: #f4fbfd; border-color: #b8dfe8;">
-                Use My Note to ask a question or share a comment about the class so the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() can prepare for the next lesson. You can also remove old schedule or preparation messages.
-            </div>
+            @if (Model.CoursesSchedules.Any(courseSchedule => courseSchedule.Course.CourseType == "Private"))
+            {
+                <div class="alert alert-info mb-0" role="note" style="margin-top: .75rem; padding-top: .5rem; padding-bottom: .5rem; background-color: #f4fbfd; border-color: #b8dfe8;">
+                    Use My Note to ask a question or share a comment about the class so the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() can prepare for the next lesson. You can also remove old schedule or preparation messages.
+                </div>
+            }
         </div>
     </div>
 
@@ -72,7 +75,18 @@
             </div>
         <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper">
             <table class="management-table history-table table table-bordered">
-                <thead class="management-table-header"><tr><th class="date-column">Date</th><th>Status</th><th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th><th class="note-column">My Note</th><th class="action-column">Action</th></tr></thead>
+                <thead class="management-table-header">
+                    <tr>
+                        <th class="date-column">Date</th>
+                        <th>Status</th>
+                        @if (courseSchedules.Course.CourseType == "Private")
+                        {
+                            <th class="note-column">@CurrentTenant.Terminology.ProviderSingular Note</th>
+                            <th class="note-column">My Note</th>
+                            <th class="action-column">Action</th>
+                        }
+                    </tr>
+                </thead>
                 <tbody>
                 @foreach (var schedule in courseSchedules.Schedules)
                 {
@@ -81,20 +95,23 @@
                     <tr>
                         <td class="date-column">@(scheduledAt?.ToString("yyyy-MM-dd") ?? "N/A")</td>
                         <td>@schedule.Status</td>
-                        <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "" : providerNote)</td>
-                        <td class="note-column">
-                            <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "" : schedule.ParentNote)</span>
-                            <textarea id="my-note-edit-@schedule.EnrollmentID" name="feedback" rows="2" form="my-note-form-@schedule.EnrollmentID" style="display: none;">@schedule.ParentNote</textarea>
-                        </td>
-                        <td class="note-actions">
-                            <form id="my-note-form-@schedule.EnrollmentID" method="post" action="/Child/SaveCompletedCourseFeedback">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="enrollmentId" value="@schedule.EnrollmentID" />
-                                <a id="my-note-update-@schedule.EnrollmentID" href="javascript:void(0);" onclick="editMyNote(@schedule.EnrollmentID)">Update Note</a>
-                                <button id="my-note-save-@schedule.EnrollmentID" type="submit" class="btn classlift-secondary-button btn-save mt-2" style="display: none;">Save</button>
-                                <button id="my-note-cancel-@schedule.EnrollmentID" type="button" class="btn btn-secondary cancel-button mt-2" style="display: none;" onclick="cancelMyNote(@schedule.EnrollmentID)">Cancel</button>
-                            </form>
-                        </td>
+                        @if (courseSchedules.Course.CourseType == "Private")
+                        {
+                            <td class="note-column">@(string.IsNullOrWhiteSpace(providerNote) ? "" : providerNote)</td>
+                            <td class="note-column">
+                                <span id="my-note-view-@schedule.EnrollmentID">@(string.IsNullOrWhiteSpace(schedule.ParentNote) ? "" : schedule.ParentNote)</span>
+                                <textarea id="my-note-edit-@schedule.EnrollmentID" name="feedback" rows="2" form="my-note-form-@schedule.EnrollmentID" style="display: none;">@schedule.ParentNote</textarea>
+                            </td>
+                            <td class="note-actions">
+                                <form id="my-note-form-@schedule.EnrollmentID" method="post" action="/Child/SaveCompletedCourseFeedback">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="enrollmentId" value="@schedule.EnrollmentID" />
+                                    <a id="my-note-update-@schedule.EnrollmentID" href="javascript:void(0);" onclick="editMyNote(@schedule.EnrollmentID)">Update Note</a>
+                                    <button id="my-note-save-@schedule.EnrollmentID" type="submit" class="btn classlift-secondary-button btn-save mt-2" style="display: none;">Save</button>
+                                    <button id="my-note-cancel-@schedule.EnrollmentID" type="button" class="btn btn-secondary cancel-button mt-2" style="display: none;" onclick="cancelMyNote(@schedule.EnrollmentID)">Cancel</button>
+                                </form>
+                            </td>
+                        }
                     </tr>
                 }
                 </tbody>
