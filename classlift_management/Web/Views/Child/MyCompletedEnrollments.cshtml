@@ -37,19 +37,18 @@
         <div>
             <h2>My Progress</h2>
             <p>Review your completed lesson summaries and course notes.</p>
-            @if (Model.CoursesSchedules.Any(courseSchedule => courseSchedule.Course.CourseType == "Private"))
-            {
-                <div class="alert alert-info mb-0" role="note" style="margin-top: .75rem; padding-top: .5rem; padding-bottom: .5rem; background-color: #f4fbfd; border-color: #b8dfe8;">
-                    Use My Note to ask a question or share a comment about the class so the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() can prepare for the next lesson. You can also remove old schedule or preparation messages.
-                </div>
-            }
         </div>
     </div>
 
 @if (Model.CoursesSchedules.Any())
 {
     <h4 class="completed-section-title">Courses</h4>
-           
+    @if (Model.CoursesSchedules.Any(courseSchedule => courseSchedule.Course.CourseType == "Private"))
+    {
+        <div class="alert alert-info mb-3" role="note" style="margin-top: .75rem; padding-top: .5rem; padding-bottom: .5rem; background-color: #f4fbfd; border-color: #b8dfe8;">
+            Use My Note to ask a question or share a comment about the class so the @CurrentTenant.Terminology.ProviderSingular.ToLowerInvariant() can prepare for the next lesson. 
+        </div>
+    }
 
 
     foreach (var courseSchedules in Model.CoursesSchedules)
