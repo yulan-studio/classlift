@@ -1243,9 +1243,29 @@ namespace Core.Repositories
             {
                 ScheduledAt = e.ScheduledAt.Value,
                 ChildID = e.ChildID,
-                Status = e.Status
+                Status = e.Status,
+                CoachNote = e.CoachNote
             }).ToListAsync();
 
+        }
+
+        public async Task<bool> UpdateCoachNoteForAttendanceSessionAsync(int courseId, DateTime scheduledAt, string? coachNote)
+        {
+            var sessions = await _context.CourseEnrollments
+                .Where(e => e.CourseID == courseId && e.ScheduledAt == scheduledAt)
+                .ToListAsync();
+
+            if (sessions.Count == 0)
+                return false;
+
+            var normalizedNote = string.IsNullOrWhiteSpace(coachNote) ? null : coachNote.Trim();
+            foreach (var session in sessions)
+            {
+                session.CoachNote = normalizedNote;
+                session.UpdatedDate = DateTime.UtcNow;
+            }
+
+            return await _context.SaveChangesAsync() > 0;
         }
 
 
