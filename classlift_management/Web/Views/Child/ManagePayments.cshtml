@@ -181,7 +181,7 @@
                 <tr id="packageRow">
                     <td style="padding: 8px;"><label for="packageId">Select Package:</label></td>
                     <td>
-                            <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" class="payment-field form-select">
+                            <select id="packageId" name="packageId" onchange="fetchPackageAmount(this.value)" class="payment-field form-select" disabled="@(hasCreditTracking ? null : "disabled")">
                             <option value="">-- Select Package --</option>
                             @foreach (var package in ViewBag.PaymentPackages)
                             {
@@ -284,6 +284,15 @@
         }
         document.getElementById('directPaymentRow').style.display = isDirect ? 'table-row' : 'none';
         document.getElementById('amount').readOnly = isPackage;
+
+        const packageSelect = document.getElementById('packageId');
+        if (packageSelect) {
+            // Do not submit a stale package when Direct Payment is selected.
+            packageSelect.disabled = !isPackage;
+            if (!isPackage) {
+                packageSelect.value = '';
+            }
+        }
 
         if (isPackage) {
             document.getElementById('amount').value = '';
