@@ -97,6 +97,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 1. Upcoming Private-course schedules include only Scheduled, RequestToReschedule, and Deleted sessions.
 2. Upcoming Group-course schedules include only Scheduled, RequestToLeave, OnLeave, and Canceled sessions.
+3. In the participant's Group-course schedule, Staff Note and Coach Note are displayed as separate columns, with Coach Note immediately to the right of Staff Note.
+4. The participant's Group-course schedule does not display a My Note column.
 
 ## Accounts and user manual
 
