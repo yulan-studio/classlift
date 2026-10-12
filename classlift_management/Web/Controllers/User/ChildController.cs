@@ -1190,8 +1190,35 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Staff")]
         [HttpPost("AddPayment")]
 
-        public async Task<IActionResult> AddPayment(int childId, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
+        public async Task<IActionResult> AddPayment(int childId, string paymentType, int? packageId, int? feeId, decimal amount, DateTime? paymentDate, IFormFile file)
         {
+
+            var isTokenPayment = string.Equals(paymentType, "package", StringComparison.OrdinalIgnoreCase);
+            var isDirectPayment = string.Equals(paymentType, "manual", StringComparison.OrdinalIgnoreCase);
+
+            if (!isTokenPayment && !isDirectPayment)
+            {
+                TempData["ErrorMessage"] = "Please select a payment type.";
+                return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+            }
+
+            if (isTokenPayment && !packageId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Please select a token payment package.";
+                return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+            }
+
+            if (isDirectPayment && !feeId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Please select an unpaid course or activity for the direct payment.";
+                return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+            }
+
+            // A payment can have exactly one type. Ignore stale values from the other form section.
+            if (isTokenPayment)
+                feeId = null;
+            else
+                packageId = null;
 
             // Hiding Token Payment in the view is not sufficient protection;
             // reject a crafted package-payment request before uploading files.
