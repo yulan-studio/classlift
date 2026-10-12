@@ -88,6 +88,7 @@ namespace Core.Contexts
         public DbSet<CourseNotification> CourseNotifications { get; set; }
         public DbSet<Coach> CoacheIncomes { get; set; }
         public DbSet<CourseEnrollment> CourseEnrollments { get; set; }
+        public DbSet<ProgressReportDraft> ProgressReportDrafts { get; set; }
         public DbSet<ActivityEnrollment> ActivityEnrollments { get; set; }
         public DbSet<PaymentPackage> PaymentPackages { get; set; }
 

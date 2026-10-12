@@ -67,6 +67,9 @@ This file is the concise, canonical record of business rules confirmed by the pr
 6. Deactivating an observation dimension prevents future use but does not delete or hide historical progress records that used it.
 7. After a session, the Coach must remove or replace Teacher Note content that is unrelated to the lesson or participant progress, such as completed scheduling or preparation communication. A post-session summary is optional.
 8. The participant/family can edit or clear their own note on a completed session from My Progress. My Note may contain a question or comment about the class for the Coach's preparation for the next lesson; outdated schedule or preparation messages may be removed. This applies to both Private and Group courses.
+9. Each valid Private or Group child session may have one current AI-assisted progress-report draft. The Coach supplies the observations, reviews and may edit the generated wording, and must explicitly approve it before it is saved as the family-visible Teacher Note. Unapproved drafts are never shown to the participant/family.
+10. Canceled and Deleted sessions cannot generate a progress-report draft. Generating or regenerating a draft must not change the session status, hours, attendance, or financial records.
+11. AI-assisted progress-report drafting is a Pro-plan feature. Organizations without the AI feature entitlement may continue to write and edit Teacher Notes manually, but cannot generate AI-assisted drafts. The entitlement must be enforced in both the user interface and the server-side workflow.
 
 ## Canceled course sessions
 
@@ -155,4 +158,4 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Open questions
 
 - For Student Progress, decide which non-numeric status options are available for an observation dimension, if structured statuses are added.
-- For Student Progress, decide whether Coaches need a separate internal-only note field.
+- For Student Progress, decide whether Coaches need a separate internal-only note field. The AI-assisted report draft itself is not family-visible until approved.

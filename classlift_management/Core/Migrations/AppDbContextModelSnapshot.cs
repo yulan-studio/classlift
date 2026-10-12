@@ -38,11 +38,11 @@ namespace Core.Migrations
                     b.Property<int?>("ContactID")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("decimal(10, 2)");
+
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("Cost")
-                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
@@ -294,6 +294,10 @@ namespace Core.Migrations
                     b.Property<int?>("OAPAmount")
                         .HasColumnType("int");
 
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.Property<bool>("PhotoConsent")
                         .HasColumnType("tinyint(1)");
 
@@ -301,12 +305,11 @@ namespace Core.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("varchar(10)");
 
-                    b.Property<string>("Phone")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
                     b.Property<string>("PrimaryDiagnosis")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
 
                     b.Property<string>("WeChat")
                         .HasMaxLength(100)
@@ -315,9 +318,6 @@ namespace Core.Migrations
                     b.Property<string>("WhatsApp")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
 
                     b.HasKey("ChildID");
 
@@ -604,11 +604,11 @@ namespace Core.Migrations
                     b.Property<int?>("MaxCapacity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SessionCount")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("SessionCost")
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<int?>("SessionCount")
+                        .HasColumnType("int");
 
                     b.Property<int>("SpecialtyID")
                         .HasColumnType("int");
@@ -1067,6 +1067,64 @@ namespace Core.Migrations
                     b.HasKey("PackageID");
 
                     b.ToTable("payment_package", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Models.ProgressReportDraft", b =>
+                {
+                    b.Property<int>("ProgressReportDraftId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ProgressReportDraftId"));
+
+                    b.Property<DateTime?>("ApprovedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CoachId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContinueNextTime")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EditedDraft")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GeneratedDraft")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModelName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PositiveResponse")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PromptVersion")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("SessionEnrollmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("WorkedOn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ProgressReportDraftId");
+
+                    b.ToTable("ProgressReportDrafts");
                 });
 
             modelBuilder.Entity("Core.Models.Province", b =>
