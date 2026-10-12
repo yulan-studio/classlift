@@ -8,6 +8,7 @@ using Core.Contexts;
 using Core.Repositories;
 using Core.Services;
 using Core.ViewModels;
+using Web.Filters;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -43,6 +44,7 @@ namespace Web.Controllers.User
         private readonly IEmergencyContactService _emergencyContactService;
         private readonly ICoachSpecialtyService _coachSpecialtyService;
         private readonly ICourseEnrollmentService _courseEnrollmentService;
+        private readonly IProgressReportDraftService _progressReportDraftService;
         private readonly ICourseService _courseService;
         private readonly IChildService _childService;
         private readonly IParentChildService _parentChildService;
@@ -61,7 +63,7 @@ namespace Web.Controllers.User
         private string ProviderNameLower =>
             ProviderName.ToLowerInvariant();
         
-        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CoachController> logger, AppDbContext db)
+        public CoachController(ICoachService coachService, ICoachRepository coachRepository, ICoachIncomeService incomeService,  IEmergencyContactService emergencyService, IChildBalanceService balanceService, ICityService cityService, IProvinceService provinceService, ISpecialtyService specialtyService, ICoachSpecialtyService coachSpecialtyService, ICourseEnrollmentService courseEnrollmentService, IProgressReportDraftService progressReportDraftService, ICourseService courseService, IChildService childService, IParentChildService parentChildService, IFeeService feeService, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<CoachController> logger, AppDbContext db)
         {
             _coachService = coachService;
             _incomeService = incomeService;
@@ -73,6 +75,7 @@ namespace Web.Controllers.User
             _coachSpecialtyService = coachSpecialtyService;
             _emergencyContactService = emergencyService;
         _courseEnrollmentService = courseEnrollmentService;
+            _progressReportDraftService = progressReportDraftService;
             _courseService = courseService;
             _childService = childService;
             _parentChildService = parentChildService;
@@ -1124,6 +1127,71 @@ namespace Web.Controllers.User
                 courseId,
                 enrollmentId = rootEnrollmentId
             });
+        }
+
+        [Authorize(Roles = "Coach")]
+        [RequiresFeature(FeatureCodes.AiEnhancements)]
+        [HttpPost("GenerateProgressReportDraft")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateProgressReportDraft(
+            int enrollmentId,
+            string workedOn,
+            string positiveResponse,
+            string difficulty,
+            string continueNextTime,
+            int childId,
+            int courseId,
+            int rootEnrollmentId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var coach = user == null ? null : await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return Challenge();
+
+            try
+            {
+                var result = await _progressReportDraftService.GenerateDraftAsync(
+                    new Core.DTOs.ProgressReportInput(
+                        enrollmentId,
+                        coach.CoachID,
+                        workedOn,
+                        positiveResponse,
+                        difficulty,
+                        continueNextTime));
+                TempData["ProgressReportDraft"] = result.DraftText;
+                TempData["ProgressReportDraftId"] = result.DraftId;
+                TempData["SuccessMessage"] = "Progress report draft generated. Please review it before saving.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(ManageEnrollments), new { childId, courseId, enrollmentId = rootEnrollmentId });
+        }
+
+        [Authorize(Roles = "Coach")]
+        [RequiresFeature(FeatureCodes.AiEnhancements)]
+        [HttpPost("ApproveProgressReportDraft")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveProgressReportDraft(
+            int draftId,
+            string finalText,
+            int childId,
+            int courseId,
+            int rootEnrollmentId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var coach = user == null ? null : await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return Challenge();
+
+            var saved = await _progressReportDraftService.ApproveAsync(draftId, coach.CoachID, finalText);
+            TempData[saved ? "SuccessMessage" : "ErrorMessage"] = saved
+                ? "Progress report approved and saved as Teacher Note."
+                : "The progress report could not be approved.";
+
+            return RedirectToAction(nameof(ManageEnrollments), new { childId, courseId, enrollmentId = rootEnrollmentId });
         }
 
         [Authorize(Roles = "Coach")]
