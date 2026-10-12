@@ -157,6 +157,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - The email identifies the participant, course, request type, affected session time, and family note.
    - Saving the request completes before email delivery is attempted; delivery failure does not roll back the saved request and the family sees a warning.
 
+10. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
+
 ## Open questions
 
 - For Student Progress, decide which non-numeric status options are available for an observation dimension, if structured statuses are added.
