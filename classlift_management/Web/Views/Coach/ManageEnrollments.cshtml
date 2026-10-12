@@ -291,10 +291,10 @@
     After each session, please remove any schedule or preparation messages that are no longer relevant and update the note with the course summary. A summary is optional.
 </div>
 
-@if (CurrentTenant.HasFeature(Core.FeatureCodes.AiEnhancements) && TempData["ProgressReportDraft"] is string draftText && TempData["ProgressReportDraftId"] is object draftId)
+@if (CurrentTenant.HasFeature(Core.FeatureCodes.StandardReporting) && TempData["ProgressReportDraft"] is string draftText && TempData["ProgressReportDraftId"] is object draftId)
 {
     <div class="alert alert-warning" role="region">
-        <strong>AI-generated draft — review and correct before approving.</strong>
+        <strong>Generated draft — review and correct before approving.</strong>
         <form method="post" action="/Coach/ApproveProgressReportDraft" class="mt-2">
             @Html.AntiForgeryToken()
             <input type="hidden" name="draftId" value="@draftId" />
@@ -302,7 +302,7 @@
             <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
             <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
             <textarea name="finalText" class="form-control" rows="8" required>@draftText</textarea>
-            <button type="submit" class="btn classlift-secondary-button mt-2">Approve and save as Teacher Note</button>
+            <button type="submit" class="btn classlift-secondary-button mt-2">Approve and save as @CurrentTenant.Terminology.ProviderSingular Note</button>
         </form>
     </div>
 }
@@ -349,7 +349,7 @@
                             <button id="coach-note-cancel-@complete.EnrollmentID" type="button" class="btn btn-secondary cancel-button coach-note-cancel" style="display: none;" onclick="cancelCoachNote(@complete.EnrollmentID)">Cancel</button>
                         </form>
 
-                        @if (CurrentTenant.HasFeature(Core.FeatureCodes.AiEnhancements))
+                        @if (CurrentTenant.HasFeature(Core.FeatureCodes.StandardReporting))
                         {
                             <details class="mt-2">
                                 <summary>Generate progress report draft</summary>

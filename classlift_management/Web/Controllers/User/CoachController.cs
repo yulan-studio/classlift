@@ -1130,7 +1130,7 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Coach")]
-        [RequiresFeature(FeatureCodes.AiEnhancements)]
+        [RequiresFeature(FeatureCodes.StandardReporting)]
         [HttpPost("GenerateProgressReportDraft")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateProgressReportDraft(
@@ -1171,7 +1171,7 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Coach")]
-        [RequiresFeature(FeatureCodes.AiEnhancements)]
+        [RequiresFeature(FeatureCodes.StandardReporting)]
         [HttpPost("ApproveProgressReportDraft")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveProgressReportDraft(
