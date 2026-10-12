@@ -33,11 +33,11 @@
 
   <ItemGroup>
   
-    <None Update="TenantScripts\classlift_empty_20260811.sql">
+    <None Update="TenantScripts\z20261012_Add_ProgressReportDrafts.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   
-    <None Update="TenantScripts\classlift_empty_20260908.sql">
+    <None Update="TenantScripts\classlift_empty_20260811.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

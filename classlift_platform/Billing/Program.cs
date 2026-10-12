@@ -184,6 +184,8 @@ if (args.Contains("--migrate", StringComparer.OrdinalIgnoreCase))
         .GetRequiredService<BillingDbContext>();
 
     await dbContext.Database.MigrateAsync();
+    await migrationScope.ServiceProvider.GetRequiredService<ITenantSchemaService>()
+        .MigrateAllTenantsAsync();
     return;
 }
 
