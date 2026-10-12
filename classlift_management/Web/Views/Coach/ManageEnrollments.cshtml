@@ -17,6 +17,7 @@
     .enrollment-table-wrapper textarea { min-width: 220px; }
     .enrollment-table-wrapper .row-button { margin-bottom: .5rem; }
     .enrollment-table-wrapper .row-button .btn { margin-top: .25rem; }
+    .coach-note-text { white-space: pre-line; }
     .manage-enrollments-page .alert { border-radius: 7px; }
     .manage-enrollments-page .participation-back-link { margin-top: 0; color: #000 !important; }
     main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel,
@@ -333,7 +334,7 @@
                     <td data-label="Actual Hours">@complete.ActualHours</td>
                     <td class="desktop-only" data-label="@CurrentTenant.Terminology.ParticipantSingular Note">@complete.ParentNote</td>
                     <td data-label="My Note">
-                        <span id="coach-note-view-@complete.EnrollmentID">@complete.CoachNote</span>
+                        <span id="coach-note-view-@complete.EnrollmentID" class="coach-note-text">@complete.CoachNote</span>
                         <textarea id="coach-note-edit-@complete.EnrollmentID" name="coachNote" form="coach-note-@complete.EnrollmentID" class="form-control" style="display: none;">@complete.CoachNote</textarea>
                     </td>
                     <td data-label="Action">

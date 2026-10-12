@@ -3,6 +3,7 @@
 <style>
     .view-enrollments-page { width: 100%; margin: 0; padding: 0 0 3rem; }
     .completed-note-actions { display: inline-flex; align-items: center; gap: .4rem; }
+    .coach-note-text { white-space: pre-line; }
     .enrollment-page-help { max-width: 900px; font-size: .95rem; line-height: 1.55; }
     .enrollment-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2rem 0 .85rem; }
     .enrollment-section-heading h4 { margin: 0; color: #1b7bab; font-size: 1.35rem; font-weight: 700; }
@@ -102,7 +103,7 @@
                     <td>@(completed.ScheduledAt.HasValue ? completed.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd") : "")</td>
                     <td class="desktop-only" data-label="@CurrentTenant.Terminology.ParticipantSingular Note">@completed.ParentNote</td>
                     <td data-label="My Note">
-                        <span id="coach-note-view-@completed.EnrollmentID">@completed.CoachNote</span>
+                        <span id="coach-note-view-@completed.EnrollmentID" class="coach-note-text">@completed.CoachNote</span>
                         <textarea id="coach-note-edit-@completed.EnrollmentID" name="coachNote" form="coach-note-@completed.EnrollmentID" class="form-control" style="display: none;">@completed.CoachNote</textarea>
                     </td>
                     <td data-label="Action">
