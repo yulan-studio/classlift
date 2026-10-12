@@ -11,5 +11,6 @@ namespace Core.Models
         public DateTime ScheduledAt { get; set; }
         public int? ChildID { get; set; }
         public string Status { get; set; }
+        public string? CoachNote { get; set; }
     }
 }

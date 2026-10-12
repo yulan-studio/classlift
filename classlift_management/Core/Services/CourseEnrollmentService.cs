@@ -963,7 +963,8 @@ namespace Core.Services
             {
                 var sessionInfo = new SessionInfo
                 {
-                    ScheduledAt = session.Key
+                    ScheduledAt = session.Key,
+                    CoachNote = session.Select(s => s.CoachNote).FirstOrDefault(note => !string.IsNullOrWhiteSpace(note))
                 };
 
                 foreach (var s in session)
@@ -977,6 +978,9 @@ namespace Core.Services
 
             return vm;
         }
+
+        public async Task<bool> UpdateCoachNoteForAttendanceSessionAsync(int courseId, DateTime scheduledAt, string? coachNote) =>
+            await _enrollmentRepository.UpdateCoachNoteForAttendanceSessionAsync(courseId, scheduledAt, coachNote);
 
         public List<StudentCourseCountDto> GetTopStudents()
         {

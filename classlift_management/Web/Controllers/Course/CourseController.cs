@@ -1029,6 +1029,15 @@ namespace Web.Controllers.Courses
             return View(vm);
         }
 
+        [Authorize(Roles = "Coach")]
+        [HttpPost("Attendance/{courseId}/CoachNote")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAttendanceCoachNote(int courseId, DateTime scheduledAt, string? coachNote)
+        {
+            await _courseEnrollmentService.UpdateCoachNoteForAttendanceSessionAsync(courseId, scheduledAt, coachNote);
+            return RedirectToAction(nameof(Attendance), new { courseId });
+        }
+
        
 
 

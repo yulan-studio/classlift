@@ -97,6 +97,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 1. Upcoming Private-course schedules include only Scheduled, RequestToReschedule, and Deleted sessions.
 2. Upcoming Group-course schedules include only Scheduled, RequestToLeave, OnLeave, and Canceled sessions.
+3. In the participant's Group-course schedule, Staff Note and Coach Note are displayed as separate columns, with Coach Note immediately to the right of Staff Note.
+4. The participant's Group-course schedule does not display a My Note column.
 
 ## Accounts and user manual
 
@@ -156,6 +158,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - Group-course requests go to the organization's configured notification recipient and link to Staff's session-registration page.
    - The email identifies the participant, course, request type, affected session time, and family note.
    - Saving the request completes before email delivery is attempted; delivery failure does not roll back the saved request and the family sees a warning.
+
+10. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
 
 ## Open questions
 

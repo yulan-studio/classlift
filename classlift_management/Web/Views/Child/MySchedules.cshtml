@@ -38,6 +38,7 @@
     .schedule-table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .schedule-table-wrapper table { min-width: 760px; }
     .schedule-details .card-body { padding: 0; }
+    .schedule-status-column { width: 12%; }
     .empty-schedules { border: 1px dashed #ccd6e2; border-radius: 10px; color: #6b778c; background: #f9fbfd; }
     .schedule-card--highlight { box-shadow: 0 0 0 3px #f0c36d; background-color: #fff8d8; transition: box-shadow .25s ease, background-color .25s ease; }
 
@@ -141,7 +142,7 @@
                             <th>Start Time</th>
                             <th>End Time</th>
                             <th>Location</th>
-                            <th>Status</th>
+                            <th class="schedule-status-column">Status</th>
                        
                         
                             @if (courseSchedules.Course.CourseType == "Private")
@@ -152,9 +153,13 @@
                             @if (courseSchedules.Course.CourseType == "Group")
                             {
                                 <th width="20%">Staff Note</th>
+                                <th width="20%">Coach Note</th>
                             }
 
-                            <th width="20%">My Note</th>
+                            @if (courseSchedules.Course.CourseType == "Private")
+                            {
+                                <th width="20%">My Note</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -193,7 +198,7 @@
                                         @courseSchedules.Schedules[i].Location
                                     </td>
 
-                                    <td class="@(courseSchedules.Schedules[i].Status == "RequestToLeave" ? "request-to-leave-cell" : courseSchedules.Schedules[i].Status == "OnLeave" || courseSchedules.Schedules[i].Status == "Deleted" ? "on-leave-cell" : courseSchedules.Schedules[i].Status == "Canceled" ? "canceled-cell" : courseSchedules.Schedules[i].Status == "RequestToReschedule" ? "request-to-reschedule-cell" : "")" data-label="Status">
+                                    <td class="schedule-status-column @(courseSchedules.Schedules[i].Status == "RequestToLeave" ? "request-to-leave-cell" : courseSchedules.Schedules[i].Status == "OnLeave" || courseSchedules.Schedules[i].Status == "Deleted" ? "on-leave-cell" : courseSchedules.Schedules[i].Status == "Canceled" ? "canceled-cell" : courseSchedules.Schedules[i].Status == "RequestToReschedule" ? "request-to-reschedule-cell" : "")" data-label="Status">
                                             <select name="Schedules[@i].Status" class="form-select" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" || courseSchedules.Schedules[i].Status == "OnLeave" || isWithin24Hours ? "disabled" : "")> 
                                                 <option value="Scheduled" selected="@(courseSchedules.Schedules[i].Status == "Scheduled")">Scheduled</option> 
                                                 @if (courseSchedules.Course.CourseType == "Private") 
@@ -225,9 +230,23 @@
                                         }
                                     </td>
 
-                                    <td data-label="My Note">
-                                        <textarea name="Schedules[@i].ParentNote" class="form-control" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" ? "disabled" : "")>@courseSchedules.Schedules[i].ParentNote</textarea>
-                                    </td>
+                                    @if (courseSchedules.Course.CourseType == "Group")
+                                    {
+                                        <td data-label="Coach Note">
+                                            @courseSchedules.Schedules[i].CoachNote
+                                        </td>
+                                    }
+
+                                    @if (courseSchedules.Course.CourseType == "Private")
+                                    {
+                                        <td data-label="My Note">
+                                            <textarea name="Schedules[@i].ParentNote" class="form-control" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" ? "disabled" : "")>@courseSchedules.Schedules[i].ParentNote</textarea>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" name="Schedules[@i].ParentNote" value="@courseSchedules.Schedules[i].ParentNote" />
+                                    }
 
                                 </tr>
                             }

@@ -25,6 +25,7 @@ namespace Core.ViewModels
     public class SessionInfo
     {
         public DateTime ScheduledAt { get; set; }
+        public string? CoachNote { get; set; }
 
         // Dictionary: Key = ChildID, Value = Status (Scheduled/Completed/etc.)
         public Dictionary<int, string> Children { get; set; } = new Dictionary<int, string>();

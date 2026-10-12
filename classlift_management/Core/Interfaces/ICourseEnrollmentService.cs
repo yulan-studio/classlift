@@ -138,6 +138,7 @@ namespace Core.Interfaces
         //Task<IEnumerable<Child>> GetChildrenByCourseAsync(int courseId);
 
         //Task<IEnumerable<CourseEnrollmentData>> GetSessionsByCourseAsyn(int courseId);
+        Task<bool> UpdateCoachNoteForAttendanceSessionAsync(int courseId, DateTime scheduledAt, string? coachNote);
 
         Task<SessionAttendanceViewModel> GetAttendanceAsync(int courseId);
 
