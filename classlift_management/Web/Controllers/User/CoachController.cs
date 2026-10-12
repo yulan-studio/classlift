@@ -1130,7 +1130,7 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Coach")]
-        [RequiresFeature(FeatureCodes.AiEnhancements)]
+        [RequiresFeature(FeatureCodes.StandardReporting)]
         [HttpPost("GenerateProgressReportDraft")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateProgressReportDraft(
@@ -1160,7 +1160,6 @@ namespace Web.Controllers.User
                         continueNextTime));
                 TempData["ProgressReportDraft"] = result.DraftText;
                 TempData["ProgressReportDraftId"] = result.DraftId;
-                TempData["SuccessMessage"] = "Progress report draft generated. Please review it before saving.";
             }
             catch (Exception ex)
             {
@@ -1171,7 +1170,7 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Coach")]
-        [RequiresFeature(FeatureCodes.AiEnhancements)]
+        [RequiresFeature(FeatureCodes.StandardReporting)]
         [HttpPost("ApproveProgressReportDraft")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveProgressReportDraft(

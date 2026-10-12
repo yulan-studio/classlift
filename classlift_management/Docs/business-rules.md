@@ -56,6 +56,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. My Enrollment History returns only course sessions with status Completed. Canceled and OnLeave sessions are excluded.
 5. The Enrollments History course table uses the organization's configured provider term instead of a fixed Coach heading.
 6. Staff can view current Group-course schedules and participant attendance in a read-only page grouped by course and Session.
+7. Progress report draft generation and approval are included with Standard Reporting and do not require the AI Enhancements feature.
 
 ## Student progress
 
@@ -67,6 +68,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 6. Deactivating an observation dimension prevents future use but does not delete or hide historical progress records that used it.
 7. After a session, the Coach must remove or replace Teacher Note content that is unrelated to the lesson or participant progress, such as completed scheduling or preparation communication. A post-session summary is optional.
 8. The participant/family can edit or clear their own note on a completed session from My Progress. My Note may contain a question or comment about the class for the Coach's preparation for the next lesson; outdated schedule or preparation messages may be removed. This applies to both Private and Group courses.
+9. Generating a progress report draft must preserve the existing Teacher Note. The generated draft is appended after the existing note with a visible separator line; it must not overwrite the existing note.
 9. Each valid Private or Group child session may have one current AI-assisted progress-report draft. The Coach supplies the observations, reviews and may edit the generated wording, and must explicitly approve it before it is saved as the family-visible Teacher Note. Unapproved drafts are never shown to the participant/family.
 10. Canceled and Deleted sessions cannot generate a progress-report draft. Generating or regenerating a draft must not change the session status, hours, attendance, or financial records.
 11. AI-assisted progress-report drafting is a Pro-plan feature. Organizations without the AI feature entitlement may continue to write and edit Teacher Notes manually, but cannot generate AI-assisted drafts. The entitlement must be enforced in both the user interface and the server-side workflow.

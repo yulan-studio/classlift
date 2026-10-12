@@ -44,6 +44,10 @@ public sealed class ProgressReportDraftService : IProgressReportDraftService
         var draft = await _repository.GetCurrentDraftAsync(input.SessionEnrollmentId, cancellationToken);
 
         var generated = await _generator.GenerateAsync(input, cancellationToken);
+        var existingNote = session.CoachNote?.Trim();
+        var combinedDraft = string.IsNullOrWhiteSpace(existingNote)
+            ? generated
+            : $"{existingNote}\n\n--------------------\n\n{generated}";
         if (draft == null)
         {
             draft = new ProgressReportDraft
@@ -60,13 +64,13 @@ public sealed class ProgressReportDraftService : IProgressReportDraftService
         draft.Difficulty = input.Difficulty.Trim();
         draft.ContinueNextTime = input.ContinueNextTime.Trim();
         draft.GeneratedDraft = generated;
-        draft.EditedDraft = generated;
+        draft.EditedDraft = combinedDraft;
         draft.Status = "Draft";
         draft.ModelName = "template";
         draft.PromptVersion = "progress-report-v1";
         await _repository.SaveChangesAsync(cancellationToken);
 
-        return new ProgressReportDraftResult(draft.ProgressReportDraftId, generated, false);
+        return new ProgressReportDraftResult(draft.ProgressReportDraftId, combinedDraft, false);
     }
 
     public async Task<bool> ApproveAsync(int draftId, int coachId, string finalText, CancellationToken cancellationToken = default)
