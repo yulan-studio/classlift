@@ -1160,7 +1160,6 @@ namespace Web.Controllers.User
                         continueNextTime));
                 TempData["ProgressReportDraft"] = result.DraftText;
                 TempData["ProgressReportDraftId"] = result.DraftId;
-                TempData["SuccessMessage"] = "Progress report draft generated. Please review it before saving.";
             }
             catch (Exception ex)
             {
