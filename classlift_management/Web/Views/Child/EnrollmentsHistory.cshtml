@@ -43,7 +43,22 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledHours</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ActualHours</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Course.HourlyCost</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Status</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @if (enrollment.Status == "Completed" && !string.IsNullOrWhiteSpace(enrollment.CoachNote))
+                        {
+                            <a href="#"
+                               class="coach-note-link"
+                               data-coach-note="@enrollment.CoachNote"
+                               onclick="openCoachNotePopup(this); return false;"
+                               style="color: #007bff; text-decoration: underline;">
+                                @enrollment.Status
+                            </a>
+                        }
+                        else
+                        {
+                            @enrollment.Status
+                        }
+                    </td>
                 </tr>
             }
         }
@@ -57,6 +72,71 @@
        
     </tbody>
 </table>
+
+<div id="coachNotePopup" class="coach-note-popup" role="dialog" aria-modal="true" aria-labelledby="coachNotePopupTitle" style="display: none;">
+    <div class="coach-note-popup__content">
+        <button type="button" class="coach-note-popup__close" onclick="closeCoachNotePopup()" aria-label="Close">&times;</button>
+        <h4 id="coachNotePopupTitle">Coach Note</h4>
+        <div id="coachNotePopupText" class="coach-note-popup__text"></div>
+    </div>
+</div>
+
+<style>
+    .coach-note-popup {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .coach-note-popup__content {
+        position: relative;
+        width: min(600px, 100%);
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 24px;
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .coach-note-popup__close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        border: 0;
+        background: transparent;
+        font-size: 28px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .coach-note-popup__text {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+</style>
+
+<script>
+    function openCoachNotePopup(link) {
+        document.getElementById('coachNotePopupText').textContent = link.dataset.coachNote || 'No Coach Note available.';
+        document.getElementById('coachNotePopup').style.display = 'flex';
+    }
+
+    function closeCoachNotePopup() {
+        document.getElementById('coachNotePopup').style.display = 'none';
+    }
+
+    document.getElementById('coachNotePopup')?.addEventListener('click', function (event) {
+        if (event.target === this) {
+            closeCoachNotePopup();
+        }
+    });
+</script>
 
 
 <div style="padding-top: 20px; padding-bottom: 20px">
