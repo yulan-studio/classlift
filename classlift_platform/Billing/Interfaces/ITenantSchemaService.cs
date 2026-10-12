@@ -3,5 +3,6 @@
     public interface ITenantSchemaService
     {
         Task InitializeSchemaAsync(string connectionString);
+        Task MigrateAllTenantsAsync(CancellationToken cancellationToken = default);
     }
 }
