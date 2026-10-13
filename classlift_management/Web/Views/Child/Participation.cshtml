@@ -117,7 +117,7 @@
     {
         <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "ManageBalance" ? "active" : "")" href="#" data-url="/Child/ManageBalance/@Model.ChildID">Balance</a></li>
     }
-    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "ManageNotes" ? "active" : "")" href="#" data-url="/Child/ManageNotes/@Model.ChildID">Notes</a></li>
+    <li class="nav-item"><a class="nav-link @(ViewBag.ActiveTab == "ManageNotes" ? "active" : "")" href="#" data-url="/Child/ManageNotes/@Model.ChildID">Notes@(string.IsNullOrWhiteSpace(Model.Notes) ? "" : "*")</a></li>
 </ul>
 </div>
 
