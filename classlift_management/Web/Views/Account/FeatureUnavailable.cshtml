@@ -13,6 +13,12 @@
             Reports require the <strong>Pro plan</strong> with Advanced Reporting enabled.
         </p>
     }
+    else if (featureKey == FeatureCodes.CreditTracking)
+    {
+        <p class="text-muted">
+            Adding Packages and using Credit features require the <strong>Growth plan</strong> with Credit Tracking enabled.
+        </p>
+    }
     else if (!string.IsNullOrWhiteSpace(planName))
     {
         <p class="text-muted">
