@@ -40,8 +40,6 @@
 
 <h1 class="management-page-title" style="margin-bottom: 30px;">@CurrentTenant.Terminology.ProviderSingular Hours</h1>
 
-<a href="/Coach/List" class="participation-back-link" style="color: #000 !important;">Back to @CurrentTenant.Terminology.ProviderPlural List</a>
-
 <table style="border-collapse: collapse; width: 100%; text-align: left;">
     <thead>
         <tr style="background-color: #f2f2f2;">
@@ -77,6 +75,7 @@
     </tbody>
 </table>
 
+<a href="/Coach/List" class="participation-back-link coach-more-info-back" style="color: #000 !important;">Back to @CurrentTenant.Terminology.ProviderPlural List</a>
 
     @foreach (var month in Model.MonthlyIncomes)
     {
