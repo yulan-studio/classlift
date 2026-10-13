@@ -2,6 +2,7 @@
 <style>
     #reportTabs .nav-link { color: #23a1e0 !important; }
     #reportTabs .nav-link.active { color: #000 !important; }
+    .report-description { margin: 0 0 15px; color: #555; font-size: 0.9em; }
 </style>
 
 <h1 class="management-page-title">Reports</h1>
@@ -35,16 +36,19 @@
 
 <!-- CONTENT -->
 <div id="childTab" class="tab-content">
+    <p class="report-description">This report includes all @CurrentTenant.Terminology.ParticipantPlural with completed course sessions. Use the date range above to filter sessions by their scheduled date.</p>
     @* <canvas id="childChart"></canvas> *@
     <div id="childTable"></div>
 </div>
 
 <div id="coachTab" class="tab-content" style="display:none;">
+    <p class="report-description">This report includes all @CurrentTenant.Terminology.ProviderPlural with completed course sessions. It shows their courses, @CurrentTenant.Terminology.ParticipantPlural, and completed sessions. Use the date range above to filter sessions by their scheduled date.</p>
    @*  <canvas id="coachChart"></canvas> *@
     <div id="coachTable"></div>
 </div>
 
 <div id="courseTab" class="tab-content" style="display:none;">
+    <p class="report-description">This report includes all courses with completed sessions. It shows the completed sessions and the @CurrentTenant.Terminology.ParticipantPlural associated with each course. Use the date range above to filter sessions by their scheduled date.</p>
     <div id="courseTable"></div>
 </div>
 

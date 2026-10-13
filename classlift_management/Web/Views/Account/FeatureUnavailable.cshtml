@@ -7,7 +7,19 @@
 <div class="mx-auto text-center" style="max-width: 680px; padding: 3rem 1rem;">
     <h1 class="h3 mb-3">This feature is not available</h1>
 
-    @if (!string.IsNullOrWhiteSpace(planName))
+    @if (featureKey == FeatureCodes.AdvancedReporting)
+    {
+        <p class="text-muted">
+            Reports require the <strong>Pro plan</strong> with Advanced Reporting enabled.
+        </p>
+    }
+    else if (featureKey == FeatureCodes.CreditTracking)
+    {
+        <p class="text-muted">
+            Adding Packages and using Credit features require the <strong>Growth plan</strong> with Credit Tracking enabled.
+        </p>
+    }
+    else if (!string.IsNullOrWhiteSpace(planName))
     {
         <p class="text-muted">
             The <strong>@planName</strong> plan does not include this feature.
