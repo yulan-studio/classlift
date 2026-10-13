@@ -12,7 +12,7 @@ namespace Web.Controllers.Report
 {
     [Route("Report")]
     [Authorize(Roles = "Admin")]
-    [RequiresFeature(FeatureCodes.StandardReporting)]
+    [RequiresFeature(FeatureCodes.AdvancedReporting)]
     public class ReportController : Controller
     {
         //private readonly ICourseEnrollmentService _courseEnrollmentService;

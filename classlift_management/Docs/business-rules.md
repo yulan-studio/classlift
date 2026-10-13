@@ -57,6 +57,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. The Enrollments History course table uses the organization's configured provider term instead of a fixed Coach heading.
 6. Staff can view current Group-course schedules and participant attendance in a read-only page grouped by course and Session.
 7. Progress report draft generation and approval are included with Standard Reporting and do not require the AI Enhancements feature.
+8. The Staff Reports page and its report data endpoints require the Advanced Reporting feature.
 
 ## Student progress
 
