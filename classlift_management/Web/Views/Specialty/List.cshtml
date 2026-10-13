@@ -20,8 +20,32 @@
     }
 
     .specialty-table {
-        width: 100%;
-        min-width: 620px;
+        width: 50%;
+        table-layout: fixed;
+    }
+
+    .specialty-table th,
+    .specialty-table td {
+        overflow-wrap: anywhere;
+    }
+
+    .specialty-table .specialty-name-column {
+        width: 25%;
+    }
+
+    .specialty-table .specialty-description-column {
+        width: 55%;
+    }
+
+    .specialty-table .specialty-action-column {
+        width: 15%;
+    }
+
+    @@media (max-width: 767px) {
+        .specialty-table {
+            width: 100%;
+            min-width: 620px;
+        }
     }
 
     .management-table thead.management-table-header th.specialty-neutral-header {
@@ -38,13 +62,19 @@
 
 <div class="specialty-table-wrapper">
 <table class="management-table specialty-table" style="border-collapse: collapse; text-align: left;">
+    <colgroup>
+        <col class="mobile-hide" style="width: 5%;" />
+        <col class="specialty-name-column" />
+        <col class="specialty-description-column" />
+        <col class="specialty-action-column" />
+    </colgroup>
     <thead class="management-table-header">
         <tr style="background-color: #f2f2f2;">
             <th class="mobile-hide" style="padding: 8px; border: 1px solid #ddd;">#</th>
            @*  <th style="padding: 8px; border: 1px solid #ddd;">Specialty Name</th> *@
 
 
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+            <th class="specialty-name-column" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["SpecialtyNameParm"]" style="color: black; text-decoration: none; ">
                     Specialty Name
                     @if ((string)ViewData["SpecialtyNameParm"] == "name")
@@ -59,8 +89,8 @@
                 </a>
             </th>
 
-            <th class="specialty-neutral-header" style="padding: 8px; border: 1px solid #ddd;">Description</th>
-            <th class="action-column specialty-neutral-header" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
+            <th class="specialty-description-column specialty-neutral-header" style="padding: 8px; border: 1px solid #ddd;">Description</th>
+            <th class="action-column specialty-action-column specialty-neutral-header" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
         </tr>
     </thead>
     <tbody>
