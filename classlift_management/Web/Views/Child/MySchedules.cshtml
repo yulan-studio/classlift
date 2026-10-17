@@ -121,8 +121,9 @@
             <button class="schedule-toggle" type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#collapseCourse_@courseSchedules.Course.CourseID"
-                    aria-expanded="@(ViewBag.OpenCourseId == courseSchedules.Course.CourseID ? "true" : "false")">
-                View sessions
+                    aria-expanded="@(ViewBag.OpenCourseId == courseSchedules.Course.CourseID ? "true" : "false")"
+                    @(courseSchedules.Schedules.Any() ? "" : "disabled")>
+                @(courseSchedules.Schedules.Any() ? "View sessions" : "No sessions scheduled")
             </button>
         </div>
         <div id="collapseCourse_@courseSchedules.Course.CourseID" class="collapse @(ViewBag.OpenCourseId == courseSchedules.Course.CourseID ? "show" : "") schedule-details">
