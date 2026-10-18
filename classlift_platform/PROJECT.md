@@ -168,6 +168,12 @@ Features are assigned to plans through `Planfeature`. `FeatureAccessService`
 loads and caches an organization's effective feature context. The cache must be
 cleared when relevant plan assignments change.
 
+Organization-level enable/disable settings are documented in
+[ORGANIZATION_FEATURE_SETTINGS.md](ORGANIZATION_FEATURE_SETTINGS.md). The
+Platform owns the schema and API; the ClassLift Management application owns the
+settings UI. Ordinary Features remain enabled by default and cannot be disabled
+unless `Feature.IsOrganizationConfigurable` is true.
+
 ## Recurring operations
 
 Schedules are registered at application startup using Eastern Standard Time:

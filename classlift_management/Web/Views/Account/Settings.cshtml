@@ -36,6 +36,11 @@
                data-url="/Account/Branding">Branding</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
+               href="#"
+               data-url="/Account/TimeZone">Time Zone</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link @(ViewBag.ActiveTab == "EmailSettings" ? "active" : "")"
                href="#"
                data-url="/Account/EmailSettings">Email</a>
@@ -45,35 +50,40 @@
                href="#"
                data-url="/Account/FeatureSettings">Feature Settings</a>
         </li>
-    }
-    <li class="nav-item">
-        <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
-           href="#"
-           data-url="/Account/TimeZone">Time Zone</a>
-    </li>
-    @if (User.IsInRole("Coach"))
-    {
         <li class="nav-item">
-            <a class="nav-link @(ViewBag.ActiveTab == "CoachContactSettings" ? "active" : "")"
+            <a class="nav-link @(ViewBag.ActiveTab == "ResetPassword" ? "active" : "")"
                href="#"
-               data-url="/Account/CoachContactSettings">Profile Details</a>
+               data-url="/Account/ResetPassword">Reset Password</a>
         </li>
-    }
-    @if (User.IsInRole("Admin") || User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
-    {
         <li class="nav-item">
             <a class="nav-link @(ViewBag.ActiveTab == "ChangePassword" ? "active" : "")"
                href="#"
                data-url="/Account/ChangePassword">Change Password</a>
         </li>
     }
-    @if (User.IsInRole("Admin"))
+    else
     {
         <li class="nav-item">
-            <a class="nav-link @(ViewBag.ActiveTab == "ResetPassword" ? "active" : "")"
+            <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
                href="#"
-               data-url="/Account/ResetPassword">Reset Password</a>
+               data-url="/Account/TimeZone">Time Zone</a>
         </li>
+        @if (User.IsInRole("Coach"))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewBag.ActiveTab == "CoachContactSettings" ? "active" : "")"
+                   href="#"
+                   data-url="/Account/CoachContactSettings">Profile Details</a>
+            </li>
+        }
+        @if (User.IsInRole("Child") || User.IsInRole("Coach") || User.IsInRole("Staff"))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(ViewBag.ActiveTab == "ChangePassword" ? "active" : "")"
+                   href="#"
+                   data-url="/Account/ChangePassword">Change Password</a>
+            </li>
+        }
     }
 </ul>
 
