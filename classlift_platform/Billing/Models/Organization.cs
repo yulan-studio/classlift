@@ -30,6 +30,8 @@ public partial class Organization
 
     public virtual ICollection<OrganizationAdmin> OrganizationAdmins { get; set; } = new List<OrganizationAdmin>();
 
+    public virtual ICollection<OrganizationFeatureSetting> OrganizationFeatureSettings { get; set; } = new List<OrganizationFeatureSetting>();
+
     public virtual ICollection<OrganizationSubscription> OrganizationSubscriptions { get; set; } = new List<OrganizationSubscription>();
 
     public virtual ICollection<SubscriptionEvent> SubscriptionEvents { get; set; } = new List<SubscriptionEvent>();
