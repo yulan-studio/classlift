@@ -40,6 +40,10 @@
     <None Update="TenantScripts\classlift_empty_20260908.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  
+    <None Update="TenantScripts\z20261018_add_schedule_preference_to_course_enrollments.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
