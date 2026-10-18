@@ -38,6 +38,7 @@ namespace Core.Interfaces
         Task<int> GetCountedSessionCountByRootEnrollmentAsync(int rootEnrollmentId);
 
         Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByChildAsync(int childId);
+        Task<IEnumerable<CourseEnrollment>> GetConfirmedRootEnrollmentsByChildAsync(int childId);
 
         Task<IEnumerable<CourseEnrollment>> GetFinishedEnrollmentsByChildAsync(int childId);
 

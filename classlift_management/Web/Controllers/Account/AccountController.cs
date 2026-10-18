@@ -25,11 +25,12 @@ namespace Web.Controllers.Account
         private readonly CurrentTenant _currentTenant;
         private readonly OrganizationTerminologyService _terminologyService;
         private readonly IOrganizationEmailSettingsService _organizationEmailSettingsService;
+        private readonly IOrganizationFeatureSettingsService _organizationFeatureSettingsService;
         private const string AdminResetPassword = "hello123!";
         private const long MaxLogoSize = 2 * 1024 * 1024;
         private const string DefaultHomePageUrl = "https://courses.roboturtle.ca/";
 
-        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant, OrganizationTerminologyService terminologyService, IOrganizationEmailSettingsService organizationEmailSettingsService)
+        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant, OrganizationTerminologyService terminologyService, IOrganizationEmailSettingsService organizationEmailSettingsService, IOrganizationFeatureSettingsService organizationFeatureSettingsService)
         {
             _userRegistrationService = userRegistrationService;
             _signInManager = signInManager;
@@ -40,6 +41,7 @@ namespace Web.Controllers.Account
             _currentTenant = currentTenant;
             _terminologyService = terminologyService;
             _organizationEmailSettingsService = organizationEmailSettingsService;
+            _organizationFeatureSettingsService = organizationFeatureSettingsService;
         }
 
         // Show Registration Form (GET)
@@ -281,6 +283,43 @@ namespace Web.Controllers.Account
             }
 
             return PartialView("_EmailSettings", model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("FeatureSettings")]
+        public async Task<IActionResult> FeatureSettings(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var settings = await _organizationFeatureSettingsService.GetAsync(cancellationToken);
+                return PartialView("_FeatureSettings", settings);
+            }
+            catch (HttpRequestException)
+            {
+                Response.StatusCode = StatusCodes.Status502BadGateway;
+                ViewBag.ErrorMessage = "Feature settings could not be loaded. Please try again.";
+                return PartialView("_FeatureSettings", Array.Empty<OrganizationFeatureSettingDto>());
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("FeatureSettings")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FeatureSettings(string featureKey, bool isEnabled, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _organizationFeatureSettingsService.UpdateAsync(featureKey, isEnabled, cancellationToken);
+                var settings = await _organizationFeatureSettingsService.GetAsync(cancellationToken);
+                ViewBag.SuccessMessage = "Feature settings have been updated.";
+                return PartialView("_FeatureSettings", settings);
+            }
+            catch (HttpRequestException)
+            {
+                Response.StatusCode = StatusCodes.Status502BadGateway;
+                ViewBag.ErrorMessage = "Feature settings could not be saved. Please try again.";
+                return PartialView("_FeatureSettings", Array.Empty<OrganizationFeatureSettingDto>());
+            }
         }
 
         [Authorize(Roles = "Admin")]

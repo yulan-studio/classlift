@@ -40,6 +40,11 @@
                href="#"
                data-url="/Account/EmailSettings">Email</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "FeatureSettings" ? "active" : "")"
+               href="#"
+               data-url="/Account/FeatureSettings">Feature Settings</a>
+        </li>
     }
     <li class="nav-item">
         <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
@@ -81,15 +86,23 @@
     <script>
         $(document).ready(function () {
             function loadTab(link) {
-                $("ul.nav-tabs a").removeClass("active");
+                $(".settings-tabs .nav-link").removeClass("active");
                 link.addClass("active");
-                $("#contentArea").load(link.data("url"));
+                var url = link.attr("data-url");
+                if (!url) return;
+                $("#contentArea").html('<div class="text-muted">Loading settings...</div>');
+                $("#contentArea").load(url, function (response, status, xhr) {
+                    if (status === "error") {
+                        $("#contentArea").html(
+                            '<div class="alert alert-danger" role="alert">The settings could not be loaded. Please try again.</div>');
+                    }
+                });
             }
 
-            var activeLink = $("ul.nav-tabs a.active");
-            loadTab(activeLink.length ? activeLink : $("ul.nav-tabs a").first());
+            var activeLink = $(".settings-tabs .nav-link.active");
+            loadTab(activeLink.length ? activeLink : $(".settings-tabs .nav-link").first());
 
-            $("ul.nav-tabs a").on("click", function (event) {
+            $(document).on("click", ".settings-tabs .nav-link", function (event) {
                 event.preventDefault();
                 loadTab($(this));
             });
@@ -119,6 +132,11 @@
                             $("#organizationFavicon")
                                 .attr("onerror", "this.onerror=null;this.href=this.dataset.fallbackUrl;")
                                 .attr("href", refreshedLogoUrl);
+                        }
+                    },
+                    error: function (xhr) {
+                        if (xhr.responseText) {
+                            $("#contentArea").html(xhr.responseText);
                         }
                     }
                 });

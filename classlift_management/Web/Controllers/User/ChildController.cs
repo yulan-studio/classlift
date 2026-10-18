@@ -1482,15 +1482,32 @@ namespace Web.Controllers.User
 
             //var scheduledCourses = await _courseEnrollmentService.GetScheduledSessionsByChildAsync(child.ChildID);
             var scheduledCourses = await _courseEnrollmentService.GetUpcomingEnrollmentsByChildAsync(child.ChildID);
+            var confirmedCourseRoots = await _courseEnrollmentService.GetConfirmedRootEnrollmentsByChildAsync(child.ChildID);
 
-            var courseSchedulesList = scheduledCourses
-                .GroupBy(e => e.Course)
-                .Select(group => new CourseSchedulesViewModel
+            var courseSchedulesById = scheduledCourses
+                .GroupBy(e => e.CourseID)
+                .ToDictionary(group => group.Key, group => new CourseSchedulesViewModel
                 {
-                    Course = group.Key,
-                    CourseID = group.Key.CourseID,
+                    Course = group.First().Course,
+                    CourseID = group.Key,
                     Schedules = group.ToList()
-                }).ToList();
+                });
+
+            foreach (var root in confirmedCourseRoots)
+            {
+                if (!courseSchedulesById.ContainsKey(root.CourseID))
+                {
+                    courseSchedulesById[root.CourseID] = new CourseSchedulesViewModel
+                    {
+                        Course = root.Course,
+                        CourseID = root.CourseID
+                    };
+                }
+            }
+
+            var courseSchedulesList = courseSchedulesById.Values
+                .OrderBy(course => course.Course.Title)
+                .ToList();
 
 
             var activityEnrollments = await _activityEnrollmentService.GetUpcomingEnrollmentsByChildAsync(child.ChildID);

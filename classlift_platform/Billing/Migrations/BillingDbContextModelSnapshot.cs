@@ -101,6 +101,11 @@ namespace Billing.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
+                    b.Property<bool>("IsOrganizationConfigurable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
                     b.HasKey("FeatureId")
                         .HasName("PRIMARY");
 
@@ -289,6 +294,39 @@ namespace Billing.Migrations
                         .IsUnique();
 
                     b.ToTable("organization_admins", (string)null);
+                });
+
+            modelBuilder.Entity("Billing.Models.OrganizationFeatureSetting", b =>
+                {
+                    b.Property<int>("OrganizationFeatureSettingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationFeatureSettingID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("OrganizationFeatureSettingId"));
+
+                    b.Property<int>("FeatureId")
+                        .HasColumnType("int")
+                        .HasColumnName("FeatureID");
+
+                    b.Property<bool>("IsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationID");
+
+                    b.HasKey("OrganizationFeatureSettingId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("FeatureId");
+
+                    b.HasIndex("OrganizationId", "FeatureId")
+                        .IsUnique();
+
+                    b.ToTable("organization_feature_settings", (string)null);
                 });
 
             modelBuilder.Entity("Billing.Models.OrganizationSubscription", b =>
@@ -842,10 +880,12 @@ namespace Billing.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("longtext");
@@ -882,10 +922,12 @@ namespace Billing.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("varchar(255)");
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("longtext");
@@ -946,6 +988,25 @@ namespace Billing.Migrations
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("Billing.Models.OrganizationFeatureSetting", b =>
+                {
+                    b.HasOne("Billing.Models.Feature", "Feature")
+                        .WithMany("OrganizationFeatureSettings")
+                        .HasForeignKey("FeatureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Billing.Models.Organization", "Organization")
+                        .WithMany("OrganizationFeatureSettings")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Feature");
 
                     b.Navigation("Organization");
                 });
@@ -1114,6 +1175,8 @@ namespace Billing.Migrations
 
             modelBuilder.Entity("Billing.Models.Feature", b =>
                 {
+                    b.Navigation("OrganizationFeatureSettings");
+
                     b.Navigation("Planfeatures");
                 });
 
@@ -1127,6 +1190,8 @@ namespace Billing.Migrations
                     b.Navigation("Invoices");
 
                     b.Navigation("OrganizationAdmins");
+
+                    b.Navigation("OrganizationFeatureSettings");
 
                     b.Navigation("OrganizationSubscriptions");
 

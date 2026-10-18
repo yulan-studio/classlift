@@ -51,12 +51,19 @@
 </style>
 
     <form method="post" action="/Coach/Add">
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger" role="alert">
+            Please correct the highlighted information before adding the provider.
+        </div>
+    }
     
 
     <table class="add-form-table">
         <tr>
             <td style="padding: 8px;"><label for="name">Name:</label></td>
-            <td style="padding: 8px;"><input type="text" name="name" placeholder="Name" style="width: 100%;" required/></td>
+            <td style="padding: 8px;"><input type="text" name="name" placeholder="Name" value="@(Context.Request.Form["name"].ToString())" style="width: 100%;" required/>@Html.ValidationMessage("name", null, new { @class = "text-danger" })</td>
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="gender">Gender:</label></td>
@@ -67,6 +74,7 @@
                     <option value="Female">Female</option>
                     <option value="N/A">N/A</option>
                 </select>
+                @Html.ValidationMessage("gender", null, new { @class = "text-danger" })
             </td>
         </tr>
         <tr>
@@ -87,6 +95,7 @@
                     }
                 </select>
                 <small style="color: darkslategray;">You can hold CTRL to select multiple specialties</small>
+                @Html.ValidationMessage("specialtyIds", null, new { @class = "text-danger" })
             </td>
         </tr>
         <tr>
@@ -99,6 +108,7 @@
                         <option value="@province.Value" selected="@(province.Selected ? "selected" : null)">@province.Text</option>
                     }
                 </select>
+                @Html.ValidationMessage("provinceId", null, new { @class = "text-danger" })
             </td>
         </tr>
         <tr>
@@ -112,11 +122,12 @@
                     }
                 </select>
                 <small id="cityHelp" style="display: block; color: darkslategray;">Select a province first.</small>
+                @Html.ValidationMessage("cityId", null, new { @class = "text-danger" })
             </td>
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="email">Email:</label></td>
-            <td style="padding: 8px;"><input type="email" name="email" placeholder="Email" style="width: 100%;" /></td>
+            <td style="padding: 8px;"><input type="email" name="email" placeholder="Email" value="@(Context.Request.Form["email"].ToString())" style="width: 100%;" required />@Html.ValidationMessage("email", null, new { @class = "text-danger" })</td>
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="phone">Phone:</label></td>
@@ -126,9 +137,10 @@
             <td style="padding: 8px; vertical-align:top"><label for="password">Password:</label></td>
             <td style="padding: 8px;">
                 <div class="password-row">
-                <input type="text" name="password" placeholder="Password" value="hello123!" style="width: 100%;" />
+                <input type="text" name="password" placeholder="Password" value="@(string.IsNullOrEmpty(Context.Request.Form["password"]) ? "hello123!" : Context.Request.Form["password"])" style="width: 100%;" required />
                 <small class="password-help" style="color:darkslategray">Password must be at least 6 characters long and include a lowercase letter, a digit, and a special character. </small>
                 </div>
+                @Html.ValidationMessage("password", null, new { @class = "text-danger" })
             </td>
         </tr>
         <tr>
@@ -139,16 +151,6 @@
             </td>
         </tr>
     </table>
-
-    @if (!ViewData.ModelState.IsValid)
-    {
-        foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <div class="alert alert-danger">
-                @error.ErrorMessage
-            </div>
-        }
-    }
 
     </form>
 

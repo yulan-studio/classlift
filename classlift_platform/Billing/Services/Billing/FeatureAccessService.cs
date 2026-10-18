@@ -50,20 +50,30 @@ namespace Billing.Services.Billing
             if (subscription == null)
                 return null;
 
-            var features =
+            var planFeatures =
                 await _context.Planfeatures
                     .Include(pf => pf.Feature)
                     .Where(pf => pf.PlanId == subscription.PlanId)
-                    .Select(pf => pf.Feature.FeatureKey)
+                    .Select(pf => new { pf.FeatureId, pf.Feature.FeatureKey, pf.Feature.IsOrganizationConfigurable })
                     .Distinct()
                     .ToListAsync();
+
+            var featureIds = planFeatures.Select(f => f.FeatureId).ToList();
+            var settings = await _context.OrganizationFeatureSettings
+                .Where(s => s.OrganizationId == organizationId && featureIds.Contains(s.FeatureId))
+                .ToDictionaryAsync(s => s.FeatureId, s => s.IsEnabled);
+
+            var features = planFeatures
+                .Where(f => !f.IsOrganizationConfigurable || !settings.TryGetValue(f.FeatureId, out var enabled) || enabled)
+                .Select(f => f.FeatureKey)
+                .ToHashSet();
 
             var context = new OrganizationFeatureContext
             {
                 OrganizationId = organizationId,
                 PlanId = subscription.PlanId,
                 PlanName = subscription.Plan.PlanName,
-                Features = features.ToHashSet()
+                Features = features
             };
 
             _cache.Set(

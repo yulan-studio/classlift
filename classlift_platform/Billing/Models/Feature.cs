@@ -13,7 +13,11 @@ public partial class Feature
 
     public string? Description { get; set; }
 
+    public bool IsOrganizationConfigurable { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<Planfeature> Planfeatures { get; set; } = new List<Planfeature>();
+
+    public virtual ICollection<OrganizationFeatureSetting> OrganizationFeatureSettings { get; set; } = new List<OrganizationFeatureSetting>();
 }

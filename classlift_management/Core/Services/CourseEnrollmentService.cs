@@ -289,6 +289,11 @@ namespace Core.Services
             return await _enrollmentRepository.GetUpcomingEnrollmentsByChildAsync(childId);
         }
 
+        public async Task<IEnumerable<CourseEnrollment>> GetConfirmedRootEnrollmentsByChildAsync(int childId)
+        {
+            return await _enrollmentRepository.GetRootEnrollmentsByChildAsync(childId, "Confirmed");
+        }
+
 
 
         public async Task<IEnumerable<CourseEnrollmentViewModel>> GetRegisteredEnrollmentsByChildAsync(int childId)

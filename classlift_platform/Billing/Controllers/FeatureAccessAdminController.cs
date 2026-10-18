@@ -59,11 +59,14 @@ namespace Billing.Controllers
                     FeatureKey = f.FeatureKey,
                     FeatureName = f.FeatureName,
                     HasAccess = featureContext != null &&
-                                featureContext.Features.Contains(f.FeatureKey)
+                                featureContext.Features.Contains(f.FeatureKey),
+                    IsOrganizationConfigurable = f.IsOrganizationConfigurable,
+                    IsEnabled = featureContext != null && featureContext.Features.Contains(f.FeatureKey)
                 }).ToList();
             }
 
             return View(model);
         }
+
     }
 }
