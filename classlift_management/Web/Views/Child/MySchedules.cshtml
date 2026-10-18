@@ -140,8 +140,10 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#schedulePreference_@courseSchedules.Course.CourseID"
                         aria-expanded="false"
-                        aria-controls="schedulePreference_@courseSchedules.Course.CourseID">
-                    Edit my preference
+                        aria-controls="schedulePreference_@courseSchedules.Course.CourseID"
+                        data-view-label="Edit my preference"
+                        data-hide-label="Hide my preference">
+                    <span class="schedule-toggle-label">Edit my preference</span>
                 </button>
             }
             @if (courseSchedules.Schedules.Any())
@@ -150,8 +152,10 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#collapseCourse_@courseSchedules.Course.CourseID"
                         aria-expanded="false"
-                        aria-controls="collapseCourse_@courseSchedules.Course.CourseID">
-                    View sessions
+                        aria-controls="collapseCourse_@courseSchedules.Course.CourseID"
+                        data-view-label="View sessions"
+                        data-hide-label="Hide sessions">
+                    <span class="schedule-toggle-label">View sessions</span>
                 </button>
             }
             else
@@ -185,7 +189,7 @@
                     <textarea name="SchedulePreference" class="form-control" maxlength="2000" rows="4" placeholder="Example: I prefer 2 sessions per week. Monday and Wednesday evenings work best.">@courseSchedules.RootEnrollment.SchedulePreference</textarea>
                     <div class="d-flex justify-content-between align-items-center mt-2 gap-2">
                         <small class="text-muted">Maximum 2,000 characters.</small>
-                        <button type="submit" class="btn btn-primary btn-save">Save preference</button>
+                        <button type="submit" class="btn classlift-secondary-button btn-save">Save preference</button>
                     </div>
                 </form>
             </div>
@@ -458,6 +462,23 @@ else
 
         window.addEventListener('load', highlightSelectedCourse);
         window.addEventListener('hashchange', highlightSelectedCourse);
+
+        document.querySelectorAll('[data-bs-toggle="collapse"][data-hide-label]').forEach(function (button) {
+            const targetSelector = button.getAttribute('data-bs-target');
+            const target = targetSelector ? document.querySelector(targetSelector) : null;
+            const label = button.querySelector('.schedule-toggle-label');
+            if (!target || !label) return;
+
+            target.addEventListener('shown.bs.collapse', function () {
+                label.textContent = button.getAttribute('data-hide-label');
+                button.setAttribute('aria-expanded', 'true');
+            });
+
+            target.addEventListener('hidden.bs.collapse', function () {
+                label.textContent = button.getAttribute('data-view-label');
+                button.setAttribute('aria-expanded', 'false');
+            });
+        });
     })();
 </script>
 
