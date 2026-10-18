@@ -198,3 +198,6 @@
 /classlift_platform/Billing/obj/Release/net8.0
 /classlift_platform/Billing/bin/Release/net8.0
 /classlift_platform/publish
+/classlift_management/Web/obj/Debug
+/classlift_management/Web/tmp/buildcheck
+/classlift_management/Core/tmp/buildcheck
