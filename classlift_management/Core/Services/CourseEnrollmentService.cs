@@ -49,6 +49,18 @@ namespace Core.Services
             return enrollment;
         }
 
+        public Task<bool> UpdateSchedulePreferenceAsync(
+            int childId,
+            int courseId,
+            string? preference,
+            CancellationToken cancellationToken = default) =>
+            _enrollmentRepository.UpdateSchedulePreferenceAsync(
+                childId,
+                courseId,
+                preference,
+                DateTime.UtcNow,
+                cancellationToken);
+
       
 
 
