@@ -10,7 +10,7 @@
     .enrollment-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2rem 0 .85rem; }
     .enrollment-section-heading h5 { margin: 0; color: #1b7bab; font-size: 1.3rem; font-weight: 700; }
     .enrollment-section-heading a { color: #1b7bab; font-weight: 600; }
-    .enrollment-notice { margin: 0 0 1rem; padding: .8rem 1rem; border: 1px solid #f2c7d9; border-radius: 7px; background: #fff3f7; color: #5f3b4b; }
+    .enrollment-notice { margin: 0 0 1rem; padding: 0; border: 0; background: transparent; color: #6b778c; }
     .enrollment-table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .enrollment-table-wrapper table { min-width: 760px; margin: 0; }
     .enrollment-table-wrapper thead th { white-space: nowrap; }
@@ -20,19 +20,11 @@
     .coach-note-text { white-space: pre-line; }
     .manage-enrollments-page .alert { border-radius: 7px; }
     .manage-enrollments-page .participation-back-link { margin-top: 0; color: #000 !important; }
-    .manage-enrollments-page .progress-report-approve-button,
-    .manage-enrollments-page .progress-report-approve-button:hover,
-    .manage-enrollments-page .progress-report-approve-button:focus,
-    .manage-enrollments-page .progress-report-approve-button:active {
-        background-color: #d8edf9 !important;
-        border-color: #b8d7ee !important;
-        color: #000 !important;
-        opacity: 1 !important;
-        box-shadow: none;
-    }
-    .manage-enrollments-page .progress-report-approve-button:hover,
-    .manage-enrollments-page .progress-report-approve-button:focus {
-        background-color: #c7e4f4 !important;
+    main .manage-enrollments-page button.cancel-button.draft-cancel-button,
+    main .manage-enrollments-page button.cancel-button.draft-cancel-button:hover,
+    main .manage-enrollments-page button.cancel-button.draft-cancel-button:focus,
+    main .manage-enrollments-page button.cancel-button.draft-cancel-button:active {
+        color: #fff !important;
     }
     main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel,
     main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:hover,
@@ -258,7 +250,7 @@
                                 </div> *@
 
                                 <div class="row-button">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn classlift-secondary-button">
                                         Complete
                                     </button>
                                 </div>
@@ -303,7 +295,7 @@
     }
 </div>
 <div class="enrollment-notice" role="note">
-    After each session, please remove any schedule or preparation messages that are no longer relevant and update the note with the course summary. A summary is optional.
+    Please remove any schedule or preparation messages that are no longer relevant and update the note with the course summary. A summary is optional.
 </div>
 
 @if (CurrentTenant.HasFeature(Core.FeatureCodes.StandardReporting) && TempData["ProgressReportDraft"] is string draftText && TempData["ProgressReportDraftId"] is object draftId)
@@ -317,7 +309,10 @@
             <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
             <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
             <textarea name="finalText" class="form-control" rows="8" required>@draftText</textarea>
-            <button type="submit" class="btn classlift-secondary-button progress-report-approve-button mt-2">Approve and save as @CurrentTenant.Terminology.ProviderSingular Note</button>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <button type="submit" class="btn classlift-secondary-button">Approve and save as @CurrentTenant.Terminology.ProviderSingular Note</button>
+                <button type="button" class="btn btn-secondary cancel-button draft-cancel-button" onclick="this.closest('.alert').remove()">Cancel</button>
+            </div>
         </form>
     </div>
 }
