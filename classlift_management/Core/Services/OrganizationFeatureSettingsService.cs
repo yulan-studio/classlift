@@ -41,7 +41,7 @@ public sealed class OrganizationFeatureSettingsService : IOrganizationFeatureSet
 
         var response = await SendAsync(
             HttpMethod.Put,
-            $"feature-settings/{Uri.EscapeDataString(featureKey)}",
+            Uri.EscapeDataString(featureKey),
             new UpdateOrganizationFeatureSettingRequest { IsEnabled = isEnabled },
             cancellationToken);
         response.EnsureSuccessStatusCode();
