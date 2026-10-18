@@ -5,6 +5,9 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Add Coach";
+    var formName = Context.Request.HasFormContentType ? Context.Request.Form["name"].ToString() : "";
+    var formEmail = Context.Request.HasFormContentType ? Context.Request.Form["email"].ToString() : "";
+    var formPassword = Context.Request.HasFormContentType ? Context.Request.Form["password"].ToString() : "";
 }
 
 
@@ -63,7 +66,7 @@
     <table class="add-form-table">
         <tr>
             <td style="padding: 8px;"><label for="name">Name:</label></td>
-            <td style="padding: 8px;"><input type="text" name="name" placeholder="Name" value="@(Context.Request.Form["name"].ToString())" style="width: 100%;" required/>@Html.ValidationMessage("name", null, new { @class = "text-danger" })</td>
+            <td style="padding: 8px;"><input type="text" name="name" placeholder="Name" value="@formName" style="width: 100%;" required/>@Html.ValidationMessage("name", null, new { @class = "text-danger" })</td>
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="gender">Gender:</label></td>
@@ -127,7 +130,7 @@
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="email">Email:</label></td>
-            <td style="padding: 8px;"><input type="email" name="email" placeholder="Email" value="@(Context.Request.Form["email"].ToString())" style="width: 100%;" required />@Html.ValidationMessage("email", null, new { @class = "text-danger" })</td>
+            <td style="padding: 8px;"><input type="email" name="email" placeholder="Email" value="@formEmail" style="width: 100%;" required />@Html.ValidationMessage("email", null, new { @class = "text-danger" })</td>
         </tr>
         <tr>
             <td style="padding: 8px;"><label for="phone">Phone:</label></td>
@@ -137,7 +140,7 @@
             <td style="padding: 8px; vertical-align:top"><label for="password">Password:</label></td>
             <td style="padding: 8px;">
                 <div class="password-row">
-                <input type="text" name="password" placeholder="Password" value="@(string.IsNullOrEmpty(Context.Request.Form["password"]) ? "hello123!" : Context.Request.Form["password"])" style="width: 100%;" required />
+                <input type="text" name="password" placeholder="Password" value="@(string.IsNullOrEmpty(formPassword) ? "hello123!" : formPassword)" style="width: 100%;" required />
                 <small class="password-help" style="color:darkslategray">Password must be at least 6 characters long and include a lowercase letter, a digit, and a special character. </small>
                 </div>
                 @Html.ValidationMessage("password", null, new { @class = "text-danger" })
