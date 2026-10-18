@@ -16,6 +16,14 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 1. After a participant is successfully registered in a course, Staff sees a success message using the organization's configured participant term and the wording "registered successfully".
 
+## Feature settings
+
+1. Platform owns the definition, entitlement, and business rules for Features. Management does not modify Feature data directly in the tenant database.
+2. A Feature included in an organization's Plan is enabled by default unless the organization has an explicit setting for a configurable Feature.
+3. Organization Feature Settings are applied generically: every configurable Feature returned by the Platform API can override the Plan default through its `IsEnabled` value. This is not limited to Student Schedule Request.
+4. Management pages use the stable Feature key to show or hide the corresponding UI and server-side operation. Adding a new configurable Feature requires its Platform definition and the relevant page-specific UI rule, but does not require new generic Feature-setting loading logic in Management.
+5. Local development may intentionally enable all Features so that Management can run without Platform entitlement data. Organization-level Feature setting behavior must be verified on a tenant environment with Platform integration configured.
+
 ## Group-course registration
 
 1. A newly created Group-course registration remains pending until it is confirmed.

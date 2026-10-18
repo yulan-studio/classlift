@@ -29,7 +29,8 @@ namespace Core.Middleware
             ITenantConnectionStringFactory connectionFactory,
             CurrentTenant currentTenant,
             OrganizationTerminologyService terminologyService,
-            IFeatureService featureService)
+            IFeatureService featureService,
+            IOrganizationFeatureSettingsService organizationFeatureSettingsService)
         {
             var host = context.Request.Host.Host
                 .Trim()
@@ -131,7 +132,31 @@ namespace Core.Middleware
 
             currentTenant.PlanId = tenantFeatures.PlanId;
             currentTenant.PlanName = tenantFeatures.PlanName;
-            currentTenant.EnabledFeatures = tenantFeatures.EnabledFeatures;
+            var enabledFeatures = new HashSet<string>(
+                tenantFeatures.EnabledFeatures,
+                StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                var organizationSettings = await organizationFeatureSettingsService.GetAsync(
+                    context.RequestAborted);
+                foreach (var setting in organizationSettings)
+                {
+                    if (setting.IsEnabled)
+                        enabledFeatures.Add(setting.FeatureKey);
+                    else
+                        enabledFeatures.Remove(setting.FeatureKey);
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Organization feature settings could not be loaded for organization {OrganizationId}; using plan features.",
+                    tenant.OrganizationId);
+            }
+
+            currentTenant.EnabledFeatures = enabledFeatures;
 
             _logger.LogInformation("tenant was found for host {Host}", host);
             // Optional backward compatibility for existing code.
