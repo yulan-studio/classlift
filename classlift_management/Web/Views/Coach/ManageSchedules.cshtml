@@ -15,6 +15,12 @@
     .schedule-form-card .schedule-form-fields { width: min(100%, 520px); }
     .schedule-notice { margin: 0 1rem 1rem; border: 0; border-radius: 8px; background: #fff3f7; color: #5f3b4b; }
     .manage-schedule-page .participation-back-link { margin-top: 0; margin-bottom: 1rem; }
+    main .manage-schedule-page button.cancel-button,
+    main .manage-schedule-page button.cancel-button:hover,
+    main .manage-schedule-page button.cancel-button:focus,
+    main .manage-schedule-page button.cancel-button:active {
+        color: #fff !important;
+    }
     .manage-schedule-page .schedule-table-wrapper table thead th { white-space: nowrap; }
     @@media (max-width: 767px) {
         .manage-schedule-page { padding: 0 0 2rem; }
@@ -247,7 +253,7 @@
                             <button type="button" class="edit-mode btn classlift-secondary-button" style="display:none" onclick="saveSchedule(@s.EnrollmentID)">Save</button>
 
 
-                            <button type="button" class="edit-mode btn btn-secondary cancel-button" style="display:none" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
+                            <button type="button" class="edit-mode btn btn-secondary cancel-button" style="display:none; color:#fff !important;" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
                         }
 
                         @if (s.Status != "Deleted" && !isWithin24Hours)
@@ -384,7 +390,7 @@
         <textarea id="removeScheduleNote" class="form-control" placeholder="Enter note" required></textarea>
         <div class="mt-3 d-flex gap-2 justify-content-end">
             <button type="button" class="btn btn-danger" onclick="confirmRemoveSchedule()">Remove</button>
-            <button type="button" class="btn btn-secondary cancel-button" onclick="closeRemoveScheduleModal()">Cancel</button>
+            <button type="button" class="btn btn-secondary cancel-button" style="color:#fff !important;" onclick="closeRemoveScheduleModal()">Cancel</button>
         </div>
     </div>
 </div>
