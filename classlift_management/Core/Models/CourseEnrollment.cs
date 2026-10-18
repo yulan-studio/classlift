@@ -43,6 +43,11 @@ namespace Core.Models
         public string? StaffNote { get; set; }
         public string? CoachNote { get; set; }
 
+        [MaxLength(2000)]
+        public string? SchedulePreference { get; set; }
+
+        public DateTime? SchedulePreferenceUpdatedAt { get; set; }
+
         public string? Location { get; set; }
 
         public int? CreatedBy { get; set; }

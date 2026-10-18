@@ -94,10 +94,14 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. Coach View Enrollments uses the organization's configured Provider and Participant terminology in its note table headings.
 5. In Coach Manage Enrollments, entering Actual Hours as 0 removes the scheduled session. This removal workflow must not deduct Token balance.
 6. In Coach Manage Enrollments, a Coach can edit and save the Provider Note for a completed session.
-7. A Private-course Schedule Request is a standing availability preference rather than a fixed-time booking request. It has no start date or expiry date. The participant can update the weekdays and time ranges when they are available at any time.
-8. A participant may specify how many sessions per week they would prefer to have scheduled. This is a scheduling preference, not a guarantee; the Coach creates sessions based on the preference, the participant's availability, and actual scheduling constraints.
-9. For a Private course with a finite Session Count, the participant sees the number of sessions that still need to be scheduled. The Schedule Request information is hidden when no sessions remain to be scheduled. A participant cannot request more sessions than remain.
-10. An unlimited Private course does not display a remaining-session count. The rule for when an unlimited-course Schedule Request should be hidden remains open.
+7. Each Student + Private Course has one ongoing Schedule Request, stored in the Management tenant database rather than the Platform database. It records a scheduling preference and does not automatically create Sessions.
+8. The Student may create or update their own Schedule Request when the Private Course still has sessions available to schedule. The request may include the preferred number of sessions per week, available weekdays, available time ranges, and other scheduling notes, including a note that the participant does not want to schedule sessions for a period of time. It has no start date or expiry date.
+9. For a Private course with a finite Session Count, the Student sees how many sessions remain available to schedule. The Student can view and edit the Schedule Request only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is not shown to the Student.
+10. The preferred sessions per week is only a scheduling preference. It is not a request for a specific number of Sessions and is not limited by the remaining-session count.
+11. Coaches can view the Student's Schedule Request for a Private Course, including its preferred sessions per week, availability, notes, and last-updated time, only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is hidden from both the Student and the Coach. Coaches cannot edit the request.
+12. The Schedule Request is limited to 2,000 characters and stores a dedicated UpdatedAt timestamp so the Coach can see how current it is.
+13. Unlimited Private courses do not display a remaining-session count. The rule for when an unlimited-course Schedule Request should stop being displayed remains open.
+14. The Student Schedule Request form must explain that the information is a long-term scheduling preference and does not automatically book a specific Session. The form must provide an example link or help control that demonstrates common ways to write the preference, including regular weekly availability, flexible availability, a temporary pause, changing availability, and important time restrictions.
 
 ## Participant schedule display
 
@@ -170,6 +174,5 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Open questions
 
-- For unlimited Private courses, define when a standing Schedule Request should stop being displayed (for example, when the participant explicitly pauses or closes it).
 - For Student Progress, decide which non-numeric status options are available for an observation dimension, if structured statuses are added.
 - For Student Progress, decide whether Coaches need a separate internal-only note field. The AI-assisted report draft itself is not family-visible until approved.

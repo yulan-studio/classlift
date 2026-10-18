@@ -672,6 +672,13 @@ namespace Core.Migrations
                     b.Property<string>("ParentNote")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("SchedulePreference")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<DateTime?>("SchedulePreferenceUpdatedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("ScheduledAt")
                         .HasColumnType("datetime(6)");
 
