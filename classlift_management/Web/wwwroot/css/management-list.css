@@ -680,15 +680,15 @@ main.container > h2 {
 
 /* Reusable secondary action used for low-emphasis save and view actions. */
 .classlift-secondary-button {
-    background-color: #7bb4dc;
-    border: 1px solid #7bb4dc;
+    background-color: #5b9ac7;
+    border: 1px solid #5b9ac7;
     color: #fff;
 }
 
 .classlift-secondary-button:hover,
 .classlift-secondary-button:focus {
-    background-color: #6aa8d3;
-    border-color: #6aa8d3;
+    background-color: #4789b8;
+    border-color: #4789b8;
     color: #fff;
 }
 
