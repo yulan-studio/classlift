@@ -31,21 +31,24 @@ public sealed class OrganizationFeatureSettingsController : ControllerBase
         if (!await IsEnabledOrganizationAsync(organizationId))
             return NotFound();
 
-        var settings = await _context.Features
+        var features = await _context.Features
             .Where(f => f.IsOrganizationConfigurable)
-            .GroupJoin(
-                _context.OrganizationFeatureSettings.Where(s => s.OrganizationId == organizationId),
-                f => f.FeatureId,
-                s => s.FeatureId,
-                (feature, values) => new { feature, setting = values.FirstOrDefault() })
-            .Select(x => new OrganizationFeatureSettingDto(
-                x.feature.FeatureKey,
-                x.feature.FeatureName,
-                x.setting == null || x.setting.IsEnabled))
-            .OrderBy(x => x.FeatureName)
             .ToListAsync();
 
-        return Ok(settings);
+        var featureIds = features.Select(f => f.FeatureId).ToList();
+        var settings = await _context.OrganizationFeatureSettings
+            .Where(s => s.OrganizationId == organizationId && featureIds.Contains(s.FeatureId))
+            .ToDictionaryAsync(s => s.FeatureId, s => s.IsEnabled);
+
+        var result = features
+            .Select(f => new OrganizationFeatureSettingDto(
+                f.FeatureKey,
+                f.FeatureName,
+                !settings.TryGetValue(f.FeatureId, out var isEnabled) || isEnabled))
+            .OrderBy(x => x.FeatureName)
+            .ToList();
+
+        return Ok(result);
     }
 
     [HttpPut("{featureKey}")]
