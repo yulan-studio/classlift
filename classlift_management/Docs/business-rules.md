@@ -94,11 +94,14 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. Coach View Enrollments uses the organization's configured Provider and Participant terminology in its note table headings.
 5. In Coach Manage Enrollments, entering Actual Hours as 0 removes the scheduled session. This removal workflow must not deduct Token balance.
 6. In Coach Manage Enrollments, a Coach can edit and save the Provider Note for a completed session.
-7. Each Student + Private Course has one ongoing scheduling preference, stored in the Management tenant database rather than the Platform database. It is a preference/note, not a formal Schedule Request workflow, and it does not automatically create Sessions.
-8. The Student may create or update their own scheduling preference at any time. The preference may include the preferred number of sessions per week, available weekdays, available time ranges, and other scheduling notes. It has no start date or expiry date.
-9. The scheduling preference is limited to 2,000 characters and stores an UpdatedAt timestamp so the Coach can see how current it is.
-10. Coaches can view the scheduling preference for a Private Course but cannot edit it. The Student can edit only their own preference.
-11. For a Private course with a finite Session Count, the Student may see the number of sessions that still need to be scheduled. The scheduling-preference information is hidden when no sessions remain to be scheduled. Unlimited Private courses do not display a remaining-session count.
+7. Each Student + Private Course has one ongoing Schedule Request, stored in the Management tenant database rather than the Platform database. It records a scheduling preference and does not automatically create Sessions.
+8. The Student may create or update their own Schedule Request when the Private Course still has sessions available to schedule. The request may include the preferred number of sessions per week, available weekdays, available time ranges, and other scheduling notes, including a note that the participant does not want to schedule sessions for a period of time. It has no start date or expiry date.
+9. For a Private course with a finite Session Count, the Student sees how many sessions remain available to schedule. The Student can view and edit the Schedule Request only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is not shown to the Student.
+10. The preferred sessions per week is only a scheduling preference. It is not a request for a specific number of Sessions and is not limited by the remaining-session count.
+11. Coaches can view the Student's Schedule Request for a Private Course, including its preferred sessions per week, availability, notes, and last-updated time, only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is hidden from both the Student and the Coach. Coaches cannot edit the request.
+12. The Schedule Request is limited to 2,000 characters and stores a dedicated UpdatedAt timestamp so the Coach can see how current it is.
+13. Unlimited Private courses do not display a remaining-session count. The rule for when an unlimited-course Schedule Request should stop being displayed remains open.
+14. The Student Schedule Request form must explain that the information is a long-term scheduling preference and does not automatically book a specific Session. The form must provide an example link or help control that demonstrates common ways to write the preference, including regular weekly availability, flexible availability, a temporary pause, changing availability, and important time restrictions.
 
 ## Participant schedule display
 
