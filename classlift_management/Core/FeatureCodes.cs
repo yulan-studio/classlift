@@ -18,5 +18,6 @@ namespace Core
         public const string AdvancedReporting = "advanced_reporting";
         public const string CustomizedWorkflow = "customized_workflow";
         public const string AiEnhancements = "ai_enhancements";
+        public const string StudentScheduleRequest = "student_schedule_request";
     }
 }

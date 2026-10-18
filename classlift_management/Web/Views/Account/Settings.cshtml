@@ -40,6 +40,11 @@
                href="#"
                data-url="/Account/EmailSettings">Email</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "FeatureSettings" ? "active" : "")"
+               href="#"
+               data-url="/Account/FeatureSettings">Feature Settings</a>
+        </li>
     }
     <li class="nav-item">
         <a class="nav-link @(ViewBag.ActiveTab == "TimeZone" ? "active" : "")"
@@ -119,6 +124,11 @@
                             $("#organizationFavicon")
                                 .attr("onerror", "this.onerror=null;this.href=this.dataset.fallbackUrl;")
                                 .attr("href", refreshedLogoUrl);
+                        }
+                    },
+                    error: function (xhr) {
+                        if (xhr.responseText) {
+                            $("#contentArea").html(xhr.responseText);
                         }
                     }
                 });
