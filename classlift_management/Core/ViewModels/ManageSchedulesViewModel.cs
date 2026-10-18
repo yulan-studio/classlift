@@ -17,11 +17,17 @@ namespace Core.ViewModels
 
         public IEnumerable<ParentChild> Parents { get; set; }
 
+        public bool ShowParentGuardianContact { get; set; }
+
         public Course Course { get; set; }
 
         public int ScheduledCount { get; set; }
 
         public int CompletedCount { get; set; }
+
+        public string? SchedulePreference { get; set; }
+
+        public DateTime? SchedulePreferenceUpdatedAt { get; set; }
 
 
         public List<CourseEnrollment> Schedules { get; set; }

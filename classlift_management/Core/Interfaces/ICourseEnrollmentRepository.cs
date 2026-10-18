@@ -21,6 +21,7 @@ namespace Core.Interfaces
         Task<CourseEnrollment> GetAsync(int enrollmentId);
 
         Task<bool> UpdateAsync(CourseEnrollment entity);
+        Task<bool> UpdateSchedulePreferenceAsync(int childId, int courseId, string? preference, DateTime updatedAt, CancellationToken cancellationToken = default);
 
         Task<bool> UpdateSessionAndChildStaffNotesAsync(CourseEnrollment session);
 

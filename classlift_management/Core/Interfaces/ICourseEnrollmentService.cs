@@ -16,6 +16,7 @@ namespace Core.Interfaces
     public interface ICourseEnrollmentService
     {
         Task<CourseEnrollment> GetAsync(int enrollmentId);
+        Task<bool> UpdateSchedulePreferenceAsync(int childId, int courseId, string? preference, CancellationToken cancellationToken = default);
 
         Task<bool> RemoveAsync(int enrollmentId);
         Task<int> AddRegisteredEnrollmentAsync(int childId, int courseId, decimal scheduledHours, string status, User user);

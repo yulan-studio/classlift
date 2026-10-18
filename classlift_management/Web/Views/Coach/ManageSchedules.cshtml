@@ -123,25 +123,56 @@
 <!-- Info Panel -->
 <div class="manage-schedule-info">
     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
-    <strong>Session Count:</strong> @Model.Course.SessionCount <br />
+    <strong>Session Count:</strong> @(Model.Course.SessionCount?.ToString() ?? "Unlimited") <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
     @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
     <span class="d-none d-lg-inline"><strong>City:</strong> @Model.Child.City.Name <br /></span>
 
-    @foreach (var pc in Model.Parents)
+    @if (Model.ShowParentGuardianContact)
+    {
+        @foreach (var pc in Model.Parents)
+        {
+            <div class="d-none d-lg-block">
+                <strong>@pc.Relationship:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Name) ? "N/A" : pc.Parent.Name)
+                <strong>&nbsp; &nbsp; Phone:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Phone) ? "N/A" : pc.Parent.Phone)
+                <strong>&nbsp; &nbsp; WeChat:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Wechat) ? "N/A" : pc.Parent.Wechat)
+                <strong>&nbsp; &nbsp; WhatsApp:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.WhatsApp) ? "N/A" : pc.Parent.WhatsApp)
+            </div>
+
+            <div class="d-block d-md-none">
+                <div><strong>@pc.Relationship:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Name) ? "N/A" : pc.Parent.Name)</div>
+                <div><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Phone) ? "N/A" : pc.Parent.Phone)</div>
+                <div><strong>WeChat:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Wechat) ? "N/A" : pc.Parent.Wechat)</div>
+                <div><strong>WhatsApp:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.WhatsApp) ? "N/A" : pc.Parent.WhatsApp)</div>
+            </div>
+        }
+    }
+    else
     {
         <div class="d-none d-lg-block">
-            <strong>@pc.Relationship:</strong> @pc.Parent.Name
-            <strong>&nbsp; &nbsp; Phone:</strong> @pc.Parent.Phone
-            <strong>&nbsp; &nbsp; WeChat:</strong> @pc.Parent.Wechat
+            <strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.Child.Phone) ? "N/A" : Model.Child.Phone)
+            <strong>&nbsp; &nbsp; WeChat:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WeChat) ? "N/A" : Model.Child.WeChat)
+            <strong>&nbsp; &nbsp; WhatsApp:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WhatsApp) ? "N/A" : Model.Child.WhatsApp)
         </div>
-
         <div class="d-block d-md-none">
-            <div><strong>@pc.Relationship:</strong> @pc.Parent.Name</div>
-            <div><strong>Phone:</strong> @pc.Parent.Phone</div>
+            <div><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.Child.Phone) ? "N/A" : Model.Child.Phone)</div>
+            <div><strong>WeChat:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WeChat) ? "N/A" : Model.Child.WeChat)</div>
+            <div><strong>WhatsApp:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WhatsApp) ? "N/A" : Model.Child.WhatsApp)</div>
         </div>
     }
 </div>
+
+@if (!string.IsNullOrWhiteSpace(Model.SchedulePreference))
+{
+    <div class="manage-schedule-info" style="background-color: #e8f4fc; border-color: #b8d7ee;">
+        <strong>@CurrentTenant.Terminology.ParticipantSingular schedule preference</strong>
+        @if (Model.SchedulePreferenceUpdatedAt.HasValue)
+        {
+            <span class="text-muted">(updated @Model.SchedulePreferenceUpdatedAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt"))</span>
+        }
+        <div style="white-space: pre-wrap; margin-top: .5rem;">@Model.SchedulePreference</div>
+    </div>
+}
 
 
 

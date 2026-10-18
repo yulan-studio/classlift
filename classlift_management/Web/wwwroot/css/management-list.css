@@ -680,16 +680,19 @@ main.container > h2 {
 
 /* Reusable secondary action used for low-emphasis save and view actions. */
 .classlift-secondary-button {
-    background-color: #7bb4dc;
-    border: 1px solid #7bb4dc;
+    background-color: #5b9ac7;
+    border: 1px solid #5b9ac7;
     color: #fff;
 }
 
 .classlift-secondary-button:hover,
-.classlift-secondary-button:focus {
-    background-color: #6aa8d3;
-    border-color: #6aa8d3;
-    color: #fff;
+.classlift-secondary-button:focus,
+.classlift-secondary-button:active,
+.classlift-secondary-button.active {
+    background-color: #4789b8 !important;
+    border-color: #4789b8 !important;
+    color: #fff !important;
+    opacity: 1 !important;
 }
 
 .management-form__cancel {

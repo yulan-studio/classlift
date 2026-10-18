@@ -66,6 +66,44 @@ namespace Core.Repositories
             }
         }
 
+        public async Task<bool> UpdateSchedulePreferenceAsync(
+            int childId,
+            int courseId,
+            string? preference,
+            DateTime updatedAt,
+            CancellationToken cancellationToken = default)
+        {
+            var root = await _context.CourseEnrollments
+                .Include(enrollment => enrollment.Course)
+                .SingleOrDefaultAsync(enrollment =>
+                    enrollment.EnrollmentID_Ref == null
+                    && enrollment.ChildID == childId
+                    && enrollment.CourseID == courseId
+                    && enrollment.Status == "Confirmed"
+                    && enrollment.Course.CourseType == "Private",
+                    cancellationToken);
+
+            if (root == null)
+                return false;
+
+            if (root.Course.SessionCount.HasValue)
+            {
+                var countedSessions = await _context.CourseEnrollments
+                    .CountAsync(session =>
+                        session.EnrollmentID_Ref == root.EnrollmentID
+                        && session.Status != "Deleted"
+                        && session.Status != "Canceled",
+                        cancellationToken);
+
+                if (root.Course.SessionCount.Value - countedSessions <= 0)
+                    return false;
+            }
+
+            root.SchedulePreference = preference;
+            root.SchedulePreferenceUpdatedAt = updatedAt;
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
+        }
+
         public async Task<bool> UpdateSessionAndChildStaffNotesAsync(CourseEnrollment session)
         {
             var existingSession = await _context.CourseEnrollments
