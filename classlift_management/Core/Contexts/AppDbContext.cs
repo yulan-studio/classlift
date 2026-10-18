@@ -206,6 +206,10 @@ namespace Core.Contexts
           .ToTable("course_enrollments"); // Explicitly map to the table name
 
             modelBuilder.Entity<CourseEnrollment>()
+                .Property(e => e.SchedulePreference)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<CourseEnrollment>()
                 .Property(e => e.ScheduledAt)
                 .HasConversion(
                     value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value,
