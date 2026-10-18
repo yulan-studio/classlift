@@ -1557,7 +1557,6 @@ namespace Web.Controllers.User
                 ActivitySchedules = activityEnrollments
             };
 
-            ViewBag.OpenCourseId = courseId;
             ViewBag.NotificationCount = notificationCount;
 
             return View("MySchedules", viewModel);
@@ -1582,7 +1581,7 @@ namespace Web.Controllers.User
                     .Select(error => error.ErrorMessage)
                     .FirstOrDefault(message => !string.IsNullOrWhiteSpace(message))
                     ?? "Please review your scheduling preference.";
-                return RedirectToAction(nameof(MySchedules), new { courseId = model.CourseID });
+                return RedirectToAction(nameof(MySchedules));
             }
 
             var preference = string.IsNullOrWhiteSpace(model.SchedulePreference)
@@ -1597,7 +1596,7 @@ namespace Web.Controllers.User
                 return BadRequest("This course could not accept a scheduling preference.");
 
             TempData["SchedulePreferenceSuccess"] = "Your scheduling preference has been saved.";
-            return RedirectToAction(nameof(MySchedules), new { courseId = model.CourseID });
+            return RedirectToAction(nameof(MySchedules));
         }
 
         [Authorize(Roles = "Child")]
