@@ -799,6 +799,8 @@ namespace Web.Controllers.User
                     .GetCountedSessionCountByRootEnrollmentAsync(enrollmentId);
                 var hasRemainingSessions = !course.SessionCount.HasValue
                     || course.SessionCount.Value - countedSessions > 0;
+                var hasStudentScheduleRequest = _currentTenant.HasFeature(
+                    Core.FeatureCodes.StudentScheduleRequest);
                 ViewBag.UserTimeZoneId = user.TimeZoneId;
                 ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
@@ -812,8 +814,10 @@ namespace Web.Controllers.User
                     Schedules = schedules,
                     ScheduledCount = scheduled.Count,
                     CompletedCount = completed.Count,
-                    SchedulePreference = hasRemainingSessions ? rootEnrollment.SchedulePreference : null,
-                    SchedulePreferenceUpdatedAt = hasRemainingSessions
+                    SchedulePreference = hasStudentScheduleRequest && hasRemainingSessions
+                        ? rootEnrollment.SchedulePreference
+                        : null,
+                    SchedulePreferenceUpdatedAt = hasStudentScheduleRequest && hasRemainingSessions
                         ? rootEnrollment.SchedulePreferenceUpdatedAt
                         : null
                 };

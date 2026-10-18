@@ -16,6 +16,14 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 1. After a participant is successfully registered in a course, Staff sees a success message using the organization's configured participant term and the wording "registered successfully".
 
+## Feature settings
+
+1. Platform owns the definition, entitlement, and business rules for Features. Management does not modify Feature data directly in the tenant database.
+2. A Feature included in an organization's Plan is enabled by default unless the organization has an explicit setting for a configurable Feature.
+3. Organization Feature Settings are applied generically: every configurable Feature returned by the Platform API can override the Plan default through its `IsEnabled` value. This is not limited to Student Schedule Request.
+4. Management pages use the stable Feature key to show or hide the corresponding UI and server-side operation. Adding a new configurable Feature requires its Platform definition and the relevant page-specific UI rule, but does not require new generic Feature-setting loading logic in Management.
+5. Local development may intentionally enable all Features so that Management can run without Platform entitlement data. Organization-level Feature setting behavior must be verified on a tenant environment with Platform integration configured.
+
 ## Group-course registration
 
 1. A newly created Group-course registration remains pending until it is confirmed.
@@ -98,7 +106,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 8. The Student may create or update their own Schedule Request when the Private Course still has sessions available to schedule. The request may include the preferred number of sessions per week, available weekdays, available time ranges, and other scheduling notes, including a note that the participant does not want to schedule sessions for a period of time. It has no start date or expiry date.
 9. For a Private course with a finite Session Count, the Student sees how many sessions remain available to schedule. The Student can view and edit the Schedule Request only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is not shown to the Student.
 10. The preferred sessions per week is only a scheduling preference. It is not a request for a specific number of Sessions and is not limited by the remaining-session count.
-11. Coaches can view the Student's Schedule Request for a Private Course, including its preferred sessions per week, availability, notes, and last-updated time, only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is hidden from both the Student and the Coach. Coaches cannot edit the request.
+11. When the Student Schedule Request Feature is enabled, Coaches can view the Student's Schedule Request for a Private Course, including its preferred sessions per week, availability, notes, and last-updated time, only while at least one session remains available to schedule. When the Feature is disabled or no sessions remain, the Schedule Request is hidden from both the Student and the Coach. Coaches cannot edit the request.
 12. The Schedule Request is limited to 2,000 characters and stores a dedicated UpdatedAt timestamp so the Coach can see how current it is.
 13. Unlimited Private courses do not display a remaining-session count. The rule for when an unlimited-course Schedule Request should stop being displayed remains open.
 14. The Student Schedule Request form must explain that the information is a long-term scheduling preference and does not automatically book a specific Session. The form must provide an example link or help control that demonstrates common ways to write the preference, including regular weekly availability, flexible availability, a temporary pause, changing availability, and important time restrictions.
