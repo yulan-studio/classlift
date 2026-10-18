@@ -21,6 +21,9 @@ namespace Core.ViewModels
 
         public Fee Fee { get; set; }
 
+        public CourseEnrollment? RootEnrollment { get; set; }
+        public int? RemainingPrivateSessions { get; set; }
+
     }
 
 

@@ -1509,6 +1509,21 @@ namespace Web.Controllers.User
                 .OrderBy(course => course.Course.Title)
                 .ToList();
 
+            foreach (var courseSchedule in courseSchedulesList)
+            {
+                var root = confirmedCourseRoots.FirstOrDefault(root => root.CourseID == courseSchedule.CourseID);
+                courseSchedule.RootEnrollment = root;
+
+                if (root?.Course.CourseType == "Private" && root.Course.SessionCount.HasValue)
+                {
+                    var countedSessions = await _courseEnrollmentService
+                        .GetCountedSessionCountByRootEnrollmentAsync(root.EnrollmentID);
+                    courseSchedule.RemainingPrivateSessions = Math.Max(
+                        0,
+                        root.Course.SessionCount.Value - countedSessions);
+                }
+            }
+
 
             var activityEnrollments = await _activityEnrollmentService.GetUpcomingEnrollmentsByChildAsync(child.ChildID);
 
@@ -1542,10 +1557,46 @@ namespace Web.Controllers.User
                 ActivitySchedules = activityEnrollments
             };
 
-            ViewBag.OpenCourseId = courseId;
             ViewBag.NotificationCount = notificationCount;
 
             return View("MySchedules", viewModel);
+        }
+
+        [Authorize(Roles = "Child")]
+        [HttpPost("SaveSchedulePreference")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveSchedulePreference(
+            SchedulePreferenceViewModel model,
+            CancellationToken cancellationToken)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var child = user == null ? null : await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                TempData["SchedulePreferenceError"] = ModelState.Values
+                    .SelectMany(value => value.Errors)
+                    .Select(error => error.ErrorMessage)
+                    .FirstOrDefault(message => !string.IsNullOrWhiteSpace(message))
+                    ?? "Please review your scheduling preference.";
+                return RedirectToAction(nameof(MySchedules));
+            }
+
+            var preference = string.IsNullOrWhiteSpace(model.SchedulePreference)
+                ? null
+                : model.SchedulePreference.Trim();
+            var updated = await _courseEnrollmentService.UpdateSchedulePreferenceAsync(
+                child.ChildID,
+                model.CourseID,
+                preference,
+                cancellationToken);
+            if (!updated)
+                return BadRequest("This course could not accept a scheduling preference.");
+
+            TempData["SchedulePreferenceSuccess"] = "Your scheduling preference has been saved.";
+            return RedirectToAction(nameof(MySchedules));
         }
 
         [Authorize(Roles = "Child")]

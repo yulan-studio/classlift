@@ -772,6 +772,8 @@ namespace Web.Controllers.User
                 var child = await _childService.GetAsync(childId);
                 var parents = await _parentChildService.GetParentsByChildIdAsync(childId);
 
+                var showParentGuardianContact = _currentTenant.Terminology.ParticipantsRequireParentSupport;
+
                 // ✅ Get courses assigned to the coach
                 //var course = await _courseService.GetActiveCourseByCoachAsync(coachId);
                 //int courseId = 2; //need to change later
@@ -793,6 +795,10 @@ namespace Web.Controllers.User
                 List<CourseEnrollment> completed = (List<CourseEnrollment>)await _courseEnrollmentService.GetCompletesByRootEnrollmentAsync(enrollmentId);
 
                 List<CourseEnrollment> scheduled = (List<CourseEnrollment>)await _courseEnrollmentService.GetSchedulesByRootEnrollmentAsync(enrollmentId);
+                var countedSessions = await _courseEnrollmentService
+                    .GetCountedSessionCountByRootEnrollmentAsync(enrollmentId);
+                var hasRemainingSessions = !course.SessionCount.HasValue
+                    || course.SessionCount.Value - countedSessions > 0;
                 ViewBag.UserTimeZoneId = user.TimeZoneId;
                 ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
@@ -801,10 +807,15 @@ namespace Web.Controllers.User
                     EnrollmentID = enrollmentId,
                     Child = child,
                     Parents = parents,
+                    ShowParentGuardianContact = showParentGuardianContact,
                     Course = course,
                     Schedules = schedules,
                     ScheduledCount = scheduled.Count,
-                    CompletedCount = completed.Count
+                    CompletedCount = completed.Count,
+                    SchedulePreference = hasRemainingSessions ? rootEnrollment.SchedulePreference : null,
+                    SchedulePreferenceUpdatedAt = hasRemainingSessions
+                        ? rootEnrollment.SchedulePreferenceUpdatedAt
+                        : null
                 };
 
                 return View(model);

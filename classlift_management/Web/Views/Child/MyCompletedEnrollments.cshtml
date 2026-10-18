@@ -68,8 +68,10 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#completedSessions_@courseSchedules.CourseID"
                         aria-expanded="false"
-                        aria-controls="completedSessions_@courseSchedules.CourseID">
-                    View sessions
+                        aria-controls="completedSessions_@courseSchedules.CourseID"
+                        data-view-label="View sessions"
+                        data-hide-label="Hide sessions">
+                    <span class="completed-toggle-label">View sessions</span>
                 </button>
             </div>
         <div id="completedSessions_@courseSchedules.CourseID" class="collapse history-table-wrapper">
@@ -168,5 +170,22 @@ else
         document.getElementById('my-note-save-' + enrollmentId).style.display = 'none';
         document.getElementById('my-note-cancel-' + enrollmentId).style.display = 'none';
     }
+
+    document.querySelectorAll('[data-bs-toggle="collapse"][data-hide-label]').forEach(function (button) {
+        var targetSelector = button.getAttribute('data-bs-target');
+        var target = targetSelector ? document.querySelector(targetSelector) : null;
+        var label = button.querySelector('.completed-toggle-label');
+        if (!target || !label) return;
+
+        target.addEventListener('shown.bs.collapse', function () {
+            label.textContent = button.getAttribute('data-hide-label');
+            button.setAttribute('aria-expanded', 'true');
+        });
+
+        target.addEventListener('hidden.bs.collapse', function () {
+            label.textContent = button.getAttribute('data-view-label');
+            button.setAttribute('aria-expanded', 'false');
+        });
+    });
 </script>
 </div>
