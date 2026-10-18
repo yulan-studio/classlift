@@ -153,6 +153,12 @@ docker run --rm -p 8080:8080 `
 - `/SubscriptionEvents` — subscription audit trail
 - `/Billing` and `/BillingRuns` — manual job controls and execution history
 - `POST /api/public/signup` — public tenant signup and provisioning
+- `GET/PUT /api/organizations/{organizationId}/feature-settings` — organization
+  Feature Settings API used by ClassLift Management
+
+Organization Feature configuration, data rules, API authentication, and
+migration instructions are documented in
+[ORGANIZATION_FEATURE_SETTINGS.md](ORGANIZATION_FEATURE_SETTINGS.md).
 
 ## Scheduled jobs
 
