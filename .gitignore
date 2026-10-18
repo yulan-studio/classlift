@@ -203,3 +203,5 @@
 /classlift_management/Core/tmp/buildcheck
 /classlift_management/Core/tmp/buildcheck2
 /classlift_management/Web/tmp/buildcheck2
+/classlift_management/Core/tmp
+/classlift_management/Web/tmp
