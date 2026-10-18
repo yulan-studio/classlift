@@ -123,7 +123,7 @@
 <!-- Info Panel -->
 <div class="manage-schedule-info">
     <strong>Course:</strong> @Model.Course.Title@if (!string.IsNullOrWhiteSpace(Model.Course.Description)) {<text> | @Model.Course.Description</text>} <br />
-    <strong>Session Count:</strong> @Model.Course.SessionCount <br />
+    <strong>Session Count:</strong> @(Model.Course.SessionCount?.ToString() ?? "Unlimited") <br />
     <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong> @Model.Child.Name <br />
     @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
     <span class="d-none d-lg-inline"><strong>City:</strong> @Model.Child.City.Name <br /></span>
