@@ -65,6 +65,10 @@ public sealed class OrganizationFeatureSettingsService : IOrganizationFeatureSet
             request.Content = JsonContent.Create(body);
 
         var context = _httpContextAccessor.HttpContext;
+        var apiKey = _configuration["PlatformApi:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(apiKey))
+            request.Headers.TryAddWithoutValidation("X-Platform-Api-Key", apiKey);
+
         if (context?.Request.Headers.Authorization.Count > 0)
             request.Headers.TryAddWithoutValidation("Authorization", context.Request.Headers.Authorization.ToString());
 
