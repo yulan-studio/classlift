@@ -103,6 +103,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 13. Unlimited Private courses do not display a remaining-session count. The rule for when an unlimited-course Schedule Request should stop being displayed remains open.
 14. The Student Schedule Request form must explain that the information is a long-term scheduling preference and does not automatically book a specific Session. The form must provide an example link or help control that demonstrates common ways to write the preference, including regular weekly availability, flexible availability, a temporary pause, changing availability, and important time restrictions.
 
+15. On Coach Manage Schedules, Parent/Guardian contact information is shown only when the organization has enabled its parent/guardian support setting. Otherwise, the participant's own Core Information contact details are shown. Missing contact values display as `N/A`.
+
 ## Participant schedule display
 
 1. Upcoming Private-course schedules include only Scheduled, RequestToReschedule, and Deleted sessions.

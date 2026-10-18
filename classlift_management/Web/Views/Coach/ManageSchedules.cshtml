@@ -128,17 +128,36 @@
     @* <strong>Birthday:</strong> @(Model.Child.BirthDate?.ToShortDateString()) <br /> *@
     <span class="d-none d-lg-inline"><strong>City:</strong> @Model.Child.City.Name <br /></span>
 
-    @foreach (var pc in Model.Parents)
+    @if (Model.ShowParentGuardianContact)
+    {
+        @foreach (var pc in Model.Parents)
+        {
+            <div class="d-none d-lg-block">
+                <strong>@pc.Relationship:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Name) ? "N/A" : pc.Parent.Name)
+                <strong>&nbsp; &nbsp; Phone:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Phone) ? "N/A" : pc.Parent.Phone)
+                <strong>&nbsp; &nbsp; WeChat:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Wechat) ? "N/A" : pc.Parent.Wechat)
+                <strong>&nbsp; &nbsp; WhatsApp:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.WhatsApp) ? "N/A" : pc.Parent.WhatsApp)
+            </div>
+
+            <div class="d-block d-md-none">
+                <div><strong>@pc.Relationship:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Name) ? "N/A" : pc.Parent.Name)</div>
+                <div><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Phone) ? "N/A" : pc.Parent.Phone)</div>
+                <div><strong>WeChat:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.Wechat) ? "N/A" : pc.Parent.Wechat)</div>
+                <div><strong>WhatsApp:</strong> @(string.IsNullOrWhiteSpace(pc.Parent?.WhatsApp) ? "N/A" : pc.Parent.WhatsApp)</div>
+            </div>
+        }
+    }
+    else
     {
         <div class="d-none d-lg-block">
-            <strong>@pc.Relationship:</strong> @pc.Parent.Name
-            <strong>&nbsp; &nbsp; Phone:</strong> @pc.Parent.Phone
-            <strong>&nbsp; &nbsp; WeChat:</strong> @pc.Parent.Wechat
+            <strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.Child.Phone) ? "N/A" : Model.Child.Phone)
+            <strong>&nbsp; &nbsp; WeChat:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WeChat) ? "N/A" : Model.Child.WeChat)
+            <strong>&nbsp; &nbsp; WhatsApp:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WhatsApp) ? "N/A" : Model.Child.WhatsApp)
         </div>
-
         <div class="d-block d-md-none">
-            <div><strong>@pc.Relationship:</strong> @pc.Parent.Name</div>
-            <div><strong>Phone:</strong> @pc.Parent.Phone</div>
+            <div><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.Child.Phone) ? "N/A" : Model.Child.Phone)</div>
+            <div><strong>WeChat:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WeChat) ? "N/A" : Model.Child.WeChat)</div>
+            <div><strong>WhatsApp:</strong> @(string.IsNullOrWhiteSpace(Model.Child.WhatsApp) ? "N/A" : Model.Child.WhatsApp)</div>
         </div>
     }
 </div>

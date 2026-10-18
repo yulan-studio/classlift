@@ -17,6 +17,8 @@ namespace Core.ViewModels
 
         public IEnumerable<ParentChild> Parents { get; set; }
 
+        public bool ShowParentGuardianContact { get; set; }
+
         public Course Course { get; set; }
 
         public int ScheduledCount { get; set; }

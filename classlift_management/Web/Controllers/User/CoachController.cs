@@ -772,6 +772,8 @@ namespace Web.Controllers.User
                 var child = await _childService.GetAsync(childId);
                 var parents = await _parentChildService.GetParentsByChildIdAsync(childId);
 
+                var showParentGuardianContact = _currentTenant.Terminology.ParticipantsRequireParentSupport;
+
                 // ✅ Get courses assigned to the coach
                 //var course = await _courseService.GetActiveCourseByCoachAsync(coachId);
                 //int courseId = 2; //need to change later
@@ -805,6 +807,7 @@ namespace Web.Controllers.User
                     EnrollmentID = enrollmentId,
                     Child = child,
                     Parents = parents,
+                    ShowParentGuardianContact = showParentGuardianContact,
                     Course = course,
                     Schedules = schedules,
                     ScheduledCount = scheduled.Count,
