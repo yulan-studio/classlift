@@ -113,6 +113,21 @@ else
 // Full MVC with Views (HTML pages using Razor).
 // Controllers that return both Views & JSON (e.g., hybrid APIs).
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient("PlatformApi", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var configuredBaseUrl = configuration["PlatformApi:BaseUrl"];
+    var baseUrl = configuredBaseUrl;
+    if (string.IsNullOrWhiteSpace(baseUrl))
+    {
+        var request = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.Request;
+        baseUrl = request == null ? null : $"{request.Scheme}://{request.Host}";
+    }
+
+    if (!string.IsNullOrWhiteSpace(baseUrl))
+        client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+});
 
 // ? Add session services
 builder.Services.AddSession(options =>
@@ -214,6 +229,7 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IOrganizationEmailSettingsService, OrganizationEmailSettingsService>();
+builder.Services.AddScoped<IOrganizationFeatureSettingsService, OrganizationFeatureSettingsService>();
 builder.Services.AddSingleton<IOrganizationEmailTemplateService, OrganizationEmailTemplateService>();
 builder.Services.AddScoped<IOrganizationEmailNotificationService, OrganizationEmailNotificationService>();
 

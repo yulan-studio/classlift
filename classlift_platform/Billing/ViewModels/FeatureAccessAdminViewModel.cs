@@ -20,5 +20,7 @@ namespace Billing.ViewModels
         public string FeatureKey { get; set; } = "";
         public string FeatureName { get; set; } = "";
         public bool HasAccess { get; set; }
+        public bool IsOrganizationConfigurable { get; set; }
+        public bool IsEnabled { get; set; }
     }
 }

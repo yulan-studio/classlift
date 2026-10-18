@@ -21,6 +21,7 @@ public partial class BillingDbContext : IdentityDbContext
 
     public virtual DbSet<BillingRun> BillingRuns { get; set; }
     public virtual DbSet<Feature> Features { get; set; }
+    public virtual DbSet<OrganizationFeatureSetting> OrganizationFeatureSettings { get; set; }
 
     public virtual DbSet<Invoice> Invoices { get; set; }
 
@@ -108,6 +109,22 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.Description).HasColumnType("text");
             entity.Property(e => e.FeatureKey).HasMaxLength(100);
             entity.Property(e => e.FeatureName).HasMaxLength(200);
+            entity.Property(e => e.IsOrganizationConfigurable).HasDefaultValue(false);
+        });
+
+        modelBuilder.Entity<OrganizationFeatureSetting>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationFeatureSettingId).HasName("PRIMARY");
+            entity.ToTable("organization_feature_settings");
+            entity.HasIndex(e => new { e.OrganizationId, e.FeatureId }).IsUnique();
+            entity.Property(e => e.OrganizationFeatureSettingId).HasColumnName("OrganizationFeatureSettingID");
+            entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
+            entity.Property(e => e.FeatureId).HasColumnName("FeatureID");
+            entity.Property(e => e.IsEnabled).HasDefaultValue(true);
+            entity.HasOne(e => e.Organization).WithMany(o => o.OrganizationFeatureSettings)
+                .HasForeignKey(e => e.OrganizationId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Feature).WithMany(f => f.OrganizationFeatureSettings)
+                .HasForeignKey(e => e.FeatureId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Invoice>(entity =>

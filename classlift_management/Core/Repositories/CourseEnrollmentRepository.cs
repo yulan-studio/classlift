@@ -154,7 +154,7 @@ namespace Core.Repositories
                 .Include(e => e.Course)
                 .Include(e => e.Course.Coach)
                 .Include(e => e.Course.Specialty)
-                .Where(e => e.ChildID != null && e.ChildID == childId && e.Status == status)
+                .Where(e => e.ChildID != null && e.ChildID == childId && e.EnrollmentID_Ref == null && e.Status == status)
                 .OrderBy(e => e.CourseID)
                 .OrderBy(e => e.ScheduledAt)
                 .ToListAsync();
