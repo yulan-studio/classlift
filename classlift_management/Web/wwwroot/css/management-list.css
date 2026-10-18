@@ -689,10 +689,10 @@ main.container > h2 {
 .classlift-secondary-button:focus,
 .classlift-secondary-button:active,
 .classlift-secondary-button.active {
-    background-color: #4789b8;
-    border-color: #4789b8;
-    color: #fff;
-    opacity: 1;
+    background-color: #4789b8 !important;
+    border-color: #4789b8 !important;
+    color: #fff !important;
+    opacity: 1 !important;
 }
 
 .management-form__cancel {
