@@ -20,6 +20,20 @@
     .coach-note-text { white-space: pre-line; }
     .manage-enrollments-page .alert { border-radius: 7px; }
     .manage-enrollments-page .participation-back-link { margin-top: 0; color: #000 !important; }
+    .manage-enrollments-page .progress-report-approve-button,
+    .manage-enrollments-page .progress-report-approve-button:hover,
+    .manage-enrollments-page .progress-report-approve-button:focus,
+    .manage-enrollments-page .progress-report-approve-button:active {
+        background-color: #d8edf9 !important;
+        border-color: #b8d7ee !important;
+        color: #000 !important;
+        opacity: 1 !important;
+        box-shadow: none;
+    }
+    .manage-enrollments-page .progress-report-approve-button:hover,
+    .manage-enrollments-page .progress-report-approve-button:focus {
+        background-color: #c7e4f4 !important;
+    }
     main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel,
     main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:hover,
     main .manage-enrollments-page button.btn.btn-secondary.cancel-button.coach-note-cancel:focus,
@@ -303,7 +317,7 @@
             <input type="hidden" name="courseId" value="@Model.Course.CourseID" />
             <input type="hidden" name="rootEnrollmentId" value="@Model.EnrollmentID" />
             <textarea name="finalText" class="form-control" rows="8" required>@draftText</textarea>
-            <button type="submit" class="btn classlift-secondary-button mt-2">Approve and save as @CurrentTenant.Terminology.ProviderSingular Note</button>
+            <button type="submit" class="btn classlift-secondary-button progress-report-approve-button mt-2">Approve and save as @CurrentTenant.Terminology.ProviderSingular Note</button>
         </form>
     </div>
 }
