@@ -1563,6 +1563,7 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Child")]
+        [RequiresFeature(FeatureCodes.StudentScheduleRequest)]
         [HttpPost("SaveSchedulePreference")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveSchedulePreference(
