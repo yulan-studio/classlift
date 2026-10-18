@@ -220,7 +220,7 @@ namespace Web.Controllers.User
         // GET: Add View
         [HttpGet("Add")]
         //[HttpGet]
-        public async Task<IActionResult> AddAsync()
+        public async Task<IActionResult> Add()
         {
             await PopulateLocationListsAsync(null, null);
 
