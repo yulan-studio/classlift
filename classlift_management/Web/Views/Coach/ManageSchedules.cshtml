@@ -143,6 +143,18 @@
     }
 </div>
 
+@if (!string.IsNullOrWhiteSpace(Model.SchedulePreference))
+{
+    <div class="manage-schedule-info" style="background-color: #e8f4fc; border-color: #b8d7ee;">
+        <strong>@CurrentTenant.Terminology.ParticipantSingular schedule preference</strong>
+        @if (Model.SchedulePreferenceUpdatedAt.HasValue)
+        {
+            <span class="text-muted">(updated @Model.SchedulePreferenceUpdatedAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd h:mm tt"))</span>
+        }
+        <div style="white-space: pre-wrap; margin-top: .5rem;">@Model.SchedulePreference</div>
+    </div>
+}
+
 
 
 <div class="schedule-section-heading">

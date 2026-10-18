@@ -23,6 +23,10 @@ namespace Core.ViewModels
 
         public int CompletedCount { get; set; }
 
+        public string? SchedulePreference { get; set; }
+
+        public DateTime? SchedulePreferenceUpdatedAt { get; set; }
+
 
         public List<CourseEnrollment> Schedules { get; set; }
     }

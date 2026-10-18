@@ -793,6 +793,10 @@ namespace Web.Controllers.User
                 List<CourseEnrollment> completed = (List<CourseEnrollment>)await _courseEnrollmentService.GetCompletesByRootEnrollmentAsync(enrollmentId);
 
                 List<CourseEnrollment> scheduled = (List<CourseEnrollment>)await _courseEnrollmentService.GetSchedulesByRootEnrollmentAsync(enrollmentId);
+                var countedSessions = await _courseEnrollmentService
+                    .GetCountedSessionCountByRootEnrollmentAsync(enrollmentId);
+                var hasRemainingSessions = !course.SessionCount.HasValue
+                    || course.SessionCount.Value - countedSessions > 0;
                 ViewBag.UserTimeZoneId = user.TimeZoneId;
                 ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
@@ -804,7 +808,11 @@ namespace Web.Controllers.User
                     Course = course,
                     Schedules = schedules,
                     ScheduledCount = scheduled.Count,
-                    CompletedCount = completed.Count
+                    CompletedCount = completed.Count,
+                    SchedulePreference = hasRemainingSessions ? rootEnrollment.SchedulePreference : null,
+                    SchedulePreferenceUpdatedAt = hasRemainingSessions
+                        ? rootEnrollment.SchedulePreferenceUpdatedAt
+                        : null
                 };
 
                 return View(model);
