@@ -207,3 +207,5 @@
 /classlift_management/Web/tmp
 /classlift_platform/.vs.backup/classlift_platform/CopilotIndices/18.10.1181.45497
 /classlift_platform/.vs.backup
+/classlift_management/Web/obj/Release/net8.0
+/classlift_management/.buildcheck-output.txt
