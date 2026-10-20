@@ -9,6 +9,17 @@
     <dt class="col-sm-3">Total</dt><dd class="col-sm-9">@Model.TotalAmount.ToString("C")</dd>
     <dt class="col-sm-3">Status</dt><dd class="col-sm-9">@Model.InvoiceStatus</dd>
 </dl>
+@if (Model.InvoiceStatus != "Paid" && Model.InvoiceStatus != "Cancelled")
+{
+    <form asp-action="Checkout" asp-route-id="@Model.InvoiceId" method="post" class="mb-3">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-primary">Create Stripe payment QR code</button>
+    </form>
+    @if (Model.StripeCheckoutSessionId != null)
+    {
+        <p>Scan to pay:</p><img src="/organization/invoice/@Model.InvoiceId/qr" alt="Stripe payment QR code" width="220" height="220" />
+    }
+}
 <h2 class="h5">Payments</h2>
 <table class="table"><thead><tr><th>Date</th><th>Provider</th><th>Amount</th><th>Status</th></tr></thead><tbody>
 @foreach (var payment in Model.Payments.OrderByDescending(p => p.PaymentDate))

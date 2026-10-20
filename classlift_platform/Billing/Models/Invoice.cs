@@ -37,6 +37,23 @@ public partial class Invoice
 
     public DateTime? PaidAt { get; set; }
 
+	//Stripe Checkout 页面会话的 ID。它对应顾客一次打开的支付页面（顾客进入哪个付款页面）
+	//主要用于：
+    //找回付款页面
+    //生成二维码
+    //查询 Checkout 状态
+    //关联某张发票
+	public string? StripeCheckoutSessionId { get; set; }
+
+	//Stripe 实际付款意图的 ID（Stripe 实际处理哪一笔付款）
+	//主要用于：
+	//确认实际付款
+	//查询付款状态
+	//退款
+	//对账
+
+	public string? StripePaymentIntentId { get; set; }
+
     public virtual Organization Organization { get; set; } = null!;
 
     public virtual OrganizationSubscription OrganizationSubscription { get; set; } = null!;
