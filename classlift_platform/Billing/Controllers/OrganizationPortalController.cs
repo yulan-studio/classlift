@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Billing.Services.Integrations;
 using QRCoder;
+using Stripe;
 
 namespace Billing.Controllers;
 
@@ -90,7 +91,18 @@ public sealed class OrganizationPortalController : Controller
         var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.InvoiceId == id, cancellationToken);
         if (invoice == null) return NotFound();
         if (!await OrganizationAuthorization.HasAccessAsync(_context, User, invoice.OrganizationId, cancellationToken)) return Forbid();
-        await _stripe.CreateCheckoutSessionAsync(invoice, cancellationToken);
+        try
+        {
+            await _stripe.CreateCheckoutSessionAsync(invoice, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (StripeException)
+        {
+            TempData["Error"] = "Stripe could not create the payment session. Please try again or contact support.";
+        }
         return RedirectToAction(nameof(Invoice), new { id, checkout = "created" });
     }
 

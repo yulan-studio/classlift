@@ -21,10 +21,14 @@ public sealed class StripeService
 
     public async Task<string> CreateCheckoutSessionAsync(PlatformInvoice invoice, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(_settings.SecretKey)) throw new InvalidOperationException("Stripe is not configured.");
+        if (string.IsNullOrWhiteSpace(_settings.SecretKey))
+            throw new InvalidOperationException("Stripe payments are not configured. Please contact support.");
+        if (!Uri.TryCreate(_settings.PublicBaseUrl, UriKind.Absolute, out var baseUri) ||
+            (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
+            throw new InvalidOperationException("Stripe payment URL is not configured correctly. Please contact support.");
         if (invoice.InvoiceStatus is "Paid" or "Cancelled") throw new InvalidOperationException("This invoice cannot be paid.");
         StripeConfiguration.ApiKey = _settings.SecretKey;
-        var baseUrl = _settings.PublicBaseUrl.TrimEnd('/');
+        var baseUrl = baseUri.ToString().TrimEnd('/');
         var session = await new SessionService().CreateAsync(new SessionCreateOptions
         {
             Mode = "payment",

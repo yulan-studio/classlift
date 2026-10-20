@@ -3,6 +3,10 @@
     ViewData["Title"] = "Invoice";
 }
 <h1>Invoice #@Model.InvoiceId</h1>
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
 <dl class="row">
     <dt class="col-sm-3">Billing period</dt><dd class="col-sm-9">@Model.BillingPeriodStart – @Model.BillingPeriodEnd</dd>
     <dt class="col-sm-3">Due date</dt><dd class="col-sm-9">@Model.DueDate</dd>
