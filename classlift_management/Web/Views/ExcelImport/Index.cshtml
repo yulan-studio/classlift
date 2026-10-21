@@ -1,6 +1,11 @@
 @{
     ViewData["Title"] = "Excel Import";
     var importType = ViewBag.ImportType as string ?? "All";
+    var importLabel = importType == "Coach"
+        ? CurrentTenant.Terminology.ProviderSingular
+        : importType == "Child"
+            ? CurrentTenant.Terminology.ParticipantSingular
+            : $"{CurrentTenant.Terminology.ProviderSingular} or {CurrentTenant.Terminology.ParticipantSingular}";
 }
 
 <style>
@@ -12,7 +17,7 @@
 
 <div class="excel-import-page">
 <h1 class="management-page-title">Excel Import</h1>
-<p>Upload an .xlsx file using the approved @CurrentTenant.Terminology.ProviderSingular or @CurrentTenant.Terminology.ParticipantSingular template. Blank or unknown cities are assigned to Unknown. Password is automatically set to <code>hello123!</code>.</p>
+<p>Upload an .xlsx file using the approved @importLabel template. Blank or unknown cities are assigned to Unknown. Password is automatically set to <code>hello123!</code>.</p>
 
 @if (ViewBag.Preview == true)
 {
