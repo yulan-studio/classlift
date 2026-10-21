@@ -9,7 +9,12 @@
     .excel-import-page h4 { margin: 0 0 10px; font-size: 1.15rem; font-weight: 600; }
     .excel-import-page p { font-size: .95rem; line-height: 1.5; }
     .excel-import-page .import-description { margin-bottom: 1rem; color: #6c757d; font-size: 1rem; font-weight: 400; line-height: 1.5; }
-    .excel-import-page .preview-summary p { margin: 2px 0; font-size: .82rem; line-height: 1.25; }
+    .excel-import-page .preview-summary p {
+        margin: 0 0 8px;
+        color: #6c757d;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
     .excel-import-page .template-fields {
         color: #6c757d;
         font-family: Arial, sans-serif;
@@ -24,10 +29,12 @@
     }
     .excel-import-page code { font-family: inherit; font-size: inherit; color: inherit; }
     .excel-import-page input[type=file] { min-height: 38px; padding: 6px 6px 6px 0; font-size: .95rem; }
-    .excel-import-page input[type=file]::file-selector-button { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 190px; margin: 0 10px 0 0; padding: 8px 14px; box-sizing: border-box; color: #fff !important; background-color: #1b7bab !important; border: 1px solid #1b7bab !important; border-radius: 5px; font-family: Arial, sans-serif; font-size: .95rem; line-height: 1.25; cursor: pointer; }
+    .excel-import-page input[type=file]::file-selector-button { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 0; margin: 0 10px 0 0; padding: 8px 14px; box-sizing: border-box; color: #fff !important; background-color: #1b7bab !important; border: 1px solid #1b7bab !important; border-radius: 5px; font-family: Arial, sans-serif; font-size: .95rem; line-height: 1.25; cursor: pointer; }
     .excel-import-page input[type=file]::file-selector-button:hover { background-color: #155a78 !important; border-color: #155a78 !important; }
-    .excel-import-page button.classlift-button { display: inline-flex; align-items: center; justify-content: center; min-width: 190px; width: auto; height: 40px !important; min-height: 40px !important; padding: 8px 14px !important; line-height: 1.25 !important; font-size: .95rem; vertical-align: middle; color: #fff !important; background-color: var(--classlift-blue, #1b7bab) !important; border: 1px solid var(--classlift-blue, #1b7bab) !important; }
+    .excel-import-page button.classlift-button { display: inline-flex; align-items: center; justify-content: center; min-width: 0; width: auto; height: 40px !important; min-height: 40px !important; padding: 8px 14px !important; line-height: 1.25 !important; font-size: .95rem; vertical-align: middle; color: #fff !important; background-color: var(--classlift-blue, #1b7bab) !important; border: 1px solid var(--classlift-blue, #1b7bab) !important; }
+    .excel-import-page button.classlift-button:hover { color: #fff !important; background-color: #155a78 !important; border-color: #155a78 !important; }
     .excel-import-page .classlift-button.cancel-button { color: #000 !important; background-color: #ddd !important; border-color: #ccc !important; }
+    .excel-import-page .classlift-button.cancel-button:hover { color: #000 !important; background-color: #c6c6c6 !important; border-color: #b8b8b8 !important; }
 </style>
 <div class="excel-import-page">
     <h1 class="management-page-title">@importLabel Excel Import</h1>
@@ -45,11 +52,11 @@
             <form asp-action="Cancel" method="post" style="display:inline;margin-left:8px">@Html.AntiForgeryToken()<button type="submit" class="classlift-button cancel-button">Cancel</button></form>
         </section>
     }
-    @if (importType == "Coach")
+    @if (ViewBag.Preview != true && importType == "Coach")
     {
         <section class="import-section"><h4>@CurrentTenant.Terminology.ProviderSingular</h4><p class="template-fields"><code>Name, Email, Gender, Phone, Province, City, Specialty</code> (Specialty is optional; separate multiple specialties with commas.)</p><p><a href="/User/ExcelImport/Template/Coach">Download template</a></p><form action="/Coach/Import/Preview" method="post" enctype="multipart/form-data">@Html.AntiForgeryToken()<input type="file" name="file" accept=".xlsx" required /><button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ProviderPlural</button></form></section>
     }
-    @if (importType == "Child")
+    @if (ViewBag.Preview != true && importType == "Child")
     {
         <section class="import-section"><h4>@CurrentTenant.Terminology.ParticipantSingular</h4><p class="template-fields"><code>Name, Email, BirthDate, Gender, Province, City</code></p><p><a href="/User/ExcelImport/Template/Child">Download template</a></p><form action="/Child/Import/Preview" method="post" enctype="multipart/form-data">@Html.AntiForgeryToken()<input type="file" name="file" accept=".xlsx" required /><button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ParticipantPlural</button></form></section>
     }
