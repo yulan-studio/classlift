@@ -87,6 +87,7 @@ public sealed class ExcelImportController : Controller
         var data = HttpContext.Session.GetString("ExcelImportResult");
         if (string.IsNullOrWhiteSpace(data)) return NotFound("The import result has expired.");
         HttpContext.Session.Remove("ExcelImportResult");
+        TempData.Remove("ImportResultAvailable");
         return File(Convert.FromBase64String(data), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "import-result.xlsx");
     }
 

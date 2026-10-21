@@ -3,7 +3,15 @@
     var importType = ViewBag.ImportType as string ?? "All";
 }
 
-<h2>Excel Import</h2>
+<style>
+    .excel-import-page { font-family: inherit; }
+    .excel-import-page .import-section { max-width: 850px; margin-bottom: 28px; }
+    .excel-import-page input[type=file] { min-height: 42px; padding: 8px; }
+    .excel-import-page button { min-height: 42px; padding: 10px 16px; }
+</style>
+
+<div class="excel-import-page">
+<h1 class="management-page-title">Excel Import</h1>
 <p>Upload an .xlsx file using the approved @CurrentTenant.Terminology.ProviderSingular or @CurrentTenant.Terminology.ParticipantSingular template. Blank or unknown cities are assigned to Unknown. Password is automatically set to <code>hello123!</code>.</p>
 
 @if (ViewBag.Preview == true)
@@ -17,35 +25,40 @@
         <p>Errors: @ViewBag.Errors</p>
         <form asp-action="Confirm" method="post" style="display:inline">
             @Html.AntiForgeryToken()
-            <button type="submit">Confirm import</button>
+            <button type="submit" class="classlift-button">Confirm import</button>
         </form>
         <form asp-action="Cancel" method="post" style="display:inline;margin-left:8px">
             @Html.AntiForgeryToken()
-            <button type="submit">Cancel</button>
+            <button type="submit" class="classlift-button cancel-button">Cancel</button>
         </form>
     </div>
 }
 
 @if (importType == "Coach" || importType == "All")
 {
+<section class="import-section">
 <h4>@CurrentTenant.Terminology.ProviderSingular</h4>
-<p><code>Name, Email, Gender, Phone, Province, City, Specialty</code>（Specialty 可为空；多个 Specialty 用逗号分隔）</p>
+<p><code>Name, Email, Gender, Phone, Province, City, Specialty</code> (Specialty is optional; separate multiple specialties with commas.)</p>
 <p><a href="/User/ExcelImport/Template/Coach">Download @CurrentTenant.Terminology.ProviderSingular template</a></p>
 <form asp-action="PreviewCoach" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <input type="file" name="file" accept=".xlsx" required />
-    <button type="submit">Preview @CurrentTenant.Terminology.ProviderPlural</button>
+    <button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ProviderPlural</button>
 </form>
+</section>
 }
 
 @if (importType == "Child" || importType == "All")
 {
+<section class="import-section">
 <h4>@CurrentTenant.Terminology.ParticipantSingular</h4>
-<p><code>Name, Email, BirthDate, Gender, Province, City</code>（HasOAP 默认设为 false）</p>
+<p><code>Name, Email, BirthDate, Gender, Province, City</code> (HasOAP defaults to false.)</p>
 <p><a href="/User/ExcelImport/Template/Child">Download @CurrentTenant.Terminology.ParticipantSingular template</a></p>
 <form asp-action="PreviewChild" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <input type="file" name="file" accept=".xlsx" required />
-    <button type="submit">Preview @CurrentTenant.Terminology.ParticipantPlural</button>
+    <button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ParticipantPlural</button>
 </form>
+</section>
 }
+</div>
