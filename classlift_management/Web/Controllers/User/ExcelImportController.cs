@@ -28,6 +28,12 @@ public sealed class ExcelImportController : Controller
     [HttpGet]
     public IActionResult Index() => View();
 
+    [HttpGet("/Coach/Import")]
+    public IActionResult CoachImport() { ViewBag.ImportType = "Coach"; return View("Index"); }
+
+    [HttpGet("/Child/Import")]
+    public IActionResult ChildImport() { ViewBag.ImportType = "Child"; return View("Index"); }
+
     [HttpGet("Template/Coach")]
     public IActionResult DownloadCoachTemplate() => Template(_currentTenant.Terminology.ProviderSingular, new[] { "Name", "Email", "Gender", "Phone", "Province", "City", "Specialty" });
 
@@ -63,7 +69,7 @@ public sealed class ExcelImportController : Controller
         HttpContext.Session.Remove("ExcelImportFile");
         await using var stream = new MemoryStream(Convert.FromBase64String(data));
         var file = new FormFile(stream, 0, stream.Length, "file", $"{type}-import.xlsx");
-        return await ImportAsync(file, type);
+        return await ImportAsync(file, type, true);
     }
 
     [HttpPost("Cancel")]
@@ -113,7 +119,7 @@ public sealed class ExcelImportController : Controller
         return View("Index");
     }
 
-    private async Task<IActionResult> ImportAsync(IFormFile file, ImportType type)
+    private async Task<IActionResult> ImportAsync(IFormFile file, ImportType type, bool redirectAfterImport = false)
     {
         if (file == null || file.Length == 0)
             return BadRequest("Please select an Excel file.");
@@ -271,6 +277,11 @@ public sealed class ExcelImportController : Controller
         }
         using var output = new MemoryStream();
         result.SaveAs(output);
+        if (redirectAfterImport)
+        {
+            TempData["ImportSummary"] = $"Imported {imported} record(s). Errors: {errors.Count}.";
+            return Redirect(type == ImportType.Coach ? "/Coach/List" : "/Child/List");
+        }
         return File(output.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "import-result.xlsx");
     }
 

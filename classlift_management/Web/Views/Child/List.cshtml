@@ -24,7 +24,14 @@
 
 <h1 class="management-page-title">Manage @CurrentTenant.Terminology.ParticipantPlural</h1>
 
+@if (TempData["ImportSummary"] is string importSummary)
+{
+    <div class="alert alert-success">@importSummary</div>
+}
+
 <a href="/Child/Add" class="list-add-link">Add @CurrentTenant.Terminology.ParticipantSingular</a>
+<a href="/Child/Import" class="list-add-link">Import @CurrentTenant.Terminology.ParticipantPlural from Excel</a>
+<a href="/User/ExcelImport/Template/Child" class="list-add-link">Download @CurrentTenant.Terminology.ParticipantSingular template</a>
 @* <label style="font-size:0.8em; color:darkslategray">
     <strong>0_CLXXXX</strong> - Balance and courses are correct &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>1_CLXXXX</strong> - Courses are correct &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  <strong>2_CLXXXX</strong> - Has some courses  &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <strong>3_CLXXXX</strong> - Only balance; courses not added yet
 </label> *@

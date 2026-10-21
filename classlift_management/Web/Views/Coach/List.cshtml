@@ -40,7 +40,14 @@
 
 <h1 class="management-page-title">Manage @CurrentTenant.Terminology.ProviderPlural</h1>
 
+@if (TempData["ImportSummary"] is string importSummary)
+{
+    <div class="alert alert-success">@importSummary</div>
+}
+
 <a href="/Coach/Add" class="list-add-link">Add @CurrentTenant.Terminology.ProviderSingular</a>
+<a href="/Coach/Import" class="list-add-link">Import @CurrentTenant.Terminology.ProviderPlural from Excel</a>
+<a href="/User/ExcelImport/Template/Coach" class="list-add-link">Download @CurrentTenant.Terminology.ProviderSingular template</a>
 
 
 <form method="get" asp-action="List" class="list-filter coach-list-filter mb-3">

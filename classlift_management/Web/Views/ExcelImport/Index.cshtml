@@ -1,5 +1,6 @@
 @{
     ViewData["Title"] = "Excel Import";
+    var importType = ViewBag.ImportType as string ?? "All";
 }
 
 <h2>Excel Import</h2>
@@ -25,6 +26,8 @@
     </div>
 }
 
+@if (importType == "Coach" || importType == "All")
+{
 <h4>@CurrentTenant.Terminology.ProviderSingular</h4>
 <p><code>Name, Email, Gender, Phone, Province, City, Specialty</code>（Specialty 可为空；多个 Specialty 用逗号分隔）</p>
 <p><a href="/User/ExcelImport/Template/Coach">Download @CurrentTenant.Terminology.ProviderSingular template</a></p>
@@ -33,7 +36,10 @@
     <input type="file" name="file" accept=".xlsx" required />
     <button type="submit">Preview @CurrentTenant.Terminology.ProviderPlural</button>
 </form>
+}
 
+@if (importType == "Child" || importType == "All")
+{
 <h4>@CurrentTenant.Terminology.ParticipantSingular</h4>
 <p><code>Name, Email, BirthDate, Gender, Province, City</code>（HasOAP 默认设为 false）</p>
 <p><a href="/User/ExcelImport/Template/Child">Download @CurrentTenant.Terminology.ParticipantSingular template</a></p>
@@ -42,3 +48,4 @@
     <input type="file" name="file" accept=".xlsx" required />
     <button type="submit">Preview @CurrentTenant.Terminology.ParticipantPlural</button>
 </form>
+}
