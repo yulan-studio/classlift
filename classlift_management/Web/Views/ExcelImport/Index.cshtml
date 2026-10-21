@@ -1,74 +1,42 @@
 @{
     ViewData["Title"] = "Excel Import";
     var importType = ViewBag.ImportType as string ?? "All";
-    var importLabel = importType == "Coach"
-        ? CurrentTenant.Terminology.ProviderSingular
-        : importType == "Child"
-            ? CurrentTenant.Terminology.ParticipantSingular
-            : $"{CurrentTenant.Terminology.ProviderSingular} or {CurrentTenant.Terminology.ParticipantSingular}";
+    var importLabel = importType == "Coach" ? CurrentTenant.Terminology.ProviderSingular : CurrentTenant.Terminology.ParticipantSingular;
 }
-
 <style>
-    .excel-import-page { font-family: Arial, sans-serif; color: #333; width: 100%; max-width: none; }
-    .excel-import-page .import-section { width: 100%; max-width: none; box-sizing: border-box; margin: 22px 0 28px; padding: 20px 24px; background: #eef8fc; border: 1px solid #c7e8f3; border-radius: 6px; }
-    .excel-import-page h4 { margin: 0 0 10px; font-size: 1.15rem; font-weight: 600; color: #333; }
-    .excel-import-page p { font-size: 0.95rem; line-height: 1.5; }
-    .excel-import-page input[type=file] { min-height: 38px; padding: 6px; font-size: 0.95rem; }
-    .excel-import-page .classlift-button { min-width: 190px; height: 40px !important; min-height: 40px !important; padding: 8px 14px !important; font-size: 0.95rem; color: #fff !important; background-color: var(--classlift-blue, #1b7bab) !important; border: 1px solid var(--classlift-blue, #1b7bab) !important; }
-    .excel-import-page .classlift-button:hover,
-    .excel-import-page .classlift-button:focus { color: #fff !important; background-color: var(--classlift-blue-dark, #155a78) !important; border-color: var(--classlift-blue-dark, #155a78) !important; }
+    .excel-import-page { font-family: Arial, sans-serif; color: #333; width: 100%; }
+    .excel-import-page .import-section { width: 100%; box-sizing: border-box; margin: 22px 0 28px; padding: 20px 24px; background: #eef8fc; border: 1px solid #c7e8f3; border-radius: 6px; }
+    .excel-import-page h4 { margin: 0 0 10px; font-size: 1.15rem; font-weight: 600; }
+    .excel-import-page p { font-size: .95rem; line-height: 1.5; }
+    .excel-import-page code { font-family: inherit; font-size: inherit; color: inherit; }
+    .excel-import-page input[type=file] { min-height: 38px; padding: 6px; font-size: .95rem; }
+    .excel-import-page input[type=file]::file-selector-button { height: 32px; margin-right: 10px; padding: 5px 12px; color: #fff; background-color: var(--classlift-blue, #1b7bab); border: 1px solid var(--classlift-blue, #1b7bab); border-radius: 5px; cursor: pointer; }
+    .excel-import-page input[type=file]::file-selector-button:hover { background-color: var(--classlift-blue-dark, #155a78); }
+    .excel-import-page .classlift-button { min-width: 190px; height: 40px !important; min-height: 40px !important; padding: 8px 14px !important; font-size: .95rem; color: #fff !important; background-color: var(--classlift-blue, #1b7bab) !important; border: 1px solid var(--classlift-blue, #1b7bab) !important; }
     .excel-import-page .classlift-button.cancel-button { color: #000 !important; background-color: #ddd !important; border-color: #ccc !important; }
 </style>
-
 <div class="excel-import-page">
-<h1 class="management-page-title">Excel Import</h1>
-<p>Upload an .xlsx file using the approved @importLabel template. Blank or unknown cities are assigned to Unknown. Password is automatically set to <code>hello123!</code>.</p>
-
-@if (ViewBag.Preview == true)
-{
-    <div style="border:1px solid #ccc;padding:12px;margin-bottom:20px;background:#f8f8f8;">
-        <h4>Import preview</h4>
-        <p>Total rows: @ViewBag.TotalRows</p>
-        <p>Existing Email addresses: @ViewBag.ExistingEmails</p>
-        <p>Duplicate Email addresses in this file: @ViewBag.DuplicateEmails</p>
-        <p>Warnings: @ViewBag.Warnings</p>
-        <p>Errors: @ViewBag.Errors</p>
-        <form asp-action="Confirm" method="post" style="display:inline">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="classlift-button">Confirm import</button>
-        </form>
-        <form asp-action="Cancel" method="post" style="display:inline;margin-left:8px">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="classlift-button cancel-button">Cancel</button>
-        </form>
-    </div>
-}
-
-@if (importType == "Coach" || importType == "All")
-{
-<section class="import-section">
-<h4>@CurrentTenant.Terminology.ProviderSingular</h4>
-<p><code>Name, Email, Gender, Phone, Province, City, Specialty</code> (Specialty is optional; separate multiple specialties with commas.)</p>
-<p><a href="/User/ExcelImport/Template/Coach">Download @CurrentTenant.Terminology.ProviderSingular template</a></p>
-<form asp-action="PreviewCoach" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <input type="file" name="file" accept=".xlsx" required />
-    <button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ProviderPlural</button>
-</form>
-</section>
-}
-
-@if (importType == "Child" || importType == "All")
-{
-<section class="import-section">
-<h4>@CurrentTenant.Terminology.ParticipantSingular</h4>
-<p><code>Name, Email, BirthDate, Gender, Province, City</code> (HasOAP defaults to false.)</p>
-<p><a href="/User/ExcelImport/Template/Child">Download @CurrentTenant.Terminology.ParticipantSingular template</a></p>
-<form asp-action="PreviewChild" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <input type="file" name="file" accept=".xlsx" required />
-    <button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ParticipantPlural</button>
-</form>
-</section>
-}
+    <h1 class="management-page-title">@importLabel Excel Import</h1>
+    <p>Upload an .xlsx file using the approved @importLabel template. Blank or unknown cities are assigned to Unknown. Password is automatically set to <code>hello123!</code>.</p>
+    @if (ViewBag.Preview == true)
+    {
+        <section class="import-section">
+            <h4>Import preview</h4>
+            <p>Total rows: @ViewBag.TotalRows</p>
+            <p>Existing Email addresses: @ViewBag.ExistingEmails</p>
+            <p>Duplicate Email addresses in this file: @ViewBag.DuplicateEmails</p>
+            <p>Warnings: @ViewBag.Warnings</p>
+            <p>Errors: @ViewBag.Errors</p>
+            <form asp-action="Confirm" method="post" style="display:inline">@Html.AntiForgeryToken()<button type="submit" class="classlift-button">Confirm import</button></form>
+            <form asp-action="Cancel" method="post" style="display:inline;margin-left:8px">@Html.AntiForgeryToken()<button type="submit" class="classlift-button cancel-button">Cancel</button></form>
+        </section>
+    }
+    @if (importType == "Coach")
+    {
+        <section class="import-section"><h4>@CurrentTenant.Terminology.ProviderSingular</h4><p><code>Name, Email, Gender, Phone, Province, City, Specialty</code> (Specialty is optional; separate multiple specialties with commas.)</p><p><a href="/User/ExcelImport/Template/Coach">Download template</a></p><form asp-action="PreviewCoach" method="post" enctype="multipart/form-data">@Html.AntiForgeryToken()<input type="file" name="file" accept=".xlsx" required /><button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ProviderPlural</button></form></section>
+    }
+    @if (importType == "Child")
+    {
+        <section class="import-section"><h4>@CurrentTenant.Terminology.ParticipantSingular</h4><p><code>Name, Email, BirthDate, Gender, Province, City</code></p><p><a href="/User/ExcelImport/Template/Child">Download template</a></p><form asp-action="PreviewChild" method="post" enctype="multipart/form-data">@Html.AntiForgeryToken()<input type="file" name="file" accept=".xlsx" required /><button type="submit" class="classlift-button">Preview @CurrentTenant.Terminology.ParticipantPlural</button></form></section>
+    }
 </div>

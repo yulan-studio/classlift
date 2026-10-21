@@ -25,9 +25,6 @@ public sealed class ExcelImportController : Controller
         _currentTenant = currentTenant;
     }
 
-    [HttpGet]
-    public IActionResult Index() => View();
-
     [HttpGet("/Coach/Import")]
     public IActionResult CoachImport() { ViewBag.ImportType = "Coach"; return View("Index"); }
 
@@ -76,9 +73,10 @@ public sealed class ExcelImportController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Cancel()
     {
+        var type = HttpContext.Session.GetString("ExcelImportType");
         HttpContext.Session.Remove("ExcelImportType");
         HttpContext.Session.Remove("ExcelImportFile");
-        return RedirectToAction(nameof(Index));
+        return Redirect(type == ImportType.Coach.ToString() ? "/Coach/Import" : "/Child/Import");
     }
 
     [HttpGet("Result")]
@@ -241,7 +239,7 @@ public sealed class ExcelImportController : Controller
                             throw new InvalidOperationException("BirthDate is invalid.");
                         birthDate = parsedBirthDate;
                     }
-                    _db.Children.Add(new Child { UserID = user.Id, User = user, Name = name, BirthDate = birthDate, Gender = Get(row, headers, "gender"), CityID = city.CityID, City = city, HasOAP = false });
+                    _db.Children.Add(new Child { UserID = user.Id, User = user, Name = name, BirthDate = birthDate, Gender = Get(row, headers, "gender"), CityID = city.CityID, City = city, HasOAP = true });
                 }
                 await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
