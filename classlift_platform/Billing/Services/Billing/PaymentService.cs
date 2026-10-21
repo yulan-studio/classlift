@@ -20,11 +20,12 @@ namespace Billing.Services.Billing
             string providerTransactionId,
             decimal amount,
             string currency = "CAD",
-            string? notes = null)
+            string? notes = null,
+            CancellationToken cancellationToken = default)
         {
             var invoice = await _context.Invoices
                 .Include(i => i.Payments)
-                .FirstOrDefaultAsync(i => i.InvoiceId == invoiceId);
+                .FirstOrDefaultAsync(i => i.InvoiceId == invoiceId, cancellationToken);
 
             if (invoice == null)
                 throw new Exception("Invoice not found.");
@@ -37,6 +38,10 @@ namespace Billing.Services.Billing
 
             if (amount != invoice.TotalAmount)
                 throw new Exception("Payment amount must equal invoice total. Partial payment is not supported.");
+
+            var existing = await _context.Payments.FirstOrDefaultAsync(
+                p => p.ProviderTransactionId == providerTransactionId, cancellationToken);
+            if (existing != null) return existing;
 
             var payment = new Payment
             {
@@ -55,7 +60,7 @@ namespace Billing.Services.Billing
             invoice.InvoiceStatus = "Paid";
             invoice.PaidAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return payment;
         }

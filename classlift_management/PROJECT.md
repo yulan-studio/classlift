@@ -263,3 +263,29 @@ dotnet test classlift_management.sln --no-build
 git diff --check
 git status --short
 ```
+
+### `restore` and `--no-restore`
+
+NuGet packages are the external .NET dependencies used by the projects. Restoring checks that the required packages and versions are available locally and downloads missing packages when necessary.
+
+Use restore when:
+
+- setting up the project for the first time;
+- changing a `.csproj` file or adding, removing, or upgrading a NuGet package;
+- pulling changes that modify project dependencies;
+- deleting `obj` or the local restore metadata; or
+- seeing an error that a package or package version cannot be found.
+
+```powershell
+dotnet restore classlift_management.sln
+```
+
+For routine development, when project dependencies have not changed, use `--no-restore` to skip the package check and any downloads:
+
+```powershell
+dotnet build Web\Web.csproj --no-restore
+```
+
+Building `Web.csproj` still builds its referenced `Core` project. It does not build the `Test` project. Use the solution command when all projects, including tests, need to be built.
+
+`clean` is separate from restore: it removes build outputs such as `bin` and `obj`; it does not normally remove the NuGet package cache. A clean build may still use restored packages.

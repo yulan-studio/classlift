@@ -4,6 +4,9 @@ using Billing.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Billing.Services.Integrations;
+using QRCoder;
+using Stripe;
 
 namespace Billing.Controllers;
 
@@ -12,8 +15,9 @@ namespace Billing.Controllers;
 public sealed class OrganizationPortalController : Controller
 {
     private readonly BillingDbContext _context;
+    private readonly StripeService _stripe;
 
-    public OrganizationPortalController(BillingDbContext context) => _context = context;
+    public OrganizationPortalController(BillingDbContext context, StripeService stripe) { _context = context; _stripe = stripe; }
 
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -78,5 +82,40 @@ public sealed class OrganizationPortalController : Controller
             return Forbid();
 
         return View(invoice);
+    }
+
+    [HttpPost("invoice/{id:int}/checkout")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Checkout(int id, CancellationToken cancellationToken)
+    {
+        var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.InvoiceId == id, cancellationToken);
+        if (invoice == null) return NotFound();
+        if (!await OrganizationAuthorization.HasAccessAsync(_context, User, invoice.OrganizationId, cancellationToken)) return Forbid();
+        try
+        {
+            await _stripe.CreateCheckoutSessionAsync(invoice, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (StripeException)
+        {
+            TempData["Error"] = "Stripe could not create the payment session. Please try again or contact support.";
+        }
+        return RedirectToAction(nameof(Invoice), new { id, checkout = "created" });
+    }
+
+    [HttpGet("invoice/{id:int}/qr")]
+    public async Task<IActionResult> QrCode(int id, CancellationToken cancellationToken)
+    {
+        var invoice = await _context.Invoices.AsNoTracking().FirstOrDefaultAsync(i => i.InvoiceId == id, cancellationToken);
+        if (invoice?.StripeCheckoutSessionId == null || !await OrganizationAuthorization.HasAccessAsync(_context, User, invoice.OrganizationId, cancellationToken)) return NotFound();
+        var url = await _stripe.GetCheckoutUrlAsync(invoice.StripeCheckoutSessionId, cancellationToken);
+        if (url == null) return NotFound();
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+        using var qr = new PngByteQRCode(data);
+        return File(qr.GetGraphic(8), "image/png");
     }
 }
