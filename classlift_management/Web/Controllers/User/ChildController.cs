@@ -275,6 +275,7 @@ namespace Web.Controllers.User
         [HttpPost("Add")]
         public async Task<IActionResult> Add(string name, DateTime birthDate, string gender, int? provinceId, int? cityId, string email, string password, bool hasOAP)
         {
+            password = "hello123!";
             if (!provinceId.HasValue)
                 ModelState.AddModelError(nameof(provinceId), "Please select a province.");
             if (!cityId.HasValue)

@@ -149,6 +149,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. During Coach or Child import, a blank City value or a City value that does not match an existing city is assigned to `Unknown`.
 4. Coach Excel import may leave Specialty blank. Staff can add or change the Coach's Specialty later from the Coach management page. When supplied, comma-separated Specialty names are matched to existing Specialty records.
 5. Coach and Child Excel imports do not require Password. The system assigns the default initial password `hello123!`. Child Excel imports do not require HasOAP; imported children default to HasOAP enabled.
+6. When Staff adds a Coach or Child manually, the system assigns the default initial password `hello123!`; the password is displayed but cannot be changed on the Add page.
 
 ## Email notifications
 
