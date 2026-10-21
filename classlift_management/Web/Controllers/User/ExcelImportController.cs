@@ -81,6 +81,15 @@ public sealed class ExcelImportController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet("Result")]
+    public IActionResult DownloadResult()
+    {
+        var data = HttpContext.Session.GetString("ExcelImportResult");
+        if (string.IsNullOrWhiteSpace(data)) return NotFound("The import result has expired.");
+        HttpContext.Session.Remove("ExcelImportResult");
+        return File(Convert.FromBase64String(data), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "import-result.xlsx");
+    }
+
     private async Task<IActionResult> PreviewAsync(IFormFile file, ImportType type)
     {
         if (file == null || file.Length == 0) return BadRequest("Please select an Excel file.");
@@ -279,7 +288,11 @@ public sealed class ExcelImportController : Controller
         result.SaveAs(output);
         if (redirectAfterImport)
         {
+            using var resultStream = new MemoryStream();
+            result.SaveAs(resultStream);
+            HttpContext.Session.SetString("ExcelImportResult", Convert.ToBase64String(resultStream.ToArray()));
             TempData["ImportSummary"] = $"Imported {imported} record(s). Errors: {errors.Count}.";
+            TempData["ImportResultAvailable"] = true;
             return Redirect(type == ImportType.Coach ? "/Coach/List" : "/Child/List");
         }
         return File(output.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "import-result.xlsx");

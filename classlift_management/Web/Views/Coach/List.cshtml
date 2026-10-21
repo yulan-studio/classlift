@@ -43,11 +43,15 @@
 @if (TempData["ImportSummary"] is string importSummary)
 {
     <div class="alert alert-success">@importSummary</div>
+    @if (TempData["ImportResultAvailable"] is true)
+    {
+        <div><a href="/User/ExcelImport/Result">Download import result</a></div>
+    }
 }
 
 <a href="/Coach/Add" class="list-add-link">Add @CurrentTenant.Terminology.ProviderSingular</a>
+<span style="display:inline-block;width:16px;"></span>
 <a href="/Coach/Import" class="list-add-link">Import @CurrentTenant.Terminology.ProviderPlural from Excel</a>
-<a href="/User/ExcelImport/Template/Coach" class="list-add-link">Download @CurrentTenant.Terminology.ProviderSingular template</a>
 
 
 <form method="get" asp-action="List" class="list-filter coach-list-filter mb-3">
