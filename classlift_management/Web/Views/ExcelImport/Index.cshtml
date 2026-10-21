@@ -9,12 +9,15 @@
 }
 
 <style>
-    .excel-import-page { font-family: Arial, sans-serif; color: #333; max-width: 900px; }
-    .excel-import-page .import-section { max-width: 850px; margin: 22px 0 28px; padding: 20px 24px; background: #eef8fc; border: 1px solid #c7e8f3; border-radius: 6px; }
+    .excel-import-page { font-family: Arial, sans-serif; color: #333; width: 100%; max-width: none; }
+    .excel-import-page .import-section { width: 100%; max-width: none; box-sizing: border-box; margin: 22px 0 28px; padding: 20px 24px; background: #eef8fc; border: 1px solid #c7e8f3; border-radius: 6px; }
     .excel-import-page h4 { margin: 0 0 10px; font-size: 1.15rem; font-weight: 600; color: #333; }
     .excel-import-page p { font-size: 0.95rem; line-height: 1.5; }
     .excel-import-page input[type=file] { min-height: 38px; padding: 6px; font-size: 0.95rem; }
-    .excel-import-page .classlift-button { min-height: 38px; padding: 8px 14px !important; font-size: 0.95rem; }
+    .excel-import-page .classlift-button { min-width: 190px; height: 40px !important; min-height: 40px !important; padding: 8px 14px !important; font-size: 0.95rem; color: #fff !important; background-color: var(--classlift-blue, #1b7bab) !important; border: 1px solid var(--classlift-blue, #1b7bab) !important; }
+    .excel-import-page .classlift-button:hover,
+    .excel-import-page .classlift-button:focus { color: #fff !important; background-color: var(--classlift-blue-dark, #155a78) !important; border-color: var(--classlift-blue-dark, #155a78) !important; }
+    .excel-import-page .classlift-button.cancel-button { color: #000 !important; background-color: #ddd !important; border-color: #ccc !important; }
 </style>
 
 <div class="excel-import-page">
