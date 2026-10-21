@@ -45,11 +45,11 @@ public sealed class ExcelImportController : Controller
     [ValidateAntiForgeryToken]
     public Task<IActionResult> ImportChild(IFormFile file) => ImportAsync(file, ImportType.Child);
 
-    [HttpPost("Preview/Coach")]
+    [HttpPost("/Coach/Import/Preview")]
     [ValidateAntiForgeryToken]
     public Task<IActionResult> PreviewCoach(IFormFile file) => PreviewAsync(file, ImportType.Coach);
 
-    [HttpPost("Preview/Child")]
+    [HttpPost("/Child/Import/Preview")]
     [ValidateAntiForgeryToken]
     public Task<IActionResult> PreviewChild(IFormFile file) => PreviewAsync(file, ImportType.Child);
 
