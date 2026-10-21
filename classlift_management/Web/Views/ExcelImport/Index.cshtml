@@ -10,11 +10,22 @@
     .excel-import-page p { font-size: .95rem; line-height: 1.5; }
     .excel-import-page .import-description { margin-bottom: 1rem; color: #6c757d; font-size: 1rem; font-weight: 400; line-height: 1.5; }
     .excel-import-page .preview-summary p { margin: 2px 0; font-size: .82rem; line-height: 1.25; }
-    .excel-import-page .template-fields { color: #8b0000; font-size: .85rem; }
+    .excel-import-page .template-fields {
+        color: #6c757d;
+        font-family: Arial, sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+    }
+    .excel-import-page .template-fields code {
+        color: inherit;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+    }
     .excel-import-page code { font-family: inherit; font-size: inherit; color: inherit; }
     .excel-import-page input[type=file] { min-height: 38px; padding: 6px 6px 6px 0; font-size: .95rem; }
-    .excel-import-page input[type=file]::file-selector-button { height: 32px; margin-left: 0; margin-right: 10px; padding: 5px 12px; color: #fff; background-color: var(--classlift-blue, #1b7bab); border: 1px solid var(--classlift-blue, #1b7bab); border-radius: 5px; cursor: pointer; }
-    .excel-import-page input[type=file]::file-selector-button:hover { background-color: var(--classlift-blue-dark, #155a78); }
+    .excel-import-page input[type=file]::file-selector-button { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 190px; margin: 0 10px 0 0; padding: 8px 14px; box-sizing: border-box; color: #fff !important; background-color: #1b7bab !important; border: 1px solid #1b7bab !important; border-radius: 5px; font-family: Arial, sans-serif; font-size: .95rem; line-height: 1.25; cursor: pointer; }
+    .excel-import-page input[type=file]::file-selector-button:hover { background-color: #155a78 !important; border-color: #155a78 !important; }
     .excel-import-page button.classlift-button { display: inline-flex; align-items: center; justify-content: center; min-width: 190px; width: auto; height: 40px !important; min-height: 40px !important; padding: 8px 14px !important; line-height: 1.25 !important; font-size: .95rem; vertical-align: middle; color: #fff !important; background-color: var(--classlift-blue, #1b7bab) !important; border: 1px solid var(--classlift-blue, #1b7bab) !important; }
     .excel-import-page .classlift-button.cancel-button { color: #000 !important; background-color: #ddd !important; border-color: #ccc !important; }
 </style>
