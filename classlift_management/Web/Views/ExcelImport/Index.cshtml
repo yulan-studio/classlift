@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Excel Import";
+}
+
+<h2>Excel Import</h2>
+<p>Upload an .xlsx file using the approved @CurrentTenant.Terminology.ProviderSingular or @CurrentTenant.Terminology.ParticipantSingular template. Blank or unknown cities are assigned to Unknown. Password is automatically set to <code>hello123!</code>.</p>
+
+@if (ViewBag.Preview == true)
+{
+    <div style="border:1px solid #ccc;padding:12px;margin-bottom:20px;background:#f8f8f8;">
+        <h4>Import preview</h4>
+        <p>Total rows: @ViewBag.TotalRows</p>
+        <p>Existing Email addresses: @ViewBag.ExistingEmails</p>
+        <p>Duplicate Email addresses in this file: @ViewBag.DuplicateEmails</p>
+        <p>Warnings: @ViewBag.Warnings</p>
+        <p>Errors: @ViewBag.Errors</p>
+        <form asp-action="Confirm" method="post" style="display:inline">
+            @Html.AntiForgeryToken()
+            <button type="submit">Confirm import</button>
+        </form>
+        <form asp-action="Cancel" method="post" style="display:inline;margin-left:8px">
+            @Html.AntiForgeryToken()
+            <button type="submit">Cancel</button>
+        </form>
+    </div>
+}
+
+<h4>@CurrentTenant.Terminology.ProviderSingular</h4>
+<p><code>Name, Email, Gender, Phone, Province, City, Specialty</code>（Specialty 可为空；多个 Specialty 用逗号分隔）</p>
+<p><a href="/User/ExcelImport/Template/Coach">Download @CurrentTenant.Terminology.ProviderSingular template</a></p>
+<form asp-action="PreviewCoach" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="file" name="file" accept=".xlsx" required />
+    <button type="submit">Preview @CurrentTenant.Terminology.ProviderPlural</button>
+</form>
+
+<h4>@CurrentTenant.Terminology.ParticipantSingular</h4>
+<p><code>Name, Email, BirthDate, Gender, Province, City</code>（HasOAP 默认设为 false）</p>
+<p><a href="/User/ExcelImport/Template/Child">Download @CurrentTenant.Terminology.ParticipantSingular template</a></p>
+<form asp-action="PreviewChild" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="file" name="file" accept=".xlsx" required />
+    <button type="submit">Preview @CurrentTenant.Terminology.ParticipantPlural</button>
+</form>

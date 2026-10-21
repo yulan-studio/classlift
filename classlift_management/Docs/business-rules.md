@@ -147,6 +147,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 1. Staff can import Coach and Child records from Excel into the related user and profile records.
 2. The `provinces` table and the `cities` table each include a default record named `Unknown`; the default city belongs to the default province.
 3. During Coach or Child import, a blank City value or a City value that does not match an existing city is assigned to `Unknown`.
+4. Coach Excel import may leave Specialty blank. Staff can add or change the Coach's Specialty later from the Coach management page. When supplied, comma-separated Specialty names are matched to existing Specialty records.
+5. Coach and Child Excel imports do not require Password. The system assigns the default initial password `hello123!`. Child Excel imports do not require HasOAP; HasOAP defaults to false.
 
 ## Email notifications
 
