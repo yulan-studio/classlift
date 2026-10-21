@@ -159,6 +159,10 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.PromotionId).HasColumnName("PromotionID");
             entity.Property(e => e.Subtotal).HasPrecision(10, 2);
             entity.Property(e => e.TotalAmount).HasPrecision(10, 2);
+            entity.Property(e => e.StripeCheckoutSessionId).HasMaxLength(255);
+            entity.Property(e => e.StripePaymentIntentId).HasMaxLength(255);
+            entity.HasIndex(e => e.StripeCheckoutSessionId).IsUnique();
+            entity.HasIndex(e => e.StripePaymentIntentId).IsUnique();
 
             entity.HasOne(d => d.Organization).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.OrganizationId)

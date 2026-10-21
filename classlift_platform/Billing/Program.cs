@@ -5,6 +5,7 @@ using Billing.Services.Billing;
 using Billing.Services.Jobs;
 using Billing.Services.Notifications;
 using Billing.Services.Provisioning;
+using Billing.Services.Integrations;
 using Hangfire;
 using Hangfire.MySql;
 using Microsoft.AspNetCore.Authorization;
@@ -121,6 +122,8 @@ builder.Services.AddScoped<BillingRunService>();
 builder.Services.AddScoped<MonthlyBillingJob>();
 builder.Services.AddScoped<DailyBillingJob>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<StripeService>();
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<DunningService>();
 builder.Services.AddScoped<DunningJob>();
 builder.Services.AddScoped<SubscriptionService>();
@@ -186,6 +189,18 @@ if (args.Contains("--migrate", StringComparer.OrdinalIgnoreCase))
     await dbContext.Database.MigrateAsync();
     await migrationScope.ServiceProvider.GetRequiredService<ITenantSchemaService>()
         .MigrateAllTenantsAsync();
+    return;
+}
+
+// Local/platform-only migration mode. This intentionally does not migrate
+// tenant databases and avoids the EF CLI design-time assembly loader.
+if (args.Contains("--migrate-platform", StringComparer.OrdinalIgnoreCase))
+{
+    await using var platformMigrationScope = app.Services.CreateAsyncScope();
+    var platformDbContext = platformMigrationScope.ServiceProvider
+        .GetRequiredService<BillingDbContext>();
+
+    await platformDbContext.Database.MigrateAsync();
     return;
 }
 

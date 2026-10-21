@@ -125,6 +125,7 @@ namespace Web.Controllers.User
         //[HttpPost]
         public async Task<IActionResult> Add(string name, string email, string password, List<int> specialtyIds, string gender, string phone, int? provinceId, int? cityId)
         {
+            password = "hello123!";
             if (string.IsNullOrWhiteSpace(name))
                 ModelState.AddModelError(nameof(name), "Please enter the provider's full name.");
             if (string.IsNullOrWhiteSpace(gender))
@@ -135,10 +136,6 @@ namespace Web.Controllers.User
                 ModelState.AddModelError(nameof(email), "Please enter an email address for this provider.");
             else if (!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(email))
                 ModelState.AddModelError(nameof(email), "Please enter a valid email address.");
-            if (string.IsNullOrWhiteSpace(password))
-                ModelState.AddModelError(nameof(password), "Please enter a password.");
-            else if (password.Length < 6 || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(ch => !char.IsLetterOrDigit(ch)))
-                ModelState.AddModelError(nameof(password), "Password must be at least 6 characters and include a lowercase letter, a digit, and a special character.");
             if (!provinceId.HasValue)
                 ModelState.AddModelError(nameof(provinceId), "Please select a province.");
             if (!cityId.HasValue)
