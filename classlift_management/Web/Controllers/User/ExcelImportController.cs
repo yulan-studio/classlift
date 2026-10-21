@@ -193,6 +193,7 @@ public sealed class ExcelImportController : Controller
                         row.Cell(cityColumn).CreateComment().AddText("Province and City do not match. Unknown City was used.");
                     }
                 }
+                _db.Attach(city);
                 var user = new Core.Models.User { UserName = email, Email = email, Role = type.ToString(), CreatedBy = staff.Id };
                 var create = await _userManager.CreateAsync(user, password);
                 if (!create.Succeeded) throw new InvalidOperationException(string.Join("; ", create.Errors.Select(e => e.Description)));
