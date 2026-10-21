@@ -186,7 +186,7 @@ public sealed class ExcelImportController : Controller
                 {
                     city = unknownCity;
                     if (!string.IsNullOrWhiteSpace(cityName) && headers.TryGetValue("city", out var cityColumn))
-                        row.Cell(cityColumn).Style.Fill.BackgroundColor = XLColor.LightYellow;
+                        row.Cell(cityColumn).Style.Fill.BackgroundColor = XLColor.Orange;
                 }
                 var provinceName = Get(row, headers, "province");
                 var province = provinces.FirstOrDefault(p => Normalize(p.Name) == Normalize(provinceName));
@@ -198,12 +198,12 @@ public sealed class ExcelImportController : Controller
                     city = unknownCity;
                     if (headers.TryGetValue("province", out var provinceColumn))
                     {
-                        row.Cell(provinceColumn).Style.Fill.BackgroundColor = XLColor.LightYellow;
+                        row.Cell(provinceColumn).Style.Fill.BackgroundColor = XLColor.Orange;
                         row.Cell(provinceColumn).CreateComment().AddText("Province and City do not match. Unknown Province was used.");
                     }
                     if (headers.TryGetValue("city", out var cityColumn))
                     {
-                        row.Cell(cityColumn).Style.Fill.BackgroundColor = XLColor.LightYellow;
+                        row.Cell(cityColumn).Style.Fill.BackgroundColor = XLColor.Orange;
                         row.Cell(cityColumn).CreateComment().AddText("Province and City do not match. Unknown City was used.");
                     }
                 }
@@ -224,7 +224,7 @@ public sealed class ExcelImportController : Controller
                         .ToArray();
                     if (unmatchedSpecialties.Length > 0 && headers.TryGetValue("specialty", out var specialtyColumn))
                     {
-                        row.Cell(specialtyColumn).Style.Fill.BackgroundColor = XLColor.LightYellow;
+                        row.Cell(specialtyColumn).Style.Fill.BackgroundColor = XLColor.Orange;
                         row.Cell(specialtyColumn).CreateComment().AddText("Unmatched Specialty names: " + string.Join(", ", unmatchedSpecialties));
                     }
                     _db.Coaches.Add(new Coach { UserID = user.Id, Name = name, Gender = Get(row, headers, "gender"), Phone = Get(row, headers, "phone"), CityID = city.CityID, City = city, Status = "Active", CoachSpecialties = specialtyIds.Select(id => new CoachSpecialty { SpecialtyID = id }).ToList() });
