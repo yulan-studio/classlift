@@ -450,7 +450,12 @@ document.getElementById("signupForm").addEventListener("submit", async function 
         message.innerText = result.message ||
             "Organization created. Check your email to activate it.";
         message.className = "mt-5 text-center text-sm text-green-700";
-        submitBtn.innerText = "Check Your Email";
+        submitBtn.type = "button";
+        submitBtn.disabled = false;
+        submitBtn.innerText = "JJ, this is a message for you. The password is your birthday: MMDD";
+        submitBtn.onclick = () => {
+            window.open("https://jj.roboturtle.ca/", "_blank", "noopener,noreferrer");
+        };
 
     } catch (error) {
         message.innerText = "Something went wrong. Please try again.";
