@@ -96,6 +96,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Private-course scheduling
 
+0. Each Private course must have a scheduling owner explicitly selected by Staff: either Staff or Coach. There is no default owner. The selected owner schedules both the session time and location; the other role cannot create sessions for that course. A Private course with no valid owner cannot create sessions. Group-course scheduling remains Staff-managed.
+
 1. On Coach Manage Schedules, a Private course session whose status is RequestToReschedule does not show the Edit action. The Coach may still use Remove, subject to the existing removal rules.
 2. A Provider Note containing non-whitespace text is required before a Coach can update or remove a Private course session. The displayed Provider term comes from the organization's terminology settings, and the rule is enforced by both the Manage Schedules page and the server.
 3. Coach Manage Schedules displays both Provider Note and Participant Note labels using the organization's configured terminology rather than fixed Coach or Child wording.

@@ -604,6 +604,10 @@ namespace Core.Migrations
                     b.Property<int?>("MaxCapacity")
                         .HasColumnType("int");
 
+                    b.Property<string>("PrivateSchedulingMode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<decimal?>("SessionCost")
                         .HasColumnType("decimal(10,2)");
 

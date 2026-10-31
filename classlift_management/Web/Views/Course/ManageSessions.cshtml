@@ -58,13 +58,15 @@
 
 @* @model IEnumerable<Core.ViewModels.SchedulesViewModel> *@
 @{
-    ViewData["Title"] = "Manage Group Course Sessions";
+    ViewData["Title"] = Model.Course.CourseType == "Private" ? "Manage Private Course Sessions" : "Manage Group Course Sessions";
     Layout = "~/Views/Shared/_Layout.cshtml";
     int courseId = (int)ViewBag.CourseID;
     int completedSessionCount = Model.FinishedSessions?.Count(session => session.Status == "Completed") ?? 0;
     int countedSessionCount = (Model.OpenSessions?.Count ?? 0) + completedSessionCount;
     bool canAddSessions = !Model.Course.SessionCount.HasValue
         || countedSessionCount < Model.Course.SessionCount.Value;
+    bool hasPrivateRegistrationAvailable = Model.PrivateRegistrationRemainingSessions.Values.Any(remaining => !remaining.HasValue || remaining.Value > 0);
+    bool showAddSessionForm = Model.Course.CourseType == "Group" ? canAddSessions : hasPrivateRegistrationAvailable;
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -79,12 +81,35 @@
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
 </div>
 
+@if (Model.Course.CourseType == "Private")
+{
+    <p class="text-muted">Staff schedules the time and location for each participant. Coaches cannot create Private-course sessions.</p>
+}
+
 <!-- Add New Session Form -->
-@if (canAddSessions)
+@if (showAddSessionForm)
 {
     <div class="schedule-add-panel">
-        <form method="post" asp-action="AddSession" asp-controller="Course" onsubmit="return validateScheduleTime()">
+        <form method="post" asp-action="@(Model.Course.CourseType == "Private" ? "AddPrivateSession" : "AddGroupSession")" asp-controller="Course" onsubmit="return validateScheduleTime()">
             <input type="hidden" name="courseId" value="@courseId" />
+            @if (Model.Course.CourseType == "Private")
+            {
+                <div class="schedule-field"><strong>Participant:</strong><br />
+                    <select name="enrollmentIdRef" required class="schedule-input">
+                        <option value="">Select participant</option>
+                        @foreach (var registration in Model.PrivateRegistrations)
+                        {
+                            var remaining = Model.PrivateRegistrationRemainingSessions.TryGetValue(registration.EnrollmentID, out var count) ? count : null;
+                            if (!remaining.HasValue || remaining.Value > 0)
+                            {
+                                <option value="@registration.EnrollmentID" data-child="@registration.ChildID">@registration.Child?.Name (@registration.Status)@(remaining.HasValue ? $" — {remaining} session(s) remaining" : " — unlimited")</option>
+                            }
+                        }
+                    </select>
+                    <input type="hidden" name="childId" id="privateChildId" />
+                </div>
+                <script>document.querySelector('select[name=enrollmentIdRef]').addEventListener('change', function(){ document.getElementById('privateChildId').value=this.options[this.selectedIndex].dataset.child || ''; });</script>
+            }
             <input type="hidden" name="courseId" value="@courseId" />
 
 
@@ -177,9 +202,9 @@
         </tr>
     </thead>
     <tbody>
-        @if (Model.AllUpcomingSessions.Any())
+        @if ((Model.Course.CourseType == "Private" ? Model.PrivateSessions : Model.AllUpcomingSessions ?? new List<Core.Models.CourseEnrollment>()).Any())
         {
-            foreach (var s in Model.AllUpcomingSessions)
+            foreach (var s in (Model.Course.CourseType == "Private" ? Model.PrivateSessions : Model.AllUpcomingSessions ?? new List<Core.Models.CourseEnrollment>()))
             {
                 <tr id="row-@s.EnrollmentID">
                    @*  <td style="padding: 8px; border: 1px solid #ddd;">@s.ScheduledAt?.ToString("yyyy-MM-dd HH:mm")</td>

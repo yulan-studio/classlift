@@ -215,7 +215,14 @@
                     <td class="action-column">
 
                         @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
-                        <a class="action-link" href="/Course/ManageSessions/@course.CourseID" style="@(course.CourseType == "Group" ?"":"display: none;")">Manage</a>
+                        @if (course.CourseType == "Group")
+                        {
+                            <a class="action-link" href="/Course/ManageGroupSessions/@course.CourseID">Manage Group Sessions</a>
+                        }
+                        else if (course.CourseType == "Private" && course.PrivateSchedulingMode == "Staff")
+                        {
+                            <a class="action-link" href="/Course/ManagePrivateSessions/@course.CourseID">Manage Private Sessions</a>
+                        }
 
                     </td>
                 </tr>

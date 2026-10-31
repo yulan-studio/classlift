@@ -56,6 +56,7 @@ namespace Core.Repositories
                     Title = c.Title,
                     Description = c.Description,
                     CourseType = c.CourseType,
+                    PrivateSchedulingMode = c.PrivateSchedulingMode,
                     MaxCapacity = c.MaxCapacity,
                     SessionCount = c.SessionCount,
 

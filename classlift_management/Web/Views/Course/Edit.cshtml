@@ -101,6 +101,30 @@
             <td style="padding: 8px;">@Model.CourseType</td>
             
         </tr>
+        @if (Model.CourseType == "Private")
+        {
+            <tr>
+                <td style="padding: 8px;"><label for="PrivateSchedulingMode">Private course scheduling:</label></td>
+                <td style="padding: 8px;"><select name="privateSchedulingMode" id="PrivateSchedulingMode" class="classlift-control form-select">
+                    <option value="">-- Select who schedules Private sessions --</option>
+                    @if (Model.PrivateSchedulingMode == "Coach")
+                    {
+                        <option value="Coach" selected>Coach schedules time and location</option>
+                        <option value="Staff">Staff schedules time and location</option>
+                    }
+                    else if (Model.PrivateSchedulingMode == "Staff")
+                    {
+                        <option value="Coach">Coach schedules time and location</option>
+                        <option value="Staff" selected>Staff schedules time and location</option>
+                    }
+                    else
+                    {
+                        <option value="Coach">Coach schedules time and location</option>
+                        <option value="Staff">Staff schedules time and location</option>
+                    }
+                </select></td>
+            </tr>
+        }
         <tr>
             <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
             <td style="padding: 8px;">

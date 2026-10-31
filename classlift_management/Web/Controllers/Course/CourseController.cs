@@ -1,4 +1,4 @@
-﻿using Core.Interfaces;
+using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -411,7 +411,7 @@ namespace Web.Controllers.Courses
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                var result = await _courseService.AddAsync(model.Title, model.Description, model.CourseType, model.MaxCapacity, model.SessionCount, model.HourlyCost, model.SessionCost, model.IsActive, model.CoachID, model.SpecialtyID, user);
+                var result = await _courseService.AddAsync(model.Title, model.Description, model.CourseType, model.PrivateSchedulingMode, model.MaxCapacity, model.SessionCount, model.HourlyCost, model.SessionCost, model.IsActive, model.CoachID, model.SpecialtyID, user);
 
                 if (!result)
                 {
@@ -470,7 +470,7 @@ namespace Web.Controllers.Courses
         [Authorize(Roles = "Staff")]
         [HttpPost("Edit/{courseId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int courseId, string title, string description, string courseType, int? maxCapacity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive/*, int userId, int updatedBy*/)
+        public async Task<IActionResult> Edit(int courseId, string title, string description, string courseType, string privateSchedulingMode, int? maxCapacity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive/*, int userId, int updatedBy*/)
         {
             try
             {
@@ -486,7 +486,7 @@ namespace Web.Controllers.Courses
 
                
 
-                var result = await _courseService.UpdateAsync(courseId, title, description, courseType, maxCapacity, sessionCount, hourlyCost, sessionCost, isActive, user);
+                var result = await _courseService.UpdateAsync(courseId, title, description, courseType, privateSchedulingMode, maxCapacity, sessionCount, hourlyCost, sessionCost, isActive, user);
 
                 if (!result)
                 {
@@ -511,20 +511,30 @@ namespace Web.Controllers.Courses
         [HttpGet("ManageSessions/{courseId}")]
         public async Task<IActionResult> ManageSessions(int courseId)
         {
-          
+            var course = await _courseService.GetAsync(courseId);
+            if (course.CourseType == "Group")
+                return RedirectToAction(nameof(ManageGroupSessions), new { courseId });
+            if (course.CourseType == "Private" && course.PrivateSchedulingMode == "Staff")
+                return RedirectToAction(nameof(ManagePrivateSessions), new { courseId });
 
-            Course course = await _courseService.GetAsync(courseId);
+            TempData["ErrorMessage"] = "This course does not have a Staff-managed session schedule.";
+            return RedirectToAction("List");
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpGet("ManageGroupSessions/{courseId}")]
+        public async Task<IActionResult> ManageGroupSessions(int courseId)
+        {
+            var course = await _courseService.GetAsync(courseId);
             if (course == null || course.CourseType != "Group")
             {
-                TempData["ErrorMessage"] = "Invalid course.";
+                TempData["ErrorMessage"] = "Invalid Group course.";
                 return RedirectToAction("List");
             }
 
             var openSessions = await _courseEnrollmentService.GetOpenSessionsByCourseAsync(courseId);
             var closedSessions = await _courseEnrollmentService.GetClosedSessionsByCourseAsync(courseId);
-            var canceledSessions = await _courseEnrollmentService.GetCanceledSessionsByCourseAsync(courseId);
             var finishedSessions = await _courseEnrollmentService.GetAllPastSessionsByCourseAsync(courseId);
-
             var allUpcomingSessions = await _courseEnrollmentService.GetAllUpcomingSessionsByCourseAsync(courseId);
             var allRegisteredUpcomingSessionIds = await _courseEnrollmentService.GetRegisteredUpcomingSessionsByCourseAsync(courseId);
             var refundedSessionEnrollmentIds = await _childBalanceService.GetRefundedSessionEnrollmentIdsAsync(courseId);
@@ -534,131 +544,124 @@ namespace Web.Controllers.Courses
             ViewBag.UserTimeZoneId = currentUser?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
             ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
-           
-
-            var model = new ManageSessionsViewModel
+            var model = new ManageGroupSessionsViewModel
             {
                 Course = course,
-                OpenSessions = (List<CourseEnrollment>?)openSessions,
-                FinishedSessions = (List<CourseEnrollment>?)finishedSessions,
-                //CanceledSessions = (List<CourseEnrollment>?)canceledSessions,
-                ClosedSessions = (List<CourseEnrollment>?)closedSessions,
-                AllUpcomingSessions = (List<CourseEnrollment>?)allUpcomingSessions,
+                OpenSessions = openSessions.ToList(),
+                FinishedSessions = finishedSessions.ToList(),
+                ClosedSessions = closedSessions.ToList(),
+                AllUpcomingSessions = allUpcomingSessions.ToList(),
                 RegisteredUpcomingSessionIds = allRegisteredUpcomingSessionIds,
                 RefundedSessionEnrollmentIds = refundedSessionEnrollmentIds
-
             };
 
-            return View(model);
+            return View("ManageGroupSessions", model);
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("ManagePrivateSessions/{courseId}")]
+        public async Task<IActionResult> ManagePrivateSessions(int courseId)
+        {
+            var course = await _courseService.GetAsync(courseId);
+            if (course == null || course.CourseType != "Private" || course.PrivateSchedulingMode != "Staff")
+            {
+                TempData["ErrorMessage"] = "Invalid Staff-managed Private course.";
+                return RedirectToAction("List");
+            }
 
+            var privateRegistrations = (await _courseEnrollmentService.GetRegisteredEnrollmentsByCourseAsync(courseId))
+                .Concat(await _courseEnrollmentService.GetConfirmedEnrollmentsByCourseAsync(courseId))
+                .ToList();
+            var privateRegistrationRemainingSessions = new Dictionary<int, int?>();
+
+            foreach (var registration in privateRegistrations)
+            {
+                privateRegistrationRemainingSessions[registration.EnrollmentID] = course.SessionCount.HasValue
+                    ? Math.Max(0, course.SessionCount.Value - await _courseEnrollmentService.GetCountedSessionCountByRootEnrollmentAsync(registration.EnrollmentID))
+                    : null;
+            }
+
+            var privateSessions = await _dbContext.CourseEnrollments
+                .Include(e => e.Child)
+                .Where(e => e.CourseID == courseId
+                    && e.EnrollmentID_Ref != null
+                    && e.ScheduledAt >= DateTime.UtcNow
+                    && e.Status != "Deleted")
+                .OrderBy(e => e.ScheduledAt)
+                .ToListAsync();
+
+            ViewBag.CourseID = courseId;
+            var currentUser = await _userManager.GetUserAsync(User);
+            ViewBag.UserTimeZoneId = currentUser?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
+            ViewBag.TimeZones = _timeZoneService.GetTimeZones();
+
+            var model = new ManagePrivateSessionsViewModel
+            {
+                Course = course,
+                PrivateRegistrations = privateRegistrations,
+                PrivateSessions = privateSessions,
+                PrivateRegistrationRemainingSessions = privateRegistrationRemainingSessions
+            };
+
+            return View("ManagePrivateSessions", model);
+        }
 
         [Authorize(Roles = "Staff")]
-        [HttpPost("AddSession")]
+        [HttpPost("AddPrivateSession")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddSession(int courseId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, string staffNote, string repeatType, int repeatCount)
+        public async Task<IActionResult> AddPrivateSession(int courseId, int childId, int enrollmentIdRef,
+            DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location,
+            string staffNote, string repeatType, int repeatCount)
         {
-
-
-
             var user = await _userManager.GetUserAsync(User);
-
-            Course course = await _courseService.GetAsync(courseId);
-            if (course == null || course.CourseType != "Group")
+            var course = await _courseService.GetAsync(courseId);
+            if (course == null || course.CourseType != "Private" || course.PrivateSchedulingMode != "Staff")
             {
-                TempData["ErrorMessage"] = "Invalid course.";
+                TempData["ErrorMessage"] = "Invalid Staff-managed Private course.";
                 return RedirectToAction("ManageSessions", new { courseId });
-            
             }
-       
 
             try
             {
+                if (user == null)
+                    throw new InvalidOperationException("The Staff user could not be identified.");
                 if (!_timeZoneService.IsValidTimeZone(scheduledTimeZoneId))
                     throw new ArgumentException("Please select a valid event time zone.");
                 if (repeatType is not ("None" or "Daily" or "Weekly"))
                     throw new ArgumentException("Please select a valid repeat type.");
+                if (scheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
+                    throw new ArgumentException("Scheduled hours and location are required.");
 
                 var totalOccurrences = repeatType == "None" ? 1 : Math.Clamp(repeatCount, 1, 365);
-
-                if (course.SessionCount.HasValue)
-                {
-                    var openSessionCount = (await _courseEnrollmentService
-                        .GetOpenSessionsByCourseAsync(courseId))
-                        .Count();
-                    var completedSessionCount = (await _courseEnrollmentService
-                        .GetCompletedSessionsByCourseAsync(courseId))
-                        .Count();
-                    var countedSessionCount = openSessionCount + completedSessionCount;
-
-                    if (countedSessionCount + totalOccurrences > course.SessionCount.Value)
-                        throw new InvalidOperationException(
-                            $"This course can have at most {course.SessionCount.Value} sessions. " +
-                            $"There are currently {openSessionCount} open and {completedSessionCount} completed sessions.");
-                }
-
                 var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
-                var timings = new List<ScheduleTiming>();
-
                 for (var i = 0; i < totalOccurrences; i++)
                 {
                     var utc = _timeZoneService.ConvertLocalToUtc(localTime, scheduledTimeZoneId);
                     if (utc <= DateTime.UtcNow)
                         throw new ArgumentException("Scheduled time must be in the future.");
 
-                    timings.Add(new ScheduleTiming
-                    {
-                        ScheduledAtUtc = utc,
-                        ScheduledLocalTime = localTime,
-                        TimeZoneId = scheduledTimeZoneId
-                    });
+                    var created = await _courseEnrollmentService.AddSessionToPrivateCourseAsync(
+                        childId, courseId, enrollmentIdRef,
+                        new ScheduleTiming
+                        {
+                            ScheduledAtUtc = utc,
+                            ScheduledLocalTime = localTime,
+                            TimeZoneId = scheduledTimeZoneId
+                        }, scheduledHours, location, staffNote, user);
+                    if (created <= 0)
+                        throw new InvalidOperationException("A private course session could not be created.");
+
                     localTime = repeatType == "Daily" ? localTime.AddDays(1) : localTime.AddDays(7);
                 }
 
-                var createdMasterSessionIds = new List<int>();
-                foreach (var timing in timings)
-                {
-                    var masterSessionId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
-                        courseId,
-                        timing,
-                        scheduledHours,
-                        location,
-                        staffNote,
-                        user!);
-                    if (masterSessionId <= 0)
-                        throw new InvalidOperationException("A course session could not be created.");
-
-                    createdMasterSessionIds.Add(masterSessionId);
-                }
-
-                if (createdMasterSessionIds.Count == timings.Count)
-                {
-                    var notificationsSent = await NotifyFamiliesOfStaffScheduleCreationAsync(
-                        course,
-                        createdMasterSessionIds,
-                        timings,
-                        scheduledHours,
-                        location);
-                    TempData[notificationsSent ? "SuccessMessage" : "WarningMessage"] =
-                        notificationsSent
-                            ? "Session(s) added successfully."
-                            : "Session(s) were added successfully, but one or more notification emails could not be sent.";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Failed to add one or more sessions.";
-                }
-                
-                return RedirectToAction("ManageSessions", new { courseId });
+                TempData["SuccessMessage"] = "Private-course session(s) added successfully.";
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"{ex.Message}";
-                return RedirectToAction("ManageSessions", new { courseId });
+                TempData["ErrorMessage"] = ex.Message;
             }
 
-           
+            return RedirectToAction(nameof(ManagePrivateSessions), new { courseId });
         }
 
         [Authorize(Roles = "Staff")]
@@ -1074,4 +1077,6 @@ namespace Web.Controllers.Courses
 
     }   
 }
+
+
 

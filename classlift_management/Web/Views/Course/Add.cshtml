@@ -97,6 +97,18 @@
             <td style="width:55%; padding-left: 60px;"></td>
         </tr>
 
+        <tr id="privateSchedulingModeRow" style="display:none;">
+            <td style="padding: 8px;"><label for="PrivateSchedulingMode">Private course scheduling:</label></td>
+            <td style="padding: 8px;">
+                <select name="PrivateSchedulingMode" id="PrivateSchedulingMode" class="classlift-control form-select">
+                    <option value="">-- Select who schedules Private sessions --</option>
+                    <option value="Coach">Coach schedules time and location</option>
+                    <option value="Staff">Staff schedules time and location</option>
+                </select>
+            </td>
+            <td style="padding-left:30px;">Choose who will arrange Private-course sessions.</td>
+        </tr>
+
 
         <tr>
             <td style="padding: 8px;"><label for="SpecialtyID">Specialty:</label></td>
@@ -253,6 +265,16 @@
         </tr>
     </table>
 </form>
+
+<script>
+    function updatePrivateSchedulingMode() {
+        const privateCourse = document.getElementById('CourseType').value === 'Private';
+        document.getElementById('privateSchedulingModeRow').style.display = privateCourse ? '' : 'none';
+        document.getElementById('PrivateSchedulingMode').required = privateCourse;
+    }
+    document.getElementById('CourseType').addEventListener('change', updatePrivateSchedulingMode);
+    updatePrivateSchedulingMode();
+</script>
 
 
 

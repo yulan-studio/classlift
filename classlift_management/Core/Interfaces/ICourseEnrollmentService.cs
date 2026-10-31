@@ -75,6 +75,7 @@ namespace Core.Interfaces
         Task<bool> ScheduleCourseAsync(int childId, int courseId, ScheduleTiming timing, decimal scheduledHours, string location, int coachId, int enrollmentId_Ref);
 
         Task<int> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user);
+        Task<int> AddSessionToPrivateCourseAsync(int childId, int courseId, int enrollmentIdRef, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user);
 
         Task<bool> UpdateSessionAsync(CourseEnrollment session);
 

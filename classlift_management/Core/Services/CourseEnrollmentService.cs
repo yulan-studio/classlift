@@ -460,7 +460,7 @@ namespace Core.Services
 
         }
 
-        //Schedule Private Course for a child
+        //Schedule Private Course for a child by Coach
         public async Task<bool> ScheduleCourseAsync(int childId, int courseId, ScheduleTiming timing, decimal scheduledHours, string location, int coachId, int enrollmentId_Ref)
         {
             Child? child = await _childRepository.GetAsync(childId);
@@ -470,6 +470,8 @@ namespace Core.Services
             if(coach == null)
                 throw new ArgumentException("Invalid coach.");
             Course course = await _courseRepository.GetAsync(courseId);
+            if (course?.PrivateSchedulingMode is not "Coach")
+                throw new InvalidOperationException("This private course is scheduled by Staff.");
             var rootEnrollment = await _enrollmentRepository.GetAsync(enrollmentId_Ref);
             if (rootEnrollment == null
                 || rootEnrollment.EnrollmentID_Ref != null
@@ -575,6 +577,38 @@ namespace Core.Services
             {
                 throw new Exception(ex.Message, ex.InnerException);
             }
+        }
+
+        //Add Session to Private Course by Staff
+        public async Task<int> AddSessionToPrivateCourseAsync(int childId, int courseId, int enrollmentIdRef, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
+        {
+            var child = await _childRepository.GetAsync(childId);
+            var course = await _courseRepository.GetAsync(courseId);
+            var root = await _enrollmentRepository.GetAsync(enrollmentIdRef);
+            if (child == null || course == null || root == null
+                || !string.Equals(course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                || root.EnrollmentID_Ref != null || root.ChildID != childId || root.CourseID != courseId
+                || root.Status is not ("Registered" or "Confirmed"))
+                throw new ArgumentException("The selected private-course registration is invalid or no longer active.");
+            if (course.PrivateSchedulingMode is not "Staff")
+                throw new InvalidOperationException("This private course is scheduled by the Coach.");
+            if (scheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
+                throw new ArgumentException("Scheduled hours and location are required.");
+            if (course.SessionCount.HasValue)
+            {
+                var count = await _enrollmentRepository.GetCountedSessionCountByRootEnrollmentAsync(enrollmentIdRef);
+                if (count >= course.SessionCount.Value)
+                    throw new InvalidOperationException("All sessions for this private course have already been scheduled.");
+            }
+            var session = new CourseEnrollment
+            {
+                ChildID = childId, CourseID = courseId, EnrollmentID_Ref = enrollmentIdRef,
+                ScheduledAt = timing.ScheduledAtUtc, ScheduledLocalTime = timing.ScheduledLocalTime,
+                ScheduledTimeZoneId = timing.TimeZoneId, ScheduledHours = scheduledHours,
+                Location = location.Trim(), StaffNote = staffNote?.Trim(), CreatedBy = user.Id,
+                CreatedDate = DateTime.UtcNow, Status = "Scheduled"
+            };
+            return await _enrollmentRepository.AddAsync(session) ? session.EnrollmentID : 0;
         }
 
 
