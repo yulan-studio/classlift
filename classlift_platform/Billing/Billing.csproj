@@ -50,6 +50,10 @@
     <None Update="TenantScripts\z20261020_AddUnknownCity.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  
+    <None Update="TenantScripts\z20261030_private_course_scheduling_mode.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
