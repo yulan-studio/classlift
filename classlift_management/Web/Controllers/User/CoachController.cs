@@ -1470,7 +1470,8 @@ namespace Web.Controllers.User
             var enrollment = await _courseEnrollmentService.GetAsync(vm.EnrollmentId);
             if (coach == null || course.CoachID != coach.CoachID)
                 return Forbid();
-            if (course.CourseType != "Private" || course.PrivateSchedulingMode != "Coach")
+            if (course.CourseType != "Private"
+                || course.PrivateSchedulingMode is not ("Coach" or "Staff"))
                 return Forbid();
             if (enrollment.ChildID != vm.ChildId
                 || enrollment.CourseID != vm.CourseId
@@ -1478,6 +1479,11 @@ namespace Web.Controllers.User
             {
                 return BadRequest("The session does not match the selected registration.");
             }
+
+            // Staff owns the schedule details. A therapist may update only the
+            // Provider Note for a Staff-managed private course.
+            if (course.PrivateSchedulingMode == "Staff")
+                vm.Location = enrollment.Location;
 
             var saved = await _courseEnrollmentService.UpdateCoachSchedule(vm);
             if (!saved)
