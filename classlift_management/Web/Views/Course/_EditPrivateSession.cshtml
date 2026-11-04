@@ -1,0 +1,49 @@
+@model Core.Models.CourseEnrollment
+
+@{
+    var startTime = Model.ScheduledAt.ToUserTime(User, AppTimeZoneService);
+    var endTime = startTime?.AddHours((double)(Model.ScheduledHours ?? 0));
+}
+
+<form id="sessionForm">
+    <input type="hidden" name="enrollmentId" value="@Model.EnrollmentID" />
+    <input type="hidden" name="status" value="@Model.Status" />
+
+    <div class="schedule-field">
+        <strong>@CurrentTenant.Terminology.ParticipantSingular:</strong><br />
+        <input type="text" value="@(Model.Child?.Name ?? "N/A")" class="schedule-input schedule-input--edit" disabled />
+    </div>
+
+    <div class="schedule-field">
+        <strong>Date:</strong><br />
+        <input type="text" value="@(startTime?.ToString("yyyy-MM-dd") ?? "N/A")" class="schedule-input schedule-input--edit" disabled />
+    </div>
+
+    <div class="schedule-field">
+        <strong>Start Time:</strong><br />
+        <input type="text" value="@(startTime?.ToString("HH:mm") ?? "N/A")" class="schedule-input schedule-input--edit" disabled />
+    </div>
+
+    <div class="schedule-field">
+        <strong>End Time:</strong><br />
+        <input type="text" value="@(endTime?.ToString("HH:mm") ?? "N/A")" class="schedule-input schedule-input--edit" disabled />
+    </div>
+
+    <div class="schedule-field">
+        <strong>Status:</strong><br />
+        <input type="text" value="@Model.Status" class="schedule-input schedule-input--edit" disabled />
+    </div>
+
+    <div class="schedule-field">
+        <strong>Location:</strong><br />
+        <input type="text" name="location" value="@Model.Location" class="schedule-input schedule-input--edit" required />
+    </div>
+
+    <div class="schedule-field">
+        <strong>Staff Note:</strong><br />
+        <textarea name="staffNote" rows="3" class="schedule-input schedule-input--edit">@Model.StaffNote</textarea>
+    </div>
+
+    <button type="button" onclick="saveSession()" class="management-form__save">Save</button>
+    <button type="button" class="management-form__cancel cancel-button" style="color: #000 !important;" data-bs-dismiss="modal">Cancel</button>
+</form>

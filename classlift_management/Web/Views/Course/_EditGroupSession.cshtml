@@ -19,23 +19,20 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
 
    <div class="schedule-field">
         <strong>Scheduled Hours:</strong><br />
-        <input type="number" step="0.5" min="0.5" name="replacementScheduledHours" value="@Model.ScheduledHours" class="schedule-input schedule-input--edit" />
+        <input type="hidden" name="replacementScheduledHours" value="@Model.ScheduledHours" />
+        <input type="number" step="0.5" min="0.5" value="@Model.ScheduledHours" class="schedule-input schedule-input--edit" disabled />
     </div> 
 
     <div class="schedule-field">
         <strong>Status:</strong><br />
-        <select id="statusSelect" name="status" required class="schedule-input schedule-input--edit">
+        <select id="statusSelect" name="status" required class="schedule-input schedule-input--edit form-select">
             <option value="Open" selected="@(selectedStatus == "Open")" >Open</option>
             @if (hasRegistrations)
             {
                 <option value="Canceled" selected="@(selectedStatus == "Canceled")">Canceled</option>
             }
          </select>
-        @if (!hasRegistrations)
-        {
-            <br/><span style="color:#6c757d">You can delete this session directly instead. Do not cancel it, because no active participants are registered.</span>
-        }
-        else
+        @if (hasRegistrations)
         {
             <br/><span style="color:red">This can't be undone once the session status is set to Canceled.</span>
         }
@@ -45,7 +42,7 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
     {
         <div id="cancellationResolutionFields" class="schedule-field" style="display:none;">
             <strong>Cancellation resolution:</strong><br />
-            <select name="cancellationResolution" id="cancellationResolution" class="schedule-input schedule-input--edit">
+            <select name="cancellationResolution" id="cancellationResolution" class="schedule-input schedule-input--edit form-select">
                 <option value="">-- Select --</option>
                 <option value="Replacement">Create Replacement</option>
                 @if (hasBalanceFeature)
@@ -57,7 +54,7 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
                 <label for="replacementScheduledAt" class="form-label" style="display:block;"><strong>New Session Scheduled At:</strong></label>
                 <input id="replacementScheduledAt" type="datetime-local" name="replacementScheduledAt" class="schedule-input schedule-input--edit" style="display:block;" />
                 <label for="replacementTimeZoneId" class="form-label" style="display:block; margin-top:8px;"><strong>Time Zone:</strong></label>
-                <select id="replacementTimeZoneId" name="replacementTimeZoneId" class="form-select" required>
+                <select id="replacementTimeZoneId" name="replacementTimeZoneId" class="schedule-input schedule-input--edit form-select" required>
                     @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
                     {
                         <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.UserTimeZoneId)">@zone.DisplayName (@zone.Id)</option>

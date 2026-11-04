@@ -96,7 +96,7 @@
 
         <div class="schedule-field">
             <strong>Event Time Zone:</strong><br />
-            <select name="scheduledTimeZoneId" required class="schedule-input">
+            <select name="scheduledTimeZoneId" required class="schedule-input form-select">
                 @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
                 {
                     <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.UserTimeZoneId)">@zone.DisplayName (@zone.Id)</option>
@@ -112,7 +112,7 @@
 
         <div class="schedule-field">
             <strong>Repeat:</strong><br />
-            <select id="repeatType" name="repeatType" class="schedule-input">
+            <select id="repeatType" name="repeatType" class="schedule-input form-select">
                 <option value="None">Does not repeat</option>
                 <option value="Daily">Daily</option>
                 <option value="Weekly">Weekly</option>

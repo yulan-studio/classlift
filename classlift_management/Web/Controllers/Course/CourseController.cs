@@ -824,7 +824,9 @@ namespace Web.Controllers.Courses
             ViewBag.UserTimeZoneId = currentUser?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
             ViewBag.TimeZones = _timeZoneService.GetTimeZones();
 
-            return PartialView("_EditSession", session);
+            return session.Course.CourseType == "Private"
+                ? PartialView("_EditPrivateSession", session)
+                : PartialView("_EditGroupSession", session);
         }
 
 
@@ -848,6 +850,14 @@ namespace Web.Controllers.Courses
                 var result = false;
                 session.Location = location;
                 session.StaffNote = staffNote;
+
+                if (session.Course.CourseType == "Group")
+                    replacementScheduledHours = session.ScheduledHours;
+
+                // The Staff-managed Private-session editor changes only Location
+                // and Staff Note. Status is preserved server-side.
+                if (session.Course.CourseType == "Private")
+                    status = session.Status;
 
                 var registeredSessionIds = await _courseEnrollmentService
                     .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);

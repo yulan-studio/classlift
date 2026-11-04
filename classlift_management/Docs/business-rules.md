@@ -87,7 +87,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Canceled course sessions
 
 1. When Staff cancels a Group course session, the affected child sessions are canceled as part of the same operation.
-   - A Group session with no active participant registrations is deleted instead of canceled. Its Edit dialog does not offer Canceled status and directs Staff to use Delete; the server also rejects a cancellation request for that unused session.
+   - A Group session with no active participant registrations is deleted instead of canceled. Its Edit dialog does not offer Canceled status; the server also rejects a cancellation request for that unused session.
+   - Scheduled Hours is read-only in the Manage Group Sessions Edit dialog. A replacement session created through that dialog uses the original session's Scheduled Hours.
 2. The canceled session's Actions must let Staff explicitly choose either Create Replacement or Refund Session Cost; the system must not automatically perform either choice.
 3. A replacement session is created with a new future schedule and follows the normal Group-session registration process.
 4. If Staff chooses Refund Session Cost, the system credits each affected participant's course balance by that course's Session Cost and records the canceled session and participant session in the balance history. A refund cannot be applied twice to the same participant session.
@@ -102,6 +103,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 0. Each Private course must have a scheduling owner explicitly selected by Staff: either Staff or Coach. There is no default owner. The selected owner schedules both the session time and location; the other role cannot create sessions for that course. A Private course with no valid owner cannot create sessions. Group-course scheduling remains Staff-managed.
    - The scheduling owner is selected when the Private course is created. Edit Course displays the current owner as read-only and cannot change it. Group courses do not display Private Course Scheduling.
    - When Staff is the scheduling owner, Coach Manage Class labels the Schedules action as View. The Coach cannot add, edit, or remove session schedule details, but can update the Provider Note for a session.
+   - Manage Private Sessions offers an Edit action for active Staff-managed Private sessions. Its Private-specific editor displays Participant, Date, Start Time, End Time, and Status as read-only information, using configured Participant terminology and the user's time zone. Only Location and Staff Note can be changed; Status is preserved by the server.
 
 1. On Coach Manage Schedules, a Private course session whose status is RequestToReschedule does not show the Edit action. The Coach may still use Remove, subject to the existing removal rules.
 2. A Provider Note containing non-whitespace text is required before a Coach can update or remove a Private course session. The displayed Provider term comes from the organization's terminology settings, and the rule is enforced by both the Manage Schedules page and the server.

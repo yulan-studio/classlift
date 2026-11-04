@@ -78,7 +78,7 @@
     <strong>Session Count:</strong> @Model.Course.SessionCount <br />
 </div>
 
-<p class="text-muted">Staff schedules the time and location for each participant. </p>
+<p class="text-muted">Staff schedules the time and location for each @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant().</p>
 
 <!-- Add New Session Form -->
 @if (showAddSessionForm)
@@ -185,8 +185,12 @@
         <tr style="background-color: #f2f2f2;">
 
 
-            <th data-sort-column="participant" onclick="sortPrivateSessions('participant')" style="padding: 8px; border: 1px solid #ddd; width: 15%; cursor: pointer;">Participant <span class="sort-indicator">↕</span></th>
-            <th data-sort-column="date" onclick="sortPrivateSessions('date')" style="padding: 8px; border: 1px solid #ddd; width: 10%; cursor: pointer;">Date <span class="sort-indicator">↕</span></th>
+            <th class="sortable-header" data-sort-column="participant" onclick="sortPrivateSessions('participant')" style="padding: 8px; border: 1px solid #ddd; width: 15%; cursor: pointer; background-color:lightblue;">
+                <span class="sortable-link">@CurrentTenant.Terminology.ParticipantSingular <span class="sort-indicator">▲</span></span>
+            </th>
+            <th class="sortable-header" data-sort-column="date" onclick="sortPrivateSessions('date')" style="padding: 8px; border: 1px solid #ddd; width: 10%; cursor: pointer; background-color:lightblue;">
+                <span class="sortable-link">Date <span class="sort-indicator">▲</span></span>
+            </th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 10%">Start Time</th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 10%">End Time</th>
 
@@ -234,11 +238,10 @@
                         {
                             <span style="color:#6c757d; font-style:italic;">Resolved during cancellation</span>
                         }
-                        @if (!(s.Status == "Canceled") && !(s.Status == "Completed"))
+                        @if (s.Status != "Canceled" && s.Status != "Completed")
                         {
                             <a href="#" onclick="loadEditSessionForm(@s.EnrollmentID); return false;" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
                         }
-
                         <a href="#" onclick="loadDeleteSessionConfirm(@s.EnrollmentID)" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
                     </td>
                 </tr>
@@ -276,6 +279,8 @@
         });
 
         rows.forEach(row => body.appendChild(row));
+        const indicator = table.querySelector(`th[data-sort-column="${column}"] .sort-indicator`);
+        if (indicator) indicator.textContent = direction === 1 ? '▲' : '▼';
         privateSessionSortDirections[column] *= -1;
     }
 </script>
