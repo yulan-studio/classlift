@@ -665,6 +665,86 @@ namespace Web.Controllers.Courses
         }
 
         [Authorize(Roles = "Staff")]
+        [HttpPost("AddGroupSession")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddGroupSession(
+            int courseId,
+            DateTime scheduledAt,
+            string scheduledTimeZoneId,
+            decimal scheduledHours,
+            string location,
+            string? staffNote,
+            string repeatType,
+            int repeatCount)
+        {
+            var course = await _courseService.GetAsync(courseId);
+            var user = await _userManager.GetUserAsync(User);
+
+            if (course == null || course.CourseType != "Group")
+            {
+                TempData["ErrorMessage"] = "Invalid Group course.";
+                return RedirectToAction(nameof(ManageGroupSessions), new { courseId });
+            }
+
+            try
+            {
+                if (user == null)
+                    throw new InvalidOperationException("The Staff user could not be identified.");
+                if (!_timeZoneService.IsValidTimeZone(scheduledTimeZoneId))
+                    throw new ArgumentException("Please select a valid event time zone.");
+                if (repeatType is not ("None" or "Daily" or "Weekly"))
+                    throw new ArgumentException("Please select a valid repeat type.");
+                if (scheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
+                    throw new ArgumentException("Scheduled hours and location are required.");
+
+                var totalOccurrences = repeatType == "None" ? 1 : Math.Clamp(repeatCount, 1, 365);
+                var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
+                var masterSessionIds = new List<int>();
+                var timings = new List<ScheduleTiming>();
+
+                for (var i = 0; i < totalOccurrences; i++)
+                {
+                    var utc = _timeZoneService.ConvertLocalToUtc(localTime, scheduledTimeZoneId);
+                    if (utc <= DateTime.UtcNow)
+                        throw new ArgumentException("Scheduled time must be in the future.");
+
+                    var timing = new ScheduleTiming
+                    {
+                        ScheduledAtUtc = utc,
+                        ScheduledLocalTime = localTime,
+                        TimeZoneId = scheduledTimeZoneId
+                    };
+
+                    var masterSessionId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
+                        courseId, timing, scheduledHours, location, staffNote ?? string.Empty, user);
+                    if (masterSessionId <= 0)
+                        throw new InvalidOperationException("A group course session could not be created.");
+
+                    masterSessionIds.Add(masterSessionId);
+                    timings.Add(timing);
+                    localTime = repeatType == "Daily" ? localTime.AddDays(1) : localTime.AddDays(7);
+                }
+
+                if (!await NotifyFamiliesOfStaffScheduleCreationAsync(
+                        course, masterSessionIds, timings, scheduledHours, location))
+                {
+                    TempData["WarningMessage"] =
+                        "The group session(s) were created, but some family notifications could not be sent.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Group-course session(s) added successfully.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(ManageGroupSessions), new { courseId });
+        }
+
+        [Authorize(Roles = "Staff")]
         [HttpPost("CreateReplacementSession")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateReplacementSession(int canceledSessionId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, string? staffNote)
