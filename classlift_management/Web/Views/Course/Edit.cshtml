@@ -110,7 +110,7 @@
                     @if (Model.PrivateSchedulingMode == "Coach")
                     {
                         <option value="Coach" selected>Coach schedules time and location</option>
-                        <option value="Staff">Staff schedules time and location</option>
+                        <option value="Staff" disabled="@(!Model.SessionCount.HasValue)">Staff schedules time and location</option>
                     }
                     else if (Model.PrivateSchedulingMode == "Staff")
                     {
@@ -120,10 +120,17 @@
                     else
                     {
                         <option value="Coach">Coach schedules time and location</option>
-                        <option value="Staff">Staff schedules time and location</option>
+                        <option value="Staff" disabled="@(!Model.SessionCount.HasValue)">Staff schedules time and location</option>
                     }
                 </select></td>
             </tr>
+            @if (!Model.SessionCount.HasValue)
+            {
+                <tr>
+                    <td></td>
+                    <td class="management-form__instruction">Staff scheduling is unavailable because this Private course does not have a Session Count.</td>
+                </tr>
+            }
         }
         <tr>
             <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>

@@ -349,7 +349,13 @@ namespace Web.Controllers.Courses
 
             if (model.CourseType == "Private")
             {
-                if (model.SessionCount.HasValue && !model.SessionCost.HasValue)
+                if (model.PrivateSchedulingMode == "Staff" && !model.SessionCount.HasValue)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.SessionCount),
+                        "Session Count is required when Staff schedules a Private course.");
+                }
+                else if (model.SessionCount.HasValue && !model.SessionCost.HasValue)
                 {
                     ModelState.AddModelError(
                         nameof(model.SessionCost),

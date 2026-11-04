@@ -60,6 +60,7 @@ namespace Core.Services
         public async Task<bool> AddAsync(string title, string? description, string courseType, string privateSchedulingMode, int? maxCapacity, int? sessionCount, decimal? hourlyCost, decimal? sessionCost, bool isActive, int coachId, int specialtyId, User user)
         {
             ValidatePrivateSchedulingMode(courseType, privateSchedulingMode);
+            ValidateStaffManagedPrivateSessionCount(courseType, privateSchedulingMode, sessionCount);
             // Validate inputs
             //if (string.IsNullOrWhiteSpace(title))
             //{
@@ -146,6 +147,7 @@ namespace Core.Services
         public async Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, string privateSchedulingMode, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive, User user/*, int userId, int updatedBy*/)
         {
             ValidatePrivateSchedulingMode(courseType, privateSchedulingMode);
+            ValidateStaffManagedPrivateSessionCount(courseType, privateSchedulingMode, sessionCount);
             // Validate inputs
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -223,6 +225,19 @@ namespace Core.Services
             if (string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase)
                 && mode is not ("Staff" or "Coach"))
                 throw new ArgumentException("Please choose whether Staff or Coach will schedule this Private course.");
+        }
+
+        private static void ValidateStaffManagedPrivateSessionCount(
+            string courseType,
+            string? mode,
+            int? sessionCount)
+        {
+            if (string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase)
+                && mode == "Staff"
+                && !sessionCount.HasValue)
+            {
+                throw new ArgumentException("Session Count is required when Staff schedules a Private course.");
+            }
         }
 
         // Delete a course by ID

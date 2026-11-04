@@ -8,6 +8,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - Hourly Cost must be cleared, stored as null, and disabled on the Add Course form.
    - Session Cost is required.
 2. A private course without a Session Count uses hourly pricing and requires Credit Tracking.
+   - A Staff-managed private course must have a Session Count; flexible private courses without a Session Count can only be Coach-managed.
 3. A Group course requires a Session Count and Session Cost.
 4. Max Capacity is optional for a Group course. When supplied, it limits active registrations.
 5. The Staff course list is paginated and can be filtered by Specialty, Provider, Course Type, and active status. Sorting and active filters are preserved while paging.
