@@ -47,7 +47,7 @@ namespace Core.Repositories
         public async Task<CourseEnrollment> GetAsync(int enrollmentId)
         {
             return await _context.CourseEnrollments
-               // .Include(e => e.Child)
+                .Include(e => e.Child)
                 .Include(e => e.Course)
                 .FirstOrDefaultAsync(e => e.EnrollmentID == enrollmentId);
         }

@@ -87,6 +87,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Canceled course sessions
 
 1. When Staff cancels a Group course session, the affected child sessions are canceled as part of the same operation.
+   - A Group session with no active participant registrations is deleted instead of canceled. Its Edit dialog does not offer Canceled status and directs Staff to use Delete; the server also rejects a cancellation request for that unused session.
 2. The canceled session's Actions must let Staff explicitly choose either Create Replacement or Refund Session Cost; the system must not automatically perform either choice.
 3. A replacement session is created with a new future schedule and follows the normal Group-session registration process.
 4. If Staff chooses Refund Session Cost, the system credits each affected participant's course balance by that course's Session Cost and records the canceled session and participant session in the balance history. A refund cannot be applied twice to the same participant session.
@@ -94,6 +95,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 6. When Staff chooses Refund Session Cost instead of creating a replacement, the course's final Session Count is reduced by one. Creating a replacement does not reduce Session Count. The reduction is applied only once with the refund operation.
 7. When Staff creates a replacement for a canceled Group session, the cancellation Staff Note and replacement Staff Note are entered separately. Each note is saved only to the corresponding session workflow.
 8. Only courses with IsActive set to true are shown to Coaches and in Staff's course-registration choices. A Group course reaching Max Capacity stops new registrations but remains active and visible until the course ends or Staff deactivates it.
+9. Staff session deletion uses separate confirmation displays for Private and Group courses. A Private-session confirmation shows the participant's name using the configured Participant terminology; a Group-session confirmation does not show a participant name.
 
 ## Private-course scheduling
 

@@ -853,6 +853,15 @@ namespace Web.Controllers.Courses
                     .GetRegisteredUpcomingSessionsByCourseAsync(session.CourseID);
                 var hasRegistrations = registeredSessionIds.Contains(session.EnrollmentID);
 
+                if (!hasRegistrations && status == "Canceled")
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No active participants are registered. Delete this session directly instead of canceling it."
+                    });
+                }
+
                 if (hasRegistrations || status == "Canceled")
                     session.Status = status;
 
@@ -914,12 +923,6 @@ namespace Web.Controllers.Courses
                         await transaction.RollbackAsync();
                         throw;
                     }
-                }
-                else if (!hasRegistrations && status == "Canceled")
-                {
-                    // An unused session can be canceled directly because there
-                    // are no child registrations that need a replacement or refund.
-                    result = await _courseEnrollmentService.UpdateSessionAsync(session);
                 }
                 else
                 {
@@ -1087,7 +1090,9 @@ namespace Web.Controllers.Courses
             var session = await _courseEnrollmentService.GetAsync(enrollmentId);
             if (session == null) return NotFound();
 
-            return PartialView("_DeleteSessionConfirm", session);
+            return session.Course.CourseType == "Private"
+                ? PartialView("_DeletePrivateSessionConfirm", session)
+                : PartialView("_DeleteGroupSessionConfirm", session);
         }
 
         // ✅ Delete a course session

@@ -26,11 +26,14 @@ var hasBalanceFeature = Core.Services.CourseCancellationPolicy.CanRefundSessionC
         <strong>Status:</strong><br />
         <select id="statusSelect" name="status" required class="schedule-input schedule-input--edit">
             <option value="Open" selected="@(selectedStatus == "Open")" >Open</option>
-            <option value="Canceled" selected="@(selectedStatus == "Canceled")">Canceled</option>
+            @if (hasRegistrations)
+            {
+                <option value="Canceled" selected="@(selectedStatus == "Canceled")">Canceled</option>
+            }
          </select>
         @if (!hasRegistrations)
         {
-            <br/><span style="color:#6c757d">No active participants are registered. This session can be canceled directly without a replacement or refund.</span>
+            <br/><span style="color:#6c757d">You can delete this session directly instead. Do not cancel it, because no active participants are registered.</span>
         }
         else
         {
