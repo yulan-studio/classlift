@@ -224,7 +224,7 @@ namespace Core.Repositories
         }
 
         //Coach-managed Private: include Scheduled/RequestToReschedule/Deleted.
-        //Staff-managed Private: include Scheduled/RequestToLeave/OnLeave/Deleted.
+        //Staff-managed Private: keep current and legacy request statuses visible, but read-only to the participant.
         //Group: include Scheduled/RequestToLeave/OnLeave/Canceled.
         public async Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByChildAsync(int childId)
         {
@@ -236,7 +236,7 @@ namespace Core.Repositories
                 .Where(e => e.ChildID != null && e.ChildID == childId && e.EnrollmentID_Ref != null
                     && (e.Course.CourseType == "Private"
                         ? e.Course.PrivateSchedulingMode == "Staff"
-                            ? e.Status == "Scheduled" || e.Status == "RequestToLeave" || e.Status == "OnLeave" || e.Status == "Deleted"
+                            ? e.Status == "Scheduled" ||  e.Status == "Deleted"
                             : e.Status == "Scheduled" || e.Status == "RequestToReschedule" || e.Status == "Deleted"
                         : e.Status == "Scheduled" || e.Status == "RequestToLeave" || e.Status == "OnLeave" || e.Status == "Canceled")
                     && ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) >= torontoNow)

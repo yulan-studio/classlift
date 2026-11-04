@@ -118,9 +118,9 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Participant schedule display
 
-1. Upcoming Coach-managed Private-course schedules include Scheduled, RequestToReschedule, and Deleted sessions. Upcoming Staff-managed Private-course schedules include Scheduled, RequestToLeave, OnLeave, and Deleted sessions.
+1. Upcoming Coach-managed Private-course schedules include Scheduled, RequestToReschedule, and Deleted sessions. Upcoming Staff-managed Private-course schedules include Scheduled, RequestToLeave, RequestToReschedule, OnLeave, and Deleted sessions so existing session history remains visible.
    - For a Coach-managed Private course, the participant may request to reschedule a session.
-   - For a Staff-managed Private course, the participant cannot request to reschedule; the participant may request to leave the session instead.
+   - For a Staff-managed Private course, the participant cannot change the session Status, including requesting to leave or requesting to reschedule. The Status is displayed read-only; the participant may still update My Note.
 2. Upcoming Group-course schedules include only Scheduled, RequestToLeave, OnLeave, and Canceled sessions.
 3. In the participant's Group-course schedule, Staff Note and the Provider Note are displayed as separate columns, with the Provider Note immediately to the right of Staff Note. The Provider Note heading uses the organization's configured Provider terminology on both Private- and Group-course schedules.
 4. The participant's Group-course schedule does not display a My Note column.

@@ -122,8 +122,7 @@
                     {
                         <span class="schedule-status-badge">On Leave <strong class="status-on-leave">@onLeaveCount</strong></span>
                     }
-                    @if (courseSchedules.Course.CourseType == "Group"
-                        || (courseSchedules.Course.CourseType == "Private" && courseSchedules.Course.PrivateSchedulingMode == "Staff"))
+                    @if (courseSchedules.Course.CourseType == "Group")
                     {
                         <span class="schedule-status-badge">Request to Leave <strong class="status-request-to-leave">@requestToLeaveCount</strong></span>
                     }
@@ -274,16 +273,17 @@
                                     </td>
 
                                     <td class="schedule-status-column @(courseSchedules.Schedules[i].Status == "RequestToLeave" ? "request-to-leave-cell" : courseSchedules.Schedules[i].Status == "OnLeave" || courseSchedules.Schedules[i].Status == "Deleted" ? "on-leave-cell" : courseSchedules.Schedules[i].Status == "Canceled" ? "canceled-cell" : courseSchedules.Schedules[i].Status == "RequestToReschedule" ? "request-to-reschedule-cell" : "")" data-label="Status">
+                                        @if (courseSchedules.Course.CourseType == "Private" && courseSchedules.Course.PrivateSchedulingMode == "Staff")
+                                        {
+                                            <span>@courseSchedules.Schedules[i].Status</span>
+                                        }
+                                        else
+                                        {
                                             <select name="Schedules[@i].Status" class="form-select" @(courseSchedules.Schedules[i].Status == "Canceled" || courseSchedules.Schedules[i].Status == "Deleted" || courseSchedules.Schedules[i].Status == "OnLeave" || isWithin24Hours ? "disabled" : "")> 
                                                 <option value="Scheduled" selected="@(courseSchedules.Schedules[i].Status == "Scheduled")">Scheduled</option> 
                                                 @if (courseSchedules.Course.CourseType == "Private" && courseSchedules.Course.PrivateSchedulingMode == "Coach")
                                                 {
                                                     <option value="RequestToReschedule" selected="@(courseSchedules.Schedules[i].Status == "RequestToReschedule")">Request to Reschedule</option>
-                                                }
-                                                @if (courseSchedules.Course.CourseType == "Private" && courseSchedules.Course.PrivateSchedulingMode == "Staff")
-                                                {
-                                                    <option value="RequestToLeave" selected="@(courseSchedules.Schedules[i].Status == "RequestToLeave")">Request to Leave</option>
-                                                    <option value="OnLeave" disabled selected="@(courseSchedules.Schedules[i].Status == "OnLeave")">On Leave</option>
                                                 }
                                                 @if (courseSchedules.Course.CourseType == "Group")
                                                 {
@@ -297,6 +297,7 @@
                                                     <option value="Deleted" disabled selected="@(courseSchedules.Schedules[i].Status == "Deleted")">Deleted</option>
                                                 }
                                             </select>
+                                        }
                                     </td>
 
                                     <td data-label="@(courseSchedules.Course.CourseType == "Private" ? $"{CurrentTenant.Terminology.ProviderSingular} Note" : "Staff Note")">
@@ -385,7 +386,8 @@
                     </div>
                 }
 
-                @if (courseSchedules.Course.CourseType == "Private")
+                @if (courseSchedules.Course.CourseType == "Private"
+                    && courseSchedules.Course.PrivateSchedulingMode == "Coach")
                 {
                     <div style="padding: 10px 20px 10px 20px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
                         You can request a reschedule by clicking 'Request to Reschedule' at least 24 hours before the session begins. 
