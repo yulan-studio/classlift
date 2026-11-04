@@ -2035,6 +2035,14 @@ namespace Web.Controllers.User
                         {
                             if (existing.Status != "Canceled" && existing.Status != "Deleted" && schedule.Status != null)  //schedule.Status is not null means Status dropdown list is enabled
                             {
+                                var allowedStatuses = course.CourseType == "Private"
+                                    ? course.PrivateSchedulingMode == "Staff"
+                                        ? new[] { "Scheduled", "RequestToLeave" }
+                                        : new[] { "Scheduled", "RequestToReschedule" }
+                                    : new[] { "Scheduled", "RequestToLeave" };
+                                if (!allowedStatuses.Contains(schedule.Status))
+                                    return BadRequest("The selected schedule request is not available for this course.");
+
                                 existing.Status = schedule.Status;
                                 existing.ParentNote = schedule.ParentNote;
                             }
