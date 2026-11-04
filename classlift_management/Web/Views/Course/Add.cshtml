@@ -98,11 +98,11 @@
         </tr>
 
         <tr id="privateSchedulingModeRow" style="display:none;">
-            <td style="padding: 8px;"><label for="PrivateSchedulingMode">Private course scheduling:</label></td>
+            <td style="padding: 8px;"><label for="PrivateSchedulingMode">Course Scheduling:</label></td>
             <td style="padding: 8px;">
                 <select name="PrivateSchedulingMode" id="PrivateSchedulingMode" class="classlift-control form-select">
                     <option value="">-- Select who schedules Private sessions --</option>
-                    <option value="Coach">Coach schedules time and location</option>
+                    <option value="Coach">@CurrentTenant.Terminology.ProviderSingular schedules time and location</option>
                     <option value="Staff">Staff schedules time and location</option>
                 </select>
             </td>
@@ -147,15 +147,19 @@
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
-                    <label class="management-form__instruction">
+                <span id="coachPrivateCourseTitleInstruction" class="management-form__instruction" hidden>
                     - Private XXX course by XXX <br />
                     @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                     {
-                        <text>- Private XXX course by XXX (flexible course) <br /></text>
+                        <text>- Private XXX course by XXX (flexible course)</text>
                     }
-                    - XXX course by XXX<br />
-                    - Group XXX course by XXX<br />
-                </label>
+                </span>
+                <span id="staffPrivateCourseTitleInstruction" class="management-form__instruction" hidden>
+                    - XXX course by XXX
+                </span>
+                <span id="groupCourseTitleInstruction" class="management-form__instruction" hidden>
+                    - Group XXX course by XXX
+                </span>
             </td>
         </tr>
         <tr>
@@ -176,7 +180,7 @@
 
        
 
-        <tr>
+        <tr id="maxCapacityRow" hidden>
             <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
             <td style="padding: 8px;">
                 <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" type="number" step="1" min="2" placeholder="Enter Max Capacity" />
@@ -281,6 +285,10 @@
 
         document.getElementById('privateSchedulingModeRow').style.display = privateCourse ? '' : 'none';
         document.getElementById('PrivateSchedulingMode').required = privateCourse;
+        document.getElementById('maxCapacityRow').hidden = !groupCourse;
+        document.getElementById('coachPrivateCourseTitleInstruction').hidden = !coachManaged;
+        document.getElementById('staffPrivateCourseTitleInstruction').hidden = !staffManaged;
+        document.getElementById('groupCourseTitleInstruction').hidden = !groupCourse;
         sessionCount.required = staffManaged || groupCourse;
         const coachInstruction = document.getElementById('privateSessionCountInstruction');
         const staffInstruction = document.getElementById('staffSessionCountInstruction');

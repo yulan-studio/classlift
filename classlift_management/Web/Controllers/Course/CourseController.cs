@@ -483,6 +483,10 @@ namespace Web.Controllers.Courses
                 var user = await _userManager.GetUserAsync(User);
                 var existingCourse = await _courseService.GetAsync(courseId);
 
+                // The Private-course scheduling owner is selected when the course
+                // is created and cannot be changed from Edit Course.
+                privateSchedulingMode = existingCourse.PrivateSchedulingMode ?? privateSchedulingMode;
+
                 var enrollments = await _courseEnrollmentService.GetScheduledEnrollmentsByCourseAsync(courseId);
                 //if (enrollments != null && enrollments.Any() && existingCourse.IsActive && isActive == false)
                 //{

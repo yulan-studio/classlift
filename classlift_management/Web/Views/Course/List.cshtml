@@ -181,7 +181,7 @@
                 </a>
             </th>
             <th class="action-column">Actions</th>
-            <th class="action-column">Group Sessions</th>
+            <th class="action-column">Manage Sessions</th>
         </tr>
     </thead>
     <tbody>
@@ -217,11 +217,11 @@
                         @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
                         @if (course.CourseType == "Group")
                         {
-                            <a class="action-link" href="/Course/ManageGroupSessions/@course.CourseID">Manage Group Sessions</a>
+                            <a class="action-link" href="/Course/ManageGroupSessions/@course.CourseID">Group Sessions</a>
                         }
                         else if (course.CourseType == "Private" && course.PrivateSchedulingMode == "Staff")
                         {
-                            <a class="action-link" href="/Course/ManagePrivateSessions/@course.CourseID">Manage Private Sessions</a>
+                            <a class="action-link" href="/Course/ManagePrivateSessions/@course.CourseID">Private Sessions</a>
                         }
 
                     </td>

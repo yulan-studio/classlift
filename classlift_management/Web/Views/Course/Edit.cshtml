@@ -104,40 +104,24 @@
         @if (Model.CourseType == "Private")
         {
             <tr>
-                <td style="padding: 8px;"><label for="PrivateSchedulingMode">Private course scheduling:</label></td>
-                <td style="padding: 8px;"><select name="privateSchedulingMode" id="PrivateSchedulingMode" class="classlift-control form-select">
-                    <option value="">-- Select who schedules Private sessions --</option>
-                    @if (Model.PrivateSchedulingMode == "Coach")
-                    {
-                        <option value="Coach" selected>Coach schedules time and location</option>
-                        <option value="Staff" disabled="@(!Model.SessionCount.HasValue)">Staff schedules time and location</option>
-                    }
-                    else if (Model.PrivateSchedulingMode == "Staff")
-                    {
-                        <option value="Coach">Coach schedules time and location</option>
-                        <option value="Staff" selected>Staff schedules time and location</option>
-                    }
-                    else
-                    {
-                        <option value="Coach">Coach schedules time and location</option>
-                        <option value="Staff" disabled="@(!Model.SessionCount.HasValue)">Staff schedules time and location</option>
-                    }
-                </select></td>
+                <td style="padding: 8px;"><label for="PrivateSchedulingMode">Course Scheduling:</label></td>
+                <td style="padding: 8px;">
+                    <input type="hidden" name="privateSchedulingMode" value="@Model.PrivateSchedulingMode" />
+                    @(Model.PrivateSchedulingMode == "Staff"
+                        ? "Staff schedules time and location"
+                        : $"{CurrentTenant.Terminology.ProviderSingular} schedules time and location")
+                </td>
             </tr>
-            @if (!Model.SessionCount.HasValue)
-            {
-                <tr>
-                    <td></td>
-                    <td class="management-form__instruction">Staff scheduling is unavailable because this Private course does not have a Session Count.</td>
-                </tr>
-            }
         }
-        <tr>
-            <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
-            <td style="padding: 8px;">
-                <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" value="@(Model.MaxCapacity)" type="number" step="1" min="2" placeholder="Enter Max Capacity" @(Model.CourseType == "Private" ? "disabled" : "") />
-            </td>
-        </tr>
+        @if (Model.CourseType == "Group")
+        {
+            <tr>
+                <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
+                <td style="padding: 8px;">
+                    <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" value="@(Model.MaxCapacity)" type="number" step="1" min="2" placeholder="Enter Max Capacity" />
+                </td>
+            </tr>
+        }
 
         <tr>
             <td style="padding: 8px;"><label for="SessionCount">Session Count:</label></td>
