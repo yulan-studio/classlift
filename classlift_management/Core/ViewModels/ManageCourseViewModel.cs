@@ -48,6 +48,8 @@ namespace Core.ViewModels
 
         public string CourseType { get; set; }
 
+        public string? PrivateSchedulingMode { get; set; }
+
         public string? CourseDescription { get; set; }
 
         public int? SessionCount { get; set; }

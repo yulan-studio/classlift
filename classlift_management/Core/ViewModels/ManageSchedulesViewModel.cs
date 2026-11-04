@@ -21,6 +21,8 @@ namespace Core.ViewModels
 
         public Course Course { get; set; }
 
+        public bool CanManageSchedules { get; set; }
+
         public int ScheduledCount { get; set; }
 
         public int CompletedCount { get; set; }

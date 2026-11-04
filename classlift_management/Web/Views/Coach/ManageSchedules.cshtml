@@ -119,8 +119,8 @@
 
 <div class="manage-schedule-page">
 <div class="management-page-header">
-    <h2>Manage Schedule</h2>
-    <p>Review upcoming sessions and manage the course schedule.</p>
+    <h2>@(Model.CanManageSchedules ? "Manage Schedule" : "View Schedule")</h2>
+    <p>@(Model.CanManageSchedules ? "Review upcoming sessions and manage the course schedule." : "Review upcoming sessions scheduled by Staff.")</p>
 </div>
 
 <a href="/Coach/ManageCourse" class="participation-back-link" style="color: #000 !important;">← Back to Courses List</a>
@@ -207,8 +207,11 @@
             <th>Location</th>
             <th>Status</th>
             <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th>My Note</th>
-            <th class="action-column">Actions</th>
+            <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
+            @if (Model.CanManageSchedules)
+            {
+                <th class="action-column">Actions</th>
+            }
         </tr>
     </thead>
 
@@ -241,8 +244,19 @@
 
                     <td class="@(s.Status == "RequestToReschedule" ? "request-to-reschedule-cell" : s.Status == "Deleted" ? "on-leave-cell" : "")" data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FCE8F2" : "transparent")">@s.Status</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">@s.ParentNote</td>
-                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")"><textarea id="coachNote-@s.EnrollmentID" class="form-control" data-note-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")" required>@s.CoachNote</textarea></td>
+                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")">
+                        @if (Model.CanManageSchedules)
+                        {
+                            <textarea id="coachNote-@s.EnrollmentID" class="form-control" data-note-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")" required>@s.CoachNote</textarea>
+                        }
+                        else
+                        {
+                            @s.CoachNote
+                        }
+                    </td>
 
+                    @if (Model.CanManageSchedules)
+                    {
                     <td data-label="Actions">
                         @if (s.Status != "Deleted" &&
                             s.Status != "RequestToReschedule" &&
@@ -268,9 +282,12 @@
                             </form>
                         }
                     </td>
+                    }
                 </tr>
             }
 
+            @if (Model.CanManageSchedules)
+            {
             <tr style="background-color: #F8C3DF;">
                 <td colspan="8">
                     
@@ -279,12 +296,13 @@
                     <label style="font-size:0.9em; color:darkslategray"> - A session cannot be removed/rescheduled within 24 hours of its scheduled start time.</label>
                 </td>
             </tr>
+            }
             
         }
         else
         {
             <tr>
-                <td colspan="8" class="text-center">No scheduled courses.</td>
+                <td colspan="@(Model.CanManageSchedules ? 8 : 7)" class="text-center">No scheduled courses.</td>
             </tr>
         }
     </tbody>
@@ -312,8 +330,10 @@
     </div>
 }
 
-@if (!Model.Course.SessionCount.HasValue ||
+@if (Model.CanManageSchedules &&
+     (!Model.Course.SessionCount.HasValue ||
      Model.ScheduledCount + Model.CompletedCount < Model.Course.SessionCount.Value)
+    )
 {
 <form class="schedule-form" method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
 

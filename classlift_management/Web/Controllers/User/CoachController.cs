@@ -715,6 +715,7 @@ namespace Web.Controllers.User
                         courseChildren.CourseDescription = course.Description;
                         courseChildren.SessionCount = course.SessionCount;
                         courseChildren.CourseType = course.CourseType;
+                        courseChildren.PrivateSchedulingMode = course.PrivateSchedulingMode;
 
 
 
@@ -808,6 +809,8 @@ namespace Web.Controllers.User
                     Parents = parents,
                     ShowParentGuardianContact = showParentGuardianContact,
                     Course = course,
+                    CanManageSchedules = course.CourseType == "Private"
+                        && course.PrivateSchedulingMode == "Coach",
                     Schedules = schedules,
                     ScheduledCount = scheduled.Count,
                     CompletedCount = completed.Count,
@@ -861,6 +864,9 @@ namespace Web.Controllers.User
                 }
 
                 if (course.CoachID != coachId)
+                    return Forbid();
+
+                if (course.CourseType != "Private" || course.PrivateSchedulingMode != "Coach")
                     return Forbid();
 
 
@@ -969,18 +975,28 @@ namespace Web.Controllers.User
         [HttpPost("DeleteSchedule")]
         public async Task<IActionResult> DeleteSchedule(int enrollmentId, int childId, int courseId, string? coachNote, int enrollmentId_Ref)
         {
+            var child = await _childService.GetAsync(childId);
+            var course = await _courseService.GetAsync(courseId);
+            var user = await _userManager.GetUserAsync(User);
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
+
+            if (course == null || coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+            if (course.CourseType != "Private" || course.PrivateSchedulingMode != "Coach")
+                return Forbid();
+            if (enrollment == null
+                || enrollment.ChildID != childId
+                || enrollment.CourseID != courseId
+                || enrollment.EnrollmentID_Ref != enrollmentId_Ref)
+            {
+                return BadRequest("The session does not match the selected registration.");
+            }
             if (string.IsNullOrWhiteSpace(coachNote))
             {
                 TempData["ErrorMessage"] = $"{ProviderName} Note is required before removing a session.";
                 return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
             }
-
-            var child = await _childService.GetAsync(childId);
-            var course = await _courseService.GetAsync(courseId);
-            var user = await _userManager.GetUserAsync(User);
-            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
-
-            var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
 
             bool result = await _courseEnrollmentService.RemoveScheduleAsync(enrollmentId, coachNote.Trim());
             
@@ -1453,6 +1469,8 @@ namespace Web.Controllers.User
             var course = await _courseService.GetAsync(vm.CourseId);
             var enrollment = await _courseEnrollmentService.GetAsync(vm.EnrollmentId);
             if (coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+            if (course.CourseType != "Private" || course.PrivateSchedulingMode != "Coach")
                 return Forbid();
             if (enrollment.ChildID != vm.ChildId
                 || enrollment.CourseID != vm.CourseId

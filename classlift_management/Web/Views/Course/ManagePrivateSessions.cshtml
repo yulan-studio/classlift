@@ -185,7 +185,8 @@
         <tr style="background-color: #f2f2f2;">
 
 
-            <th style="padding: 8px; border: 1px solid #ddd; width: 10%">Date</th>
+            <th data-sort-column="participant" onclick="sortPrivateSessions('participant')" style="padding: 8px; border: 1px solid #ddd; width: 15%; cursor: pointer;">Participant <span class="sort-indicator">↕</span></th>
+            <th data-sort-column="date" onclick="sortPrivateSessions('date')" style="padding: 8px; border: 1px solid #ddd; width: 10%; cursor: pointer;">Date <span class="sort-indicator">↕</span></th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 10%">Start Time</th>
             <th style="padding: 8px; border: 1px solid #ddd; width: 10%">End Time</th>
 
@@ -210,7 +211,10 @@
                         DateTime? endTime = scheduledAt?.AddHours(scheduledHours);
                     }
 
-                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    <td data-sort-value="@(s.Child?.Name ?? string.Empty)" style="padding: 8px; border: 1px solid #ddd;">
+                        @(s.Child?.Name ?? "—")
+                    </td>
+                    <td data-sort-value="@(s.ScheduledAt?.ToString("yyyyMMddHHmmss") ?? string.Empty)" style="padding: 8px; border: 1px solid #ddd;">
                         @(scheduledAt.HasValue? scheduledAt.Value.ToString("yyyy-MM-dd") : "")
                     </td>
                     <td style="padding: 8px; border: 1px solid #ddd;">
@@ -247,11 +251,34 @@
         else
         {
             <tr>
-                <td colspan="7" style="text-align: center; padding: 10px;">No sessions scheduled yet.</td>
+                <td colspan="8" style="text-align: center; padding: 10px;">No sessions scheduled yet.</td>
             </tr>
         }
     </tbody>
 </table></div>
+
+<script>
+    const privateSessionSortDirections = { participant: 1, date: 1 };
+
+    function sortPrivateSessions(column) {
+        const table = document.querySelector('.management-table');
+        const body = table?.querySelector('tbody');
+        if (!body) return;
+
+        const rows = Array.from(body.querySelectorAll('tr')).filter(row => row.id.startsWith('row-'));
+        const direction = privateSessionSortDirections[column];
+        const columnIndex = column === 'participant' ? 0 : 1;
+
+        rows.sort((a, b) => {
+            const aValue = a.children[columnIndex]?.dataset.sortValue?.toLowerCase() ?? '';
+            const bValue = b.children[columnIndex]?.dataset.sortValue?.toLowerCase() ?? '';
+            return aValue.localeCompare(bValue, undefined, { numeric: true }) * direction;
+        });
+
+        rows.forEach(row => body.appendChild(row));
+        privateSessionSortDirections[column] *= -1;
+    }
+</script>
 
 
 
