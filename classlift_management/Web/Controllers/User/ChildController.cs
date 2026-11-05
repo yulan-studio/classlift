@@ -19,7 +19,6 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol.Core.Types;
 using System.Data.SqlClient;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
@@ -2653,7 +2652,11 @@ namespace Web.Controllers.User
             {
                 // A Child can only load their own calendar, regardless of any
                 // childId supplied in the query string.
-                child = await _childService.GetByIdAsync(user.Id);
+                var currentChild = await _childService.GetByIdAsync(user.Id);
+                if (currentChild == null)
+                    return NotFound();
+
+                child = currentChild;
             }
             else
             {
