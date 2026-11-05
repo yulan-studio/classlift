@@ -166,7 +166,12 @@
             {
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.MemberID</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <a href="/Coach/MyCalendar?coachId=@coachWithDelete.Coach.CoachID"
+                           style="color: #007bff; text-decoration: none;">
+                            @coachWithDelete.Coach.MemberID
+                        </a>
+                    </td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@coachWithDelete.Coach.Name</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">
                         @(coachWithDelete.Coach.Status == "InActive" ? "InActive" : "Active")

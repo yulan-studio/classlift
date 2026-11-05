@@ -1,4 +1,9 @@
-@{ ViewData["Title"] = "My Calendar"; }
+@{
+    ViewData["Title"] = ViewBag.CalendarTitle as string ?? "My Calendar";
+    var calendarEventsUrl = ViewBag.CoachID == null
+        ? "/Coach/GetCoachSchedules"
+        : $"/Coach/GetCoachSchedules?coachId={ViewBag.CoachID}";
+}
 
 <style>
     :root { --cal-primary:#2673ad; --cal-dark:#152238; --cal-accent:#6eaed8; --cal-ink:#26364d; --cal-border:#dbe5ee; }
@@ -36,6 +41,12 @@
     }
 </style>
 
+<h1 class="management-page-title">@ViewData["Title"]</h1>
+@if (ViewBag.ShowCoachListLink == true)
+{
+    <a href="/Coach/List" class="participation-back-link" style="color: #000 !important;">Back to @CurrentTenant.Terminology.ProviderPlural List</a>
+}
+
 <div class="calendar-shell"><div id="calendar"></div></div>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
@@ -51,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
         initialView:isMobile?'listWeek':'dayGridMonth', height:'auto', dayMaxEvents:3, nowIndicator:true,
         headerToolbar:{ left:isMobile?'prev,next':'prev,next today', center:'title', right:isMobile?'':'dayGridMonth,timeGridWeek,timeGridDay' },
         buttonText:{ today:'Today', month:'Month', week:'Week', day:'Day' },
-        events:{ url:'/Coach/GetCoachSchedules', method:'GET' },
+        events:{ url:'@calendarEventsUrl', method:'GET' },
         eventDidMount:function(info) {
             info.el.classList.add(`event-${(info.event.extendedProps.type || 'schedule').toLowerCase()}`);
             if (!isMobile) {

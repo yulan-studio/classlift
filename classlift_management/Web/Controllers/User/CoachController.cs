@@ -1374,12 +1374,31 @@ namespace Web.Controllers.User
         }
 
         
+        [Authorize(Roles = "Admin, Staff, Coach")]
         [HttpGet("GetCoachSchedules")]
-        public async Task<IActionResult> GetCoachSchedules()
+        public async Task<IActionResult> GetCoachSchedules(int? coachId = null)
         {
-            // Get current coach based on User ID
             var user = await _userManager.GetUserAsync(User);
-            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (user == null)
+                return Unauthorized();
+
+            Coach coach;
+            if (User.IsInRole("Coach"))
+            {
+                // A Coach can only load their own calendar, regardless of any
+                // coachId supplied in the query string.
+                coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            }
+            else
+            {
+                if (!coachId.HasValue)
+                    return BadRequest("Please select a provider.");
+
+                coach = await _coachService.GetAsync(coachId.Value);
+            }
+
+            if (coach == null)
+                return NotFound();
 
             var schedules = await _courseEnrollmentService.GetCoachSchedulesAsync(coach.CoachID);
 
@@ -1635,12 +1654,28 @@ namespace Web.Controllers.User
         }
 
 
-        [Authorize(Roles = "Coach")]
+        [Authorize(Roles = "Admin, Staff, Coach")]
         [HttpGet("MyCalendar")]
-        public async Task<IActionResult> MyCalendar()
+        public async Task<IActionResult> MyCalendar(int? coachId = null)
         {
-            // Get current coach based on User ID
-          
+            if (User.IsInRole("Coach"))
+            {
+                ViewBag.CoachID = null;
+                ViewBag.CalendarTitle = "My Calendar";
+                ViewBag.ShowCoachListLink = false;
+                return View();
+            }
+
+            if (!coachId.HasValue)
+                return RedirectToAction(nameof(List));
+
+            var coach = await _coachService.GetAsync(coachId.Value);
+            if (coach == null)
+                return NotFound();
+
+            ViewBag.CoachID = coach.CoachID;
+            ViewBag.CalendarTitle = $"{coach.Name} Calendar";
+            ViewBag.ShowCoachListLink = true;
             return View();
         }
 

@@ -109,7 +109,7 @@
                 </div>
                 <div class="schedule-status-summary" aria-label="Session status summary">
                     <span class="schedule-status-badge">Scheduled <strong class="status-scheduled">@scheduledCount</strong></span>
-                    @if (courseSchedules.Course.CourseType == "Private" && courseSchedules.Course.PrivateSchedulingMode == "Coach")
+                    @if (courseSchedules.Course.CourseType == "Private")
                     {
                         <span class="schedule-status-badge">Deleted <strong class="status-deleted">@deletedCount</strong></span>
                     }
