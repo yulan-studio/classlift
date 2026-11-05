@@ -202,13 +202,17 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - The business operation completes before notification delivery is attempted.
    - Missing recipients or email-delivery failures do not roll back the session action; the Coach sees a warning instead.
    - A completion email includes the actual hours, and all session-action emails link to the participant Schedules page.
-9. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
+9. After Staff successfully creates one or more sessions for a Staff-managed Private course, ClassLift sends one email to the family's shared participant-portal address.
+   - All sessions created by the same recurring-session request are summarized in that single email.
+   - Delivery begins only after the complete session series has been saved successfully.
+   - Missing recipients or email-delivery failures do not roll back created sessions; Staff sees a warning instead.
+10. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
    - Private-course requests go to the assigned Coach and link to that registration's Coach schedule page.
    - Group-course requests go to the organization's configured notification recipient and link to Staff's session-registration page.
    - The email identifies the participant, course, request type, affected session time, and family note.
    - Saving the request completes before email delivery is attempted; delivery failure does not roll back the saved request and the family sees a warning.
 
-10. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
+11. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
 
 ## Open questions
 

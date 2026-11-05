@@ -671,14 +671,23 @@ namespace Web.Controllers.Courses
                     childId, courseId, enrollmentIdRef, timings,
                     scheduledHours, location, staffNote, user);
 
-                TempData["SuccessMessage"] = "Private-course session(s) added successfully.";
+                if (!await NotifyFamilyOfStaffPrivateScheduleCreationAsync(
+                        course, enrollmentIdRef, timings, scheduledHours, location))
+                {
+                    TempData["SuccessMessage"] =
+                        "The private-course session(s) were created, but the family notification could not be sent.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Private-course session(s) added successfully.";
+                }
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
             }
 
-            return RedirectToAction(nameof(ManagePrivateSessions), new { courseId });
+            return RedirectToAction(nameof(ManagePrivateSessions), new { courseId, childId });
         }
 
         [Authorize(Roles = "Staff")]
@@ -1026,6 +1035,53 @@ namespace Web.Controllers.Courses
                     exception,
                     "Group sessions were created, but family notifications could not be processed. CourseId={CourseId}",
                     course.CourseID);
+                return false;
+            }
+        }
+
+        private async Task<bool> NotifyFamilyOfStaffPrivateScheduleCreationAsync(
+            Course course,
+            int rootEnrollmentId,
+            IReadOnlyList<ScheduleTiming> timings,
+            decimal scheduledHours,
+            string? location)
+        {
+            try
+            {
+                var recipients = await _courseEnrollmentService
+                    .GetScheduleNotificationRecipientsAsync(rootEnrollmentId);
+                var participantName = string.Join(", ", recipients
+                    .Select(recipient => recipient.ParticipantName)
+                    .Distinct(StringComparer.OrdinalIgnoreCase));
+                var familyEmail = recipients
+                    .Select(recipient => recipient.Email?.Trim())
+                    .FirstOrDefault(email => !string.IsNullOrWhiteSpace(email));
+                var sessions = timings
+                    .Select(timing => new CourseScheduleSummaryItem(
+                        timing.ScheduledAtUtc,
+                        timing.TimeZoneId,
+                        scheduledHours,
+                        location))
+                    .ToList();
+
+                var delivery = await _emailNotifications.SendCourseSchedulesCreatedAsync(
+                    familyEmail,
+                    new CourseScheduleSummaryEmailData(
+                        participantName,
+                        course.Title,
+                        course.Coach?.Name ?? "Staff",
+                        sessions,
+                        "/Child/MySchedules"));
+
+                return delivery.IsSuccessful;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Staff-managed Private sessions were created, but the family notification could not be processed. CourseId={CourseId}, RootEnrollmentId={RootEnrollmentId}",
+                    course.CourseID,
+                    rootEnrollmentId);
                 return false;
             }
         }
