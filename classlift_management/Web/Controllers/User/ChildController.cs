@@ -2609,18 +2609,67 @@ namespace Web.Controllers.User
             }
         }
 
+        [Authorize(Roles = "Admin, Staff, Child")]
         [HttpGet("MyCalendar")]
-        public async Task<IActionResult> MyCalendar()
+        public async Task<IActionResult> MyCalendar(int? childId = null)
         {
+            if (User.IsInRole("Child"))
+            {
+                ViewBag.ChildID = null;
+                ViewBag.CalendarTitle = "My Calendar";
+                ViewBag.ShowChildListLink = false;
+                return View();
+            }
+
+            if (!childId.HasValue)
+                return RedirectToAction(nameof(List));
+
+            Child child;
+            try
+            {
+                child = await _childService.GetAsync(childId.Value);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ChildID = child.ChildID;
+            ViewBag.CalendarTitle = $"{child.Name} Calendar";
+            ViewBag.ShowChildListLink = true;
             return View();
         }
 
+        [Authorize(Roles = "Admin, Staff, Child")]
         [HttpGet("GetChildSchedules")]
-        // API endpoint for AJAX (recommended)
-        public async Task<IActionResult> GetChildSchedules()
+        public async Task<IActionResult> GetChildSchedules(int? childId = null)
         {
             var user = await _userManager.GetUserAsync(User);
-            var child = await _childService.GetByIdAsync(user.Id);
+            if (user == null)
+                return Unauthorized();
+
+            Child child;
+            if (User.IsInRole("Child"))
+            {
+                // A Child can only load their own calendar, regardless of any
+                // childId supplied in the query string.
+                child = await _childService.GetByIdAsync(user.Id);
+            }
+            else
+            {
+                if (!childId.HasValue)
+                    return BadRequest($"Please select a {_currentTenant.Terminology.ParticipantSingular.ToLowerInvariant()}.");
+
+                try
+                {
+                    child = await _childService.GetAsync(childId.Value);
+                }
+                catch (KeyNotFoundException)
+                {
+                    return NotFound();
+                }
+            }
+
             var schedules = await _calendarService.GetChildCalendar(child.ChildID);
 
             foreach (var schedule in schedules)

@@ -152,7 +152,13 @@
             {
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@index</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@childWithDelete.Child.MemberID</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <a asp-action="MyCalendar"
+                           asp-route-childId="@childWithDelete.Child.ChildID"
+                           style="color: #007bff; text-decoration: none;">
+                            @childWithDelete.Child.MemberID
+                        </a>
+                    </td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@childWithDelete.Child.Name</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@(childWithDelete.Child.BirthDate.HasValue ? childWithDelete.Child.BirthDate.Value.ToString("yyyy-MM-dd") : "N/A")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@childWithDelete.Child.Gender</td>
