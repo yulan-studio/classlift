@@ -122,6 +122,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 14. The Student Schedule Request form must explain that the information is a long-term scheduling preference and does not automatically book a specific Session. The form must provide an example link or help control that demonstrates common ways to write the preference, including regular weekly availability, flexible availability, a temporary pause, changing availability, and important time restrictions.
 
 15. On Coach Manage Schedules, Parent/Guardian contact information is shown only when the organization has enabled its parent/guardian support setting. Otherwise, the participant's own Core Information contact details are shown. Missing contact values display as `N/A`.
+16. Before creating a course Session, ClassLift checks whether the assigned Coach has another non-canceled, non-deleted Session whose time overlaps the proposed start and end time. For a recurring request, every occurrence is checked before any Session is saved. If one occurrence conflicts, or occurrences within the proposed series overlap each other, the entire series is rejected and no Session from that request is created. This applies to Group, Staff-managed Private, and Coach-managed Private scheduling.
 
 ## Participant schedule display
 

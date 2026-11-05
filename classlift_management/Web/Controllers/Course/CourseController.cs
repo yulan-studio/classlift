@@ -644,25 +644,26 @@ namespace Web.Controllers.Courses
 
                 var totalOccurrences = repeatType == "None" ? 1 : Math.Clamp(repeatCount, 1, 365);
                 var localTime = DateTime.SpecifyKind(scheduledAt, DateTimeKind.Unspecified);
+                var timings = new List<ScheduleTiming>();
                 for (var i = 0; i < totalOccurrences; i++)
                 {
                     var utc = _timeZoneService.ConvertLocalToUtc(localTime, scheduledTimeZoneId);
                     if (utc <= DateTime.UtcNow)
                         throw new ArgumentException("Scheduled time must be in the future.");
 
-                    var created = await _courseEnrollmentService.AddSessionToPrivateCourseAsync(
-                        childId, courseId, enrollmentIdRef,
-                        new ScheduleTiming
-                        {
-                            ScheduledAtUtc = utc,
-                            ScheduledLocalTime = localTime,
-                            TimeZoneId = scheduledTimeZoneId
-                        }, scheduledHours, location, staffNote, user);
-                    if (created <= 0)
-                        throw new InvalidOperationException("A private course session could not be created.");
+                    timings.Add(new ScheduleTiming
+                    {
+                        ScheduledAtUtc = utc,
+                        ScheduledLocalTime = localTime,
+                        TimeZoneId = scheduledTimeZoneId
+                    });
 
                     localTime = repeatType == "Daily" ? localTime.AddDays(1) : localTime.AddDays(7);
                 }
+
+                await _courseEnrollmentService.AddStaffManagedPrivateSessionSeriesAsync(
+                    childId, courseId, enrollmentIdRef, timings,
+                    scheduledHours, location, staffNote, user);
 
                 TempData["SuccessMessage"] = "Private-course session(s) added successfully.";
             }
@@ -725,15 +726,14 @@ namespace Web.Controllers.Courses
                         TimeZoneId = scheduledTimeZoneId
                     };
 
-                    var masterSessionId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
-                        courseId, timing, scheduledHours, location, staffNote ?? string.Empty, user);
-                    if (masterSessionId <= 0)
-                        throw new InvalidOperationException("A group course session could not be created.");
-
-                    masterSessionIds.Add(masterSessionId);
                     timings.Add(timing);
                     localTime = repeatType == "Daily" ? localTime.AddDays(1) : localTime.AddDays(7);
                 }
+
+                masterSessionIds.AddRange(await _courseEnrollmentService
+                    .AddStaffManagedGroupSessionSeriesAsync(
+                        courseId, timings, scheduledHours, location,
+                        staffNote ?? string.Empty, user));
 
                 if (!await NotifyFamiliesOfStaffScheduleCreationAsync(
                         course, masterSessionIds, timings, scheduledHours, location))

@@ -15,6 +15,8 @@ namespace Core.Interfaces
     public interface ICourseEnrollmentRepository
     {
         Task<bool> AddAsync(CourseEnrollment enrollment);
+        Task<IReadOnlyList<int>> AddPrivateSessionSeriesAsync(IReadOnlyList<CourseEnrollment> sessions);
+        Task<IReadOnlyList<int>> AddGroupSessionSeriesAsync(IReadOnlyList<CourseEnrollment> sessions, User user);
         Task<bool> RemoveAsync(int enrollmentId);
         //Task<bool> RemoveRegisteredAsync(int enrollmentId);
 

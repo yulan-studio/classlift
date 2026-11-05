@@ -238,6 +238,11 @@ namespace Core.Services
 
         //Register grouop course session to child
 
+        /// <summary>
+        /// Creates a participant-level copy of an existing Group-course master session during registration.
+        /// EnrollmentID_Ref identifies the master session. The supplied status reflects whether the
+        /// participant registration is still Registered or has already been Confirmed.
+        /// </summary>
         public async Task<bool> AddSessionRegisteredEnrollmentAsync(int childId, int courseId, DateTime? scheduledAt, decimal? scheduledHours, string? location, int enrollmentId_Ref, string status, User user)
         {
             //if (userId <= 0 || courseId <= 0 || scheduledHours < 0)
@@ -460,158 +465,166 @@ namespace Core.Services
 
         }
 
-        //Schedule Private Course for a child by Coach
-        public async Task<bool> ScheduleCourseAsync(int childId, int courseId, ScheduleTiming timing, decimal scheduledHours, string location, int coachId, int enrollmentId_Ref)
+        /// <summary>
+        /// Adds a complete series of Coach-scheduled sessions for a Coach-managed Private course.
+        /// The repository validates Coach time conflicts and saves the series atomically.
+        /// </summary>
+        public async Task<IReadOnlyList<int>> AddCoachManagedPrivateSessionSeriesAsync(
+            int childId,
+            int courseId,
+            IReadOnlyList<ScheduleTiming> timings,
+            decimal scheduledHours,
+            string location,
+            int coachId,
+            int enrollmentIdRef)
         {
-            Child? child = await _childRepository.GetAsync(childId);
-            if (child == null)
-                throw new ArgumentException("Invalid child.");
-            Coach? coach = await _coachRepository.GetAsync(coachId);
-            if(coach == null)
-                throw new ArgumentException("Invalid coach.");
-            Course course = await _courseRepository.GetAsync(courseId);
-            if (course?.PrivateSchedulingMode is not "Coach")
-                throw new InvalidOperationException("This private course is scheduled by Staff.");
-            var rootEnrollment = await _enrollmentRepository.GetAsync(enrollmentId_Ref);
-            if (rootEnrollment == null
-                || rootEnrollment.EnrollmentID_Ref != null
-                || rootEnrollment.ChildID != childId
-                || rootEnrollment.CourseID != courseId
-                || rootEnrollment.Status is not ("Registered" or "Confirmed"))
-            {
+            if (timings.Count == 0 || scheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
+                throw new ArgumentException("At least one session, scheduled hours, and location are required.");
+
+            var child = await _childRepository.GetAsync(childId);
+            var coach = await _coachRepository.GetAsync(coachId);
+            var course = await _courseRepository.GetAsync(courseId);
+            var root = await _enrollmentRepository.GetAsync(enrollmentIdRef);
+            if (child == null || coach == null || course == null || root == null
+                || course.CoachID != coachId
+                || course.PrivateSchedulingMode is not "Coach"
+                || root.EnrollmentID_Ref != null || root.ChildID != childId || root.CourseID != courseId
+                || root.Status is not ("Registered" or "Confirmed"))
                 throw new ArgumentException("The selected course registration is invalid or no longer active.");
+
+            if (course.SessionCount.HasValue)
+            {
+                var existingCount = await _enrollmentRepository
+                    .GetCountedSessionCountByRootEnrollmentAsync(enrollmentIdRef);
+                if (existingCount + timings.Count > course.SessionCount.Value)
+                    throw new InvalidOperationException("The maximum number of sessions for this course has been reached.");
             }
 
-            var enrollment = new CourseEnrollment
+            var sessions = timings.Select(timing => new CourseEnrollment
             {
-                //UserID = userId,
-                Child = child,  
-                Course = course,
+                ChildID = childId,
+                CourseID = courseId,
+                EnrollmentID_Ref = enrollmentIdRef,
                 ScheduledAt = timing.ScheduledAtUtc,
                 ScheduledLocalTime = timing.ScheduledLocalTime,
                 ScheduledTimeZoneId = timing.TimeZoneId,
                 ScheduledHours = scheduledHours,
-                Location = location,
+                Location = location.Trim(),
                 CreatedBy = coach.UserID,
                 CreatedDate = DateTime.UtcNow,
-                Status = "Scheduled",
-                EnrollmentID_Ref = enrollmentId_Ref
-            };
+                Status = "Scheduled"
+            }).ToList();
 
-            try
-            {
-                return await _enrollmentRepository.AddAsync(enrollment);
-            }
-
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex.InnerException);
-            }
+            return await _enrollmentRepository.AddPrivateSessionSeriesAsync(sessions);
         }
 
 
-        //Add new session to Group Course
+        /// <summary>
+        /// Adds one Group-course master session on behalf of Staff, including participant copies.
+        /// Replacement-session workflows use this method. It delegates to the atomic Staff-managed
+        /// Group series method, which checks the assigned Coach's schedule before saving anything.
+        /// </summary>
         public async Task<int> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
         {
-          
-            Course course = await _courseRepository.GetAsync(courseId);
-            var newSession = new CourseEnrollment
+            var ids = await AddStaffManagedGroupSessionSeriesAsync(
+                courseId,
+                new[] { timing },
+                scheduledHours,
+                location,
+                staffNote,
+                user);
+            return ids.SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Adds a complete series of Staff-scheduled Group-course master sessions and participant copies.
+        /// The repository validates the assigned Coach's time conflicts and saves the series atomically.
+        /// </summary>
+        public async Task<IReadOnlyList<int>> AddStaffManagedGroupSessionSeriesAsync(
+            int courseId,
+            IReadOnlyList<ScheduleTiming> timings,
+            decimal scheduledHours,
+            string location,
+            string staffNote,
+            User user)
+        {
+            var course = await _courseRepository.GetAsync(courseId);
+            if (course == null || !string.Equals(course.CourseType, "Group", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Invalid Group course.");
+            if (timings.Count == 0 || scheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
+                throw new ArgumentException("At least one session, scheduled hours, and location are required.");
+
+            var sessions = timings.Select(timing => new CourseEnrollment
             {
-                
-                ChildID = null,
-                Course = course,
+                CourseID = courseId,
                 ScheduledAt = timing.ScheduledAtUtc,
                 ScheduledLocalTime = timing.ScheduledLocalTime,
                 ScheduledTimeZoneId = timing.TimeZoneId,
                 ScheduledHours = scheduledHours,
-                Location = location,
-                StaffNote = staffNote,
+                Location = location.Trim(),
+                StaffNote = staffNote?.Trim(),
                 CreatedBy = user.Id,
                 CreatedDate = DateTime.UtcNow,
                 Status = "Open"
-            };
+            }).ToList();
 
-            try
-            {
-                if (!await _enrollmentRepository.AddAsync(newSession))
-                    return 0;
-
-                var registeredStudents = await _enrollmentRepository
-                    .GetEnrollmentsByCourseAsync(courseId, "Registered");
-                var confirmedStudents = await _enrollmentRepository
-                    .GetEnrollmentsByCourseAsync(courseId, "Confirmed");
-
-                var studentRegistrations = registeredStudents
-                    .Concat(confirmedStudents)
-                    .Where(enrollment => enrollment.ChildID.HasValue)
-                    .GroupBy(enrollment => enrollment.ChildID!.Value)
-                    .Select(group => group
-                        .OrderByDescending(enrollment => enrollment.Status == "Confirmed")
-                        .First());
-
-                foreach (var registration in studentRegistrations)
-                {
-                    var sessionStatus = registration.Status == "Confirmed"
-                        ? "Scheduled"
-                        : "Registered";
-
-                    var added = await AddSessionRegisteredEnrollmentAsync(
-                        registration.ChildID!.Value,
-                        courseId,
-                        newSession.ScheduledAt,
-                        newSession.ScheduledHours,
-                        newSession.Location,
-                        newSession.EnrollmentID,
-                        sessionStatus,
-                        user);
-
-                    if (!added)
-                        throw new InvalidOperationException(
-                            $"The new session could not be added for {registration.Child.Name}.");
-                }
-
-                return newSession.EnrollmentID;
-            }
-
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex.InnerException);
-            }
+            return await _enrollmentRepository.AddGroupSessionSeriesAsync(sessions, user);
         }
 
-        //Add Session to Private Course by Staff
-        public async Task<int> AddSessionToPrivateCourseAsync(int childId, int courseId, int enrollmentIdRef, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user)
+        /// <summary>
+        /// Adds a complete series of Staff-scheduled sessions for one Staff-managed Private-course registration.
+        /// Staff Note is stored on each session; Coach Note is not part of this Staff workflow.
+        /// </summary>
+        public async Task<IReadOnlyList<int>> AddStaffManagedPrivateSessionSeriesAsync(
+            int childId,
+            int courseId,
+            int enrollmentIdRef,
+            IReadOnlyList<ScheduleTiming> timings,
+            decimal scheduledHours,
+            string location,
+            string staffNote,
+            User user)
         {
             var child = await _childRepository.GetAsync(childId);
             var course = await _courseRepository.GetAsync(courseId);
             var root = await _enrollmentRepository.GetAsync(enrollmentIdRef);
             if (child == null || course == null || root == null
                 || !string.Equals(course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                || course.PrivateSchedulingMode is not "Staff"
                 || root.EnrollmentID_Ref != null || root.ChildID != childId || root.CourseID != courseId
                 || root.Status is not ("Registered" or "Confirmed"))
                 throw new ArgumentException("The selected private-course registration is invalid or no longer active.");
-            if (course.PrivateSchedulingMode is not "Staff")
-                throw new InvalidOperationException("This private course is scheduled by the Coach.");
-            if (scheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
-                throw new ArgumentException("Scheduled hours and location are required.");
+            if (timings.Count == 0 || scheduledHours <= 0 || string.IsNullOrWhiteSpace(location))
+                throw new ArgumentException("At least one session, scheduled hours, and location are required.");
+
             if (course.SessionCount.HasValue)
             {
-                var count = await _enrollmentRepository.GetCountedSessionCountByRootEnrollmentAsync(enrollmentIdRef);
-                if (count >= course.SessionCount.Value)
-                    throw new InvalidOperationException("All sessions for this private course have already been scheduled.");
+                var existingCount = await _enrollmentRepository
+                    .GetCountedSessionCountByRootEnrollmentAsync(enrollmentIdRef);
+                if (existingCount + timings.Count > course.SessionCount.Value)
+                    throw new InvalidOperationException("The requested series exceeds the remaining session count.");
             }
-            var session = new CourseEnrollment
+
+            var status = string.Equals(root.Status, "Confirmed", StringComparison.Ordinal)
+                ? "Scheduled"
+                : "Registered";
+            var sessions = timings.Select(timing => new CourseEnrollment
             {
-                ChildID = childId, CourseID = courseId, EnrollmentID_Ref = enrollmentIdRef,
-                ScheduledAt = timing.ScheduledAtUtc, ScheduledLocalTime = timing.ScheduledLocalTime,
-                ScheduledTimeZoneId = timing.TimeZoneId, ScheduledHours = scheduledHours,
-                Location = location.Trim(), StaffNote = staffNote?.Trim(), CreatedBy = user.Id,
+                ChildID = childId,
+                CourseID = courseId,
+                EnrollmentID_Ref = enrollmentIdRef,
+                ScheduledAt = timing.ScheduledAtUtc,
+                ScheduledLocalTime = timing.ScheduledLocalTime,
+                ScheduledTimeZoneId = timing.TimeZoneId,
+                ScheduledHours = scheduledHours,
+                Location = location.Trim(),
+                StaffNote = staffNote?.Trim(),
+                CreatedBy = user.Id,
                 CreatedDate = DateTime.UtcNow,
-                Status = string.Equals(root.Status, "Confirmed", StringComparison.Ordinal)
-                    ? "Scheduled"
-                    : "Registered"
-            };
-            return await _enrollmentRepository.AddAsync(session) ? session.EnrollmentID : 0;
+                Status = status
+            }).ToList();
+
+            return await _enrollmentRepository.AddPrivateSessionSeriesAsync(sessions);
         }
 
 

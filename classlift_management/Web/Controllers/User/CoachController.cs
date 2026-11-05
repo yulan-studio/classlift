@@ -870,8 +870,6 @@ namespace Web.Controllers.User
                     return Forbid();
 
 
-                bool allSuccess = true;
-
                 if (isRecurring && recurrenceCount <= 0)
                 {
                     TempData["ErrorMessage"] = "Invalid recurrence count.";
@@ -927,21 +925,11 @@ namespace Web.Controllers.User
                     return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
                 }
 
-                foreach (var timing in timings)
+                try
                 {
-                    bool result = await _courseEnrollmentService.ScheduleCourseAsync(
-                        childId, courseId, timing, scheduledHours, location, coachId, enrollmentId_Ref);
+                    await _courseEnrollmentService.AddCoachManagedPrivateSessionSeriesAsync(
+                        childId, courseId, timings, scheduledHours, location, coachId, enrollmentId_Ref);
 
-                    if (!result)
-                    {
-                        allSuccess = false;
-                        break;
-                    }
-
-                }
-
-                if (allSuccess)
-                {
                     await NotifyFamilyOfCreatedSessionsAsync(
                         child,
                         course,
@@ -956,9 +944,9 @@ namespace Web.Controllers.User
                         : "Session(s) scheduled successfully.";
                     TempData.Remove("WarningMessage");
                 }
-                else
+                catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Failed to schedule one or more sessions.";
+                    TempData["ErrorMessage"] = ex.Message;
                 }
             }
 

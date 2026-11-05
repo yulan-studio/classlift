@@ -33,6 +33,123 @@ namespace Core.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<IReadOnlyList<int>> AddPrivateSessionSeriesAsync(
+            IReadOnlyList<CourseEnrollment> sessions)
+        {
+            if (sessions.Count == 0)
+                return Array.Empty<int>();
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await EnsureCoachHasNoScheduleConflictAsync(sessions[0].CourseID, sessions);
+
+            await _context.CourseEnrollments.AddRangeAsync(sessions);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return sessions.Select(session => session.EnrollmentID).ToList();
+        }
+
+        public async Task<IReadOnlyList<int>> AddGroupSessionSeriesAsync(
+            IReadOnlyList<CourseEnrollment> sessions,
+            User user)
+        {
+            if (sessions.Count == 0)
+                return Array.Empty<int>();
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var courseId = sessions[0].CourseID;
+            await EnsureCoachHasNoScheduleConflictAsync(courseId, sessions);
+
+            var registrations = (await _context.CourseEnrollments
+                    .Include(enrollment => enrollment.Child)
+                    .Where(enrollment => enrollment.CourseID == courseId
+                        && enrollment.EnrollmentID_Ref == null
+                        && enrollment.ChildID.HasValue
+                        && (enrollment.Status == "Registered" || enrollment.Status == "Confirmed"))
+                    .ToListAsync())
+                .GroupBy(enrollment => enrollment.ChildID!.Value)
+                .Select(group => group
+                    .OrderByDescending(enrollment => enrollment.Status == "Confirmed")
+                    .First())
+                .ToList();
+
+            foreach (var session in sessions)
+            {
+                await _context.CourseEnrollments.AddAsync(session);
+                await _context.SaveChangesAsync();
+
+                var childSessions = registrations.Select(registration => new CourseEnrollment
+                {
+                    ChildID = registration.ChildID,
+                    CourseID = courseId,
+                    EnrollmentID_Ref = session.EnrollmentID,
+                    ScheduledAt = session.ScheduledAt,
+                    ScheduledLocalTime = session.ScheduledLocalTime,
+                    ScheduledTimeZoneId = session.ScheduledTimeZoneId,
+                    ScheduledHours = session.ScheduledHours,
+                    Location = session.Location,
+                    StaffNote = session.StaffNote,
+                    CreatedBy = user.Id,
+                    CreatedDate = DateTime.UtcNow,
+                    Status = registration.Status == "Confirmed" ? "Scheduled" : "Registered"
+                });
+                await _context.CourseEnrollments.AddRangeAsync(childSessions);
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return sessions.Select(session => session.EnrollmentID).ToList();
+        }
+
+        private async Task EnsureCoachHasNoScheduleConflictAsync(
+            int courseId,
+            IReadOnlyList<CourseEnrollment> proposedSessions)
+        {
+            var course = await _context.Courses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.CourseID == courseId);
+            if (course == null)
+                throw new ArgumentException("Course not found.");
+
+            var proposedRanges = proposedSessions.Select(session => new
+            {
+                Start = session.ScheduledAt!.Value,
+                End = session.ScheduledAt.Value.AddHours((double)session.ScheduledHours!.Value)
+            }).OrderBy(range => range.Start).ToList();
+
+            for (var index = 1; index < proposedRanges.Count; index++)
+            {
+                if (proposedRanges[index].Start < proposedRanges[index - 1].End)
+                    throw new InvalidOperationException(
+                        "The requested session series contains overlapping times. No sessions were added.");
+            }
+
+            var earliestStart = proposedRanges[0].Start;
+            var latestEnd = proposedRanges.Max(range => range.End);
+            var existingSessions = await _context.CourseEnrollments
+                .AsNoTracking()
+                .Where(session => session.Course.CoachID == course.CoachID
+                    && session.ScheduledAt.HasValue
+                    && session.ScheduledHours.HasValue
+                    && session.Status != "Canceled"
+                    && session.Status != "Deleted"
+                    && session.ScheduledAt.Value < latestEnd)
+                .Select(session => new { session.ScheduledAt, session.ScheduledHours })
+                .ToListAsync();
+
+            var hasConflict = existingSessions.Any(existing =>
+            {
+                var existingStart = existing.ScheduledAt!.Value;
+                var existingEnd = existingStart.AddHours((double)existing.ScheduledHours!.Value);
+                return existingEnd > earliestStart
+                    && proposedRanges.Any(proposed =>
+                        existingStart < proposed.End && existingEnd > proposed.Start);
+            });
+
+            if (hasConflict)
+                throw new InvalidOperationException(
+                    "The Coach already has another course scheduled during one or more selected times. No sessions were added.");
+        }
+
         public async Task<bool> RemoveAsync(int enrollmentId)
         {
             var enrollment = await _context.CourseEnrollments.FindAsync(enrollmentId);
