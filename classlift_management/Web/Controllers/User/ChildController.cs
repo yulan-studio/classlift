@@ -1014,7 +1014,7 @@ namespace Web.Controllers.User
 
                 if (!delivery.IsSuccessful)
                 {
-                    TempData["WarningMessage"] =
+                    TempData["RegistrationWarningMessage"] =
                         "The participant was registered, but the confirmation email could not be sent.";
                 }
             }
@@ -1025,7 +1025,7 @@ namespace Web.Controllers.User
                     "Course registration succeeded, but its family confirmation email could not be processed. ChildId={ChildId}, CourseId={CourseId}",
                     childId,
                     course.CourseID);
-                TempData["WarningMessage"] =
+                TempData["RegistrationWarningMessage"] =
                     "The participant was registered, but the confirmation email could not be sent.";
             }
         }
