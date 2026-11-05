@@ -1316,8 +1316,6 @@ namespace Web.Controllers.User
                     }
                 }
 
-                string receiptPath = null;
-
                 // ✅ Save the receipt file
                 //if (file != null && file.Length > 0)
                 //{

@@ -246,7 +246,8 @@
                                 //var isWithin24Hours = schedule.ScheduledAt.HasValue && (schedule.ScheduledAt.Value - now).TotalHours < 24;
                                 var now = DateTime.UtcNow;
                                 //var scheduledUtc = TimeZoneInfo.ConvertTimeToUtc(schedule.ScheduledAt.Value, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
-                                var isWithin24Hours = (schedule.ScheduledAt.Value - now).TotalHours < 24;
+                                var isWithin24Hours = schedule.ScheduledAt.HasValue
+                                    && (schedule.ScheduledAt.GetValueOrDefault() - now).TotalHours < 24;
 
                                 <input type="hidden" name="Schedules[@i].EnrollmentID" value=@courseSchedules.Schedules[i].EnrollmentID>
                                 <tr>
@@ -258,7 +259,7 @@
                                     }
                                           
                                     <td data-label="Date">
-                                        @(scheduledAt.HasValue? scheduledAt.Value.ToString("yyyy-MM-dd") : "")
+                                        @(scheduledAt?.ToString("yyyy-MM-dd") ?? "")
                                     </td>
 
                                     <td data-label="Start Time">

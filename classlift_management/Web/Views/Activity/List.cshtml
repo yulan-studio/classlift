@@ -4,6 +4,7 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Manage Activities";
+    var currentSort = ViewData["CurrentSort"] as string;
 }
 
 
@@ -41,11 +42,11 @@
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" style="color: black; text-decoration: none; ">
                     Name
-                    @if ((string)ViewData["CurrentSort"] == "name")
+                    @if (currentSort == "name")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "name_desc")
+                    else if (currentSort == "name_desc")
                     {
 
                         <span>▼</span>
@@ -57,11 +58,11 @@
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["AddressSortParm"]" style="color: black; text-decoration: none; ">
                     Address
-                    @if ((string)ViewData["CurrentSort"] == "address")
+                    @if (currentSort == "address")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "address_desc")
+                    else if (currentSort == "address_desc")
                     {
 
                         <span>▼</span>
@@ -72,11 +73,11 @@
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationSortParm"]" style="color: black; text-decoration: none; ">
                     # of Registrations
-                    @if ((string)ViewData["CurrentSort"] == "registrations")
+                    @if (currentSort == "registrations")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "registeration_desc")
+                    else if (currentSort == "registeration_desc")
                     {
 
                         <span>▼</span>
@@ -87,11 +88,11 @@
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["ScheduledAtSortParm"]" style="color: #000 !important; text-decoration: none; ">
                     Scheduled At
-                    @if ((string)ViewData["CurrentSort"] == "scheduledAt")
+                    @if (currentSort == "scheduledAt")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "scheduledAt_desc")
+                    else if (currentSort == "scheduledAt_desc")
                     {
 
                         <span>▼</span>
@@ -104,11 +105,11 @@
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" style="color: #000 !important; text-decoration: none;  ">
                     Status
-                    @if ((string)ViewData["CurrentSort"] == "status")
+                    @if (currentSort == "status")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "status_desc")
+                    else if (currentSort == "status_desc")
                     {
 
                         <span>▼</span>

@@ -921,12 +921,12 @@ namespace Web.Controllers.Courses
                         }
                         else if (result && cancellationResolution == "Replacement")
                         {
-                            var replacementLocal = DateTime.SpecifyKind(replacementScheduledAt.Value, DateTimeKind.Unspecified);
+                            var replacementLocal = DateTime.SpecifyKind(replacementScheduledAt!.Value, DateTimeKind.Unspecified);
                             var replacementUtc = _timeZoneService.ConvertLocalToUtc(replacementLocal, replacementTimeZoneId);
                             var replacementId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
                                 session.CourseID,
                                 new ScheduleTiming { ScheduledAtUtc = replacementUtc, ScheduledLocalTime = replacementLocal, TimeZoneId = replacementTimeZoneId },
-                                replacementScheduledHours.Value,
+                                replacementScheduledHours!.Value,
                                 location,
                                 string.IsNullOrWhiteSpace(replacementStaffNote)
                                     ? $"Replacement for canceled session on {session.ScheduledAt?.ToString("yyyy-MM-dd") ?? "unknown date"}"

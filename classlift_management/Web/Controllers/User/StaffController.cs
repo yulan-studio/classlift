@@ -250,7 +250,7 @@ namespace Web.Controllers.User
                 TempData["SuccessMessage"] = "Staff information updated successfully.";
                 return RedirectToAction("List");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //TempData["ErrorMessage"] = $"Error: {ex.Message}";
                 var staff = await _staffService.GetAsync(staffId);

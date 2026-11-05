@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Data;
 using System.Data.SqlClient;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -503,7 +502,7 @@ namespace Web.Controllers.User
                 TempData["SuccessMessage"] = $"{ProviderName} information updated successfully.";
                 return RedirectToAction("List");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //TempData["ErrorMessage"] = $"Error: {ex.Message}";
                 var coach = await _coachService.GetAsync(coachId);
@@ -1387,7 +1386,11 @@ namespace Web.Controllers.User
             {
                 // A Coach can only load their own calendar, regardless of any
                 // coachId supplied in the query string.
-                coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+                var currentCoach = await _coachRepository.GetCoachByIdAsync(user.Id);
+                if (currentCoach == null)
+                    return NotFound();
+
+                coach = currentCoach;
             }
             else
             {
@@ -1445,7 +1448,7 @@ namespace Web.Controllers.User
                 .ToList();
 
             var sessionsToComplete = sessions
-                .Where(e => e.Course.CourseType == "Private" && !e.Course.SessionCount.HasValue && e.Status == "Scheduled" && e.ScheduledHours.HasValue && e.ScheduledAt.Value.AddHours((double)e.ScheduledHours.Value) <= now)
+                .Where(e => e.Course.CourseType == "Private" && !e.Course.SessionCount.HasValue && e.Status == "Scheduled" && e.ScheduledHours.HasValue && e.ScheduledAt.GetValueOrDefault().AddHours((double)e.ScheduledHours.GetValueOrDefault()) <= now)
                 .OrderBy(e => e.ScheduledAt)
                 .ThenBy(e => e.Child!.Name)
                 .Select(e => ToItem(e, $"/Coach/ManageEnrollments/{e.ChildID}?courseId={e.CourseID}&enrollmentId={e.EnrollmentID_Ref ?? e.EnrollmentID}"))
@@ -1496,7 +1499,7 @@ namespace Web.Controllers.User
             if (!saved)
                 return BadRequest("The schedule could not be updated.");
 
-            enrollment.Location = vm.Location;
+            enrollment.Location = vm.Location ?? string.Empty;
             await NotifyFamilyOfUpdatedSessionAsync(child, course, coach.Name, enrollment);
             // You need to provide values for childId, courseId, and enrollmentId_Ref here if you want to redirect.
             // For now, just return Ok or a suitable result.
