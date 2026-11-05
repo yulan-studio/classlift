@@ -305,7 +305,10 @@ namespace Core.Repositories
                 .Where(e => e.EnrollmentID_Ref == rootEnrollmentId
                     && e.ChildID == childId
                     && e.CourseID == courseId
-                    && e.Status != "Deleted"
+                    && (e.Status == "Scheduled"
+                        || e.Status == "Completed"
+                        || e.Status == "Deleted"
+                        || e.Status == "RequestToReschedule")
                     && e.ScheduledAt.HasValue)
                 .OrderBy(e => e.ScheduledAt)
                 .ToListAsync();

@@ -598,8 +598,7 @@ namespace Web.Controllers.Courses
                 .Include(e => e.Child)
                 .Where(e => e.CourseID == courseId
                     && e.EnrollmentID_Ref != null
-                    && e.ScheduledAt >= DateTime.UtcNow
-                    && e.Status != "Deleted")
+                    && e.ScheduledAt >= DateTime.UtcNow)
                 .OrderBy(e => e.ScheduledAt)
                 .ToListAsync();
 

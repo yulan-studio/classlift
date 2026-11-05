@@ -100,7 +100,7 @@
     <strong>Session Count:</strong> @(Model.Course.SessionCount?.ToString() ?? "Unlimited")
 </div>
 
-<p class="text-muted">Staff schedules the time and location for each @CurrentTenant.Terminology.ParticipantSingular.ToLowerInvariant().</p>
+
 
 <!-- Add New Session Form -->
 @if (showAddSessionForm)
@@ -257,15 +257,22 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@s.Status</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@s.StaffNote</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">
-                        @if (s.Status == "Canceled")
+                        @if (s.Status == "Deleted")
                         {
-                            <span style="color:#6c757d; font-style:italic;">Resolved during cancellation</span>
+                            <span style="color:#6c757d; font-style:italic;">Deleted</span>
                         }
-                        @if (s.Status != "Canceled" && s.Status != "Completed")
+                        else
                         {
-                            <a href="#" onclick="loadEditSessionForm(@s.EnrollmentID); return false;" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
+                            @if (s.Status == "Canceled")
+                            {
+                                <span style="color:#6c757d; font-style:italic;">Resolved during cancellation</span>
+                            }
+                            @if (s.Status != "Canceled" && s.Status != "Completed")
+                            {
+                                <a href="#" onclick="loadEditSessionForm(@s.EnrollmentID); return false;" style="margin-left: 10px; color: #007bff; text-decoration: none;">Edit</a>
+                            }
+                            <a href="#" onclick="loadDeleteSessionConfirm(@s.EnrollmentID)" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
                         }
-                        <a href="#" onclick="loadDeleteSessionConfirm(@s.EnrollmentID)" style="margin-left: 10px; color: #007bff; text-decoration: none;">Delete</a>
                     </td>
                 </tr>
             }
