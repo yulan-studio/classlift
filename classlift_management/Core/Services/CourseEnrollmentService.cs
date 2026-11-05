@@ -606,7 +606,10 @@ namespace Core.Services
                 ScheduledAt = timing.ScheduledAtUtc, ScheduledLocalTime = timing.ScheduledLocalTime,
                 ScheduledTimeZoneId = timing.TimeZoneId, ScheduledHours = scheduledHours,
                 Location = location.Trim(), StaffNote = staffNote?.Trim(), CreatedBy = user.Id,
-                CreatedDate = DateTime.UtcNow, Status = "Scheduled"
+                CreatedDate = DateTime.UtcNow,
+                Status = string.Equals(root.Status, "Confirmed", StringComparison.Ordinal)
+                    ? "Scheduled"
+                    : "Registered"
             };
             return await _enrollmentRepository.AddAsync(session) ? session.EnrollmentID : 0;
         }

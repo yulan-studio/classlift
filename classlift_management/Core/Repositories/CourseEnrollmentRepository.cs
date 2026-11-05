@@ -835,6 +835,7 @@ namespace Core.Repositories
 
             // Find the activity enrollment record by ID
             var enrollment = await _context.CourseEnrollments
+                .Include(e => e.Course)
                 .FirstOrDefaultAsync(e => e.EnrollmentID == enrollmentID);
 
             if (enrollment == null)
@@ -842,8 +843,25 @@ namespace Core.Repositories
                 return false; // Enrollment not found
             }
 
-            // Update status to "Scheduled"
             enrollment.Status = "Confirmed";
+            enrollment.UpdatedDate = DateTime.UtcNow;
+
+            if (enrollment.EnrollmentID_Ref == null
+                && string.Equals(enrollment.Course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(enrollment.Course.PrivateSchedulingMode, "Staff", StringComparison.OrdinalIgnoreCase))
+            {
+                var registeredSessions = await _context.CourseEnrollments
+                    .Where(session =>
+                        session.EnrollmentID_Ref == enrollment.EnrollmentID
+                        && session.Status == "Registered")
+                    .ToListAsync();
+
+                foreach (var session in registeredSessions)
+                {
+                    session.Status = "Scheduled";
+                    session.UpdatedDate = DateTime.UtcNow;
+                }
+            }
 
             // Update the record in the database
             _context.CourseEnrollments.Update(enrollment);
@@ -891,6 +909,21 @@ namespace Core.Repositories
                         && enrollment.CourseID == registration.CourseID
                         && enrollment.EnrollmentID_Ref != null
                         && enrollment.Status == "Registered")
+                    .ToListAsync();
+
+                foreach (var session in registeredSessions)
+                {
+                    session.Status = "Scheduled";
+                    session.UpdatedDate = DateTime.UtcNow;
+                }
+            }
+            else if (string.Equals(registration.Course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(registration.Course.PrivateSchedulingMode, "Staff", StringComparison.OrdinalIgnoreCase))
+            {
+                var registeredSessions = await _context.CourseEnrollments
+                    .Where(session =>
+                        session.EnrollmentID_Ref == registration.EnrollmentID
+                        && session.Status == "Registered")
                     .ToListAsync();
 
                 foreach (var session in registeredSessions)

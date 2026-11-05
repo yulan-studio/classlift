@@ -104,6 +104,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - The scheduling owner is selected when the Private course is created. Edit Course displays the current owner as read-only and cannot change it. Group courses do not display Private Course Scheduling.
    - When Staff is the scheduling owner, Coach Manage Class labels the Schedules action as View. The Coach cannot add, edit, or remove session schedule details, but can update the Provider Note for a session.
    - Manage Private Sessions offers an Edit action for active Staff-managed Private sessions. Its Private-specific editor displays Participant, Date, Start Time, End Time, and Status as read-only information, using configured Participant terminology and the user's time zone. Only Location and Staff Note can be changed; Status is preserved by the server.
+   - When Staff adds a session for a Registered root registration, the new session is Registered. When Staff adds a session for a Confirmed root registration, the new session is Scheduled. Confirming the root registration changes all of its Registered sessions to Scheduled.
 
 1. On Coach Manage Schedules, a Private course session whose status is RequestToReschedule does not show the Edit action. The Coach may still use Remove, subject to the existing removal rules.
 2. A Provider Note containing non-whitespace text is required before a Coach can update or remove a Private course session. The displayed Provider term comes from the organization's terminology settings, and the rule is enforced by both the Manage Schedules page and the server.
@@ -147,7 +148,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
 5. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
 6. For a Token Payment, Staff may select an active administrator-defined package or Custom Package. A fixed package always uses its configured amount; Custom Package requires Staff to enter an amount greater than zero and does not add an item to the administrator's package catalog.
-7. In a participant's Registration History, a course registration whose status is Registered and whose fee is already paid cannot be removed. Staff may confirm it on the participant's behalf. Confirming a Group course also changes that participant's Registered session copies to Scheduled.
+7. In a participant's Registration History, a course registration whose status is Registered and whose fee is already paid cannot be removed. Staff may confirm it on the participant's behalf. Confirming a Group course changes that participant's Registered session copies to Scheduled. Confirming a Staff-managed Private course changes the Registered sessions linked to that root registration to Scheduled.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.
