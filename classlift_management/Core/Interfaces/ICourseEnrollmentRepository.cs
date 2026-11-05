@@ -71,6 +71,8 @@ namespace Core.Interfaces
 
         Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
             GetScheduleNotificationRecipientsAsync(int masterSessionId);
+        Task<CourseScheduleNotificationRecipient?>
+            GetPrivateRegistrationNotificationRecipientAsync(int rootEnrollmentId);
 
         Task UpdateChildCompletedSessionsAsync(int courseId);
 

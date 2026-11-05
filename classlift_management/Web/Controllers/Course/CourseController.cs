@@ -17,6 +17,7 @@ using Core.Email.Notifications;
 using Core.Email.Templates;
 using Web.Filters;
 using Core.Contexts;
+using Core.DTOs;
 
 //using X.PagedList.Mvc.Core;
 
@@ -1086,6 +1087,50 @@ namespace Web.Controllers.Courses
             }
         }
 
+        private async Task<bool> NotifyFamilyOfStaffPrivateScheduleDeletionAsync(
+            CourseEnrollment session)
+        {
+            try
+            {
+                if (!session.EnrollmentID_Ref.HasValue
+                    || !session.ScheduledAt.HasValue
+                    || !session.ScheduledHours.HasValue)
+                {
+                    return false;
+                }
+
+                var recipient = await _courseEnrollmentService
+                    .GetPrivateRegistrationNotificationRecipientAsync(session.EnrollmentID_Ref.Value);
+                var course = await _courseService.GetAsync(session.CourseID);
+                if (recipient == null)
+                    return false;
+
+                var delivery = await _emailNotifications.SendCourseScheduleDeletedAsync(
+                    recipient.Email,
+                    new CourseScheduleEmailData(
+                        recipient.ParticipantName,
+                        course.Title,
+                        course.Coach?.Name ?? "Staff",
+                        DateTime.SpecifyKind(session.ScheduledAt.Value, DateTimeKind.Utc),
+                        session.ScheduledTimeZoneId ?? TimeZoneService.DefaultTimeZoneId,
+                        "/Child/MySchedules",
+                        session.ScheduledHours,
+                        session.Location,
+                        "Deleted",
+                        session.StaffNote));
+
+                return delivery.IsSuccessful;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "A confirmed Staff-managed Private session was marked Deleted, but its family notification could not be processed. SessionId={SessionId}",
+                    session.EnrollmentID);
+                return false;
+            }
+        }
+
         private async Task NotifyFamiliesOfStaffScheduleUpdateAsync(CourseEnrollment session)
         {
             try
@@ -1172,15 +1217,38 @@ namespace Web.Controllers.Courses
         [HttpPost("DeleteSessionConfirmed/{enrollmentId}")]
         public async Task<IActionResult> DeleteSessionConfirmed(int enrollmentId)
         {
-
             try
             {
-                var result = await _courseEnrollmentService.RemoveAsync(enrollmentId);
+                var session = await _courseEnrollmentService.GetAsync(enrollmentId);
+                if (string.Equals(session.Course.CourseType, "Private", StringComparison.OrdinalIgnoreCase))
+                {
+                    var deleteResult = await _courseEnrollmentService
+                        .DeleteStaffManagedPrivateSessionAsync(enrollmentId);
 
-                if (result)
+                    if (deleteResult == StaffManagedPrivateSessionDeleteResult.MarkedDeleted)
+                    {
+                        if (!await NotifyFamilyOfStaffPrivateScheduleDeletionAsync(session))
+                        {
+                            TempData["SuccessMessage"] =
+                                "The session was marked as deleted, but the family notification could not be sent.";
+                        }
+                        else
+                        {
+                            TempData["SuccessMessage"] = "The session was marked as deleted successfully.";
+                        }
+                    }
+                    else
+                    {
+                        TempData["SuccessMessage"] = "The unconfirmed session was deleted successfully.";
+                    }
+
                     return Json(new { success = true });
-                else
-                    return Json(new { success = false });
+                }
+
+                if (await _courseEnrollmentService.RemoveAsync(enrollmentId))
+                    return Json(new { success = true });
+
+                return Json(new { success = false });
             }
 
             catch (Exception ex)

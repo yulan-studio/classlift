@@ -654,6 +654,21 @@ namespace Core.Repositories
                 .ToListAsync();
         }
 
+        public Task<CourseScheduleNotificationRecipient?>
+            GetPrivateRegistrationNotificationRecipientAsync(int rootEnrollmentId)
+        {
+            return _context.CourseEnrollments
+                .AsNoTracking()
+                .Where(enrollment =>
+                    enrollment.EnrollmentID == rootEnrollmentId
+                    && enrollment.EnrollmentID_Ref == null
+                    && enrollment.ChildID != null)
+                .Select(enrollment => new CourseScheduleNotificationRecipient(
+                    enrollment.Child.Name,
+                    enrollment.Child.User.Email))
+                .SingleOrDefaultAsync();
+        }
+
         //return a list of ChildIDs where at least one course enrollment session has Status == "RequestToLeave":
         public async Task<List<int?>> GetChildrenWithRequestToLeaveAsync()
         {

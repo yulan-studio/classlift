@@ -106,6 +106,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - When Staff is the scheduling owner, Coach Manage Class labels the Schedules action as View. The Coach cannot add, edit, or remove session schedule details, but can update the Provider Note for a session.
    - Manage Private Sessions offers an Edit action for active Staff-managed Private sessions. Its Private-specific editor displays Participant, Date, Start Time, End Time, and Status as read-only information, using configured Participant terminology and the user's time zone. Only Location and Staff Note can be changed; Status is preserved by the server.
    - When Staff adds a session for a Registered root registration, the new session is Registered. When Staff adds a session for a Confirmed root registration, the new session is Scheduled. Confirming the root registration changes all of its Registered sessions to Scheduled.
+   - When Staff deletes a session, the root registration status controls the result. A session under a Registered root is permanently removed. A session under a Confirmed root is retained and its Status changes to Deleted.
 
 1. On Coach Manage Schedules, a Private course session whose status is RequestToReschedule does not show the Edit action. The Coach may still use Remove, subject to the existing removal rules.
 2. A Provider Note containing non-whitespace text is required before a Coach can update or remove a Private course session. The displayed Provider term comes from the organization's terminology settings, and the rule is enforced by both the Manage Schedules page and the server.
@@ -206,13 +207,16 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - All sessions created by the same recurring-session request are summarized in that single email.
    - Delivery begins only after the complete session series has been saved successfully.
    - Missing recipients or email-delivery failures do not roll back created sessions; Staff sees a warning instead.
-10. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
+10. When Staff deletes a Staff-managed Private-course session, an unconfirmed session that is permanently removed does not send an email. A confirmed session that changes to Deleted sends one deletion email to the family's shared participant-portal address.
+   - The delete operation completes before notification delivery is attempted.
+   - A missing recipient or delivery failure does not roll back the Deleted status; Staff sees a warning instead.
+11. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
    - Private-course requests go to the assigned Coach and link to that registration's Coach schedule page.
    - Group-course requests go to the organization's configured notification recipient and link to Staff's session-registration page.
    - The email identifies the participant, course, request type, affected session time, and family note.
    - Saving the request completes before email delivery is attempted; delivery failure does not roll back the saved request and the family sees a warning.
 
-11. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
+12. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
 
 ## Open questions
 

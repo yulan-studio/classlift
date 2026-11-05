@@ -78,6 +78,46 @@ namespace Core.Services
             
         }
 
+        public async Task<StaffManagedPrivateSessionDeleteResult> DeleteStaffManagedPrivateSessionAsync(
+            int enrollmentId)
+        {
+            var session = await _enrollmentRepository.GetAsync(enrollmentId);
+            if (session == null
+                || !session.EnrollmentID_Ref.HasValue
+                || !string.Equals(session.Course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(session.Course.PrivateSchedulingMode, "Staff", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("The selected session is not a Staff-managed Private-course session.");
+            }
+
+            var rootRegistration = await _enrollmentRepository.GetAsync(session.EnrollmentID_Ref.Value);
+            if (rootRegistration == null
+                || rootRegistration.EnrollmentID_Ref.HasValue
+                || rootRegistration.CourseID != session.CourseID
+                || rootRegistration.ChildID != session.ChildID)
+            {
+                throw new InvalidOperationException("The session's root registration is invalid.");
+            }
+
+            if (string.Equals(rootRegistration.Status, "Registered", StringComparison.Ordinal))
+            {
+                if (!await _enrollmentRepository.RemoveAsync(session.EnrollmentID))
+                    throw new InvalidOperationException("The session could not be deleted.");
+
+                return StaffManagedPrivateSessionDeleteResult.HardDeleted;
+            }
+
+            if (!string.Equals(rootRegistration.Status, "Confirmed", StringComparison.Ordinal))
+                throw new InvalidOperationException("Only Registered or Confirmed Private-course registrations can delete a session.");
+
+            session.Status = "Deleted";
+            session.UpdatedDate = DateTime.UtcNow;
+            if (!await _enrollmentRepository.UpdateAsync(session))
+                throw new InvalidOperationException("The session could not be marked as deleted.");
+
+            return StaffManagedPrivateSessionDeleteResult.MarkedDeleted;
+        }
+
 
         
 
@@ -390,6 +430,10 @@ namespace Core.Services
         public async Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
             GetScheduleNotificationRecipientsAsync(int masterSessionId) =>
             await _enrollmentRepository.GetScheduleNotificationRecipientsAsync(masterSessionId);
+
+        public async Task<CourseScheduleNotificationRecipient?>
+            GetPrivateRegistrationNotificationRecipientAsync(int rootEnrollmentId) =>
+            await _enrollmentRepository.GetPrivateRegistrationNotificationRecipientAsync(rootEnrollmentId);
 
         //Get Registered children for a course
         public async Task<IEnumerable<Core.ViewModels.ChildViewModel>> GetRegisterationByCourseAsync(int courseId)

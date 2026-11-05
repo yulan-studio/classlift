@@ -19,6 +19,7 @@ namespace Core.Interfaces
         Task<bool> UpdateSchedulePreferenceAsync(int childId, int courseId, string? preference, CancellationToken cancellationToken = default);
 
         Task<bool> RemoveAsync(int enrollmentId);
+        Task<StaffManagedPrivateSessionDeleteResult> DeleteStaffManagedPrivateSessionAsync(int enrollmentId);
         Task<int> AddRegisteredEnrollmentAsync(int childId, int courseId, decimal scheduledHours, string status, User user);
         Task<bool> RemoveRegisteredEnrollmentAsync(int enrollmentId);
 
@@ -71,6 +72,8 @@ namespace Core.Interfaces
 
         Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
             GetScheduleNotificationRecipientsAsync(int masterSessionId);
+        Task<CourseScheduleNotificationRecipient?>
+            GetPrivateRegistrationNotificationRecipientAsync(int rootEnrollmentId);
 
         //Task<IEnumerable<Child>> GetRegisteredChildrenByCoachAsync(int coachId);
 
