@@ -18,6 +18,12 @@
     .manage-private-course-info strong {
         color: #152238;
     }
+
+    .management-table tr.highlighted-participant-session > td {
+        background-color: #fff3cd !important;
+        border-top-color: #e4c967 !important;
+        border-bottom-color: #e4c967 !important;
+    }
 </style>
 
 <script>
@@ -221,7 +227,8 @@
         {
             foreach (var s in Model.PrivateSessions)
             {
-                <tr id="row-@s.EnrollmentID">
+                var highlightSession = Model.HighlightChildId.HasValue && s.ChildID == Model.HighlightChildId.Value;
+                <tr id="row-@s.EnrollmentID" class="@(highlightSession ? "highlighted-participant-session" : null)">
                    @*  <td style="padding: 8px; border: 1px solid #ddd;">@s.ScheduledAt?.ToString("yyyy-MM-dd HH:mm")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@s.ScheduledHours</td> *@
 

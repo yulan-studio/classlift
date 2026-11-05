@@ -572,7 +572,7 @@ namespace Web.Controllers.Courses
 
         [Authorize(Roles = "Staff")]
         [HttpGet("ManagePrivateSessions/{courseId}")]
-        public async Task<IActionResult> ManagePrivateSessions(int courseId)
+        public async Task<IActionResult> ManagePrivateSessions(int courseId, int? childId = null)
         {
             var course = await _courseService.GetAsync(courseId);
             if (course == null || course.CourseType != "Private" || course.PrivateSchedulingMode != "Staff")
@@ -612,7 +612,11 @@ namespace Web.Controllers.Courses
                 Course = course,
                 PrivateRegistrations = privateRegistrations,
                 PrivateSessions = privateSessions,
-                PrivateRegistrationRemainingSessions = privateRegistrationRemainingSessions
+                PrivateRegistrationRemainingSessions = privateRegistrationRemainingSessions,
+                HighlightChildId = childId.HasValue
+                    && privateRegistrations.Any(registration => registration.ChildID == childId.Value)
+                        ? childId.Value
+                        : null
             };
 
             return View("ManagePrivateSessions", model);

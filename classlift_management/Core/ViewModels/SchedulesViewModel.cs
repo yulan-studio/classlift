@@ -67,5 +67,6 @@ namespace Core.ViewModels
         public List<CourseEnrollment> PrivateRegistrations { get; set; } = new();
         public List<CourseEnrollment> PrivateSessions { get; set; } = new();
         public Dictionary<int, int?> PrivateRegistrationRemainingSessions { get; set; } = new();
+        public int? HighlightChildId { get; set; }
     }
 }
