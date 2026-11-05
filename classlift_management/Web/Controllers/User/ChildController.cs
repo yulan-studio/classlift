@@ -1196,6 +1196,7 @@ namespace Web.Controllers.User
 
             var isTokenPayment = string.Equals(paymentType, "package", StringComparison.OrdinalIgnoreCase);
             var isDirectPayment = string.Equals(paymentType, "manual", StringComparison.OrdinalIgnoreCase);
+            var isCustomPackage = isTokenPayment && packageId == -1;
 
             if (!isTokenPayment && !isDirectPayment)
             {
@@ -1223,7 +1224,7 @@ namespace Web.Controllers.User
 
             // Hiding Token Payment in the view is not sufficient protection;
             // reject a crafted package-payment request before uploading files.
-            if (packageId.HasValue
+            if (isTokenPayment
                 && !_currentTenant.HasFeature(FeatureCodes.CreditTracking))
             {
                 TempData["ErrorMessage"] = "Token payment is not available for your plan.";
@@ -1236,6 +1237,35 @@ namespace Web.Controllers.User
 
             try
             {
+                if (isTokenPayment)
+                {
+                    if (isCustomPackage)
+                    {
+                        if (amount <= 0)
+                        {
+                            TempData["ErrorMessage"] = "Please enter an amount greater than zero for the custom package.";
+                            return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+                        }
+
+                        packageId = null;
+                    }
+                    else
+                    {
+                        var selectedPackage = await _db.PaymentPackages
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(p => p.PackageID == packageId && p.IsActive);
+
+                        if (selectedPackage?.Amount is null || selectedPackage.Amount <= 0)
+                        {
+                            TempData["ErrorMessage"] = "The selected token payment package is not available.";
+                            return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+                        }
+
+                        // Fixed package amounts are authoritative on the server.
+                        amount = selectedPackage.Amount.Value;
+                    }
+                }
+
                 if (feeId.HasValue)
                 {
                     var fee = await _feeService.GetAsync(feeId.Value);
@@ -1288,9 +1318,16 @@ namespace Web.Controllers.User
 
                 var result = false;
 
-                if (packageId != null)
+                if (isTokenPayment)
                 { 
-                    var paymentId = await _paymentService.AddTokenPaymentAsync(childId, packageId, amount, paymentDate, fileUrl, user);
+                    var paymentId = await _paymentService.AddTokenPaymentAsync(
+                        childId,
+                        packageId,
+                        amount,
+                        paymentDate,
+                        fileUrl,
+                        user,
+                        isCustomPackage ? "Custom Package" : null);
                     result = await _balanceService.AddPaymentToBalanceAsync(childId, paymentId, amount, fileUrl, user.Id);
                 }
 

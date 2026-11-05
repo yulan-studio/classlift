@@ -84,7 +84,7 @@ namespace Core.Services
         }
 
         // 🔹 Add a new payment
-        public async Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user)
+        public async Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user, string? memo = null)
         {
             
            // var createdBy = 1;
@@ -110,6 +110,7 @@ namespace Core.Services
                 Amount = amount,
                 Child = child,
                 PaymentDate = paymentDate,
+                Memo = memo,
                 CreatedByUser = user,
                 Receipt = receiptPath,
                 CreatedDate = DateTime.UtcNow

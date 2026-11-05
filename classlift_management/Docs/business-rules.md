@@ -146,6 +146,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. A participant's balance continues to use the balance snapshot created by each balance transaction. Since the system has not entered formal use, historical balance repair is not part of this rule.
 4. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
 5. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
+6. For a Token Payment, Staff may select an active administrator-defined package or Custom Package. A fixed package always uses its configured amount; Custom Package requires Staff to enter an amount greater than zero and does not add an item to the administrator's package catalog.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.

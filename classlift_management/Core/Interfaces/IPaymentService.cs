@@ -25,7 +25,7 @@ namespace Core.Interfaces
 
         Task<IEnumerable<PaymentPackage>> GetAllActivePackagesAsync();
         //Task<bool> AddAsync(int childId, int parentId, int packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
-        Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
+        Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user, string? memo = null);
 
         Task<int> AddNoneTokenPaymentAsync(int childId, int? feeId, decimal amount, DateTime? paymentDate, string receiptPath, User user);
 
