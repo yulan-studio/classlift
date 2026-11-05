@@ -9,6 +9,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - Session Cost is required.
 2. A private course without a Session Count uses hourly pricing and requires Credit Tracking.
    - A Staff-managed private course must have a Session Count; flexible private courses without a Session Count can only be Coach-managed.
+   - On Add Course, selecting a Staff-managed private course disables Hourly Cost and enables and requires Session Cost.
 3. A Group course requires a Session Count and Session Cost.
 4. Max Capacity is optional for a Group course. When supplied, it limits active registrations.
 5. The Staff course list is paginated and can be filtered by Specialty, Provider, Course Type, and active status. Sorting and active filters are preserved while paging.
@@ -122,7 +123,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 14. The Student Schedule Request form must explain that the information is a long-term scheduling preference and does not automatically book a specific Session. The form must provide an example link or help control that demonstrates common ways to write the preference, including regular weekly availability, flexible availability, a temporary pause, changing availability, and important time restrictions.
 
 15. On Coach Manage Schedules, Parent/Guardian contact information is shown only when the organization has enabled its parent/guardian support setting. Otherwise, the participant's own Core Information contact details are shown. Missing contact values display as `N/A`.
-16. Before creating a course Session, ClassLift checks whether the assigned Coach has another non-canceled, non-deleted Session whose time overlaps the proposed start and end time. For a recurring request, every occurrence is checked before any Session is saved. If one occurrence conflicts, or occurrences within the proposed series overlap each other, the entire series is rejected and no Session from that request is created. This applies to Group, Staff-managed Private, and Coach-managed Private scheduling.
+16. Before creating a course Session, ClassLift checks whether the assigned Provider has another non-canceled, non-deleted Session whose time overlaps the proposed start and end time. For a recurring request, every occurrence is checked before any Session is saved. If one occurrence conflicts, or occurrences within the proposed series overlap each other, the entire series is rejected and no Session from that request is created. This applies to Group, Staff-managed Private, and Coach-managed Private scheduling.
+   - The time-conflict message uses the organization's configured singular Provider terminology instead of a hard-coded role name.
 
 ## Participant schedule display
 
@@ -150,6 +152,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
 6. For a Token Payment, Staff may select an active administrator-defined package or Custom Package. A fixed package always uses its configured amount; Custom Package requires Staff to enter an amount greater than zero and does not add an item to the administrator's package catalog.
 7. In a participant's Registration History, a course registration whose status is Registered and whose fee is already paid cannot be removed. Staff may confirm it on the participant's behalf. Confirming a Group course changes that participant's Registered session copies to Scheduled. Confirming a Staff-managed Private course changes the Registered sessions linked to that root registration to Scheduled.
+8. In a participant's Registration History, the Sessions column provides Manage for Group courses and Staff-managed Private courses. A Staff-managed Private-course link opens that course's Manage Private Sessions page. Coach-managed Private courses do not show this link.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.

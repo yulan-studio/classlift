@@ -2421,8 +2421,8 @@ namespace Web.Controllers.User
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     var notificationsSent = await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
                     TempData["SuccessMessage2"] = notificationsSent
-                        ? "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
-                        : "The course was confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
+                        ? "The course has been confirmed successfully. Once sessions have been scheduled, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
+                        : "The course was confirmed successfully. Once sessions have been scheduled, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
                 }
 
 

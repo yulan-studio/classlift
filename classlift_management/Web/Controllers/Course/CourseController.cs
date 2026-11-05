@@ -332,6 +332,8 @@ namespace Web.Controllers.Courses
         public async Task<IActionResult> Add(AddCourseViewModel model)
         {
             var hasCreditTracking = _currentTenant.HasFeature(Core.FeatureCodes.CreditTracking);
+            var isStaffManagedPrivateCourse =
+                model.CourseType == "Private" && model.PrivateSchedulingMode == "Staff";
 
             // Hourly charging deducts from the child's tracked balance. Ignore
             // crafted values when that capability is not included in the plan.
@@ -342,7 +344,7 @@ namespace Web.Controllers.Courses
 
             // Fixed-session courses use Session Cost, never Hourly Cost.
             // Enforce this for direct posts as well as through the UI.
-            if (model.SessionCount.HasValue)
+            if (model.SessionCount.HasValue || isStaffManagedPrivateCourse)
             {
                 model.HourlyCost = null;
             }

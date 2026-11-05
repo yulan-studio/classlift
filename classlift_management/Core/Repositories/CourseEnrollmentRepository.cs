@@ -20,10 +20,12 @@ namespace Core.Repositories
     public class CourseEnrollmentRepository : ICourseEnrollmentRepository
     {
         private readonly AppDbContext _context;
+        private readonly CurrentTenant? _currentTenant;
 
-        public CourseEnrollmentRepository(AppDbContext context)
+        public CourseEnrollmentRepository(AppDbContext context, CurrentTenant? currentTenant = null)
         {
             _context = context;
+            _currentTenant = currentTenant;
         }
 
         public async Task<bool> AddAsync(CourseEnrollment enrollment)
@@ -146,8 +148,14 @@ namespace Core.Repositories
             });
 
             if (hasConflict)
+            {
+                var providerName = _currentTenant?.Terminology.ProviderSingular;
+                if (string.IsNullOrWhiteSpace(providerName))
+                    providerName = "Coach";
+
                 throw new InvalidOperationException(
-                    "The Coach already has another course scheduled during one or more selected times. No sessions were added.");
+                    $"The {providerName} already has another course scheduled during one or more selected times. No sessions were added.");
+            }
         }
 
         public async Task<bool> RemoveAsync(int enrollmentId)
@@ -381,6 +389,7 @@ namespace Core.Repositories
                
                CourseID = e.CourseID,
                CourseType = e.Course.CourseType,
+               PrivateSchedulingMode = e.Course.PrivateSchedulingMode,
                IsActive = e.Course.IsActive,
                SessionCount = e.Course.SessionCount,
                ChildID = e.ChildID,

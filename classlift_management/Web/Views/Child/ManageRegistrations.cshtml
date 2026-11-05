@@ -382,7 +382,7 @@
             <th style="padding: 8px; border: 1px solid #ddd;">Paid</th>
             
             <th class="action-column" style="padding: 8px; border: 1px solid #ddd;">Actions</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Group Sessions</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Sessions</th>
         </tr>
     </thead>
     <tbody>
@@ -464,7 +464,16 @@
                         }
                     </td>
                     <td style="padding: 8px; border: 1px solid #ddd; @(concernIds.Contains(@enrollment.EnrollmentID) ? "background-color: #F8C3DF;" : "")">
-                        <a href="/Child/ManageSessionRegistrations?childId=@enrollment.ChildID&courseId=@enrollment.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none; @(enrollment.CourseType == "Group" ?"":"display: none;")">Manage</a>
+                        @if (enrollment.CourseType == "Group")
+                        {
+                            <a href="/Child/ManageSessionRegistrations?childId=@enrollment.ChildID&courseId=@enrollment.CourseID"
+                               style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
+                        }
+                        else if (enrollment.CourseType == "Private" && enrollment.PrivateSchedulingMode == "Staff")
+                        {
+                            <a href="/Course/ManagePrivateSessions/@enrollment.CourseID"
+                               style="margin-left: 10px; color: #007bff; text-decoration: none;">Manage</a>
+                        }
                         
                        @*  <a asp-controller="Child"
                            asp-action="ManageSessionRegistrations"
