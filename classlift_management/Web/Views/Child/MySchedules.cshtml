@@ -134,6 +134,7 @@
             <div class="d-flex flex-wrap gap-2 justify-content-end">
             @if (CurrentTenant.HasFeature(FeatureCodes.StudentScheduleRequest)
                 && courseSchedules.Course.CourseType == "Private"
+                && courseSchedules.Course.PrivateSchedulingMode == "Coach"
                 && courseSchedules.RootEnrollment != null
                 && (!courseSchedules.Course.SessionCount.HasValue || courseSchedules.RemainingPrivateSessions > 0))
             {
@@ -167,6 +168,7 @@
         </div>
         @if (CurrentTenant.HasFeature(FeatureCodes.StudentScheduleRequest)
             && courseSchedules.Course.CourseType == "Private"
+            && courseSchedules.Course.PrivateSchedulingMode == "Coach"
             && courseSchedules.RootEnrollment != null
             && (!courseSchedules.Course.SessionCount.HasValue || courseSchedules.RemainingPrivateSessions > 0))
         {

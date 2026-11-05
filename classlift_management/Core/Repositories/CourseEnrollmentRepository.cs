@@ -80,7 +80,8 @@ namespace Core.Repositories
                     && enrollment.ChildID == childId
                     && enrollment.CourseID == courseId
                     && enrollment.Status == "Confirmed"
-                    && enrollment.Course.CourseType == "Private",
+                    && enrollment.Course.CourseType == "Private"
+                    && enrollment.Course.PrivateSchedulingMode == "Coach",
                     cancellationToken);
 
             if (root == null)
