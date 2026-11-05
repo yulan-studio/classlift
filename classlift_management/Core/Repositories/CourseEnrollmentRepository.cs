@@ -855,6 +855,56 @@ namespace Core.Repositories
             return result > 0;
         }
 
+        public async Task<PaidCourseConfirmationResult> ConfirmPaidCourseRegistrationAsync(
+            int enrollmentId,
+            int childId)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var registration = await _context.CourseEnrollments
+                .Include(enrollment => enrollment.Course)
+                .FirstOrDefaultAsync(enrollment =>
+                    enrollment.EnrollmentID == enrollmentId
+                    && enrollment.ChildID == childId
+                    && enrollment.EnrollmentID_Ref == null);
+
+            if (registration == null)
+                return PaidCourseConfirmationResult.RegistrationNotFound;
+
+            if (!string.Equals(registration.Status, "Registered", StringComparison.Ordinal))
+                return PaidCourseConfirmationResult.RegistrationNotPending;
+
+            var isPaid = await _context.Fees.AnyAsync(fee =>
+                fee.CourseEnrollmentID == enrollmentId && fee.IsPaid);
+
+            if (!isPaid)
+                return PaidCourseConfirmationResult.FeeNotPaid;
+
+            registration.Status = "Confirmed";
+            registration.UpdatedDate = DateTime.UtcNow;
+
+            if (string.Equals(registration.Course.CourseType, "Group", StringComparison.OrdinalIgnoreCase))
+            {
+                var registeredSessions = await _context.CourseEnrollments
+                    .Where(enrollment =>
+                        enrollment.ChildID == childId
+                        && enrollment.CourseID == registration.CourseID
+                        && enrollment.EnrollmentID_Ref != null
+                        && enrollment.Status == "Registered")
+                    .ToListAsync();
+
+                foreach (var session in registeredSessions)
+                {
+                    session.Status = "Scheduled";
+                    session.UpdatedDate = DateTime.UtcNow;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return PaidCourseConfirmationResult.Success;
+        }
+
 
        
 

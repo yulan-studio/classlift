@@ -392,7 +392,9 @@
             foreach (var enrollment in Model.CourseEnrollments)
 
             {
+                var canConfirm = enrollment.Status == "Registered" && enrollment.IsPaid;
                 var canRemove = enrollment.Status == "Registered" &&
+                    !canConfirm &&
                     (!enrollment.IsPaid ||
                      (enrollment.CourseType == "Private" && !enrollment.SessionCount.HasValue));
 
@@ -429,7 +431,17 @@
                     
 
                     <td style="padding: 8px; border: 1px solid #ddd;">
-                        @if (canRemove)
+                        @if (canConfirm)
+                        {
+                            <form method="post" action="/Child/ConfirmPaidCourseRegistration">
+                                <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />
+                                <input type="hidden" name="childId" value="@enrollment.ChildID" />
+                                <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+                                    Confirm
+                                </button>
+                            </form>
+                        }
+                        else if (canRemove)
                         {
                             <form method="post" action="/Child/UnregisterCourse">
                                 <input type="hidden" name="enrollmentId" value="@enrollment.EnrollmentID" />

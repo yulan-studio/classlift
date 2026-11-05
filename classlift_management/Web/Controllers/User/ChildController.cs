@@ -1031,6 +1031,42 @@ namespace Web.Controllers.User
         }
 
         [Authorize(Roles = "Staff")]
+        [HttpPost("ConfirmPaidCourseRegistration")]
+        public async Task<IActionResult> ConfirmPaidCourseRegistration(int enrollmentId, int childId)
+        {
+            try
+            {
+                var result = await _courseEnrollmentService
+                    .ConfirmPaidCourseRegistrationAsync(enrollmentId, childId);
+
+                if (result == PaidCourseConfirmationResult.Success)
+                    TempData["SuccessMessage1"] = "Course registration confirmed successfully.";
+                else
+                    TempData["ErrorMessage1"] = result switch
+                    {
+                        PaidCourseConfirmationResult.RegistrationNotFound =>
+                            "The course registration could not be found.",
+                        PaidCourseConfirmationResult.RegistrationNotPending =>
+                            "Only a registered course can be confirmed.",
+                        PaidCourseConfirmationResult.FeeNotPaid =>
+                            "This course must be paid before Staff can confirm it.",
+                        _ => "The course registration could not be confirmed."
+                    };
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Staff could not confirm paid course registration. EnrollmentId={EnrollmentId}, ChildId={ChildId}",
+                    enrollmentId,
+                    childId);
+                TempData["ErrorMessage1"] = "The course registration could not be confirmed.";
+            }
+
+            return RedirectToAction("Participation", new { childId, tab = "ManageRegistrations" });
+        }
+
+        [Authorize(Roles = "Staff")]
         [HttpPost("UnregisterCourse")]
         public async Task<IActionResult> UnregisterCourse(int enrollmentId, int childId)
         {

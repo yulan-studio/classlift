@@ -92,6 +92,7 @@ namespace Core.Interfaces
         Task<bool> UpdateCompletedCoursesAsync(AppDbContext dbContext, CancellationToken cancellationToken);
 
         Task<bool> UpdateCourseEnrollmentStatusToConfirmedAsync(int enrollmentID);
+        Task<PaidCourseConfirmationResult> ConfirmPaidCourseRegistrationAsync(int enrollmentId, int childId);
 
         Task<List<int?>> GetChildrenWithRequestToLeaveAsync();
 

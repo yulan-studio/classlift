@@ -147,6 +147,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
 5. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
 6. For a Token Payment, Staff may select an active administrator-defined package or Custom Package. A fixed package always uses its configured amount; Custom Package requires Staff to enter an amount greater than zero and does not add an item to the administrator's package catalog.
+7. In a participant's Registration History, a course registration whose status is Registered and whose fee is already paid cannot be removed. Staff may confirm it on the participant's behalf. Confirming a Group course also changes that participant's Registered session copies to Scheduled.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.

@@ -131,6 +131,7 @@ namespace Core.Interfaces
         //Task<bool> UpdateCourseStatusToScheduledAsync(int courseId);
 
         Task<bool> UpdateCourseEnrollmentStatusToConfirmedAsync(int enrollmentId);
+        Task<PaidCourseConfirmationResult> ConfirmPaidCourseRegistrationAsync(int enrollmentId, int childId);
 
         Task<int?> GetEnrollmentIdByChildAndCourseAsync(int courseId, int childId, string status);
 

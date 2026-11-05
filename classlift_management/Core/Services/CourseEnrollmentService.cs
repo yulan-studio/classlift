@@ -967,6 +967,11 @@ namespace Core.Services
 
         }
 
+        public Task<PaidCourseConfirmationResult> ConfirmPaidCourseRegistrationAsync(
+            int enrollmentId,
+            int childId) =>
+            _enrollmentRepository.ConfirmPaidCourseRegistrationAsync(enrollmentId, childId);
+
 
         public async Task<IEnumerable<CalendarSchedule>> GetCoachSchedulesAsync(int coachId)
         {
