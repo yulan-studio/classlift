@@ -243,7 +243,7 @@ namespace Core.Services
         /// EnrollmentID_Ref identifies the master session. The supplied status reflects whether the
         /// participant registration is still Registered or has already been Confirmed.
         /// </summary>
-        public async Task<bool> AddSessionRegisteredEnrollmentAsync(int childId, int courseId, DateTime? scheduledAt, decimal? scheduledHours, string? location, int enrollmentId_Ref, string status, User user)
+        public async Task<bool> AddGroupParticipantSessionCopyAsync(int childId, int courseId, DateTime? scheduledAt, decimal? scheduledHours, string? location, int enrollmentId_Ref, string status, User user)
         {
             //if (userId <= 0 || courseId <= 0 || scheduledHours < 0)
             //    throw new ArgumentException("Invalid child, course, or hours.");

@@ -27,7 +27,7 @@ namespace Core.Interfaces
         /// This is used when a participant registers for a Group course that already has open sessions;
         /// it is not a Staff or Coach scheduling entry point.
         /// </summary>
-        Task<bool> AddSessionRegisteredEnrollmentAsync(int childId, int courseId, DateTime? scheduledAt, decimal? scheduledHours, string? location, int enrollmentId_Ref, string status, User user);
+        Task<bool> AddGroupParticipantSessionCopyAsync(int childId, int courseId, DateTime? scheduledAt, decimal? scheduledHours, string? location, int enrollmentId_Ref, string status, User user);
         Task<IEnumerable<CourseEnrollmentViewModel>> GetRegisteredEnrollmentsByChildAsync(int childId);
 
         Task<IEnumerable<CourseEnrollment>> GetEnrollmentsByCourseChildAsync(int courseId, int childId);

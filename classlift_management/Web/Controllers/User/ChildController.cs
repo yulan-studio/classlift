@@ -963,7 +963,7 @@ namespace Web.Controllers.User
 
                 foreach (var session in openGroupSessions)
                 {
-                    success = await _courseEnrollmentService.AddSessionRegisteredEnrollmentAsync(
+                    success = await _courseEnrollmentService.AddGroupParticipantSessionCopyAsync(
                         childId,
                         courseId,
                         session.ScheduledAt,
