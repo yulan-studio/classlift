@@ -297,7 +297,10 @@ namespace Web.Controllers.User
 
             try
             {
-                Core.Models.User user = await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var result = await _childService.AddAsync(name, birthDate, gender, cityId!.Value, email, password, hasOAP, user);
                 if (!result)
                 {
@@ -647,6 +650,9 @@ namespace Web.Controllers.User
             {
                 // ✅ 1. Create a new Parent object
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var newParent = new Parent
                 {
                     Name = Name,
@@ -829,8 +835,15 @@ namespace Web.Controllers.User
         [HttpGet("MyRegistrations")]
         public async Task<IActionResult> MyRegistrations()
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
             //Get Registered and Completed Courses
             var courseEnrollments = await _courseEnrollmentService.GetRegisteredEnrollmentsByChildAsync(child.ChildID);
@@ -897,6 +910,8 @@ namespace Web.Controllers.User
         {
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
 
 
             //using var transaction = await _context.Database.BeginTransactionAsync();
@@ -954,7 +969,7 @@ namespace Web.Controllers.User
                 }
 
 
-                bool success = await _feeService.AddCourseFeeAsync(newEnrollmentId, paymentModel, totalCost, description, user);
+                bool success = await _feeService.AddCourseFeeAsync(newEnrollmentId, paymentModel, totalCost, description ?? string.Empty, user);
                 if (!success)
                 {
                     throw new Exception("Adding course fee failed.");
@@ -1101,6 +1116,9 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var success1 = false;
                 var success2 = false;
 
@@ -1343,7 +1361,10 @@ namespace Web.Controllers.User
                 }
                
 
-                Core.Models.User user = await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 //if(packageId == null)
                 //{
                 //    packageId = 0; // Default to 0 if no package is selected
@@ -1503,8 +1524,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> MyConfirmations()
         {
             // Get the currently logged-in user
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
             var scheduledCoursesToConfirm = await _courseEnrollmentService.GetScheduledSessionsToConfirmByChildAsync(child.ChildID);
 
@@ -1549,8 +1575,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> MySchedules(int? courseId = null)
         {
             // Get the currently logged-in user
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
 
             //var scheduledCourses = await _courseEnrollmentService.GetScheduledSessionsByChildAsync(child.ChildID);
@@ -1678,6 +1709,9 @@ namespace Web.Controllers.User
         public async Task<IActionResult> Notifications()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
             if (child == null)
                 return NotFound();
@@ -1772,8 +1806,13 @@ namespace Web.Controllers.User
             ViewData["ScheduledAtSortParm"] = sortOrder == "scheduledAt" ? "scheduledAt_desc" : "scheduledAt";
 
 
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
 
             var completedCourses = await _courseEnrollmentService.GetFinishedEnrollmentsByChildAsync(child.ChildID);
@@ -1829,6 +1868,9 @@ namespace Web.Controllers.User
         public async Task<IActionResult> SaveCompletedCourseFeedback(int enrollmentId, string? feedback)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
             var session = await _courseEnrollmentService.GetAsync(enrollmentId);
 
@@ -1851,8 +1893,14 @@ namespace Web.Controllers.User
         [HttpGet("MyBalance")]
         public async Task<IActionResult> MyBalance()
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
+
             var balances = await _balanceService.GetBalanceHistoryAsync(child.ChildID);
             var finalBalance = await _balanceService.GetFinalBalanceAsync(child.ChildID);
             ViewBag.FinalBalance = finalBalance;
@@ -1864,8 +1912,13 @@ namespace Web.Controllers.User
         [HttpGet("MyPayments")]
         public async Task<IActionResult> MyPayments()
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
             //var balances = await _balanceService.GetBalanceHistoryAsync(child.ChildID);
             //var finalBalance = await _balanceService.GetFinalBalanceAsync(child.ChildID);
 
@@ -1932,7 +1985,10 @@ namespace Web.Controllers.User
             //    calculationPath = $"/calculations/{uniqueFileName}";
             //}
 
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             //var userId = int.Parse(User.FindFirst("UserId").Value); // assuming you store UserId in claims
 
             var result = await _balanceService.AddBalanceFixAsync(
@@ -2077,7 +2133,10 @@ namespace Web.Controllers.User
         [HttpPost("UpdateSchedules")]
         public async Task<IActionResult> UpdateSchedules(UpdateSchedulesFormModel model)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)
@@ -2266,7 +2325,10 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> UpdateSchedulesToConform(UpdateSchedulesToConfirmFormModel model, string actionType)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)
@@ -2329,7 +2391,7 @@ namespace Web.Controllers.User
                 bool result4 = true;
                 if (result1 == true && result2 == true && result3 == true)
                 {
-                    if (model?.Schedules != null && model.Schedules.Any())
+                    if (model.Schedules != null && model.Schedules.Any())
                     {
                         foreach (var schedule in model.Schedules)
                         {
@@ -2348,7 +2410,7 @@ namespace Web.Controllers.User
 
                     if (result4)
                     {
-                        var notificationsSent = await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
+                        var notificationsSent = await NotifyGroupCourseConfirmedAsync(child!, model.CourseID);
                         TempData["SuccessMessage2"] = notificationsSent
                             ? "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
                             : "The course schedules were confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. However, the organization notification email could not be sent.";
@@ -2368,7 +2430,10 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> UpdateCourseToConform(PrivateCourseEnrollmentViewModel model, string actionType)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)

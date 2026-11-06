@@ -677,7 +677,13 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+                if (coach == null)
+                    return NotFound();
+
                 int coachId = coach.CoachID;
 
                 var model = new ManageCourseViewModel();
@@ -768,7 +774,13 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+                if (coach == null)
+                    return NotFound();
+
                 int coachId = coach.CoachID;
                 // ✅ Get children who are enrolled in the coach's courses
                 var child = await _childService.GetAsync(childId);
@@ -841,7 +853,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> ScheduleCourse(int childId, int courseId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, int enrollmentId_Ref, bool isRecurring = false, string recurrenceType = "Weekly",  int recurrenceCount = 1 )
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return NotFound();
+
             int coachId = coach.CoachID;
 
 
@@ -970,6 +988,9 @@ namespace Web.Controllers.User
             var child = await _childService.GetAsync(childId);
             var course = await _courseService.GetAsync(courseId);
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
             var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
 
@@ -1019,7 +1040,13 @@ namespace Web.Controllers.User
             [FromQuery] int enrollmentId)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return NotFound();
+
             int coachId = coach.CoachID;
 
             // Get all children registered in the coach's course
@@ -1233,6 +1260,8 @@ namespace Web.Controllers.User
         {
             //int coachId = 16; // GetLoggedInCoachId(); // Replace with actual logic to get coach ID
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
 
             Child? child = await _childService.GetAsync(childId);
             if (child == null)
@@ -1344,6 +1373,9 @@ namespace Web.Controllers.User
         {
             // Get current coach based on User ID
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
 
 
@@ -1425,7 +1457,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> Notifications()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return NotFound();
+
             var now = DateTime.UtcNow;
             var sessions = await _db.CourseEnrollments
                 .AsNoTracking()

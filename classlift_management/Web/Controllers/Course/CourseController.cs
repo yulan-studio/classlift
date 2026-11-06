@@ -930,7 +930,7 @@ namespace Web.Controllers.Courses
                             var replacementUtc = _timeZoneService.ConvertLocalToUtc(replacementLocal, replacementTimeZoneId!);
                             var replacementId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
                                 session.CourseID,
-                                new ScheduleTiming { ScheduledAtUtc = replacementUtc, ScheduledLocalTime = replacementLocal, TimeZoneId = replacementTimeZoneId },
+                                new ScheduleTiming { ScheduledAtUtc = replacementUtc, ScheduledLocalTime = replacementLocal, TimeZoneId = replacementTimeZoneId! },
                                 replacementScheduledHours!.Value,
                                 location,
                                 string.IsNullOrWhiteSpace(replacementStaffNote)

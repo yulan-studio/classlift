@@ -21,14 +21,14 @@ namespace Core.Services
             _userManager = userManager;
         }
 
-        public async Task<bool> RegisterUserAsync(string email, string password, string role, User user)
+        public async Task<bool> RegisterUserAsync(string email, string password, string role, User? user)
         {
             var newUser = new User
             {
                 UserName = email,
                 Email = email,
                 Role = role,
-                CreatedBy = user.Id
+                CreatedBy = user?.Id
                 //CreatedDate = DateTime.UtcNow
                 
             };
