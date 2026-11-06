@@ -419,6 +419,8 @@ namespace Web.Controllers.Courses
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
 
                 var result = await _courseService.AddAsync(model.Title, model.Description, model.CourseType, model.PrivateSchedulingMode, model.MaxCapacity, model.SessionCount, model.HourlyCost, model.SessionCost, model.IsActive, model.CoachID, model.SpecialtyID, user);
 
@@ -484,6 +486,9 @@ namespace Web.Controllers.Courses
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var existingCourse = await _courseService.GetAsync(courseId);
 
                 // The Private-course scheduling owner is selected when the course
@@ -922,7 +927,7 @@ namespace Web.Controllers.Courses
                         else if (result && cancellationResolution == "Replacement")
                         {
                             var replacementLocal = DateTime.SpecifyKind(replacementScheduledAt!.Value, DateTimeKind.Unspecified);
-                            var replacementUtc = _timeZoneService.ConvertLocalToUtc(replacementLocal, replacementTimeZoneId);
+                            var replacementUtc = _timeZoneService.ConvertLocalToUtc(replacementLocal, replacementTimeZoneId!);
                             var replacementId = await _courseEnrollmentService.AddSessionToGroupCourseAsync(
                                 session.CourseID,
                                 new ScheduleTiming { ScheduledAtUtc = replacementUtc, ScheduledLocalTime = replacementLocal, TimeZoneId = replacementTimeZoneId },

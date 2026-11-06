@@ -122,6 +122,9 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var result = await _staffService.AddAsync( name, email, password,  phone,  wechat, user);
                 if (!result)
                 {
@@ -237,6 +240,9 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var result = await _staffService.UpdateAsync(staffId, name, email, /*password,*/ phone, wechat, user);
 
 

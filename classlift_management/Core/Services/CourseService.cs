@@ -57,7 +57,7 @@ namespace Core.Services
 
         // Add a new course
         
-        public async Task<bool> AddAsync(string title, string? description, string courseType, string privateSchedulingMode, int? maxCapacity, int? sessionCount, decimal? hourlyCost, decimal? sessionCost, bool isActive, int coachId, int specialtyId, User user)
+        public async Task<bool> AddAsync(string title, string? description, string courseType, string? privateSchedulingMode, int? maxCapacity, int? sessionCount, decimal? hourlyCost, decimal? sessionCost, bool isActive, int coachId, int specialtyId, User user)
         {
             ValidatePrivateSchedulingMode(courseType, privateSchedulingMode);
             ValidateStaffManagedPrivateSessionCount(courseType, privateSchedulingMode, sessionCount);
@@ -144,7 +144,7 @@ namespace Core.Services
 
 
         // Update an existing course
-        public async Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, string privateSchedulingMode, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive, User user/*, int userId, int updatedBy*/)
+        public async Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, string? privateSchedulingMode, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive, User user/*, int userId, int updatedBy*/)
         {
             ValidatePrivateSchedulingMode(courseType, privateSchedulingMode);
             ValidateStaffManagedPrivateSessionCount(courseType, privateSchedulingMode, sessionCount);

@@ -266,13 +266,13 @@
                         }
                     }
 
-                    @if (User.Identity.IsAuthenticated)
+                    @if (User.Identity?.IsAuthenticated == true)
                     {
                         <li class="nav-item">
                             <a class="nav-link text-danger"
                                href="#"
                                onclick="document.getElementById('logout-form').submit();">
-                                Logout (@User.Identity.Name)
+                                Logout (@User.Identity?.Name)
                             </a>
                             <form id="logout-form"
                                   asp-controller="Account"

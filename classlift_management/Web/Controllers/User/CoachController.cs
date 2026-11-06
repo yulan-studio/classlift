@@ -162,8 +162,10 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
                 
-                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, cityId!.Value, user);
+                var result = await _coachService.AddAsync(name, email, password, specialtyIds!, gender, phone, cityId!.Value, user);
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, $"Failed to add the {ProviderNameLower} information.");
@@ -457,7 +459,10 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, cityId!.Value, user);
+                if (user == null)
+                    return Challenge();
+
+                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds!, gender, phone, cityId!.Value, user);
 
 
                 if (!result)

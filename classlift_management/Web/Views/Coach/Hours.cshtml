@@ -77,7 +77,7 @@
 
 <a href="/Coach/List" class="participation-back-link coach-more-info-back" style="color: #000 !important;">Back to @CurrentTenant.Terminology.ProviderPlural List</a>
 
-    @foreach (var month in Model.MonthlyIncomes)
+    @foreach (var month in Model.MonthlyIncomes ?? Enumerable.Empty<Core.DTOs.CoachMonthlyIncome>())
     {
         <div style="margin: 20px 0; padding: 15px; border-radius: 5px; border: 1px solid #ddd; background-color: #fff;">
             <h4 style="color:#1B7BAB;">@month.Year - @month.Month</h4>
