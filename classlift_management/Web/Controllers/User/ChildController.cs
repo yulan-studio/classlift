@@ -19,7 +19,6 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol.Core.Types;
 using System.Data.SqlClient;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
@@ -298,7 +297,10 @@ namespace Web.Controllers.User
 
             try
             {
-                Core.Models.User user = await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var result = await _childService.AddAsync(name, birthDate, gender, cityId!.Value, email, password, hasOAP, user);
                 if (!result)
                 {
@@ -648,6 +650,9 @@ namespace Web.Controllers.User
             {
                 // ✅ 1. Create a new Parent object
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var newParent = new Parent
                 {
                     Name = Name,
@@ -830,8 +835,15 @@ namespace Web.Controllers.User
         [HttpGet("MyRegistrations")]
         public async Task<IActionResult> MyRegistrations()
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
             //Get Registered and Completed Courses
             var courseEnrollments = await _courseEnrollmentService.GetRegisteredEnrollmentsByChildAsync(child.ChildID);
@@ -898,6 +910,8 @@ namespace Web.Controllers.User
         {
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
 
 
             //using var transaction = await _context.Database.BeginTransactionAsync();
@@ -955,7 +969,7 @@ namespace Web.Controllers.User
                 }
 
 
-                bool success = await _feeService.AddCourseFeeAsync(newEnrollmentId, paymentModel, totalCost, description, user);
+                bool success = await _feeService.AddCourseFeeAsync(newEnrollmentId, paymentModel, totalCost, description ?? string.Empty, user);
                 if (!success)
                 {
                     throw new Exception("Adding course fee failed.");
@@ -963,7 +977,7 @@ namespace Web.Controllers.User
 
                 foreach (var session in openGroupSessions)
                 {
-                    success = await _courseEnrollmentService.AddSessionRegisteredEnrollmentAsync(
+                    success = await _courseEnrollmentService.AddGroupParticipantSessionCopyAsync(
                         childId,
                         courseId,
                         session.ScheduledAt,
@@ -1014,7 +1028,7 @@ namespace Web.Controllers.User
 
                 if (!delivery.IsSuccessful)
                 {
-                    TempData["WarningMessage"] =
+                    TempData["RegistrationWarningMessage"] =
                         "The participant was registered, but the confirmation email could not be sent.";
                 }
             }
@@ -1025,9 +1039,45 @@ namespace Web.Controllers.User
                     "Course registration succeeded, but its family confirmation email could not be processed. ChildId={ChildId}, CourseId={CourseId}",
                     childId,
                     course.CourseID);
-                TempData["WarningMessage"] =
+                TempData["RegistrationWarningMessage"] =
                     "The participant was registered, but the confirmation email could not be sent.";
             }
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpPost("ConfirmPaidCourseRegistration")]
+        public async Task<IActionResult> ConfirmPaidCourseRegistration(int enrollmentId, int childId)
+        {
+            try
+            {
+                var result = await _courseEnrollmentService
+                    .ConfirmPaidCourseRegistrationAsync(enrollmentId, childId);
+
+                if (result == PaidCourseConfirmationResult.Success)
+                    TempData["SuccessMessage1"] = "Course registration confirmed successfully.";
+                else
+                    TempData["ErrorMessage1"] = result switch
+                    {
+                        PaidCourseConfirmationResult.RegistrationNotFound =>
+                            "The course registration could not be found.",
+                        PaidCourseConfirmationResult.RegistrationNotPending =>
+                            "Only a registered course can be confirmed.",
+                        PaidCourseConfirmationResult.FeeNotPaid =>
+                            "This course must be paid before Staff can confirm it.",
+                        _ => "The course registration could not be confirmed."
+                    };
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(
+                    exception,
+                    "Staff could not confirm paid course registration. EnrollmentId={EnrollmentId}, ChildId={ChildId}",
+                    enrollmentId,
+                    childId);
+                TempData["ErrorMessage1"] = "The course registration could not be confirmed.";
+            }
+
+            return RedirectToAction("Participation", new { childId, tab = "ManageRegistrations" });
         }
 
         [Authorize(Roles = "Staff")]
@@ -1066,6 +1116,9 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var success1 = false;
                 var success2 = false;
 
@@ -1196,6 +1249,7 @@ namespace Web.Controllers.User
 
             var isTokenPayment = string.Equals(paymentType, "package", StringComparison.OrdinalIgnoreCase);
             var isDirectPayment = string.Equals(paymentType, "manual", StringComparison.OrdinalIgnoreCase);
+            var isCustomPackage = isTokenPayment && packageId == -1;
 
             if (!isTokenPayment && !isDirectPayment)
             {
@@ -1223,7 +1277,7 @@ namespace Web.Controllers.User
 
             // Hiding Token Payment in the view is not sufficient protection;
             // reject a crafted package-payment request before uploading files.
-            if (packageId.HasValue
+            if (isTokenPayment
                 && !_currentTenant.HasFeature(FeatureCodes.CreditTracking))
             {
                 TempData["ErrorMessage"] = "Token payment is not available for your plan.";
@@ -1236,6 +1290,35 @@ namespace Web.Controllers.User
 
             try
             {
+                if (isTokenPayment)
+                {
+                    if (isCustomPackage)
+                    {
+                        if (amount <= 0)
+                        {
+                            TempData["ErrorMessage"] = "Please enter an amount greater than zero for the custom package.";
+                            return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+                        }
+
+                        packageId = null;
+                    }
+                    else
+                    {
+                        var selectedPackage = await _db.PaymentPackages
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(p => p.PackageID == packageId && p.IsActive);
+
+                        if (selectedPackage?.Amount is null || selectedPackage.Amount <= 0)
+                        {
+                            TempData["ErrorMessage"] = "The selected token payment package is not available.";
+                            return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
+                        }
+
+                        // Fixed package amounts are authoritative on the server.
+                        amount = selectedPackage.Amount.Value;
+                    }
+                }
+
                 if (feeId.HasValue)
                 {
                     var fee = await _feeService.GetAsync(feeId.Value);
@@ -1250,8 +1333,6 @@ namespace Web.Controllers.User
                         return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
                     }
                 }
-
-                string receiptPath = null;
 
                 // ✅ Save the receipt file
                 //if (file != null && file.Length > 0)
@@ -1280,7 +1361,10 @@ namespace Web.Controllers.User
                 }
                
 
-                Core.Models.User user = await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 //if(packageId == null)
                 //{
                 //    packageId = 0; // Default to 0 if no package is selected
@@ -1288,9 +1372,16 @@ namespace Web.Controllers.User
 
                 var result = false;
 
-                if (packageId != null)
+                if (isTokenPayment)
                 { 
-                    var paymentId = await _paymentService.AddTokenPaymentAsync(childId, packageId, amount, paymentDate, fileUrl, user);
+                    var paymentId = await _paymentService.AddTokenPaymentAsync(
+                        childId,
+                        packageId,
+                        amount,
+                        paymentDate,
+                        fileUrl,
+                        user,
+                        isCustomPackage ? "Custom Package" : null);
                     result = await _balanceService.AddPaymentToBalanceAsync(childId, paymentId, amount, fileUrl, user.Id);
                 }
 
@@ -1433,8 +1524,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> MyConfirmations()
         {
             // Get the currently logged-in user
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
             var scheduledCoursesToConfirm = await _courseEnrollmentService.GetScheduledSessionsToConfirmByChildAsync(child.ChildID);
 
@@ -1443,6 +1539,8 @@ namespace Web.Controllers.User
             foreach (var group in scheduledCoursesToConfirm.GroupBy(e => e.Course))
             {
                 var fee = await _feeService.GetByChildIdCourseIdAsync(child.ChildID, group.Key.CourseID);
+                if (fee == null)
+                    continue;
 
                 courseSchedulesToConfirmList.Add(new CourseSchedulesViewModel
                 {
@@ -1477,8 +1575,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> MySchedules(int? courseId = null)
         {
             // Get the currently logged-in user
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
 
             //var scheduledCourses = await _courseEnrollmentService.GetScheduledSessionsByChildAsync(child.ChildID);
@@ -1606,6 +1709,9 @@ namespace Web.Controllers.User
         public async Task<IActionResult> Notifications()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
             if (child == null)
                 return NotFound();
@@ -1700,8 +1806,13 @@ namespace Web.Controllers.User
             ViewData["ScheduledAtSortParm"] = sortOrder == "scheduledAt" ? "scheduledAt_desc" : "scheduledAt";
 
 
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
 
 
             var completedCourses = await _courseEnrollmentService.GetFinishedEnrollmentsByChildAsync(child.ChildID);
@@ -1757,6 +1868,9 @@ namespace Web.Controllers.User
         public async Task<IActionResult> SaveCompletedCourseFeedback(int enrollmentId, string? feedback)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
             var session = await _courseEnrollmentService.GetAsync(enrollmentId);
 
@@ -1779,8 +1893,14 @@ namespace Web.Controllers.User
         [HttpGet("MyBalance")]
         public async Task<IActionResult> MyBalance()
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
+
             var balances = await _balanceService.GetBalanceHistoryAsync(child.ChildID);
             var finalBalance = await _balanceService.GetFinalBalanceAsync(child.ChildID);
             ViewBag.FinalBalance = finalBalance;
@@ -1792,8 +1912,13 @@ namespace Web.Controllers.User
         [HttpGet("MyPayments")]
         public async Task<IActionResult> MyPayments()
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
+            if (child == null)
+                return NotFound();
             //var balances = await _balanceService.GetBalanceHistoryAsync(child.ChildID);
             //var finalBalance = await _balanceService.GetFinalBalanceAsync(child.ChildID);
 
@@ -1860,7 +1985,10 @@ namespace Web.Controllers.User
             //    calculationPath = $"/calculations/{uniqueFileName}";
             //}
 
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             //var userId = int.Parse(User.FindFirst("UserId").Value); // assuming you store UserId in claims
 
             var result = await _balanceService.AddBalanceFixAsync(
@@ -2005,7 +2133,10 @@ namespace Web.Controllers.User
         [HttpPost("UpdateSchedules")]
         public async Task<IActionResult> UpdateSchedules(UpdateSchedulesFormModel model)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)
@@ -2035,6 +2166,21 @@ namespace Web.Controllers.User
                         {
                             if (existing.Status != "Canceled" && existing.Status != "Deleted" && schedule.Status != null)  //schedule.Status is not null means Status dropdown list is enabled
                             {
+                                if (course.CourseType == "Private"
+                                    && course.PrivateSchedulingMode == "Staff"
+                                    && !string.Equals(schedule.Status, existing.Status, StringComparison.Ordinal))
+                                {
+                                    return BadRequest("The status of a Staff-managed private-course session cannot be changed by the participant.");
+                                }
+
+                                var allowedStatuses = course.CourseType == "Private"
+                                    ? course.PrivateSchedulingMode == "Staff"
+                                        ? new[] { existing.Status }
+                                        : new[] { "Scheduled", "RequestToReschedule" }
+                                    : new[] { "Scheduled", "RequestToLeave" };
+                                if (!allowedStatuses.Contains(schedule.Status))
+                                    return BadRequest("The selected schedule request is not available for this course.");
+
                                 existing.Status = schedule.Status;
                                 existing.ParentNote = schedule.ParentNote;
                             }
@@ -2179,7 +2325,10 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> UpdateSchedulesToConform(UpdateSchedulesToConfirmFormModel model, string actionType)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)
@@ -2242,7 +2391,7 @@ namespace Web.Controllers.User
                 bool result4 = true;
                 if (result1 == true && result2 == true && result3 == true)
                 {
-                    if (model?.Schedules != null && model.Schedules.Any())
+                    if (model.Schedules != null && model.Schedules.Any())
                     {
                         foreach (var schedule in model.Schedules)
                         {
@@ -2261,7 +2410,7 @@ namespace Web.Controllers.User
 
                     if (result4)
                     {
-                        var notificationsSent = await NotifyGroupCourseConfirmedAsync(child, model.CourseID);
+                        var notificationsSent = await NotifyGroupCourseConfirmedAsync(child!, model.CourseID);
                         TempData["SuccessMessage2"] = notificationsSent
                             ? "The course schedules have been confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>."
                             : "The course schedules were confirmed successfully. Please check your <a href=\"/Child/MySchedules\">Schedules</a>. However, the organization notification email could not be sent.";
@@ -2281,7 +2430,10 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> UpdateCourseToConform(PrivateCourseEnrollmentViewModel model, string actionType)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)
@@ -2333,8 +2485,8 @@ namespace Web.Controllers.User
                     // TempData["SuccessMessage3"] = "Activity schedules confirmed successfully. Please check the schedules in " + <a href=\"/Child/MySchedules\">Schedules</a>;
                     var notificationsSent = await NotifyPrivateCourseConfirmedAsync(child, courseId, model.EnrollmentID);
                     TempData["SuccessMessage2"] = notificationsSent
-                        ? "The course has been confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
-                        : "The course was confirmed successfully. Once sessions have been scheduled by the coach, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
+                        ? "The course has been confirmed successfully. Once sessions have been scheduled, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>."
+                        : "The course was confirmed successfully. Once sessions have been scheduled, they can be viewed in <a href=\"/Child/MySchedules\">Schedules</a>. However, one or more notification emails could not be sent.";
                 }
 
 
@@ -2378,7 +2530,10 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> UpdateActivityToConform(ActivityEnrollmentViewModel model, string actionType)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)
@@ -2414,8 +2569,14 @@ namespace Web.Controllers.User
                 bool result1 = true;
 
                 if (model.PaymentModel == "Token")
-                { 
-                    result1 = await _balanceService.DeductActivityCostAsync(child.ChildID, model.ActivityID, (decimal)model.TotalCost, user.Id);
+                {
+                    if (!model.TotalCost.HasValue)
+                    {
+                        TempData["ErrorMessage3"] = "The token fee amount could not be found.";
+                        return RedirectToAction("MyConfirmations");
+                    }
+
+                    result1 = await _balanceService.DeductActivityCostAsync(child.ChildID, model.ActivityID, model.TotalCost.Value, user.Id);
                 }
                 bool result2 = await _activityEnrollmentService.UpdateActivityEnrollmentStatusToConfirmedAsync(model.EnrollmentID);
 
@@ -2521,18 +2682,71 @@ namespace Web.Controllers.User
             }
         }
 
+        [Authorize(Roles = "Admin, Staff, Child")]
         [HttpGet("MyCalendar")]
-        public async Task<IActionResult> MyCalendar()
+        public async Task<IActionResult> MyCalendar(int? childId = null)
         {
+            if (User.IsInRole("Child"))
+            {
+                ViewBag.ChildID = null;
+                ViewBag.CalendarTitle = "My Calendar";
+                ViewBag.ShowChildListLink = false;
+                return View();
+            }
+
+            if (!childId.HasValue)
+                return RedirectToAction(nameof(List));
+
+            Child child;
+            try
+            {
+                child = await _childService.GetAsync(childId.Value);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ChildID = child.ChildID;
+            ViewBag.CalendarTitle = $"{child.Name} Calendar";
+            ViewBag.ShowChildListLink = true;
             return View();
         }
 
+        [Authorize(Roles = "Admin, Staff, Child")]
         [HttpGet("GetChildSchedules")]
-        // API endpoint for AJAX (recommended)
-        public async Task<IActionResult> GetChildSchedules()
+        public async Task<IActionResult> GetChildSchedules(int? childId = null)
         {
             var user = await _userManager.GetUserAsync(User);
-            var child = await _childService.GetByIdAsync(user.Id);
+            if (user == null)
+                return Unauthorized();
+
+            Child child;
+            if (User.IsInRole("Child"))
+            {
+                // A Child can only load their own calendar, regardless of any
+                // childId supplied in the query string.
+                var currentChild = await _childService.GetByIdAsync(user.Id);
+                if (currentChild == null)
+                    return NotFound();
+
+                child = currentChild;
+            }
+            else
+            {
+                if (!childId.HasValue)
+                    return BadRequest($"Please select a {_currentTenant.Terminology.ParticipantSingular.ToLowerInvariant()}.");
+
+                try
+                {
+                    child = await _childService.GetAsync(childId.Value);
+                }
+                catch (KeyNotFoundException)
+                {
+                    return NotFound();
+                }
+            }
+
             var schedules = await _calendarService.GetChildCalendar(child.ChildID);
 
             foreach (var schedule in schedules)

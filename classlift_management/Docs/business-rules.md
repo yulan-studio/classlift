@@ -8,6 +8,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - Hourly Cost must be cleared, stored as null, and disabled on the Add Course form.
    - Session Cost is required.
 2. A private course without a Session Count uses hourly pricing and requires Credit Tracking.
+   - A Staff-managed private course must have a Session Count; flexible private courses without a Session Count can only be Coach-managed.
+   - On Add Course, selecting a Staff-managed private course disables Hourly Cost and enables and requires Session Cost.
 3. A Group course requires a Session Count and Session Cost.
 4. Max Capacity is optional for a Group course. When supplied, it limits active registrations.
 5. The Staff course list is paginated and can be filtered by Specialty, Provider, Course Type, and active status. Sorting and active filters are preserved while paging.
@@ -86,6 +88,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Canceled course sessions
 
 1. When Staff cancels a Group course session, the affected child sessions are canceled as part of the same operation.
+   - A Group session with no active participant registrations is deleted instead of canceled. Its Edit dialog does not offer Canceled status; the server also rejects a cancellation request for that unused session.
+   - Scheduled Hours is read-only in the Manage Group Sessions Edit dialog. A replacement session created through that dialog uses the original session's Scheduled Hours.
 2. The canceled session's Actions must let Staff explicitly choose either Create Replacement or Refund Session Cost; the system must not automatically perform either choice.
 3. A replacement session is created with a new future schedule and follows the normal Group-session registration process.
 4. If Staff chooses Refund Session Cost, the system credits each affected participant's course balance by that course's Session Cost and records the canceled session and participant session in the balance history. A refund cannot be applied twice to the same participant session.
@@ -93,8 +97,17 @@ This file is the concise, canonical record of business rules confirmed by the pr
 6. When Staff chooses Refund Session Cost instead of creating a replacement, the course's final Session Count is reduced by one. Creating a replacement does not reduce Session Count. The reduction is applied only once with the refund operation.
 7. When Staff creates a replacement for a canceled Group session, the cancellation Staff Note and replacement Staff Note are entered separately. Each note is saved only to the corresponding session workflow.
 8. Only courses with IsActive set to true are shown to Coaches and in Staff's course-registration choices. A Group course reaching Max Capacity stops new registrations but remains active and visible until the course ends or Staff deactivates it.
+9. Staff session deletion uses separate confirmation displays for Private and Group courses. A Private-session confirmation shows the participant's name using the configured Participant terminology; a Group-session confirmation does not show a participant name.
 
 ## Private-course scheduling
+
+0. Each Private course must have a scheduling owner explicitly selected by Staff: either Staff or Coach. There is no default owner. The selected owner schedules both the session time and location; the other role cannot create sessions for that course. A Private course with no valid owner cannot create sessions. Group-course scheduling remains Staff-managed.
+   - The scheduling owner is selected when the Private course is created. Edit Course displays the current owner as read-only and cannot change it. Group courses do not display Private Course Scheduling.
+   - When Staff is the scheduling owner, Coach Manage Class labels the Schedules action as View. The Coach cannot add, edit, or remove session schedule details, but can update the Provider Note for a session.
+   - Manage Private Sessions offers an Edit action for active Staff-managed Private sessions. Its Private-specific editor displays Participant, Date, Start Time, End Time, and Status as read-only information, using configured Participant terminology and the user's time zone. Only Location and Staff Note can be changed; Status is preserved by the server.
+   - When Staff adds a session for a Registered root registration, the new session is Registered. When Staff adds a session for a Confirmed root registration, the new session is Scheduled. Confirming the root registration changes all of its Registered sessions to Scheduled.
+   - When Staff deletes a session, the root registration status controls the result. A session under a Registered root is permanently removed. A session under a Confirmed root is retained and its Status changes to Deleted.
+   - Manage Private Sessions includes future sessions whose Status is Deleted. These rows remain visible as read-only history and do not offer Edit or Delete actions; past Deleted sessions are not included in the upcoming table.
 
 1. On Coach Manage Schedules, a Private course session whose status is RequestToReschedule does not show the Edit action. The Coach may still use Remove, subject to the existing removal rules.
 2. A Provider Note containing non-whitespace text is required before a Coach can update or remove a Private course session. The displayed Provider term comes from the organization's terminology settings, and the rule is enforced by both the Manage Schedules page and the server.
@@ -103,8 +116,8 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. In Coach Manage Enrollments, entering Actual Hours as 0 removes the scheduled session. This removal workflow must not deduct Token balance.
 6. In Coach Manage Enrollments, a Coach can edit and save the Provider Note for a completed session.
 7. Each Student + Private Course has one ongoing Schedule Request, stored in the Management tenant database rather than the Platform database. It records a scheduling preference and does not automatically create Sessions.
-8. The Student may create or update their own Schedule Request when the Private Course still has sessions available to schedule. The request may include the preferred number of sessions per week, available weekdays, available time ranges, and other scheduling notes, including a note that the participant does not want to schedule sessions for a period of time. It has no start date or expiry date.
-9. For a Private course with a finite Session Count, the Student sees how many sessions remain available to schedule. The Student can view and edit the Schedule Request only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is not shown to the Student.
+8. The Student may create or update their own Schedule Request only for a Coach-managed Private Course when sessions remain available to schedule. Staff-managed Private Courses never display Edit My Preference or the Schedule Request form, and the server rejects direct preference updates for them. The request may include the preferred number of sessions per week, available weekdays, available time ranges, and other scheduling notes, including a note that the participant does not want to schedule sessions for a period of time. It has no start date or expiry date.
+9. For a Coach-managed Private course with a finite Session Count, the Student sees how many sessions remain available to schedule. The Student can view and edit the Schedule Request only while at least one session remains available to schedule. When no sessions remain, the Schedule Request is not shown to the Student.
 10. The preferred sessions per week is only a scheduling preference. It is not a request for a specific number of Sessions and is not limited by the remaining-session count.
 11. When the Student Schedule Request Feature is enabled, Coaches can view the Student's Schedule Request for a Private Course, including its preferred sessions per week, availability, notes, and last-updated time, only while at least one session remains available to schedule. When the Feature is disabled or no sessions remain, the Schedule Request is hidden from both the Student and the Coach. Coaches cannot edit the request.
 12. The Schedule Request is limited to 2,000 characters and stores a dedicated UpdatedAt timestamp so the Coach can see how current it is.
@@ -112,20 +125,26 @@ This file is the concise, canonical record of business rules confirmed by the pr
 14. The Student Schedule Request form must explain that the information is a long-term scheduling preference and does not automatically book a specific Session. The form must provide an example link or help control that demonstrates common ways to write the preference, including regular weekly availability, flexible availability, a temporary pause, changing availability, and important time restrictions.
 
 15. On Coach Manage Schedules, Parent/Guardian contact information is shown only when the organization has enabled its parent/guardian support setting. Otherwise, the participant's own Core Information contact details are shown. Missing contact values display as `N/A`.
+16. Before creating a course Session, ClassLift checks whether the assigned Provider has another non-canceled, non-deleted Session whose time overlaps the proposed start and end time. For a recurring request, every occurrence is checked before any Session is saved. If one occurrence conflicts, or occurrences within the proposed series overlap each other, the entire series is rejected and no Session from that request is created. This applies to Group, Staff-managed Private, and Coach-managed Private scheduling.
+   - The time-conflict message uses the organization's configured singular Provider terminology instead of a hard-coded role name.
 
 ## Participant schedule display
 
-1. Upcoming Private-course schedules include only Scheduled, RequestToReschedule, and Deleted sessions.
+1. Upcoming Coach-managed Private-course schedules include Scheduled, RequestToReschedule, and Deleted sessions. Upcoming Staff-managed Private-course schedules include Scheduled, RequestToLeave, RequestToReschedule, OnLeave, and Deleted sessions so existing session history remains visible.
+   - For a Coach-managed Private course, the participant may request to reschedule a session.
+   - For a Staff-managed Private course, the participant cannot change the session Status, including requesting to leave or requesting to reschedule. The Status is displayed read-only; the participant may still update My Note.
 2. Upcoming Group-course schedules include only Scheduled, RequestToLeave, OnLeave, and Canceled sessions.
-3. In the participant's Group-course schedule, Staff Note and Coach Note are displayed as separate columns, with Coach Note immediately to the right of Staff Note.
+3. In the participant's Group-course schedule, Staff Note and the Provider Note are displayed as separate columns, with the Provider Note immediately to the right of Staff Note. The Provider Note heading uses the organization's configured Provider terminology on both Private- and Group-course schedules.
 4. The participant's Group-course schedule does not display a My Note column.
 5. A confirmed course is shown on the participant's Schedules page with its basic course information even when it has no upcoming sessions scheduled yet.
 
 ## Accounts and user manual
 
 1. Coaches can maintain their chosen name, contact details, city, address, status, and photo consent from Account Settings. The coach address is used only for tax documents and formal document delivery. Member ID and bank payment details remain Staff-managed. Blank optional values clear the corresponding details.
-2. ClassLift keeps course operations and their directly related financial workflows with the Staff role. Staff who manage attendance, course registration, withdrawals, refunds, balances, and related financial records may complete that workflow without transferring the task to a separate Finance role.
-3. Bank, Transit, and Account details remain restricted sensitive information. They are not part of the ordinary Coach self-service profile and should be visible only to Admin or specifically authorized Staff.
+2. On the Coach List, each Provider Member ID links to that Provider's Calendar for Staff and Admin users. A Coach accessing the Calendar continues to see only their own schedule, even if another Coach ID is supplied in the URL.
+3. On the Child List, each Participant Member ID links to that Participant's Calendar for Staff and Admin users. A Child accessing the Calendar continues to see only their own schedule, even if another Child ID is supplied in the URL.
+4. ClassLift keeps course operations and their directly related financial workflows with the Staff role. Staff who manage attendance, course registration, withdrawals, refunds, balances, and related financial records may complete that workflow without transferring the task to a separate Finance role.
+5. Bank, Transit, and Account details remain restricted sensitive information. They are not part of the ordinary Coach self-service profile and should be visible only to Admin or specifically authorized Staff.
 
 ## Payments and balance history
 
@@ -135,6 +154,10 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. A participant's balance continues to use the balance snapshot created by each balance transaction. Since the system has not entered formal use, historical balance repair is not part of this rule.
 4. Staff balance adjustments require only an amount and remarks. Screenshot upload is not required.
 5. Staff may add a Direct Payment for a course or activity only after the participant's registration is Confirmed. The payment form warns Staff and disables Add Payment until confirmation.
+6. For a Token Payment, Staff may select an active administrator-defined package or Custom Package. A fixed package always uses its configured amount; Custom Package requires Staff to enter an amount greater than zero and does not add an item to the administrator's package catalog.
+7. In a participant's Registration History, a course registration whose status is Registered and whose fee is already paid cannot be removed. Staff may confirm it on the participant's behalf. Confirming a Group course changes that participant's Registered session copies to Scheduled. Confirming a Staff-managed Private course changes the Registered sessions linked to that root registration to Scheduled.
+8. In a participant's Registration History, the Sessions column provides Manage for Group courses and Staff-managed Private courses. A Staff-managed Private-course link opens that course's Manage Private Sessions page with the participant ID in the URL. The page continues to show all participants' sessions and highlights the selected participant's rows. Coach-managed Private courses do not show this link.
+9. The Private-course View Progress dialog in Registration History displays sessions whose Status is Scheduled, Completed, Deleted, or RequestToReschedule, ordered by scheduled date. It labels Provider Note and Participant Note with the organization's configured singular terminology instead of fixed role names.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.
@@ -183,13 +206,20 @@ This file is the concise, canonical record of business rules confirmed by the pr
    - The business operation completes before notification delivery is attempted.
    - Missing recipients or email-delivery failures do not roll back the session action; the Coach sees a warning instead.
    - A completion email includes the actual hours, and all session-action emails link to the participant Schedules page.
-9. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
+9. After Staff successfully creates one or more sessions for a Staff-managed Private course, ClassLift sends one email to the family's shared participant-portal address.
+   - All sessions created by the same recurring-session request are summarized in that single email.
+   - Delivery begins only after the complete session series has been saved successfully.
+   - Missing recipients or email-delivery failures do not roll back created sessions; Staff sees a warning instead.
+10. When Staff deletes a Staff-managed Private-course session, an unconfirmed session that is permanently removed does not send an email. A confirmed session that changes to Deleted sends one deletion email to the family's shared participant-portal address.
+   - The delete operation completes before notification delivery is attempted.
+   - A missing recipient or delivery failure does not roll back the Deleted status; Staff sees a warning instead.
+11. After a family successfully submits or changes a course-session request, ClassLift sends one notification for that submitted course form.
    - Private-course requests go to the assigned Coach and link to that registration's Coach schedule page.
    - Group-course requests go to the organization's configured notification recipient and link to Staff's session-registration page.
    - The email identifies the participant, course, request type, affected session time, and family note.
    - Saving the request completes before email delivery is attempted; delivery failure does not roll back the saved request and the family sees a warning.
 
-10. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
+12. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
 
 ## Open questions
 

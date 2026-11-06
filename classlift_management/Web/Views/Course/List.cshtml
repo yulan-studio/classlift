@@ -11,6 +11,7 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Manage Courses";
+    var currentSort = ViewData["CurrentSort"] as string;
 }
 
 <h1 class="management-page-title">@ViewData["Title"]</h1>
@@ -56,11 +57,11 @@
                 
                 <a asp-action="List" asp-route-sortOrder="@ViewData["SpecialtySortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]">
                     Specialty
-                    @if ((string)ViewData["CurrentSort"] == "specialty")
+                    @if (currentSort == "specialty")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "specialty_desc")
+                    else if (currentSort == "specialty_desc")
                     {
 
                         <span>▼</span>
@@ -72,11 +73,11 @@
             <th class="sortable-header" style="width: 5%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["CoachSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]">
                     @CurrentTenant.Terminology.ProviderSingular
-                    @if ((string)ViewData["CurrentSort"] == "coach")
+                    @if (currentSort == "coach")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "coach_desc")
+                    else if (currentSort == "coach_desc")
                     {
 
                         <span>▼</span>
@@ -86,11 +87,11 @@
             <th class="sortable-header">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["TitleSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]">
                     Title
-                    @if ((string)ViewData["CurrentSort"] == "title")
+                    @if (currentSort == "title")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "title_desc")
+                    else if (currentSort == "title_desc")
                     {
 
                         <span>▼</span>
@@ -103,11 +104,11 @@
             <th class="sortable-header compact-column">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["TypeSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none; ">
                     Type
-                    @if ((string)ViewData["CurrentSort"] == "type")
+                    @if (currentSort == "type")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "type_desc")
+                    else if (currentSort == "type_desc")
                     {
                         <span>▼</span>
                     }
@@ -116,11 +117,11 @@
             <th class="sortable-header" style="width: 2%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["SessionCountSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     Session Count
-                    @if ((string)ViewData["CurrentSort"] == "session_count")
+                    @if (currentSort == "session_count")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "session_count_desc")
+                    else if (currentSort == "session_count_desc")
                     {
                         <span>▼</span>
                     }
@@ -129,11 +130,11 @@
             <th class="sortable-header" style="width: 5%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["MaxCapacitySortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     Max Capacity
-                    @if ((string)ViewData["CurrentSort"] == "max_capacity")
+                    @if (currentSort == "max_capacity")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "max_capacity_desc")
+                    else if (currentSort == "max_capacity_desc")
                     {
                         <span>▼</span>
                     }
@@ -143,11 +144,11 @@
             @* <th style="padding: 8px; border: 1px solid #ddd; width: 5%; background-color: lightblue;">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["HourlyCostSortParm"]" style="color: black; text-decoration: none;">
                     Hourly Cost
-                    @if ((string)ViewData["CurrentSort"] == "hourly_cost")
+                    @if (currentSort == "hourly_cost")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "hourly_cost_desc")
+                    else if (currentSort == "hourly_cost_desc")
                     {
                         <span>▼</span>
                     }
@@ -157,11 +158,11 @@
             <th class="sortable-header">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationsSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     # of Registrations
-                    @if ((string)ViewData["CurrentSort"] == "registrations")
+                    @if (currentSort == "registrations")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "registrations_desc")
+                    else if (currentSort == "registrations_desc")
                     {
                         <span>▼</span>
                     }
@@ -170,18 +171,18 @@
             <th class="sortable-header" style="width: 5%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["IsActiveSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
                     Is Active
-                    @if ((string)ViewData["CurrentSort"] == "is_active")
+                    @if (currentSort == "is_active")
                     {
                         <span>▲</span>
                     }
-                    else if ((string)ViewData["CurrentSort"] == "is_active_desc")
+                    else if (currentSort == "is_active_desc")
                     {
                         <span>▼</span>
                     }
                 </a>
             </th>
             <th class="action-column">Actions</th>
-            <th class="action-column">Group Sessions</th>
+            <th class="action-column">Manage Sessions</th>
         </tr>
     </thead>
     <tbody>
@@ -215,7 +216,14 @@
                     <td class="action-column">
 
                         @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
-                        <a class="action-link" href="/Course/ManageSessions/@course.CourseID" style="@(course.CourseType == "Group" ?"":"display: none;")">Manage</a>
+                        @if (course.CourseType == "Group")
+                        {
+                            <a class="action-link" href="/Course/ManageGroupSessions/@course.CourseID">Group Sessions</a>
+                        }
+                        else if (course.CourseType == "Private" && course.PrivateSchedulingMode == "Staff")
+                        {
+                            <a class="action-link" href="/Course/ManagePrivateSessions/@course.CourseID">Private Sessions</a>
+                        }
 
                     </td>
                 </tr>

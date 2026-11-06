@@ -215,6 +215,21 @@ namespace Core.Contexts
                     value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value,
                     value => value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value);
 
+            // High-frequency participant schedule and registration queries.
+            modelBuilder.Entity<CourseEnrollment>()
+                .HasIndex(e => new { e.ChildID, e.Status, e.EnrollmentID_Ref, e.ScheduledAt })
+                .HasDatabaseName("IX_course_enrollments_Child_Status_Ref_ScheduledAt");
+
+            // Private-course session queries that start from a root registration.
+            modelBuilder.Entity<CourseEnrollment>()
+                .HasIndex(e => new { e.EnrollmentID_Ref, e.Status, e.ScheduledAt })
+                .HasDatabaseName("IX_course_enrollments_Ref_Status_ScheduledAt");
+
+            // Staff and Provider management queries scoped to one course and participant.
+            modelBuilder.Entity<CourseEnrollment>()
+                .HasIndex(e => new { e.CourseID, e.ChildID, e.Status, e.EnrollmentID_Ref, e.ScheduledAt })
+                .HasDatabaseName("IX_course_enrollments_Course_Child_Status_Ref_ScheduledAt");
+
             modelBuilder.Entity<CourseNotification>()
           .ToTable("course_notifications"); // Explicitly map to the table name
 

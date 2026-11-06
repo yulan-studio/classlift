@@ -52,6 +52,8 @@ namespace Web.Controllers.User
                 
 
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
 
                 var result = await _adminService.AddAsync( name, email, password, phone,  wechat, user);
                 if (!result)
@@ -165,6 +167,9 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var result = await _adminService.UpdateAsync(adminId, name, email, /*password,*/ phone, wechat, user);
 
 

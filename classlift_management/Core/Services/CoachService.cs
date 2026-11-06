@@ -162,7 +162,7 @@ namespace Core.Services
 
 
 
-        public async Task<bool> UpdateAsync(int coachId, string name,string email, /*string password,*/ List<int> specialtyIds, string gender, string phone, int cityId, User user)
+        public async Task<bool> UpdateAsync(int coachId, string name,string email, /*string password,*/ List<int> specialtyIds, string? gender, string phone, int cityId, User user)
         {
             // Find the coach by ID
             var coach = await _coachRepository.GetAsync(coachId);

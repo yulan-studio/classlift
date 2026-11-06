@@ -221,7 +221,7 @@ namespace Core.Services
                 return await _feeRepository.UpdateAsync(fee);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Optionally log the exception
                 //Console.WriteLine($"Error marking fee as unpaid: {ex.Message}");

@@ -1,4 +1,4 @@
-﻿using Core.Contexts;
+using Core.Contexts;
 using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
@@ -57,8 +57,10 @@ namespace Core.Services
 
         // Add a new course
         
-        public async Task<bool> AddAsync(string title, string? description, string courseType, int? maxCapacity, int? sessionCount, decimal? hourlyCost, decimal? sessionCost, bool isActive, int coachId, int specialtyId, User user)
+        public async Task<bool> AddAsync(string title, string? description, string courseType, string? privateSchedulingMode, int? maxCapacity, int? sessionCount, decimal? hourlyCost, decimal? sessionCost, bool isActive, int coachId, int specialtyId, User user)
         {
+            ValidatePrivateSchedulingMode(courseType, privateSchedulingMode);
+            ValidateStaffManagedPrivateSessionCount(courseType, privateSchedulingMode, sessionCount);
             // Validate inputs
             //if (string.IsNullOrWhiteSpace(title))
             //{
@@ -113,6 +115,7 @@ namespace Core.Services
                 Title = title,
                 Description = description,
                 CourseType = courseType,
+                PrivateSchedulingMode = string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase) ? privateSchedulingMode : null,
                 MaxCapacity = maxCapacity,
                 SessionCount = sessionCount,
                 HourlyCost = hourlyCost,
@@ -132,7 +135,7 @@ namespace Core.Services
             {
                 return await _courseRepository.AddAsync(course);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new Exception("No course is added.");
             }
@@ -141,8 +144,10 @@ namespace Core.Services
 
 
         // Update an existing course
-        public async Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive, User user/*, int userId, int updatedBy*/)
+        public async Task<bool> UpdateAsync(int courseId, string title, string? description, string courseType, string? privateSchedulingMode, int? maxCapatcity, int? sessionCount, decimal hourlyCost, decimal? sessionCost, bool isActive, User user/*, int userId, int updatedBy*/)
         {
+            ValidatePrivateSchedulingMode(courseType, privateSchedulingMode);
+            ValidateStaffManagedPrivateSessionCount(courseType, privateSchedulingMode, sessionCount);
             // Validate inputs
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -201,6 +206,7 @@ namespace Core.Services
             existingCourse.Title = title;
             existingCourse.Description = description;
             existingCourse.CourseType = courseType;
+            existingCourse.PrivateSchedulingMode = string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase) ? privateSchedulingMode : null;
             existingCourse.MaxCapacity = maxCapatcity;
             existingCourse.SessionCount = sessionCount;
             existingCourse.HourlyCost = hourlyCost;
@@ -212,6 +218,26 @@ namespace Core.Services
 
             // Save changes to the repository
             return await _courseRepository.UpdateAsync(existingCourse);
+        }
+
+        private static void ValidatePrivateSchedulingMode(string courseType, string? mode)
+        {
+            if (string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase)
+                && mode is not ("Staff" or "Coach"))
+                throw new ArgumentException("Please choose whether Staff or Coach will schedule this Private course.");
+        }
+
+        private static void ValidateStaffManagedPrivateSessionCount(
+            string courseType,
+            string? mode,
+            int? sessionCount)
+        {
+            if (string.Equals(courseType, "Private", StringComparison.OrdinalIgnoreCase)
+                && mode == "Staff"
+                && !sessionCount.HasValue)
+            {
+                throw new ArgumentException("Session Count is required when Staff schedules a Private course.");
+            }
         }
 
         // Delete a course by ID

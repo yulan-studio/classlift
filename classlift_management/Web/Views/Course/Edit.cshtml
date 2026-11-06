@@ -101,12 +101,27 @@
             <td style="padding: 8px;">@Model.CourseType</td>
             
         </tr>
-        <tr>
-            <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
-            <td style="padding: 8px;">
-                <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" value="@(Model.MaxCapacity)" type="number" step="1" min="2" placeholder="Enter Max Capacity" @(Model.CourseType == "Private" ? "disabled" : "") />
-            </td>
-        </tr>
+        @if (Model.CourseType == "Private")
+        {
+            <tr>
+                <td style="padding: 8px;"><label for="PrivateSchedulingMode">Course Scheduling:</label></td>
+                <td style="padding: 8px;">
+                    <input type="hidden" name="privateSchedulingMode" value="@Model.PrivateSchedulingMode" />
+                    @(Model.PrivateSchedulingMode == "Staff"
+                        ? "Staff schedules time and location"
+                        : $"{CurrentTenant.Terminology.ProviderSingular} schedules time and location")
+                </td>
+            </tr>
+        }
+        @if (Model.CourseType == "Group")
+        {
+            <tr>
+                <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
+                <td style="padding: 8px;">
+                    <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" value="@(Model.MaxCapacity)" type="number" step="1" min="2" placeholder="Enter Max Capacity" />
+                </td>
+            </tr>
+        }
 
         <tr>
             <td style="padding: 8px;"><label for="SessionCount">Session Count:</label></td>

@@ -1,4 +1,4 @@
-﻿using Core.Contexts;
+using Core.Contexts;
 using Core.DTOs;
 using Core.DTOs.Report;
 using Core.Interfaces;
@@ -20,10 +20,12 @@ namespace Core.Repositories
     public class CourseEnrollmentRepository : ICourseEnrollmentRepository
     {
         private readonly AppDbContext _context;
+        private readonly CurrentTenant? _currentTenant;
 
-        public CourseEnrollmentRepository(AppDbContext context)
+        public CourseEnrollmentRepository(AppDbContext context, CurrentTenant? currentTenant = null)
         {
             _context = context;
+            _currentTenant = currentTenant;
         }
 
         public async Task<bool> AddAsync(CourseEnrollment enrollment)
@@ -31,6 +33,129 @@ namespace Core.Repositories
             //_context.Attach(enrollment.Child);
             await _context.CourseEnrollments.AddAsync(enrollment);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<IReadOnlyList<int>> AddPrivateSessionSeriesAsync(
+            IReadOnlyList<CourseEnrollment> sessions)
+        {
+            if (sessions.Count == 0)
+                return Array.Empty<int>();
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await EnsureCoachHasNoScheduleConflictAsync(sessions[0].CourseID, sessions);
+
+            await _context.CourseEnrollments.AddRangeAsync(sessions);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return sessions.Select(session => session.EnrollmentID).ToList();
+        }
+
+        public async Task<IReadOnlyList<int>> AddGroupSessionSeriesAsync(
+            IReadOnlyList<CourseEnrollment> sessions,
+            User user)
+        {
+            if (sessions.Count == 0)
+                return Array.Empty<int>();
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var courseId = sessions[0].CourseID;
+            await EnsureCoachHasNoScheduleConflictAsync(courseId, sessions);
+
+            var registrations = (await _context.CourseEnrollments
+                    .Include(enrollment => enrollment.Child)
+                    .Where(enrollment => enrollment.CourseID == courseId
+                        && enrollment.EnrollmentID_Ref == null
+                        && enrollment.ChildID.HasValue
+                        && (enrollment.Status == "Registered" || enrollment.Status == "Confirmed"))
+                    .ToListAsync())
+                .GroupBy(enrollment => enrollment.ChildID!.Value)
+                .Select(group => group
+                    .OrderByDescending(enrollment => enrollment.Status == "Confirmed")
+                    .First())
+                .ToList();
+
+            foreach (var session in sessions)
+            {
+                await _context.CourseEnrollments.AddAsync(session);
+                await _context.SaveChangesAsync();
+
+                var childSessions = registrations.Select(registration => new CourseEnrollment
+                {
+                    ChildID = registration.ChildID,
+                    CourseID = courseId,
+                    EnrollmentID_Ref = session.EnrollmentID,
+                    ScheduledAt = session.ScheduledAt,
+                    ScheduledLocalTime = session.ScheduledLocalTime,
+                    ScheduledTimeZoneId = session.ScheduledTimeZoneId,
+                    ScheduledHours = session.ScheduledHours,
+                    Location = session.Location,
+                    StaffNote = session.StaffNote,
+                    CreatedBy = user.Id,
+                    CreatedDate = DateTime.UtcNow,
+                    Status = registration.Status == "Confirmed" ? "Scheduled" : "Registered"
+                });
+                await _context.CourseEnrollments.AddRangeAsync(childSessions);
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return sessions.Select(session => session.EnrollmentID).ToList();
+        }
+
+        private async Task EnsureCoachHasNoScheduleConflictAsync(
+            int courseId,
+            IReadOnlyList<CourseEnrollment> proposedSessions)
+        {
+            var course = await _context.Courses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.CourseID == courseId);
+            if (course == null)
+                throw new ArgumentException("Course not found.");
+
+            var proposedRanges = proposedSessions.Select(session => new
+            {
+                Start = session.ScheduledAt!.Value,
+                End = session.ScheduledAt.Value.AddHours((double)session.ScheduledHours!.Value)
+            }).OrderBy(range => range.Start).ToList();
+
+            for (var index = 1; index < proposedRanges.Count; index++)
+            {
+                if (proposedRanges[index].Start < proposedRanges[index - 1].End)
+                    throw new InvalidOperationException(
+                        "The requested session series contains overlapping times. No sessions were added.");
+            }
+
+            var earliestStart = proposedRanges[0].Start;
+            var latestEnd = proposedRanges.Max(range => range.End);
+            var existingSessions = await _context.CourseEnrollments
+                .AsNoTracking()
+                .Where(session => session.Course.CoachID == course.CoachID
+                    && session.ScheduledAt.HasValue
+                    && session.ScheduledHours.HasValue
+                    && session.Status != "Canceled"
+                    && session.Status != "Deleted"
+                    && session.ScheduledAt.Value < latestEnd)
+                .Select(session => new { session.ScheduledAt, session.ScheduledHours })
+                .ToListAsync();
+
+            var hasConflict = existingSessions.Any(existing =>
+            {
+                var existingStart = existing.ScheduledAt!.Value;
+                var existingEnd = existingStart.AddHours((double)existing.ScheduledHours!.Value);
+                return existingEnd > earliestStart
+                    && proposedRanges.Any(proposed =>
+                        existingStart < proposed.End && existingEnd > proposed.Start);
+            });
+
+            if (hasConflict)
+            {
+                var providerName = _currentTenant?.Terminology.ProviderSingular;
+                if (string.IsNullOrWhiteSpace(providerName))
+                    providerName = "Coach";
+
+                throw new InvalidOperationException(
+                    $"The {providerName} already has another course scheduled during one or more selected times. No sessions were added.");
+            }
         }
 
         public async Task<bool> RemoveAsync(int enrollmentId)
@@ -47,7 +172,7 @@ namespace Core.Repositories
         public async Task<CourseEnrollment> GetAsync(int enrollmentId)
         {
             return await _context.CourseEnrollments
-               // .Include(e => e.Child)
+                .Include(e => e.Child)
                 .Include(e => e.Course)
                 .FirstOrDefaultAsync(e => e.EnrollmentID == enrollmentId);
         }
@@ -60,7 +185,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();  // Commit the changes asynchronously
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }
@@ -80,7 +205,8 @@ namespace Core.Repositories
                     && enrollment.ChildID == childId
                     && enrollment.CourseID == courseId
                     && enrollment.Status == "Confirmed"
-                    && enrollment.Course.CourseType == "Private",
+                    && enrollment.Course.CourseType == "Private"
+                    && enrollment.Course.PrivateSchedulingMode == "Coach",
                     cancellationToken);
 
             if (root == null)
@@ -139,7 +265,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();  // Commit the changes asynchronously
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }
@@ -179,7 +305,10 @@ namespace Core.Repositories
                 .Where(e => e.EnrollmentID_Ref == rootEnrollmentId
                     && e.ChildID == childId
                     && e.CourseID == courseId
-                    && e.Status != "Deleted"
+                    && (e.Status == "Scheduled"
+                        || e.Status == "Completed"
+                        || e.Status == "Deleted"
+                        || e.Status == "RequestToReschedule")
                     && e.ScheduledAt.HasValue)
                 .OrderBy(e => e.ScheduledAt)
                 .ToListAsync();
@@ -223,7 +352,8 @@ namespace Core.Repositories
                 .ToListAsync();
         }
 
-        //Private: include Scheduled/RequestToReschedule/Deleted.
+        //Coach-managed Private: include Scheduled/RequestToReschedule/Deleted.
+        //Staff-managed Private: keep current and legacy request statuses visible, but read-only to the participant.
         //Group: include Scheduled/RequestToLeave/OnLeave/Canceled.
         public async Task<IEnumerable<CourseEnrollment>> GetUpcomingEnrollmentsByChildAsync(int childId)
         {
@@ -234,7 +364,9 @@ namespace Core.Repositories
                 .Include(e => e.Course.Specialty)
                 .Where(e => e.ChildID != null && e.ChildID == childId && e.EnrollmentID_Ref != null
                     && (e.Course.CourseType == "Private"
-                        ? e.Status == "Scheduled" || e.Status == "RequestToReschedule" || e.Status == "Deleted"
+                        ? e.Course.PrivateSchedulingMode == "Staff"
+                            ? e.Status == "Scheduled" ||  e.Status == "Deleted"
+                            : e.Status == "Scheduled" || e.Status == "RequestToReschedule" || e.Status == "Deleted"
                         : e.Status == "Scheduled" || e.Status == "RequestToLeave" || e.Status == "OnLeave" || e.Status == "Canceled")
                     && ((DateTime)e.ScheduledAt).AddHours((double)e.ScheduledHours) >= torontoNow)
                 .OrderBy(e => e.CourseID)
@@ -260,6 +392,7 @@ namespace Core.Repositories
                
                CourseID = e.CourseID,
                CourseType = e.Course.CourseType,
+               PrivateSchedulingMode = e.Course.PrivateSchedulingMode,
                IsActive = e.Course.IsActive,
                SessionCount = e.Course.SessionCount,
                ChildID = e.ChildID,
@@ -522,6 +655,21 @@ namespace Core.Repositories
                     enrollment.Child.Name,
                     enrollment.Child.User.Email))
                 .ToListAsync();
+        }
+
+        public Task<CourseScheduleNotificationRecipient?>
+            GetPrivateRegistrationNotificationRecipientAsync(int rootEnrollmentId)
+        {
+            return _context.CourseEnrollments
+                .AsNoTracking()
+                .Where(enrollment =>
+                    enrollment.EnrollmentID == rootEnrollmentId
+                    && enrollment.EnrollmentID_Ref == null
+                    && enrollment.ChildID != null)
+                .Select(enrollment => new CourseScheduleNotificationRecipient(
+                    enrollment.Child.Name,
+                    enrollment.Child.User.Email))
+                .SingleOrDefaultAsync();
         }
 
         //return a list of ChildIDs where at least one course enrollment session has Status == "RequestToLeave":
@@ -832,6 +980,7 @@ namespace Core.Repositories
 
             // Find the activity enrollment record by ID
             var enrollment = await _context.CourseEnrollments
+                .Include(e => e.Course)
                 .FirstOrDefaultAsync(e => e.EnrollmentID == enrollmentID);
 
             if (enrollment == null)
@@ -839,8 +988,25 @@ namespace Core.Repositories
                 return false; // Enrollment not found
             }
 
-            // Update status to "Scheduled"
             enrollment.Status = "Confirmed";
+            enrollment.UpdatedDate = DateTime.UtcNow;
+
+            if (enrollment.EnrollmentID_Ref == null
+                && string.Equals(enrollment.Course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(enrollment.Course.PrivateSchedulingMode, "Staff", StringComparison.OrdinalIgnoreCase))
+            {
+                var registeredSessions = await _context.CourseEnrollments
+                    .Where(session =>
+                        session.EnrollmentID_Ref == enrollment.EnrollmentID
+                        && session.Status == "Registered")
+                    .ToListAsync();
+
+                foreach (var session in registeredSessions)
+                {
+                    session.Status = "Scheduled";
+                    session.UpdatedDate = DateTime.UtcNow;
+                }
+            }
 
             // Update the record in the database
             _context.CourseEnrollments.Update(enrollment);
@@ -850,6 +1016,71 @@ namespace Core.Repositories
 
             // Return true if at least one record was affected
             return result > 0;
+        }
+
+        public async Task<PaidCourseConfirmationResult> ConfirmPaidCourseRegistrationAsync(
+            int enrollmentId,
+            int childId)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var registration = await _context.CourseEnrollments
+                .Include(enrollment => enrollment.Course)
+                .FirstOrDefaultAsync(enrollment =>
+                    enrollment.EnrollmentID == enrollmentId
+                    && enrollment.ChildID == childId
+                    && enrollment.EnrollmentID_Ref == null);
+
+            if (registration == null)
+                return PaidCourseConfirmationResult.RegistrationNotFound;
+
+            if (!string.Equals(registration.Status, "Registered", StringComparison.Ordinal))
+                return PaidCourseConfirmationResult.RegistrationNotPending;
+
+            var isPaid = await _context.Fees.AnyAsync(fee =>
+                fee.CourseEnrollmentID == enrollmentId && fee.IsPaid);
+
+            if (!isPaid)
+                return PaidCourseConfirmationResult.FeeNotPaid;
+
+            registration.Status = "Confirmed";
+            registration.UpdatedDate = DateTime.UtcNow;
+
+            if (string.Equals(registration.Course.CourseType, "Group", StringComparison.OrdinalIgnoreCase))
+            {
+                var registeredSessions = await _context.CourseEnrollments
+                    .Where(enrollment =>
+                        enrollment.ChildID == childId
+                        && enrollment.CourseID == registration.CourseID
+                        && enrollment.EnrollmentID_Ref != null
+                        && enrollment.Status == "Registered")
+                    .ToListAsync();
+
+                foreach (var session in registeredSessions)
+                {
+                    session.Status = "Scheduled";
+                    session.UpdatedDate = DateTime.UtcNow;
+                }
+            }
+            else if (string.Equals(registration.Course.CourseType, "Private", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(registration.Course.PrivateSchedulingMode, "Staff", StringComparison.OrdinalIgnoreCase))
+            {
+                var registeredSessions = await _context.CourseEnrollments
+                    .Where(session =>
+                        session.EnrollmentID_Ref == registration.EnrollmentID
+                        && session.Status == "Registered")
+                    .ToListAsync();
+
+                foreach (var session in registeredSessions)
+                {
+                    session.Status = "Scheduled";
+                    session.UpdatedDate = DateTime.UtcNow;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return PaidCourseConfirmationResult.Success;
         }
 
 

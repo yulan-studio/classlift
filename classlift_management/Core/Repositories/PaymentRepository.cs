@@ -142,7 +142,7 @@ namespace Core.Repositories
                                        join c in _context.Courses on ce.CourseID equals c.CourseID
                                        where ce.ChildID == childId
                                              && f.PaymentModel == "Direct"
-                                             && (f.IsPaid == false || f.IsPaid == null)
+                                             && !f.IsPaid
                                        select new UnpaidItemViewModel
                                        {
                                            Type = "Course",
@@ -157,7 +157,7 @@ namespace Core.Repositories
                                           join a in _context.Activities on ae.ActivityID equals a.ActivityID
                                           where ae.ChildID == childId
                                                 && f.PaymentModel == "Direct"
-                                                && (f.IsPaid == false || f.IsPaid == null)
+                                                && !f.IsPaid
                                           select new UnpaidItemViewModel
                                           {
                                               Type = "Activity",
@@ -181,7 +181,7 @@ namespace Core.Repositories
                                        join c in _context.Courses on ce.CourseID equals c.CourseID
                                        where ce.ChildID == childId
                                              && f.PaymentModel == "OAP"
-                                             && (f.IsPaid == false || f.IsPaid == null)
+                                             && !f.IsPaid
                                        select new UnpaidItemViewModel
                                        {
                                            Type = "Course",
@@ -195,7 +195,7 @@ namespace Core.Repositories
                                           join a in _context.Activities on ae.ActivityID equals a.ActivityID
                                           where ae.ChildID == childId
                                                 && f.PaymentModel == "OAP"
-                                                && (f.IsPaid == false || f.IsPaid == null)
+                                                && !f.IsPaid
                                           select new UnpaidItemViewModel
                                           {
                                               Type = "Activity",

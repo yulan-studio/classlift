@@ -604,6 +604,10 @@ namespace Core.Migrations
                     b.Property<int?>("MaxCapacity")
                         .HasColumnType("int");
 
+                    b.Property<string>("PrivateSchedulingMode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<decimal?>("SessionCost")
                         .HasColumnType("decimal(10,2)");
 
@@ -715,6 +719,15 @@ namespace Core.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("UpdatedBy");
+
+                    b.HasIndex("ChildID", "Status", "EnrollmentID_Ref", "ScheduledAt")
+                        .HasDatabaseName("IX_course_enrollments_Child_Status_Ref_ScheduledAt");
+
+                    b.HasIndex("CourseID", "ChildID", "Status", "EnrollmentID_Ref", "ScheduledAt")
+                        .HasDatabaseName("IX_course_enrollments_Course_Child_Status_Ref_ScheduledAt");
+
+                    b.HasIndex("EnrollmentID_Ref", "Status", "ScheduledAt")
+                        .HasDatabaseName("IX_course_enrollments_Ref_Status_ScheduledAt");
 
                     b.ToTable("course_enrollments", (string)null);
                 });

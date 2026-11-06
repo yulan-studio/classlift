@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Data;
 using System.Data.SqlClient;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -163,8 +162,10 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
                 
-                var result = await _coachService.AddAsync(name, email, password, specialtyIds, gender, phone, cityId!.Value, user);
+                var result = await _coachService.AddAsync(name, email, password, specialtyIds!, gender, phone, cityId!.Value, user);
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, $"Failed to add the {ProviderNameLower} information.");
@@ -458,7 +459,10 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds, gender, phone, cityId!.Value, user);
+                if (user == null)
+                    return Challenge();
+
+                var result = await _coachService.UpdateAsync(coachId, name, email, /*password,*/specialtyIds!, gender, phone, cityId!.Value, user);
 
 
                 if (!result)
@@ -503,7 +507,7 @@ namespace Web.Controllers.User
                 TempData["SuccessMessage"] = $"{ProviderName} information updated successfully.";
                 return RedirectToAction("List");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //TempData["ErrorMessage"] = $"Error: {ex.Message}";
                 var coach = await _coachService.GetAsync(coachId);
@@ -673,7 +677,13 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+                if (coach == null)
+                    return NotFound();
+
                 int coachId = coach.CoachID;
 
                 var model = new ManageCourseViewModel();
@@ -715,6 +725,7 @@ namespace Web.Controllers.User
                         courseChildren.CourseDescription = course.Description;
                         courseChildren.SessionCount = course.SessionCount;
                         courseChildren.CourseType = course.CourseType;
+                        courseChildren.PrivateSchedulingMode = course.PrivateSchedulingMode;
 
 
 
@@ -763,7 +774,13 @@ namespace Web.Controllers.User
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Challenge();
+
                 var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+                if (coach == null)
+                    return NotFound();
+
                 int coachId = coach.CoachID;
                 // ✅ Get children who are enrolled in the coach's courses
                 var child = await _childService.GetAsync(childId);
@@ -808,6 +825,8 @@ namespace Web.Controllers.User
                     Parents = parents,
                     ShowParentGuardianContact = showParentGuardianContact,
                     Course = course,
+                    CanManageSchedules = course.CourseType == "Private"
+                        && course.PrivateSchedulingMode == "Coach",
                     Schedules = schedules,
                     ScheduledCount = scheduled.Count,
                     CompletedCount = completed.Count,
@@ -834,7 +853,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> ScheduleCourse(int childId, int courseId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, string location, int enrollmentId_Ref, bool isRecurring = false, string recurrenceType = "Weekly",  int recurrenceCount = 1 )
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return NotFound();
+
             int coachId = coach.CoachID;
 
 
@@ -863,8 +888,9 @@ namespace Web.Controllers.User
                 if (course.CoachID != coachId)
                     return Forbid();
 
+                if (course.CourseType != "Private" || course.PrivateSchedulingMode != "Coach")
+                    return Forbid();
 
-                bool allSuccess = true;
 
                 if (isRecurring && recurrenceCount <= 0)
                 {
@@ -921,21 +947,11 @@ namespace Web.Controllers.User
                     return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
                 }
 
-                foreach (var timing in timings)
+                try
                 {
-                    bool result = await _courseEnrollmentService.ScheduleCourseAsync(
-                        childId, courseId, timing, scheduledHours, location, coachId, enrollmentId_Ref);
+                    await _courseEnrollmentService.AddCoachManagedPrivateSessionSeriesAsync(
+                        childId, courseId, timings, scheduledHours, location, coachId, enrollmentId_Ref);
 
-                    if (!result)
-                    {
-                        allSuccess = false;
-                        break;
-                    }
-
-                }
-
-                if (allSuccess)
-                {
                     await NotifyFamilyOfCreatedSessionsAsync(
                         child,
                         course,
@@ -950,9 +966,9 @@ namespace Web.Controllers.User
                         : "Session(s) scheduled successfully.";
                     TempData.Remove("WarningMessage");
                 }
-                else
+                catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Failed to schedule one or more sessions.";
+                    TempData["ErrorMessage"] = ex.Message;
                 }
             }
 
@@ -969,18 +985,31 @@ namespace Web.Controllers.User
         [HttpPost("DeleteSchedule")]
         public async Task<IActionResult> DeleteSchedule(int enrollmentId, int childId, int courseId, string? coachNote, int enrollmentId_Ref)
         {
+            var child = await _childService.GetAsync(childId);
+            var course = await _courseService.GetAsync(courseId);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
+            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
+
+            if (course == null || coach == null || course.CoachID != coach.CoachID)
+                return Forbid();
+            if (course.CourseType != "Private" || course.PrivateSchedulingMode != "Coach")
+                return Forbid();
+            if (enrollment == null
+                || enrollment.ChildID != childId
+                || enrollment.CourseID != courseId
+                || enrollment.EnrollmentID_Ref != enrollmentId_Ref)
+            {
+                return BadRequest("The session does not match the selected registration.");
+            }
             if (string.IsNullOrWhiteSpace(coachNote))
             {
                 TempData["ErrorMessage"] = $"{ProviderName} Note is required before removing a session.";
                 return RedirectToAction("ManageSchedules", new { childId, courseId, enrollmentId = enrollmentId_Ref });
             }
-
-            var child = await _childService.GetAsync(childId);
-            var course = await _courseService.GetAsync(courseId);
-            var user = await _userManager.GetUserAsync(User);
-            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
-
-            var enrollment = await _courseEnrollmentService.GetAsync(enrollmentId);
 
             bool result = await _courseEnrollmentService.RemoveScheduleAsync(enrollmentId, coachNote.Trim());
             
@@ -1011,7 +1040,13 @@ namespace Web.Controllers.User
             [FromQuery] int enrollmentId)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return NotFound();
+
             int coachId = coach.CoachID;
 
             // Get all children registered in the coach's course
@@ -1225,6 +1260,8 @@ namespace Web.Controllers.User
         {
             //int coachId = 16; // GetLoggedInCoachId(); // Replace with actual logic to get coach ID
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
 
             Child? child = await _childService.GetAsync(childId);
             if (child == null)
@@ -1336,6 +1373,9 @@ namespace Web.Controllers.User
         {
             // Get current coach based on User ID
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
 
 
@@ -1370,12 +1410,35 @@ namespace Web.Controllers.User
         }
 
         
+        [Authorize(Roles = "Admin, Staff, Coach")]
         [HttpGet("GetCoachSchedules")]
-        public async Task<IActionResult> GetCoachSchedules()
+        public async Task<IActionResult> GetCoachSchedules(int? coachId = null)
         {
-            // Get current coach based on User ID
             var user = await _userManager.GetUserAsync(User);
-            var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (user == null)
+                return Unauthorized();
+
+            Coach coach;
+            if (User.IsInRole("Coach"))
+            {
+                // A Coach can only load their own calendar, regardless of any
+                // coachId supplied in the query string.
+                var currentCoach = await _coachRepository.GetCoachByIdAsync(user.Id);
+                if (currentCoach == null)
+                    return NotFound();
+
+                coach = currentCoach;
+            }
+            else
+            {
+                if (!coachId.HasValue)
+                    return BadRequest("Please select a provider.");
+
+                coach = await _coachService.GetAsync(coachId.Value);
+            }
+
+            if (coach == null)
+                return NotFound();
 
             var schedules = await _courseEnrollmentService.GetCoachSchedulesAsync(coach.CoachID);
 
@@ -1394,7 +1457,13 @@ namespace Web.Controllers.User
         public async Task<IActionResult> Notifications()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
             var coach = await _coachRepository.GetCoachByIdAsync(user.Id);
+            if (coach == null)
+                return NotFound();
+
             var now = DateTime.UtcNow;
             var sessions = await _db.CourseEnrollments
                 .AsNoTracking()
@@ -1422,7 +1491,7 @@ namespace Web.Controllers.User
                 .ToList();
 
             var sessionsToComplete = sessions
-                .Where(e => e.Course.CourseType == "Private" && !e.Course.SessionCount.HasValue && e.Status == "Scheduled" && e.ScheduledHours.HasValue && e.ScheduledAt.Value.AddHours((double)e.ScheduledHours.Value) <= now)
+                .Where(e => e.Course.CourseType == "Private" && !e.Course.SessionCount.HasValue && e.Status == "Scheduled" && e.ScheduledHours.HasValue && e.ScheduledAt.GetValueOrDefault().AddHours((double)e.ScheduledHours.GetValueOrDefault()) <= now)
                 .OrderBy(e => e.ScheduledAt)
                 .ThenBy(e => e.Child!.Name)
                 .Select(e => ToItem(e, $"/Coach/ManageEnrollments/{e.ChildID}?courseId={e.CourseID}&enrollmentId={e.EnrollmentID_Ref ?? e.EnrollmentID}"))
@@ -1454,6 +1523,9 @@ namespace Web.Controllers.User
             var enrollment = await _courseEnrollmentService.GetAsync(vm.EnrollmentId);
             if (coach == null || course.CoachID != coach.CoachID)
                 return Forbid();
+            if (course.CourseType != "Private"
+                || course.PrivateSchedulingMode is not ("Coach" or "Staff"))
+                return Forbid();
             if (enrollment.ChildID != vm.ChildId
                 || enrollment.CourseID != vm.CourseId
                 || enrollment.EnrollmentID_Ref != vm.EnrollmentId_Ref)
@@ -1461,11 +1533,16 @@ namespace Web.Controllers.User
                 return BadRequest("The session does not match the selected registration.");
             }
 
+            // Staff owns the schedule details. A therapist may update only the
+            // Provider Note for a Staff-managed private course.
+            if (course.PrivateSchedulingMode == "Staff")
+                vm.Location = enrollment.Location ?? string.Empty;
+
             var saved = await _courseEnrollmentService.UpdateCoachSchedule(vm);
             if (!saved)
                 return BadRequest("The schedule could not be updated.");
 
-            enrollment.Location = vm.Location;
+            enrollment.Location = vm.Location ?? string.Empty;
             await NotifyFamilyOfUpdatedSessionAsync(child, course, coach.Name, enrollment);
             // You need to provide values for childId, courseId, and enrollmentId_Ref here if you want to redirect.
             // For now, just return Ok or a suitable result.
@@ -1623,12 +1700,28 @@ namespace Web.Controllers.User
         }
 
 
-        [Authorize(Roles = "Coach")]
+        [Authorize(Roles = "Admin, Staff, Coach")]
         [HttpGet("MyCalendar")]
-        public async Task<IActionResult> MyCalendar()
+        public async Task<IActionResult> MyCalendar(int? coachId = null)
         {
-            // Get current coach based on User ID
-          
+            if (User.IsInRole("Coach"))
+            {
+                ViewBag.CoachID = null;
+                ViewBag.CalendarTitle = "My Calendar";
+                ViewBag.ShowCoachListLink = false;
+                return View();
+            }
+
+            if (!coachId.HasValue)
+                return RedirectToAction(nameof(List));
+
+            var coach = await _coachService.GetAsync(coachId.Value);
+            if (coach == null)
+                return NotFound();
+
+            ViewBag.CoachID = coach.CoachID;
+            ViewBag.CalendarTitle = $"{coach.Name} Calendar";
+            ViewBag.ShowCoachListLink = true;
             return View();
         }
 

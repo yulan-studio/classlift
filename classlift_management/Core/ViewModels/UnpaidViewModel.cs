@@ -14,11 +14,11 @@ namespace Core.ViewModels
 
     public class UnpaidItemViewModel
     {
-        public string Type { get; set; } // "Course" or "Activity"
-        public string Title { get; set; }
+        public string Type { get; set; } = string.Empty; // "Course" or "Activity"
+        public string Title { get; set; } = string.Empty;
         public decimal? TotalCost { get; set; }
 
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
 
         public int FeeID { get; set; }
     }

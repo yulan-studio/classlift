@@ -90,7 +90,7 @@
             {
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@(payment.PaymentDate.HasValue ? payment.PaymentDate.Value.ToString("yyyy-MM-dd") : "")</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.PaymentPackage != null ? payment.PaymentPackage.Title : "")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.PaymentPackage != null ? payment.PaymentPackage.Title : payment.Memo)</td>
                     <td style="padding: 8px; border: 1px solid #ddd;"> @(payment.Fee != null ? (payment.Fee.CourseEnrollment != null ? payment.Fee.CourseEnrollment.Course.Title : (payment.Fee.ActivityEnrollment!=null?payment.Fee.ActivityEnrollment.Activity.Title:"")) : "")</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">$@payment.Amount</td>
                    
@@ -187,6 +187,7 @@
                             {
                                 <option value="@package.Value">@package.Text</option>
                             }
+                            <option value="-1">Custom Package</option>
                         </select>
                     </td>
                 </tr>
@@ -291,7 +292,8 @@
             packageRow.style.display = isPackage ? 'table-row' : 'none';
         }
         document.getElementById('directPaymentRow').style.display = isDirect ? 'table-row' : 'none';
-        document.getElementById('amount').readOnly = isPackage;
+        const amountInput = document.getElementById('amount');
+        amountInput.readOnly = isPackage;
 
         const packageSelect = document.getElementById('packageId');
         if (packageSelect) {
@@ -303,7 +305,7 @@
         }
 
         if (isPackage) {
-            document.getElementById('amount').value = '';
+            amountInput.value = '';
 
             document.querySelectorAll("input[name='selectedFeeId']").forEach(function (radio) {
                 radio.checked = false;
@@ -312,6 +314,10 @@
             const feeIdInput = document.getElementById('feeId');
             if (feeIdInput) {
                 feeIdInput.value = '';
+            }
+
+            if (packageSelect) {
+                fetchPackageAmount(packageSelect.value);
             }
         }
 
@@ -339,15 +345,25 @@
 
         function fetchPackageAmount(packageId) {
     //alert("fetchPackageAmount called");
+        const amountInput = document.querySelector("input[name='amount']");
+
+        if (packageId === '-1') {
+            amountInput.value = '';
+            amountInput.readOnly = false;
+            amountInput.focus();
+            return;
+        }
+
+        amountInput.readOnly = true;
+
         if (!packageId) {
-            document.querySelector("input[name='amount']").value = "";
+            amountInput.value = "";
             return;
         }
 
         fetch(`/PaymentPackage/GetPackageAmount?packageId=${packageId}`)
             .then(response => response.json())
             .then(data => {
-                const amountInput = document.querySelector("input[name='amount']");
                 if (data.success) {
                     amountInput.value = data.amount;
                 } else {
