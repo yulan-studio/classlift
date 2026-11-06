@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,7 +44,7 @@ namespace Core.Services
                 else
                     return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

@@ -34,7 +34,7 @@ namespace Core.Interfaces
         // Get all Users from the database asynchronously
         Task<IEnumerable<Staff>> GetAllAsync();
 
-        Task<Staff> GetByEmailAsync(string email);
+        Task<Staff?> GetByEmailAsync(string email);
 
     }
 }

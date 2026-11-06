@@ -1,4 +1,4 @@
-﻿using Core.Contexts;
+using Core.Contexts;
 using Core.DTOs;
 using Core.DTOs.Report;
 using Core.Interfaces;
@@ -185,7 +185,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();  // Commit the changes asynchronously
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }
@@ -265,7 +265,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();  // Commit the changes asynchronously
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }

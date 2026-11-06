@@ -10,7 +10,6 @@ namespace Core.BackendService
     public class GroupCourseStatusUpdater : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly IChildBalanceService _childBalanceService;
 
         public GroupCourseStatusUpdater(IServiceProvider serviceProvider)
         {

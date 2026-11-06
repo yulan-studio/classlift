@@ -1,4 +1,4 @@
-﻿using Core.Interfaces;
+using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
 using Core.ViewModels;
@@ -65,7 +65,7 @@ namespace Core.Services
                 bool result = await _balanceRepository.AddPaymentToBalanceAsync(childId, paymentId, amount, fileUrl, createdBy);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -80,7 +80,7 @@ namespace Core.Services
                 bool result = await _balanceRepository.RemovePaymentToBalanceAsync(childId, paymentId, createdBy);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -96,7 +96,7 @@ namespace Core.Services
                 bool result = await _balanceRepository.DeductCourseSessionCostAsync(enrollmentId, createdBy);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -110,7 +110,7 @@ namespace Core.Services
                 bool result = await _balanceRepository.DeductCourseCostAsync(childId, courseId, cost, createdBy);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -124,7 +124,7 @@ namespace Core.Services
                 bool result = await _balanceRepository.DeductActivityCostAsync(childId, activityId, cost, createdBy);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -137,7 +137,7 @@ namespace Core.Services
                 bool result = await _balanceRepository.DeductGroupCourseCostAsync(childId, courseId, cost, createdBy);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -150,7 +150,7 @@ namespace Core.Services
                 var balances = await _balanceRepository.GetBalanceHistoryAsync(childId);
                 return balances;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Enumerable.Empty<Core.ViewModels.ChildBalance>();
             }
@@ -167,7 +167,7 @@ namespace Core.Services
                 var balance = await _balanceRepository.GetFinalBalanceAsync(childId);
                 return balance;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return -1;
             }

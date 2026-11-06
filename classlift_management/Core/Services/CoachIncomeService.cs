@@ -1,4 +1,4 @@
-﻿using Core.DTOs;
+using Core.DTOs;
 using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
@@ -31,7 +31,7 @@ namespace Core.Services
                 bool result = await _coachIncomeRepository.UpdateCoachIncomeAsync(enrollmentId, updatedBy);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

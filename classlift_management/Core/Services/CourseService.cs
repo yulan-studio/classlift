@@ -1,4 +1,4 @@
-﻿using Core.Contexts;
+using Core.Contexts;
 using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
@@ -135,7 +135,7 @@ namespace Core.Services
             {
                 return await _courseRepository.AddAsync(course);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new Exception("No course is added.");
             }

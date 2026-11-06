@@ -1,4 +1,4 @@
-﻿using Core.Interfaces;
+using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
 using Core.ViewModels;
@@ -123,7 +123,7 @@ namespace Core.Services
                 return await _paymentRepository.AddPaymentAsync(payment);
                 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new Exception("No payment is added.");
             }
@@ -188,7 +188,7 @@ namespace Core.Services
                 return await _paymentRepository.AddPaymentAsync(payment);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new Exception("No payment is added.");
             }
