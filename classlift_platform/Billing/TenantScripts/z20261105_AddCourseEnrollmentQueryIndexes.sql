@@ -6,8 +6,7 @@ CREATE INDEX `IX_course_enrollments_Ref_Status_ScheduledAt` ON `course_enrollmen
 
 CREATE INDEX `IX_course_enrollments_Course_Child_Status_Ref_ScheduledAt` ON `course_enrollments` (`CourseID`, `ChildID`, `Status`, `EnrollmentID_Ref`, `ScheduledAt`);
 
-INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-VALUES ('20261106025726_AddCourseEnrollmentQueryIndexes', '8.0.2');
+
 
 COMMIT;
 
