@@ -1493,7 +1493,7 @@ namespace Web.Controllers.User
             // Staff owns the schedule details. A therapist may update only the
             // Provider Note for a Staff-managed private course.
             if (course.PrivateSchedulingMode == "Staff")
-                vm.Location = enrollment.Location;
+                vm.Location = enrollment.Location ?? string.Empty;
 
             var saved = await _courseEnrollmentService.UpdateCoachSchedule(vm);
             if (!saved)

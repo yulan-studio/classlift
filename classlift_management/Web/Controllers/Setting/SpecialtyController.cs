@@ -99,6 +99,8 @@ namespace Web.Controllers.Setting
             if (!ModelState.IsValid)
                 return BadRequest("Invalid data");
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
              
             try
             {

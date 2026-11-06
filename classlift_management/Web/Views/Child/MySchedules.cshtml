@@ -254,7 +254,7 @@
                            
                                     @{
                                         var scheduledAt = courseSchedules.Schedules[i].ScheduledAt.ToUserTime(User, AppTimeZoneService);
-                                        var scheduledHours = courseSchedules.Schedules[i].ScheduledHours.HasValue ? (double)courseSchedules.Schedules[i].ScheduledHours.Value : 0;
+                                        var scheduledHours = (double)courseSchedules.Schedules[i].ScheduledHours.GetValueOrDefault();
                                         DateTime? endTime = scheduledAt?.AddHours(scheduledHours);
                                     }
                                           

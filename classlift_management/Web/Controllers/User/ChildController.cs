@@ -1513,6 +1513,8 @@ namespace Web.Controllers.User
             foreach (var group in scheduledCoursesToConfirm.GroupBy(e => e.Course))
             {
                 var fee = await _feeService.GetByChildIdCourseIdAsync(child.ChildID, group.Key.CourseID);
+                if (fee == null)
+                    continue;
 
                 courseSchedulesToConfirmList.Add(new CourseSchedulesViewModel
                 {
@@ -2463,7 +2465,10 @@ namespace Web.Controllers.User
 
         public async Task<IActionResult> UpdateActivityToConform(ActivityEnrollmentViewModel model, string actionType)
         {
-            Core.Models.User user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
             var child = await _childService.GetByIdAsync(user.Id);
 
             if (child == null)
@@ -2499,8 +2504,14 @@ namespace Web.Controllers.User
                 bool result1 = true;
 
                 if (model.PaymentModel == "Token")
-                { 
-                    result1 = await _balanceService.DeductActivityCostAsync(child.ChildID, model.ActivityID, (decimal)model.TotalCost, user.Id);
+                {
+                    if (!model.TotalCost.HasValue)
+                    {
+                        TempData["ErrorMessage3"] = "The token fee amount could not be found.";
+                        return RedirectToAction("MyConfirmations");
+                    }
+
+                    result1 = await _balanceService.DeductActivityCostAsync(child.ChildID, model.ActivityID, model.TotalCost.Value, user.Id);
                 }
                 bool result2 = await _activityEnrollmentService.UpdateActivityEnrollmentStatusToConfirmedAsync(model.EnrollmentID);
 

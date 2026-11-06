@@ -27,7 +27,7 @@ namespace Web.Controllers.Fee
         {
             var fee = await _feeService.GetFeeForCourseEnrollmentAsync(courseEnrollmentId);
 
-            if (fee == null)
+            if (fee?.CourseEnrollment?.Child == null)
                 return NotFound();
 
             var feeModel = new FeeEditViewModel
@@ -51,7 +51,7 @@ namespace Web.Controllers.Fee
         {
             var fee = await _feeService.GetFeeForActivityEnrollmentAsync(activityEnrollmentId);
 
-            if (fee == null)
+            if (fee?.ActivityEnrollment?.Child == null)
                 return NotFound();
 
             var feeModel = new FeeEditViewModel
@@ -83,6 +83,8 @@ namespace Web.Controllers.Fee
                 return PartialView("_EditCourse", model);
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
 
             if (model.CourseEnrollmentID != null)
             { // Ensure it's a course fee
@@ -94,7 +96,7 @@ namespace Web.Controllers.Fee
                 //int userId = 1; // TODO: replace with HttpContext.User info
                 int userId = user.Id;
 
-                var success = await _feeService.UpdateFeeAsync(fee, model.Description, model.TotalCost, userId);
+                var success = await _feeService.UpdateFeeAsync(fee, model.Description ?? string.Empty, model.TotalCost, userId);
 
                 if (!success)
                 {
@@ -126,6 +128,8 @@ namespace Web.Controllers.Fee
                 return PartialView("_EditActivity", model);
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
 
             if (model.ActivityEnrollmentID != null)
             { // Ensure it's a course fee
@@ -137,7 +141,7 @@ namespace Web.Controllers.Fee
                 //int userId = 1; // TODO: replace with HttpContext.User info
                 int userId = user.Id;
 
-                var success = await _feeService.UpdateFeeAsync(fee, model.Description, model.TotalCost, userId);
+                var success = await _feeService.UpdateFeeAsync(fee, model.Description ?? string.Empty, model.TotalCost, userId);
 
                 if (!success)
                 {

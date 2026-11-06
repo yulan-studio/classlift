@@ -218,7 +218,7 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-lg-0 ms-auto">
-                    @if (User.Identity.IsAuthenticated)
+                    @if (User.Identity?.IsAuthenticated == true)
                     {
                         <li class="nav-item"><a class="nav-link" href="/Account/Settings">Settings</a></li>
                     }
