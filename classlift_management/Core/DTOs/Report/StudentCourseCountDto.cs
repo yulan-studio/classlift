@@ -9,7 +9,7 @@ namespace Core.DTOs.Report
     public class StudentCourseCountDto
     {
         public int ChildId { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public int Count { get; set; }
     }
 }

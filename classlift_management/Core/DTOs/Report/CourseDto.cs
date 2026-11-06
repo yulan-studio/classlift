@@ -8,6 +8,6 @@ namespace Core.DTOs.Report
 {
     public class CourseDto
     {
-       public string CourseName { get; set; }
+       public string CourseName { get; set; } = string.Empty;
     }
 }

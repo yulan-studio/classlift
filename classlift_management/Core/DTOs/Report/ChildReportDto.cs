@@ -8,7 +8,7 @@ namespace Core.DTOs.Report
 {
     public class ChildCourseDto
     {
-        public string CourseName { get; set; }
+        public string CourseName { get; set; } = string.Empty;
         public int SessionsCompleted { get; set; }
 
         public DateTime? LastSessionDate { get; set; }
@@ -16,8 +16,8 @@ namespace Core.DTOs.Report
 
     public class ChildReportDto
     {
-        public string ChildName { get; set; }
+        public string ChildName { get; set; } = string.Empty;
         public int TotalCourses { get; set; }
-        public List<ChildCourseDto> Courses { get; set; }
+        public List<ChildCourseDto> Courses { get; set; } = new();
     }
 }
