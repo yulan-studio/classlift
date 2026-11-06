@@ -116,7 +116,7 @@
             </th>
             <th class="sortable-header" style="width: 2%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["SessionCountSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
-                    Session Count
+                    Sessions
                     @if (currentSort == "session_count")
                     {
                         <span>▲</span>
@@ -129,7 +129,7 @@
             </th>
             <th class="sortable-header" style="width: 5%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["MaxCapacitySortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
-                    Max Capacity
+                    Capacity
                     @if (currentSort == "max_capacity")
                     {
                         <span>▲</span>
@@ -157,7 +157,7 @@
  
             <th class="sortable-header">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationsSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
-                    # of Registrations
+                    Registered
                     @if (currentSort == "registrations")
                     {
                         <span>▲</span>
@@ -170,7 +170,7 @@
             </th>
             <th class="sortable-header" style="width: 5%">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["IsActiveSortParm"]" asp-route-specialtyId="@ViewData["SpecialtyId"]" asp-route-coachId="@ViewData["CoachId"]" asp-route-courseType="@ViewData["CourseType"]" asp-route-isActive="@ViewData["IsActive"]" style="color: black; text-decoration: none;">
-                    Is Active
+                    Status
                     @if (currentSort == "is_active")
                     {
                         <span>▲</span>
@@ -197,8 +197,8 @@
                     <td>@course.Title</td>
                     @*   <td style="padding: 8px; border: 1px solid #ddd;">@course.Description</td>*@
                     <td class="compact-column">@course.CourseType</td>
-                    <th>@course.SessionCount</th>
-                    <th>@course.MaxCapacity</th>
+                    <td>@course.SessionCount</td>
+                    <td>@course.MaxCapacity</td>
                     @*  <td style="padding: 8px; border: 1px solid #ddd;">@course.HourlyCost</td>*@
         
                     <td class="action-column">
@@ -206,7 +206,7 @@
                             @course.RegisteredChildrenCount
                         </a>
                     </td>
-                    <td>@course.IsActive</td>
+                    <td>@(course.IsActive ? "Active" : "Inactive")</td>
                     <td class="action-column">
                        
                       @*   <a href="/Course/View/@course.CourseID" style="margin-left: 10px; color: #007bff; text-decoration: none;">View</a> *@
