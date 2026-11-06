@@ -720,6 +720,15 @@ namespace Core.Migrations
 
                     b.HasIndex("UpdatedBy");
 
+                    b.HasIndex("ChildID", "Status", "EnrollmentID_Ref", "ScheduledAt")
+                        .HasDatabaseName("IX_course_enrollments_Child_Status_Ref_ScheduledAt");
+
+                    b.HasIndex("CourseID", "ChildID", "Status", "EnrollmentID_Ref", "ScheduledAt")
+                        .HasDatabaseName("IX_course_enrollments_Course_Child_Status_Ref_ScheduledAt");
+
+                    b.HasIndex("EnrollmentID_Ref", "Status", "ScheduledAt")
+                        .HasDatabaseName("IX_course_enrollments_Ref_Status_ScheduledAt");
+
                     b.ToTable("course_enrollments", (string)null);
                 });
 
