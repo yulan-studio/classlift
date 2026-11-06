@@ -22,7 +22,7 @@ namespace Core.Contexts
             //    .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var connectionString = configuration.GetConnectionString("ServerConnection");
 
             optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 

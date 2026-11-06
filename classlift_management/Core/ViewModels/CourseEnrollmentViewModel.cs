@@ -13,6 +13,8 @@ namespace Core.ViewModels
 
         public string CourseType { get; set; }
 
+        public string? PrivateSchedulingMode { get; set; }
+
         public bool IsActive { get; set; }
 
         public bool IsPaid { get; set; }

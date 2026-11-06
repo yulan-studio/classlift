@@ -24,6 +24,9 @@ namespace Core.Models
         [Required]
         public string CourseType { get; set; } // 'Group' or 'Private' 
 
+        [StringLength(20)]
+        public string? PrivateSchedulingMode { get; set; } // Required for Private courses: Staff or Coach
+
         
         public int? MaxCapacity { get; set; } // MaxCapacity For Group class  
 

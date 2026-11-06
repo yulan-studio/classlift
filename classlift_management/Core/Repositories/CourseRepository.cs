@@ -1,4 +1,4 @@
-﻿using Core.Interfaces;
+using Core.Interfaces;
 using Core.Models;
 using Core.Contexts;
 using System;
@@ -33,7 +33,7 @@ namespace Core.Repositories
 
         //        //return await _context.Courses.ToListAsync();
         //    }
-        //    catch (Exception ex)
+        //    catch (Exception)
         //    {
         //        return null;
         //    }
@@ -56,6 +56,7 @@ namespace Core.Repositories
                     Title = c.Title,
                     Description = c.Description,
                     CourseType = c.CourseType,
+                    PrivateSchedulingMode = c.PrivateSchedulingMode,
                     MaxCapacity = c.MaxCapacity,
                     SessionCount = c.SessionCount,
 
@@ -124,7 +125,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }
@@ -142,7 +143,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }
@@ -161,7 +162,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }

@@ -17,6 +17,7 @@ namespace Core.ViewModels
         public string? Description { get; set; }
 
         public string CourseType { get; set; }
+        public string? PrivateSchedulingMode { get; set; }
 
         public int? MaxCapacity { get; set; }
 

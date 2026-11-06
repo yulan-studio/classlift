@@ -119,8 +119,8 @@
 
 <div class="manage-schedule-page">
 <div class="management-page-header">
-    <h2>Manage Schedule</h2>
-    <p>Review upcoming sessions and manage the course schedule.</p>
+    <h2>@(Model.CanManageSchedules ? "Manage Schedule" : "View Schedule")</h2>
+    <p>@(Model.CanManageSchedules ? "Review upcoming sessions and manage the course schedule." : "Review upcoming sessions scheduled by Staff.")</p>
 </div>
 
 <a href="/Coach/ManageCourse" class="participation-back-link" style="color: #000 !important;">← Back to Courses List</a>
@@ -207,7 +207,7 @@
             <th>Location</th>
             <th>Status</th>
             <th>@CurrentTenant.Terminology.ParticipantSingular Note</th>
-            <th>My Note</th>
+            <th>@CurrentTenant.Terminology.ProviderSingular Note</th>
             <th class="action-column">Actions</th>
         </tr>
     </thead>
@@ -241,12 +241,19 @@
 
                     <td class="@(s.Status == "RequestToReschedule" ? "request-to-reschedule-cell" : s.Status == "Deleted" ? "on-leave-cell" : "")" data-label="Status" style="background-color:@(s.Status == "RequestToReschedule" ? "#FCE8F2" : "transparent")">@s.Status</td>
                     <td data-label="@($"{CurrentTenant.Terminology.ParticipantSingular} Note")">@s.ParentNote</td>
-                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")"><textarea id="coachNote-@s.EnrollmentID" class="form-control" data-note-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")" required>@s.CoachNote</textarea></td>
+                    <td data-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")">
+                        <textarea id="coachNote-@s.EnrollmentID" class="form-control" data-note-label="@($"{CurrentTenant.Terminology.ProviderSingular} Note")" required>@s.CoachNote</textarea>
+                    </td>
 
                     <td data-label="Actions">
+                        @if (!Model.CanManageSchedules)
+                        {
+                            <button type="button" class="btn classlift-secondary-button" onclick="saveScheduleNote(@s.EnrollmentID)">Save</button>
+                        }
                         @if (s.Status != "Deleted" &&
                             s.Status != "RequestToReschedule" &&
-                            !isWithin24Hours)
+                            !isWithin24Hours &&
+                            Model.CanManageSchedules)
                         {
                             <a href="javascript:void(0);" class="view-mode" onclick="enterEditMode(@s.EnrollmentID)">Edit</a>
                             
@@ -256,7 +263,7 @@
                             <button type="button" class="edit-mode btn btn-secondary cancel-button" style="display:none; color:#fff !important;" onclick="cancelEdit(@s.EnrollmentID)">Cancel</button>
                         }
 
-                        @if (s.Status != "Deleted" && !isWithin24Hours)
+                        @if (s.Status != "Deleted" && !isWithin24Hours && Model.CanManageSchedules)
                         {
                             <form method="post" action="/Coach/DeleteSchedule" onsubmit="return openRemoveScheduleModal(event, @s.EnrollmentID)" style="display:inline-block; margin-top:3px; margin-left: 5px;">
                                 <input type="hidden" name="enrollmentId" value="@s.EnrollmentID" />
@@ -271,6 +278,8 @@
                 </tr>
             }
 
+            @if (Model.CanManageSchedules)
+            {
             <tr style="background-color: #F8C3DF;">
                 <td colspan="8">
                     
@@ -279,6 +288,7 @@
                     <label style="font-size:0.9em; color:darkslategray"> - A session cannot be removed/rescheduled within 24 hours of its scheduled start time.</label>
                 </td>
             </tr>
+            }
             
         }
         else
@@ -312,8 +322,10 @@
     </div>
 }
 
-@if (!Model.Course.SessionCount.HasValue ||
+@if (Model.CanManageSchedules &&
+     (!Model.Course.SessionCount.HasValue ||
      Model.ScheduledCount + Model.CompletedCount < Model.Course.SessionCount.Value)
+    )
 {
 <form class="schedule-form" method="post" action="/Coach/ScheduleCourse" onsubmit="return validateScheduleTime()">
 
@@ -521,6 +533,37 @@
             if (data.redirectUrl) {
                 window.location.href=data.redirectUrl;
             }
+        }).catch(error => alert(error.message));
+    }
+
+    function saveScheduleNote(id) {
+        const noteInput = document.getElementById(`coachNote-${id}`);
+        const coachNote = noteInput.value.trim();
+        if (!coachNote) {
+            alert(`${noteInput.dataset.noteLabel} is required before updating a session.`);
+            noteInput.focus();
+            return;
+        }
+
+        fetch('/Coach/UpdateSchedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                enrollmentId: id,
+                location: '',
+                coachNote: coachNote,
+                childId: @Model.Child.ChildID,
+                courseId: @Model.Course.CourseID,
+                enrollmentId_Ref: @Model.EnrollmentID
+            })
+        }).then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "The note could not be updated.");
+            }
+            return data;
+        }).then(data => {
+            if (data.redirectUrl) window.location.href = data.redirectUrl;
         }).catch(error => alert(error.message));
     }
 </script>

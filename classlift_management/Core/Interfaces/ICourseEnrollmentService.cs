@@ -19,10 +19,16 @@ namespace Core.Interfaces
         Task<bool> UpdateSchedulePreferenceAsync(int childId, int courseId, string? preference, CancellationToken cancellationToken = default);
 
         Task<bool> RemoveAsync(int enrollmentId);
+        Task<StaffManagedPrivateSessionDeleteResult> DeleteStaffManagedPrivateSessionAsync(int enrollmentId);
         Task<int> AddRegisteredEnrollmentAsync(int childId, int courseId, decimal scheduledHours, string status, User user);
         Task<bool> RemoveRegisteredEnrollmentAsync(int enrollmentId);
 
-        Task<bool> AddSessionRegisteredEnrollmentAsync(int childId, int courseId, DateTime? scheduledAt, decimal? scheduledHours, string? location, int enrollmentId_Ref, string status, User user);
+        /// <summary>
+        /// Creates one participant session copy for an existing Group-course master session.
+        /// This is used when a participant registers for a Group course that already has open sessions;
+        /// it is not a Staff or Coach scheduling entry point.
+        /// </summary>
+        Task<bool> AddGroupParticipantSessionCopyAsync(int childId, int courseId, DateTime? scheduledAt, decimal? scheduledHours, string? location, int enrollmentId_Ref, string status, User user);
         Task<IEnumerable<CourseEnrollmentViewModel>> GetRegisteredEnrollmentsByChildAsync(int childId);
 
         Task<IEnumerable<CourseEnrollment>> GetEnrollmentsByCourseChildAsync(int courseId, int childId);
@@ -66,15 +72,33 @@ namespace Core.Interfaces
 
         Task<IReadOnlyList<CourseScheduleNotificationRecipient>>
             GetScheduleNotificationRecipientsAsync(int masterSessionId);
+        Task<CourseScheduleNotificationRecipient?>
+            GetPrivateRegistrationNotificationRecipientAsync(int rootEnrollmentId);
 
         //Task<IEnumerable<Child>> GetRegisteredChildrenByCoachAsync(int coachId);
 
         //Task<IEnumerable<Core.ViewModels.RegisteredChild>> GetRegisterationByCoachAsync(int coachId);
         Task<IEnumerable<Core.ViewModels.ChildViewModel>> GetRegisterationByCourseAsync(int courseId);
 
-        Task<bool> ScheduleCourseAsync(int childId, int courseId, ScheduleTiming timing, decimal scheduledHours, string location, int coachId, int enrollmentId_Ref);
+        /// <summary>
+        /// Adds one or more Private-course sessions scheduled by the assigned Coach.
+        /// </summary>
+        Task<IReadOnlyList<int>> AddCoachManagedPrivateSessionSeriesAsync(int childId, int courseId, IReadOnlyList<ScheduleTiming> timings, decimal scheduledHours, string location, int coachId, int enrollmentIdRef);
 
+        /// <summary>
+        /// Adds one Staff-managed Group-course master session and creates its participant session copies.
+        /// This single-session entry point is used by replacement-session workflows and delegates to the
+        /// atomic series method so Coach time-conflict validation is always applied.
+        /// </summary>
         Task<int> AddSessionToGroupCourseAsync(int courseId, ScheduleTiming timing, decimal scheduledHours, string location, string staffNote, User user);
+        /// <summary>
+        /// Adds one or more Group-course master sessions scheduled by Staff and creates the participant session copies.
+        /// </summary>
+        Task<IReadOnlyList<int>> AddStaffManagedGroupSessionSeriesAsync(int courseId, IReadOnlyList<ScheduleTiming> timings, decimal scheduledHours, string location, string staffNote, User user);
+        /// <summary>
+        /// Adds one or more Private-course sessions scheduled by Staff for one participant registration.
+        /// </summary>
+        Task<IReadOnlyList<int>> AddStaffManagedPrivateSessionSeriesAsync(int childId, int courseId, int enrollmentIdRef, IReadOnlyList<ScheduleTiming> timings, decimal scheduledHours, string location, string staffNote, User user);
 
         Task<bool> UpdateSessionAsync(CourseEnrollment session);
 
@@ -130,6 +154,7 @@ namespace Core.Interfaces
         //Task<bool> UpdateCourseStatusToScheduledAsync(int courseId);
 
         Task<bool> UpdateCourseEnrollmentStatusToConfirmedAsync(int enrollmentId);
+        Task<PaidCourseConfirmationResult> ConfirmPaidCourseRegistrationAsync(int enrollmentId, int childId);
 
         Task<int?> GetEnrollmentIdByChildAndCourseAsync(int courseId, int childId, string status);
 

@@ -1,8 +1,20 @@
-@{ ViewData["Title"] = "My Calendar"; }
+@{
+    ViewData["Title"] = ViewBag.CalendarTitle as string ?? "My Calendar";
+    var calendarEventsUrl = ViewBag.CoachID == null
+        ? "/Coach/GetCoachSchedules"
+        : $"/Coach/GetCoachSchedules?coachId={ViewBag.CoachID}";
+}
+
+<h1 class="management-page-title">@ViewData["Title"]</h1>
+
+@if (ViewBag.ShowCoachListLink == true)
+{
+    <a href="/Coach/List" class="participation-back-link" style="color: #000 !important;">Back to @CurrentTenant.Terminology.ProviderPlural List</a>
+}
 
 <style>
     :root { --cal-primary:#2673ad; --cal-dark:#152238; --cal-accent:#6eaed8; --cal-ink:#26364d; --cal-border:#dbe5ee; }
-    .calendar-shell { margin-bottom:32px; padding:18px; overflow:hidden; border:1px solid var(--cal-border); border-radius:8px; background:#fff; box-shadow:0 5px 18px rgba(24,47,76,.07); }
+    .calendar-shell { margin:1.25rem 0 32px; padding:18px; overflow:hidden; border:1px solid var(--cal-border); border-radius:8px; background:#fff; box-shadow:0 5px 18px rgba(24,47,76,.07); }
     #calendar { max-width:100%; padding:12px; border-radius:6px; background:#fff; }
     .fc { font-family: inherit; }
     .fc .fc-toolbar-title { color:#152238; font-size:clamp(1.35rem, 2.2vw, 1.75rem); font-weight:700; }
@@ -51,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
         initialView:isMobile?'listWeek':'dayGridMonth', height:'auto', dayMaxEvents:3, nowIndicator:true,
         headerToolbar:{ left:isMobile?'prev,next':'prev,next today', center:'title', right:isMobile?'':'dayGridMonth,timeGridWeek,timeGridDay' },
         buttonText:{ today:'Today', month:'Month', week:'Week', day:'Day' },
-        events:{ url:'/Coach/GetCoachSchedules', method:'GET' },
+        events:{ url:'@calendarEventsUrl', method:'GET' },
         eventDidMount:function(info) {
             info.el.classList.add(`event-${(info.event.extendedProps.type || 'schedule').toLowerCase()}`);
             if (!isMobile) {

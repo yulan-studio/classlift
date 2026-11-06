@@ -46,7 +46,7 @@ namespace Core.Repositories
             
 
             var activityEvents = await _context.ActivityEnrollments
-            .Where(e => e.ChildID == childId && e.Activity.ScheduledAt != null)
+            .Where(e => e.ChildID == childId)
             .Include(e => e.Activity)
             .Select(e => new CalendarSchedule
             {

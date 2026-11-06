@@ -1,4 +1,4 @@
-﻿using Core.Interfaces;
+using Core.Interfaces;
 using Core.Models;
 using Core.Contexts;
 using System;
@@ -36,7 +36,7 @@ namespace Core.Repositories
                 return await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == email);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -53,7 +53,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();  // Commit the changes asynchronously
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }
@@ -68,7 +68,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();  // Commit the changes asynchronously
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }
@@ -84,7 +84,7 @@ namespace Core.Repositories
                 await _context.SaveChangesAsync();  // Commit the changes asynchronously
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false; // Return failure in case of an exception
             }

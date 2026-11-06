@@ -212,7 +212,7 @@
                                 {
                                     <td data-label="Schedules">
                                         <a href="/Coach/ManageSchedules/@child.ChildID?courseId=@course.CourseID&enrollmentId=@child.EnrollmentID">
-                                            Manage
+                                            @(course.PrivateSchedulingMode == "Staff" ? "View" : "Manage")
                                         </a>
                                     </td>
                                     <td data-label="Enrollments">

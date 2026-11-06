@@ -9,16 +9,16 @@ namespace Core.DTOs.Report
 
     public class CourseChildDto
     {
-        public string ChildName { get; set; }
+        public string ChildName { get; set; } = string.Empty;
         public int SessionsCompleted { get; set; }
     }
 
     public class CourseReportDto
     {
-        public string CourseName { get; set; }
+        public string CourseName { get; set; } = string.Empty;
         public int SessionsFinished { get; set; }
         //public List<string> Children { get; set; }
 
-        public List<CourseChildDto> Children { get; set; }
+        public List<CourseChildDto> Children { get; set; } = new();
     }
 }

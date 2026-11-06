@@ -1,0 +1,16 @@
+@model Core.Models.CourseEnrollment
+
+<h1 class="management-page-title" style="margin-bottom: 30px;">Confirm Delete</h1>
+<p>Are you sure you want to delete this group session?</p>
+
+<div>
+    <p><strong>Scheduled At:</strong> @(Model.ScheduledAt.ToUserTime(User, AppTimeZoneService)?.ToString("yyyy-MM-dd HH:mm"))</p>
+    <p><strong>Scheduled Hours:</strong> @Model.ScheduledHours</p>
+    <p><strong>Location:</strong> @Model.Location</p>
+    <p><strong>Staff Note:</strong> @Model.StaffNote</p>
+</div>
+
+<form id="sessionForm">
+    <button type="button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;" onclick="deleteSession(@Model.EnrollmentID)">Delete</button>
+    <button type="button" class="cancel-button" style="background-color: #ddd; color: #000 !important; padding: 5px 10px; border: 1px solid #ccc;" data-bs-dismiss="modal">Cancel</button>
+</form>

@@ -1,4 +1,4 @@
-﻿using Core.Interfaces;
+using Core.Interfaces;
 using Core.Models;
 using Core.Repositories;
 using Core.ViewModels;
@@ -84,7 +84,7 @@ namespace Core.Services
         }
 
         // 🔹 Add a new payment
-        public async Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user)
+        public async Task<int> AddTokenPaymentAsync(int childId, int? packageId, decimal amount, DateTime? paymentDate, string receiptPath, User user, string? memo = null)
         {
             
            // var createdBy = 1;
@@ -110,6 +110,7 @@ namespace Core.Services
                 Amount = amount,
                 Child = child,
                 PaymentDate = paymentDate,
+                Memo = memo,
                 CreatedByUser = user,
                 Receipt = receiptPath,
                 CreatedDate = DateTime.UtcNow
@@ -122,7 +123,7 @@ namespace Core.Services
                 return await _paymentRepository.AddPaymentAsync(payment);
                 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new Exception("No payment is added.");
             }
@@ -187,7 +188,7 @@ namespace Core.Services
                 return await _paymentRepository.AddPaymentAsync(payment);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new Exception("No payment is added.");
             }

@@ -22,7 +22,7 @@ namespace Core.DTOs
         public decimal Hours { get; set; }
         //public decimal Amount { get; set; }
 
-        public string ChildName { get; set; }
-        public string CourseName { get; set; }
+        public string ChildName { get; set; } = string.Empty;
+        public string CourseName { get; set; } = string.Empty;
     }
 }

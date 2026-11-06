@@ -97,6 +97,19 @@
             <td style="width:55%; padding-left: 60px;"></td>
         </tr>
 
+        <tr id="privateSchedulingModeRow" style="display:none;">
+            <td style="padding: 8px;"><label for="PrivateSchedulingMode">Course Scheduling:</label></td>
+            <td style="padding: 8px;">
+                <select name="PrivateSchedulingMode" id="PrivateSchedulingMode" class="classlift-control form-select">
+                    <option value="">-- Select who schedules Private sessions --</option>
+                    <option value="Coach">@CurrentTenant.Terminology.ProviderSingular schedules time and location</option>
+                    <option value="Staff">Staff schedules time and location</option>
+                </select>
+            </td>
+            <td style="padding-left:30px;"><label class="management-form__instruction"> - Choose who will arrange Private-course sessions </label></td>
+            
+        </tr>
+
 
         <tr>
             <td style="padding: 8px;"><label for="SpecialtyID">Specialty:</label></td>
@@ -134,14 +147,19 @@
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
-                    <label class="management-form__instruction">
+                <span id="coachPrivateCourseTitleInstruction" class="management-form__instruction" hidden>
                     - Private XXX course by XXX <br />
                     @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                     {
-                        <text>- Private XXX course by XXX (flexible course) <br /></text>
+                        <text>- Private XXX course by XXX (flexible course)</text>
                     }
-                    - Group XXX course by XXX<br />
-                </label>
+                </span>
+                <span id="staffPrivateCourseTitleInstruction" class="management-form__instruction" hidden>
+                    - XXX course by XXX
+                </span>
+                <span id="groupCourseTitleInstruction" class="management-form__instruction" hidden>
+                    - Group XXX course by XXX
+                </span>
             </td>
         </tr>
         <tr>
@@ -162,7 +180,7 @@
 
        
 
-        <tr>
+        <tr id="maxCapacityRow" hidden>
             <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
             <td style="padding: 8px;">
                 <input class="classlift-control" id="MaxCapacity" name="MaxCapacity" type="number" step="1" min="2" placeholder="Enter Max Capacity" />
@@ -179,7 +197,7 @@
                 
             </td>
             <td style="width:55%; padding-left: 30px;">
-                <span id="privateSessionCountInstruction">
+                <span id="privateSessionCountInstruction" hidden>
                     <label class="management-form__instruction"> - Enter the number of sessions if each session has a fixed duration and full payment is required.
                         @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
                         {
@@ -187,7 +205,8 @@
                         }
                     </label>
                 </span>
-                <label id="groupSessionCountInstruction" class="management-form__instruction" style="display:none">- Required for group course</label>
+                <label id="staffSessionCountInstruction" class="management-form__instruction" hidden>- Session Count is required when Staff schedules a Private course.</label>
+                <label id="groupSessionCountInstruction" class="management-form__instruction" hidden>- Required for group course</label>
             </td>
         </tr>
 
@@ -253,6 +272,44 @@
         </tr>
     </table>
 </form>
+
+<script>
+    function updatePrivateSchedulingMode() {
+        const courseType = document.getElementById('CourseType').value;
+        const schedulingMode = document.getElementById('PrivateSchedulingMode').value;
+        const privateCourse = courseType === 'Private';
+        const staffManaged = privateCourse && schedulingMode === 'Staff';
+        const coachManaged = privateCourse && schedulingMode === 'Coach';
+        const groupCourse = courseType === 'Group';
+        const sessionCount = document.getElementById('SessionCount');
+
+        document.getElementById('privateSchedulingModeRow').style.display = privateCourse ? '' : 'none';
+        document.getElementById('PrivateSchedulingMode').required = privateCourse;
+        document.getElementById('maxCapacityRow').hidden = !groupCourse;
+        document.getElementById('coachPrivateCourseTitleInstruction').hidden = !coachManaged;
+        document.getElementById('staffPrivateCourseTitleInstruction').hidden = !staffManaged;
+        document.getElementById('groupCourseTitleInstruction').hidden = !groupCourse;
+        sessionCount.required = staffManaged || groupCourse;
+        const coachInstruction = document.getElementById('privateSessionCountInstruction');
+        const staffInstruction = document.getElementById('staffSessionCountInstruction');
+        const groupInstruction = document.getElementById('groupSessionCountInstruction');
+        coachInstruction.hidden = !coachManaged;
+        staffInstruction.hidden = !staffManaged;
+        groupInstruction.hidden = !groupCourse;
+
+        if (staffManaged && !sessionCount.value) {
+            sessionCount.setCustomValidity('Session Count is required when Staff schedules a Private course.');
+        } else if (groupCourse && !sessionCount.value) {
+            sessionCount.setCustomValidity('Session Count is required for a Group course.');
+        } else {
+            sessionCount.setCustomValidity('');
+        }
+    }
+    document.getElementById('CourseType').addEventListener('change', updatePrivateSchedulingMode);
+    document.getElementById('PrivateSchedulingMode').addEventListener('change', updatePrivateSchedulingMode);
+    document.getElementById('SessionCount').addEventListener('input', updatePrivateSchedulingMode);
+    updatePrivateSchedulingMode();
+</script>
 
 
 
