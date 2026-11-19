@@ -2,6 +2,8 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
+@model Core.FormModels.AddAdminFormModel
+
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Add Admin";
@@ -41,26 +43,26 @@
     <table class="add-form-table">
     <tr>
         <td style="padding: 8px;"><label for="name">Name:</label></td>
-            <td style="padding: 8px;"><input type="text" id="name"  name="name" placeholder="Name" style="width: 100%;" /></td>
+            <td style="padding: 8px;"><input type="text" id="name" asp-for="Name" placeholder="Name" style="width: 100%;" required /></td>
     </tr>
       
     <tr>
         <td style="padding: 8px;"><label for="email">Email:</label></td>
-            <td style="padding: 8px;"><input type="email" name="email" placeholder="Email" style="width: 100%;" required /></td>
+            <td style="padding: 8px;"><input type="email" asp-for="Email" placeholder="Email" style="width: 100%;" required /></td>
     </tr>
     <tr>
         <td style="padding: 8px;"><label for="phone">Phone:</label></td>
-            <td style="padding: 8px;"><input type="text" id="phone"  name="phone" placeholder="Phone" style="width: 100%;" /></td>
+            <td style="padding: 8px;"><input type="text" id="phone" asp-for="Phone" placeholder="Phone (optional)" style="width: 100%;" /></td>
     </tr>
     <tr>
         <td style="padding: 8px;"><label for="wechat">WeChat:</label></td>
-        <td style="padding: 8px;"><input type="text" name="wechat" placeholder="WeChat" style="width: 100%;" /></td>
+        <td style="padding: 8px;"><input type="text" asp-for="Wechat" placeholder="WeChat (optional)" style="width: 100%;" /></td>
     </tr>
     <tr>
         <td style="padding: 8px; vertical-align:top"><label for="password">Password:</label></td>
             <td style="padding: 8px;">
                 <div class="password-row">
-                <input type="text" id="password" name="password" placeholder="Password" value="hello123!" style="width: 100%;" required />
+                <input type="text" id="password" asp-for="Password" placeholder="Password" style="width: 100%;" required />
                 <small class="password-help" style="color:darkslategray">Password must be at least 6 characters long and include a lowercase letter, a digit, and a special character. </small>
                 </div>
         </td>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Core.Interfaces;
 using Core.Models;
+using Core.FormModels;
 
 using System.Diagnostics;
 using Core.Repositories;
@@ -38,11 +39,11 @@ namespace Web.Controllers.User
         [Authorize(Roles = "Admin")]
         [HttpPost("Add")]
         //[HttpPost]
-        public async Task<IActionResult> Add(string name, string email, string password, string phone, string wechat)
+        public async Task<IActionResult> Add(AddAdminFormModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View();
+                return View(model);
             }
 
             
@@ -55,11 +56,11 @@ namespace Web.Controllers.User
                 if (user == null)
                     return Challenge();
 
-                var result = await _adminService.AddAsync( name, email, password, phone,  wechat, user);
+                var result = await _adminService.AddAsync(model.Name!, model.Email!, model.Password!, model.Phone, model.Wechat, user);
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, "Failed in adding the admin info.");
-                    return View();
+                    return View(model);
                 }
                 TempData["SuccessMessage"] = "The admin member has been added.";
                 return RedirectToAction("List"); // Redirect to the admin list page
@@ -69,7 +70,7 @@ namespace Web.Controllers.User
             catch (Exception ex)
             {
                 ModelState.AddModelError(String.Empty, $"{ex.Message}");
-                return View();
+                return View(model);
             }
         }
 
@@ -80,7 +81,7 @@ namespace Web.Controllers.User
         //[HttpGet]
         public async Task<IActionResult> Add()
         {
-            return View();
+            return View(new AddAdminFormModel());
 
         }
 

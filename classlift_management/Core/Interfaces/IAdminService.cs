@@ -11,7 +11,7 @@ namespace Core.Interfaces
     public interface IAdminService
     {
 
-        Task<bool> AddAsync(string name, string email, string password, string phone, string wechat, User user);
+        Task<bool> AddAsync(string name, string email, string password, string? phone, string? wechat, User user);
 
         Task<bool> RemoveAsync(int adminId);
 
