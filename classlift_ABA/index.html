@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="Bloom ABA 儿童行为支持中心：为儿童和家庭提供个性化 ABA 评估、干预与家长支持。预约免费咨询，了解适合孩子的成长路径。" />
+	<title>Bloom ABA｜让每一步成长，都被看见</title>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;800&display=swap');
+
+		:root {
+			--ink: #123b5a;
+			--muted: #466b7d;
+			--cream: #fbfeff;
+			--paper: #ffffff;
+			--coral: #247ff0;
+			--coral-dark: #1266d2;
+			--teal: #08ad98;
+			--line: #d2edf4;
+			--yellow: #ffd23f
+		}
+
+		* {
+			box-sizing: border-box
+		}
+
+		html {
+			scroll-behavior: smooth
+		}
+
+		body {
+			margin: 0;
+			color: var(--ink);
+			background: var(--cream);
+			font-family: 'DM Sans','Noto Sans SC',sans-serif;
+			line-height: 1.6
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none
+		}
+
+		.container {
+			width: min(1120px,calc(100% - 40px));
+			margin: auto
+		}
+
+		.nav {
+			height: 78px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-weight: 800;
+			letter-spacing: -.03em;
+			font-size: 21px
+		}
+
+		.brand-mark {
+			width: 38px;
+			height: 38px;
+			object-fit: contain;
+			display: block
+		}
+
+		.nav-links {
+			display: flex;
+			align-items: center;
+			gap: 28px;
+			color: #526a78;
+			font-size: 14px
+		}
+
+		.nav-cta, .button {
+			background: var(--coral);
+			color: white;
+			border: 0;
+			border-radius: 999px;
+			padding: 13px 20px;
+			font-weight: 700;
+			cursor: pointer;
+			display: inline-flex;
+			justify-content: center;
+			align-items: center;
+			transition: .2s
+		}
+
+			.nav-cta:hover, .button:hover {
+				background: var(--coral-dark);
+				transform: translateY(-2px)
+			}
+
+		.lang-switch {
+			border: 1px solid #cfd9d4;
+			background: transparent;
+			color: var(--teal);
+			border-radius: 999px;
+			padding: 8px 12px;
+			font: inherit;
+			font-weight: 700;
+			cursor: pointer
+		}
+
+		.hero {
+			padding: 68px 0 82px;
+			display: grid;
+			grid-template-columns: 1.06fr .94fr;
+			gap: 70px;
+			align-items: center
+		}
+
+		.eyebrow {
+			color: var(--teal);
+			font-size: 13px;
+			font-weight: 800;
+			letter-spacing: .11em;
+			text-transform: uppercase;
+			margin: 0 0 16px
+		}
+
+		.hero h1 {
+			font-size: clamp(40px,5.5vw,70px);
+			line-height: 1.08;
+			letter-spacing: -.055em;
+			margin: 0 0 24px;
+			max-width: 650px
+		}
+
+			.hero h1 em {
+				font-style: normal;
+				color: var(--coral)
+			}
+
+		.hero-copy {
+			font-size: 18px;
+			color: var(--muted);
+			max-width: 540px;
+			margin: 0 0 30px
+		}
+
+		.hero-actions {
+			display: flex;
+			gap: 14px;
+			align-items: center;
+			flex-wrap: wrap
+		}
+
+		.text-link {
+			font-weight: 700;
+			color: var(--teal);
+			padding: 12px 10px
+		}
+
+		.hero-note {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+			font-size: 13px;
+			color: var(--muted);
+			margin-top: 22px
+		}
+
+		.dot {
+			width: 9px;
+			height: 9px;
+			border-radius: 50%;
+			background: #72b4a3
+		}
+
+		.hero-art {
+			position: relative;
+			min-height: 440px
+		}
+
+		.blob {
+			position: absolute;
+			inset: 28px 3px 0 26px;
+			background: #dceee9;
+			border-radius: 47% 53% 56% 44% / 51% 43% 57% 49%;
+			transform: rotate(-8deg)
+		}
+
+		.art-card {
+			position: absolute;
+			background: var(--paper);
+			box-shadow: 0 18px 45px #27484d1c;
+			border: 1px solid #fff;
+			border-radius: 20px;
+			padding: 22px
+		}
+
+			.art-card.main {
+				right: 16px;
+				top: 60px;
+				width: 82%;
+				height: 300px;
+				overflow: hidden
+			}
+
+				.art-card.main:before {
+					content: '';
+					position: absolute;
+					width: 160px;
+					height: 160px;
+					background: #f5c8a3;
+					border-radius: 50%;
+					right: -30px;
+					top: -28px
+				}
+
+		.window {
+			position: absolute;
+			inset: 76px 28px 28px;
+			background: #f0ddd0;
+			border-radius: 14px;
+			overflow: hidden
+		}
+
+			.window:before {
+				content: '☺';
+				position: absolute;
+				right: 26px;
+				top: 17px;
+				font-size: 80px;
+				color: #e9a27d;
+				opacity: .8
+			}
+
+		.sun {
+			width: 45px;
+			height: 45px;
+			background: var(--yellow);
+			border-radius: 50%;
+			position: absolute;
+			left: 22px;
+			top: 18px
+		}
+
+		.path {
+			position: absolute;
+			background: #f5b890;
+			width: 140px;
+			height: 62px;
+			border-radius: 80% 20% 0 0;
+			bottom: 0;
+			left: 70px;
+			transform: rotate(-18deg)
+		}
+
+		.art-card.tag {
+			left: 0;
+			bottom: 42px;
+			width: 185px;
+			display: flex;
+			align-items: center;
+			gap: 11px;
+			font-size: 13px;
+			font-weight: 700
+		}
+
+		.tag-icon {
+			background: #f9dcae;
+			width: 33px;
+			height: 33px;
+			display: grid;
+			place-items: center;
+			border-radius: 10px
+		}
+
+		.art-card.quote {
+			right: 0;
+			bottom: -3px;
+			width: 205px;
+			font-size: 12px;
+			line-height: 1.5;
+			color: var(--muted)
+		}
+
+		.quote strong {
+			display: block;
+			color: var(--ink);
+			font-size: 13px;
+			margin-top: 8px
+		}
+
+		.trust {
+			background: var(--teal);
+			color: #fff;
+			padding: 20px 0
+		}
+
+		.trust-inner {
+			display: flex;
+			justify-content: space-between;
+			gap: 20px;
+			align-items: center;
+			font-size: 14px
+		}
+
+		.trust b {
+			font-size: 17px
+		}
+
+		.trust-list {
+			display: flex;
+			gap: 28px;
+			opacity: .9
+		}
+
+			.trust-list span:before {
+				content: '✓';
+				color: #bde2c7;
+				margin-right: 7px;
+				font-weight: 700
+			}
+
+		section {
+			padding: 94px 0
+		}
+
+		.section-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: end;
+			gap: 30px;
+			margin-bottom: 42px
+		}
+
+			.section-head h2 {
+				font-size: clamp(30px,4vw,48px);
+				line-height: 1.1;
+				letter-spacing: -.045em;
+				margin: 0;
+				max-width: 560px
+			}
+
+			.section-head p {
+				color: var(--muted);
+				max-width: 370px;
+				margin: 0
+			}
+
+		.services {
+			display: grid;
+			grid-template-columns: repeat(3,1fr);
+			gap: 16px
+		}
+
+		.service {
+			background: var(--paper);
+			border: 1px solid var(--line);
+			border-radius: 22px;
+			padding: 28px;
+			min-height: 270px;
+			display: flex;
+			flex-direction: column
+		}
+
+			.service:nth-child(2) {
+				background: #e5f2ee
+			}
+
+			.service:nth-child(3) {
+				background: #fff0e8
+			}
+
+		.service-icon {
+			font-size: 26px;
+			background: #f5dfb1;
+			width: 48px;
+			height: 48px;
+			border-radius: 15px;
+			display: grid;
+			place-items: center;
+			margin-bottom: 35px
+		}
+
+		.service:nth-child(2) .service-icon {
+			background: #b9dcd2
+		}
+
+		.service:nth-child(3) .service-icon {
+			background: #f4c0a4
+		}
+
+		.service h3 {
+			font-size: 19px;
+			margin: 0 0 9px
+		}
+
+		.service p {
+			color: var(--muted);
+			font-size: 14px;
+			margin: 0
+		}
+
+		.service a {
+			margin-top: auto;
+			color: var(--teal);
+			font-weight: 700;
+			font-size: 13px;
+			padding-top: 24px
+		}
+
+		.split {
+			display: grid;
+			grid-template-columns: .8fr 1.2fr;
+			gap: 90px;
+			align-items: start
+		}
+
+		.soft-panel {
+			background: #e4f0ec;
+			border-radius: 25px;
+			padding: 32px
+		}
+
+			.soft-panel h3 {
+				font-size: 22px;
+				margin: 0 0 13px
+			}
+
+			.soft-panel p {
+				color: #52706f;
+				margin: 0 0 25px
+			}
+
+		.mini-link {
+			font-weight: 700;
+			color: var(--teal);
+			font-size: 14px
+		}
+
+		.steps {
+			display: grid;
+			gap: 0
+		}
+
+		.step {
+			display: grid;
+			grid-template-columns: 62px 1fr;
+			gap: 22px;
+			padding: 0 0 30px;
+			position: relative
+		}
+
+			.step:not(:last-child):after {
+				content: '';
+				position: absolute;
+				left: 25px;
+				top: 54px;
+				width: 2px;
+				height: calc(100% - 40px);
+				background: #d5e1dd
+			}
+
+		.step-num {
+			width: 52px;
+			height: 52px;
+			border-radius: 50%;
+			background: var(--coral);
+			color: #fff;
+			display: grid;
+			place-items: center;
+			font-size: 18px;
+			font-weight: 800;
+			position: relative;
+			z-index: 1
+		}
+
+		.step h3 {
+			margin: 1px 0 5px;
+			font-size: 18px
+		}
+
+		.step p {
+			margin: 0;
+			color: var(--muted);
+			font-size: 14px
+		}
+
+		.band {
+			background: var(--ink);
+			color: #fff
+		}
+
+			.band .section-head p {
+				color: #b7c9cf
+			}
+
+		.faq-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 14px
+		}
+
+		.faq {
+			border: 1px solid #47606a;
+			border-radius: 14px;
+			padding: 19px 22px;
+			cursor: pointer
+		}
+
+			.faq summary {
+				font-weight: 700;
+				list-style: none;
+				display: flex;
+				justify-content: space-between;
+				gap: 20px
+			}
+
+				.faq summary::-webkit-details-marker {
+					display: none
+				}
+
+				.faq summary:after {
+					content: '+';
+					font-size: 22px;
+					font-weight: 400;
+					color: #8bc9bb;
+					line-height: 1
+				}
+
+			.faq[open] summary:after {
+				content: '−'
+			}
+
+			.faq p {
+				color: #b7c9cf;
+				font-size: 14px;
+				margin: 14px 0 0
+			}
+
+		.contact {
+			display: grid;
+			grid-template-columns: .86fr 1.14fr;
+			gap: 80px;
+			align-items: start
+		}
+
+			.contact h2 {
+				font-size: clamp(32px,4vw,52px);
+				line-height: 1.1;
+				letter-spacing: -.05em;
+				margin: 0 0 18px
+			}
+
+		.contact-copy {
+			color: var(--muted);
+			max-width: 390px
+		}
+
+		.contact-details {
+			margin-top: 32px;
+			display: grid;
+			gap: 13px;
+			font-size: 14px
+		}
+
+			.contact-details span {
+				color: var(--muted)
+			}
+
+		.form {
+			background: var(--paper);
+			border: 1px solid var(--line);
+			border-radius: 24px;
+			padding: 30px
+		}
+
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 14px
+		}
+
+		.field {
+			margin-bottom: 16px
+		}
+
+			.field label {
+				display: block;
+				font-size: 13px;
+				font-weight: 700;
+				margin-bottom: 7px
+			}
+
+			.field input, .field select, .field textarea {
+				width: 100%;
+				border: 1px solid #d9ddd7;
+				background: #fffefb;
+				border-radius: 10px;
+				padding: 13px 14px;
+				font: inherit;
+				font-size: 14px;
+				color: var(--ink);
+				outline: none
+			}
+
+			.field textarea {
+				resize: vertical;
+				min-height: 95px
+			}
+
+				.field input:focus, .field select:focus, .field textarea:focus {
+					border-color: var(--teal);
+					box-shadow: 0 0 0 3px #257f7920
+				}
+
+		.form .button {
+			width: 100%;
+			font-size: 15px;
+			padding: 15px
+		}
+
+		.form-note {
+			font-size: 11px;
+			color: #829199;
+			margin: 12px 0 0;
+			text-align: center
+		}
+
+		.success {
+			display: none;
+			text-align: center;
+			padding: 24px;
+			background: #e4f0ec;
+			border-radius: 14px;
+			color: var(--teal);
+			font-weight: 700
+		}
+
+		footer {
+			border-top: 1px solid var(--line);
+			padding: 25px 0;
+			color: #829199;
+			font-size: 12px
+		}
+
+		.footer-inner {
+			display: flex;
+			justify-content: space-between;
+			gap: 20px
+		}
+
+		.footer-brand {
+			color: var(--ink);
+			font-weight: 800;
+			display: flex;
+			align-items: center;
+			gap: 8px
+		}
+
+			.footer-brand .brand-mark {
+				width: 28px;
+				height: 28px
+			}
+
+		.blob {
+			background: #c9f7f0
+		}
+
+		.art-card.main:before {
+			background: #ffe784
+		}
+
+		.window {
+			background: #e2f6ff
+		}
+
+			.window:before {
+				color: #36a7dc
+			}
+
+		.path {
+			background: #5dd39e
+		}
+
+		.tag-icon {
+			background: #ffe784
+		}
+
+		.service:nth-child(2) {
+			background: #ddfff3
+		}
+
+		.service:nth-child(3) {
+			background: #fff9d7
+		}
+
+		.service-icon {
+			background: #ffeb94
+		}
+
+		.service:nth-child(2) .service-icon {
+			background: #aaf0d5
+		}
+
+		.service:nth-child(3) .service-icon {
+			background: #ffe784
+		}
+
+		.soft-panel {
+			background: #d8fff5
+		}
+
+		.success {
+			background: #d8fff5
+		}
+
+		.nav-links {
+			color: #3b708a
+		}
+
+		.hero-copy, .section-head p, .contact-copy {
+			color: #466b7d
+		}
+
+		.en-only {
+			display: none
+		}
+
+		html[lang="en"] .zh-only {
+			display: none
+		}
+
+		html[lang="en"] .en-only {
+			display: block
+		}
+
+		.autism-focus {
+			padding: 0 0 94px
+		}
+
+		.autism-focus-card {
+			background: linear-gradient(135deg,#e4f8ff 0%,#e1fff4 100%);
+			border: 1px solid #c7eef0;
+			border-radius: 26px;
+			padding: 34px 38px;
+			display: grid;
+			grid-template-columns: .8fr 1.2fr;
+			gap: 40px;
+			align-items: center
+		}
+
+			.autism-focus-card h2 {
+				font-size: clamp(27px,3vw,38px);
+				line-height: 1.12;
+				letter-spacing: -.04em;
+				margin: 0 0 14px
+			}
+
+			.autism-focus-card p {
+				color: #466b7d;
+				margin: 0
+			}
+
+		.support-points {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 12px
+		}
+
+		.support-point {
+			background: #fff;
+			border-radius: 14px;
+			padding: 15px 16px;
+			font-size: 14px;
+			font-weight: 700;
+			color: #214b63
+		}
+
+			.support-point span {
+				display: block;
+				color: #08a58f;
+				font-size: 19px;
+				margin-bottom: 4px
+			}
+
+		@media(max-width:800px) {
+			.autism-focus-card {
+				grid-template-columns: 1fr;
+				padding: 28px
+			}
+
+			.support-points {
+				grid-template-columns: 1fr
+			}
+		}
+
+		@media(max-width:800px) {
+			.nav-links {
+				display: none
+			}
+
+			.hero {
+				grid-template-columns: 1fr;
+				gap: 30px;
+				padding-top: 40px
+			}
+
+			.hero-art {
+				min-height: 350px;
+				max-width: 540px;
+				width: 100%;
+				margin: auto
+			}
+
+			.art-card.main {
+				right: 0
+			}
+
+			.trust-inner {
+				display: block
+			}
+
+			.trust-list {
+				margin-top: 10px;
+				display: grid;
+				gap: 4px
+			}
+
+			.section-head, .split, .contact {
+				grid-template-columns: 1fr;
+				display: grid;
+				gap: 22px
+			}
+
+			.services {
+				grid-template-columns: 1fr
+			}
+
+			.faq-grid {
+				grid-template-columns: 1fr
+			}
+
+			.contact {
+				gap: 34px
+			}
+
+			.form-row {
+				grid-template-columns: 1fr
+			}
+
+			section {
+				padding: 70px 0
+			}
+		}
+    .programs{padding:88px 0 94px}.program-intro{margin-bottom:34px}.program-intro h2{font-size:clamp(30px,4vw,48px);line-height:1.1;letter-spacing:-.045em;margin:0 0 14px}.program-intro p{color:var(--muted);max-width:620px;margin:0}.featured-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:52px}.featured-card{border-radius:22px;padding:26px;background:#fff;border:1px solid #d8edf0;min-height:250px;display:flex;flex-direction:column}.featured-card:nth-child(1){background:#e3f7ff}.featured-card:nth-child(2){background:#e0fff3}.featured-card:nth-child(3){background:#fff8d8}.featured-label{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:#1685a0;font-weight:800;margin-bottom:24px}.featured-card h3{font-size:20px;line-height:1.2;margin:0 0 10px}.featured-card p{font-size:14px;color:#4d6d7a;margin:0}.featured-meta{margin-top:auto;padding-top:20px;font-size:12px;font-weight:700;color:#245971}.program-columns{display:grid;grid-template-columns:1fr 1fr;gap:20px}.program-column{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px}.program-column h3{font-size:24px;margin:0 0 22px}.program-item{border-top:1px solid var(--line);padding:18px 0}.program-item:first-of-type{border-top:0;padding-top:0}.program-item h4{margin:0 0 6px;font-size:17px}.program-item p{margin:0;color:var(--muted);font-size:14px}.program-item small{display:block;color:var(--teal);font-weight:700;margin-top:8px}.program-cta{margin-top:28px;text-align:center}.program-cta .button{font-size:14px}@media(max-width:800px){.featured-grid,.program-columns{grid-template-columns:1fr}}
+    .programs{padding:88px 0 94px}.program-intro{margin-bottom:34px}.program-intro h2{font-size:clamp(30px,4vw,48px);line-height:1.1;letter-spacing:-.045em;margin:0 0 14px}.program-intro p{color:var(--muted);max-width:620px;margin:0}.featured-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:52px}.featured-card{border-radius:22px;padding:26px;background:#fff;border:1px solid #d8edf0;min-height:250px;display:flex;flex-direction:column}.featured-card:nth-child(1){background:#e3f7ff}.featured-card:nth-child(2){background:#e0fff3}.featured-card:nth-child(3){background:#fff8d8}.featured-label{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:#1685a0;font-weight:800;margin-bottom:24px}.featured-card h3{font-size:20px;line-height:1.2;margin:0 0 10px}.featured-card p{font-size:14px;color:#4d6d7a;margin:0}.featured-meta{margin-top:auto;padding-top:20px;font-size:12px;font-weight:700;color:#245971}.featured-meta .schedule{display:block;font-weight:500;margin-top:7px;color:#52717d}.program-columns{display:grid;grid-template-columns:1fr 1fr;gap:20px}.program-column{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px}.program-column h3{font-size:24px;margin:0 0 22px}.program-item{border-top:1px solid var(--line);padding:18px 0}.program-item:first-of-type{border-top:0;padding-top:0}.program-item h4{margin:0 0 6px;font-size:17px}.program-item p{margin:0;color:var(--muted);font-size:14px}.program-item small{display:block;color:var(--teal);font-weight:700;margin-top:8px}.program-cta{margin-top:28px;text-align:center}.program-cta .button{font-size:14px}.faq:nth-child(4){display:none}@media(max-width:800px){.featured-grid,.program-columns{grid-template-columns:1fr}}
+    /* Slightly deeper green for clearer contrast while keeping the page bright. */
+    :root{--teal:#078f7d}.trust{background:#078f7d}.blob{background:#bff1e8}.service:nth-child(2),.featured-card:nth-child(2){background:#d1f7e8}.service:nth-child(2) .service-icon{background:#9fe4c5}.soft-panel,.success{background:#c9f2e8}
+  </style>
+</head>
+<body>
+	<header class="container nav"><a class="brand" href="#top"><img class="brand-mark" src="ABA_logo.png" alt="Bloom ABA logo" />Bloom ABA</a><nav class="nav-links"><a href="#services" data-i18n="navServices">我们的服务</a><a href="#process" data-i18n="navProcess">服务流程</a><a href="#faq" data-i18n="navFaq">常见问题</a><a href="https://aba.classlift.ca" target="_blank" rel="noopener noreferrer" data-i18n="navLogin">后台登录 ↗</a><a class="nav-cta" href="#contact" data-i18n="navCta">预约咨询</a><button class="lang-switch" id="langSwitch" type="button">EN</button></nav></header>
+	<main id="top">
+		<section class="container hero"><div><p class="eyebrow">Evidence-informed · Family-centered</p><h1>让每一步成长，<em>都被看见。</em></h1><p class="hero-copy">Bloom ABA 为儿童与家庭提供温暖、专业、可持续的行为支持。我们把专业方法融入真实生活，帮助孩子发展沟通、社交与独立生活能力。</p><div class="hero-actions"><a class="button" href="#contact">预约免费咨询 →</a><a class="text-link" href="#services">了解我们能做什么</a></div><div class="hero-note"><span class="dot"></span>首次沟通约 20 分钟 · 了解需求，不急于做决定</div></div><div class="hero-art" aria-label="儿童在自然环境中成长的插画"><div class="blob"></div><div class="art-card main"><strong class="art-title">小小的进步，也值得庆祝</strong><div class="window"><div class="sun"></div><div class="path"></div></div></div><div class="art-card tag"><span class="tag-icon">☼</span><span class="art-tag">以孩子为中心<br><small class="art-sub" style="color:#829199;font-weight:400">尊重 · 连接 · 成长</small></span></div><div class="art-card quote"><span class="art-quote">“我们终于有了清晰的方向，也更知道如何在家支持孩子。”</span><strong class="art-by">— Bloom 家庭反馈</strong></div></div></section>
+		<div class="trust"><div class="container trust-inner"><b>为每个家庭，找到适合的支持方式</b><div class="trust-list"><span>个性化计划</span><span>家庭共同参与</span><span>持续追踪进展</span></div></div></div>
+		<section id="services" class="container"><div class="section-head"><h2>从评估开始，<br>把支持落到日常。</h2><p>我们不追求一套方案适用于所有人，而是从孩子的优势、需求与家庭目标出发，共同设计成长路径。</p></div><div class="services"><article class="service"><div class="service-icon">⌁</div><h3>ABA 个性化干预</h3><p>围绕沟通、社交、游戏、情绪调节与独立生活等目标，制定清晰、可衡量的支持计划。</p><a href="#contact">了解干预服务 →</a></article><article class="service"><div class="service-icon">♡</div><h3>早期发展支持</h3><p>为学龄前儿童提供在游戏中学习的支持，帮助孩子建立学习准备能力与日常参与感。</p><a href="#contact">咨询早期支持 →</a></article><article class="service"><div class="service-icon">⌂</div><h3>家长指导与培训</h3><p>把策略带回家：通过示范、练习与反馈，让家长更有信心地支持孩子的每一天。</p><a href="#contact">预约家长咨询 →</a></article></div></section>
+		<section class="container autism-focus"><div class="autism-focus-card"><div><p class="eyebrow">Autism-focused support</p><div class="zh-only"><h2>为自闭症儿童，提供更贴合的支持。</h2><p>我们尊重每个孩子独特的沟通方式、感官需求和发展节奏，把专业支持融入家庭、学校与社区的真实生活。</p></div><div class="en-only"><h2>Support designed around autistic children.</h2><p>We respect each child’s unique communication style, sensory needs, and developmental pace, bringing practical support into family, school, and community life.</p></div></div><div class="support-points"><div class="support-point"><span>↔</span><div class="zh-only">沟通与表达</div><div class="en-only">Communication & expression</div></div><div class="support-point"><span>♡</span><div class="zh-only">社交与互动</div><div class="en-only">Social connection</div></div><div class="support-point"><span>◌</span><div class="zh-only">情绪与感官调节</div><div class="en-only">Emotional & sensory regulation</div></div><div class="support-point"><span>⌂</span><div class="zh-only">日常生活与独立能力</div><div class="en-only">Daily living & independence</div></div></div></div></section>
+		<section id="process" class="container split"><div class="soft-panel"><h3>真正有用的支持，应该发生在生活里。</h3><p>从穿衣、吃饭、表达需求，到参与课堂和与同伴玩耍，我们会把目标拆成孩子能理解、家庭能坚持的小步骤。</p><a class="mini-link" href="#contact">和我们聊聊孩子的情况 →</a></div><div><div class="section-head" style="margin-bottom:28px"><h2 style="font-size:36px">开始并不复杂。</h2></div><div class="steps"><div class="step"><div class="step-num">01</div><div><h3>先聊聊，了解家庭需求</h3><p>通过电话或线上沟通，听你描述孩子目前的情况、优势与最希望改变的地方。</p></div></div><div class="step"><div class="step-num">02</div><div><h3>共同完成评估与目标设定</h3><p>我们会观察孩子在真实环境中的表现，并把期待转化成清晰、可追踪的目标。</p></div></div><div class="step"><div class="step-num">03</div><div><h3>开始支持，持续分享进展</h3><p>专业团队与家庭一起行动，定期回顾数据和体验，及时调整支持方式。</p></div></div></div></div></section>
+		<section id="faq" class="band"><div class="container"><div class="section-head"><h2>你可能正在想的问题</h2><p>如果这里没有找到答案，欢迎直接预约一次轻松的初步沟通。</p></div><div class="faq-grid"><details class="faq"><summary>ABA 适合什么年龄的孩子？</summary><p>ABA 支持可以根据孩子的发展阶段和家庭目标进行调整，适用于幼儿、学龄儿童及青少年。我们会先了解需求，再判断是否适合。</p></details><details class="faq"><summary>一定要有诊断才能开始吗？</summary><p>不一定。首次咨询可以先讨论孩子的需要和目前遇到的困难。若后续需要其他专业评估或转介，我们也会如实说明。</p></details><details class="faq"><summary>家长需要参与到什么程度？</summary><p>家长是重要的合作伙伴，但不需要一个人承担所有事情。我们会提供可理解、可练习的指导，让支持自然融入家庭节奏。</p></details><details class="faq"><summary>每周需要安排多少时间？</summary><p>服务频率取决于孩子的目标、家庭时间和评估结果。我们会在专业建议与家庭实际情况之间找到平衡。</p></details></div></div></section>
+		<section id="contact" class="container contact"><div><p class="eyebrow">Take the first step</p><h2>想更了解孩子的支持选择？</h2><p class="contact-copy">留下联系方式，我们会在 1 个工作日内与您联系，安排一次免费的初步沟通。</p><div class="contact-details"><div>✉ <span>hello@bloomaba.ca</span></div><div>☎ <span>(416) 555-0188</span></div><div>⌖ <span>服务地点：多伦多及周边地区 · 线上咨询可预约</span></div></div></div><form class="form" id="lead-form"><div class="form-row"><div class="field"><label for="name">家长姓名</label><input id="name" name="name" required placeholder="怎么称呼您？" /></div><div class="field"><label for="phone">联系电话</label><input id="phone" name="phone" required placeholder="(416) 000-0000" /></div></div><div class="form-row"><div class="field"><label for="email">电子邮箱</label><input id="email" type="email" name="email" required placeholder="you@example.com" /></div><div class="field"><label for="age">孩子年龄</label><select id="age" name="age"><option>请选择</option><option>0–3 岁</option><option>4–6 岁</option><option>7–12 岁</option><option>13 岁以上</option></select></div></div><div class="field"><label for="message">您最希望获得哪方面的支持？</label><textarea id="message" name="message" placeholder="例如：沟通、社交、情绪调节、日常生活……"></textarea></div><button class="button" type="submit">提交咨询申请 →</button><p class="form-note">提交后仅用于联系与安排咨询，我们会尊重并保护您的隐私。</p><div class="success" id="success">已收到您的咨询申请！我们会尽快与您联系。</div></form></section>
+  <section id="programs" class="container programs"><div class="program-intro"><p class="eyebrow">Bloom programs & events</p><div class="zh-only"><h2>从轻松了解，到持续支持。</h2><p>先通过低压力的家庭活动认识 Bloom ABA，再根据孩子的需要选择合适的一对一或小组课程。</p></div><div class="en-only"><h2>Start with connection, then find the right support.</h2><p>Meet Bloom ABA through welcoming family events, then choose the one-on-one or group program that fits your child’s needs.</p></div></div><div class="featured-grid"><article class="featured-card"><div class="featured-label">Featured event 01</div><div class="zh-only"><h3>Bloom 家庭开放日</h3><p>参观环境、认识团队、了解 ABA 服务，并现场体验视觉支持和沟通工具。</p></div><div class="en-only"><h3>Bloom Family Open House</h3><p>Tour our space, meet the team, learn about ABA support, and explore visual and communication tools.</p></div><div class="featured-meta"><span class="zh-only">适合：正在了解 ABA 的家庭 · 免费报名</span><span class="en-only">For families exploring ABA · Free registration</span></div></article><article class="featured-card"><div class="featured-label">Featured event 02</div><div class="zh-only"><h3>感官友好亲子游戏日</h3><p>在安静、灵活、低压力的环境中体验感官游戏、亲子互动和社交活动。</p></div><div class="en-only"><h3>Sensory-Friendly Family Play Day</h3><p>Explore sensory play, parent-child activities, and social games in a calm, flexible, low-pressure environment.</p></div><div class="featured-meta"><span class="zh-only">适合：3–8 岁儿童及家长 · 需提前预约</span><span class="en-only">For children ages 3–8 and caregivers · Registration required</span></div></article><article class="featured-card"><div class="featured-label">Featured event 03</div><div class="zh-only"><h3>家长教育讲座</h3><p>学习如何支持沟通、建立家庭作息、帮助孩子应对转换和情绪变化。</p></div><div class="en-only"><h3>Parent Education Workshop</h3><p>Learn practical ways to support communication, predictable routines, transitions, and emotional regulation at home.</p></div><div class="featured-meta"><span class="zh-only">适合：父母与照护者 · 线上或现场</span><span class="en-only">For parents and caregivers · Online or in person</span></div></article></div><div class="program-columns"><div class="program-column"><div class="zh-only"><h3>一对一课程</h3><div class="program-item"><h4>个性化 ABA 支持</h4><p>围绕沟通、游戏、社交、情绪调节和独立能力制定专属目标。</p><small>适合：需要个别化支持的儿童</small></div><div class="program-item"><h4>沟通与社交技能</h4><p>练习表达需求、请求帮助、轮流、分享和参与同伴游戏。</p><small>适合：语言或互动发展中的儿童</small></div><div class="program-item"><h4>情绪调节与生活技能</h4><p>支持孩子应对转换、适应环境，并提升穿衣、用餐和日常独立能力。</p><small>形式：按评估结果安排</small></div></div><div class="en-only"><h3>One-on-One Programs</h3><div class="program-item"><h4>Personalized ABA Support</h4><p>Individual goals for communication, play, social skills, emotional regulation, and independence.</p><small>For children who benefit from individualized support</small></div><div class="program-item"><h4>Communication & Social Skills</h4><p>Practice expressing needs, requesting help, taking turns, sharing, and joining peer play.</p><small>For children developing language or interaction skills</small></div><div class="program-item"><h4>Emotional Regulation & Daily Living</h4><p>Support transitions, adaptation, dressing, mealtimes, routines, and everyday independence.</p><small>Scheduled based on assessment and family goals</small></div></div></div><div class="program-column"><div class="zh-only"><h3>小组课程</h3><div class="program-item"><h4>小小社交探索家</h4><p>通过合作游戏、等待、轮流和请求帮助，建立早期社交能力。</p><small>建议：3–5 名儿童 · 45–60 分钟</small></div><div class="program-item"><h4>入学准备小组</h4><p>练习听指令、参与集体活动、活动转换和课堂日常。</p><small>适合：准备进入幼儿园或小学的儿童</small></div><div class="program-item"><h4>青少年生活技能小组</h4><p>学习时间管理、社区安全、自我倡导和日常独立技能。</p><small>适合：青少年</small></div></div><div class="en-only"><h3>Group Programs</h3><div class="program-item"><h4>Little Social Explorers</h4><p>Build early social skills through cooperative play, waiting, turn-taking, and asking for help.</p><small>Suggested: 3–5 children · 45–60 minutes</small></div><div class="program-item"><h4>School Readiness Group</h4><p>Practice following directions, joining group activities, transitions, and classroom routines.</p><small>For children preparing for preschool or school</small></div><div class="program-item"><h4>Teen Life Skills Group</h4><p>Build time management, community safety, self-advocacy, and everyday independence.</p><small>For teens</small></div></div></div></div><div class="program-cta"><a class="button" href="#contact"><span class="zh-only">咨询适合孩子的项目 →</span><span class="en-only">Ask which program fits your child →</span></a></div></section>
+  </main>
+	<footer><div class="container footer-inner"><span class="footer-brand"><img class="brand-mark" src="ABA_logo.png" alt="" /> Bloom ABA</span><span>© 2025 Bloom ABA. 以家庭为中心的儿童行为支持。</span></div></footer>
+	<script>const translations={
+      en:{artTitle:'Small steps are worth celebrating',artTag:'Child-centered',artSub:'Respect · Connection · Growth',artQuote:'“We finally have a clear direction and feel more confident supporting our child at home.”',artBy:'— A Bloom family',navServices:'Services',navProcess:'How it works',navFaq:'FAQ',navCta:'Book a consult',eyebrow:'Evidence-informed · Family-centered',heroTitle:'Every step of growth <em>deserves to be seen.</em>',heroCopy:'Bloom ABA provides warm, professional, and sustainable behavioral support for children and families. We bring evidence-informed strategies into everyday life to build communication, social, and independence skills.',heroButton:'Book a free consultation →',heroLink:'See how we can help',heroNote:'First conversation takes about 20 minutes · No pressure to decide',trustTitle:'Finding the right support for every family',trustList:['Personalized plans','Family collaboration','Progress tracking'],serviceTitle:'Start with understanding, <br>then bring support into everyday life.',serviceIntro:'No single plan fits every child. We start with your child’s strengths, needs, and your family’s goals to design a path forward together.',service1Title:'Personalized ABA Support',service1Copy:'Clear, measurable goals for communication, social skills, play, emotional regulation, and daily independence.',service2Title:'Early Development Support',service2Copy:'Play-based support for young children to build learning readiness and participation in everyday routines.',service3Title:'Parent Coaching & Training',service3Copy:'Practical demonstrations, practice, and feedback so you can confidently support your child at home.',learnMore:'Learn more →',panelTitle:'Support should make sense in real life.',panelCopy:'From getting dressed and expressing needs to joining a classroom or playing with peers, we break goals into small steps your child can understand and your family can sustain.',panelLink:'Talk with us about your child →',startTitle:'Getting started is simple.',step1Title:'Talk with us about your family',step1Copy:'Tell us about your child’s strengths, current challenges, and the changes you hope to see.',step2Title:'Set goals together',step2Copy:'We observe your child in everyday contexts and turn your priorities into clear, trackable goals.',step3Title:'Start support and review progress',step3Copy:'Our team and your family work together, reviewing data and experience to adjust support as needed.',faqTitle:'Questions you may be asking',faqIntro:'If you do not see your question here, book a relaxed first conversation with our team.',q1:'What ages do you support?',a1:'ABA support can be tailored to a child’s developmental stage and family goals, from early childhood through adolescence. We first learn about your needs and fit.',q2:'Does my child need a diagnosis?',a2:'Not necessarily. We can begin by discussing your child’s needs and current challenges. If another assessment or referral would help, we will explain that clearly.',q3:'How involved do parents need to be?',a3:'Parents are important partners, but you do not have to carry everything alone. We provide understandable, practical coaching that fits your family routine.',q4:'How many hours per week are needed?',a4:'Frequency depends on goals, family availability, and assessment findings. We balance professional recommendations with what is realistic for your family.',contactEyebrow:'Take the first step',contactTitle:'Want to understand your child’s support options?',contactCopy:'Leave your contact details and we will reach out within one business day to arrange a free first conversation.',detail1:'hello@bloomaba.ca',detail2:'(416) 555-0188',detail3:'Serving Toronto and surrounding areas · Online consultations available',parentName:'Parent / caregiver name',parentPlaceholder:'What should we call you?',phone:'Phone number',phonePlaceholder:'(416) 000-0000',email:'Email address',age:'Child’s age',ageChoose:'Please select',age1:'0–3 years',age2:'4–6 years',age3:'7–12 years',age4:'13+ years',support:'What kind of support are you looking for?',supportPlaceholder:'For example: communication, social skills, emotional regulation, daily living…',submit:'Submit consultation request →',formNote:'Your information is used only to arrange a consultation and is handled with care.',success:'Thank you — we received your request! We will be in touch soon.',footer:'© 2025 Bloom ABA. Child and family-centered behavioral support.'},
+      zh:null
+    };
+    const zh={};
+    const original={artTitle:'小小的进步，也值得庆祝',artTag:'以孩子为中心',artSub:'尊重 · 连接 · 成长',artQuote:'“我们终于有了清晰的方向，也更知道如何在家支持孩子。”',artBy:'— Bloom 家庭反馈',navServices:'我们的服务',navProcess:'服务流程',navFaq:'常见问题',navCta:'预约咨询',heroTitle:'让每一步成长，<em>都被看见。</em>',heroCopy:'Bloom ABA 为儿童与家庭提供温暖、专业、可持续的行为支持。我们把专业方法融入真实生活，帮助孩子发展沟通、社交与独立生活能力。',heroButton:'预约免费咨询 →',heroLink:'了解我们能做什么',heroNote:'首次沟通约 20 分钟 · 了解需求，不急于做决定',trustTitle:'为每个家庭，找到适合的支持方式',trustList:['个性化计划','家庭共同参与','持续追踪进展'],serviceTitle:'从评估开始，<br>把支持落到日常。',serviceIntro:'我们不追求一套方案适用于所有人，而是从孩子的优势、需求与家庭目标出发，共同设计成长路径。',service1Title:'ABA 个性化干预',service1Copy:'围绕沟通、社交、游戏、情绪调节与独立生活等目标，制定清晰、可衡量的支持计划。',service2Title:'早期发展支持',service2Copy:'为学龄前儿童提供在游戏中学习的支持，帮助孩子建立学习准备能力与日常参与感。',service3Title:'家长指导与培训',service3Copy:'把策略带回家：通过示范、练习与反馈，让家长更有信心地支持孩子的每一天。',learnMore:'了解服务 →',panelTitle:'真正有用的支持，应该发生在生活里。',panelCopy:'从穿衣、吃饭、表达需求，到参与课堂和与同伴玩耍，我们会把目标拆成孩子能理解、家庭能坚持的小步骤。',panelLink:'和我们聊聊孩子的情况 →',startTitle:'开始并不复杂。',step1Title:'先聊聊，了解家庭需求',step1Copy:'通过电话或线上沟通，听你描述孩子目前的情况、优势与最希望改变的地方。',step2Title:'共同完成评估与目标设定',step2Copy:'我们会观察孩子在真实环境中的表现，并把期待转化成清晰、可追踪的目标。',step3Title:'开始支持，持续分享进展',step3Copy:'专业团队与家庭一起行动，定期回顾数据和体验，及时调整支持方式。',faqTitle:'你可能正在想的问题',faqIntro:'如果这里没有找到答案，欢迎直接预约一次轻松的初步沟通。',q1:'ABA 适合什么年龄的孩子？',a1:'ABA 支持可以根据孩子的发展阶段和家庭目标进行调整，适用于幼儿、学龄儿童及青少年。我们会先了解需求，再判断是否适合。',q2:'一定要有诊断才能开始吗？',a2:'不一定。首次咨询可以先讨论孩子的需要和目前遇到的困难。若后续需要其他专业评估或转介，我们也会如实说明。',q3:'家长需要参与到什么程度？',a3:'家长是重要的合作伙伴，但不需要一个人承担所有事情。我们会提供可理解、可练习的指导，让支持自然融入家庭节奏。',q4:'每周需要安排多少时间？',a4:'服务频率取决于孩子的目标、家庭时间和评估结果。我们会在专业建议与家庭实际情况之间找到平衡。',contactEyebrow:'Take the first step',contactTitle:'想更了解孩子的支持选择？',contactCopy:'留下联系方式，我们会在 1 个工作日内与您联系，安排一次免费的初步沟通。',detail1:'hello@bloomaba.ca',detail2:'(416) 555-0188',detail3:'服务地点：多伦多及周边地区 · 线上咨询可预约',parentName:'家长姓名',parentPlaceholder:'怎么称呼您？',phone:'联系电话',phonePlaceholder:'(416) 000-0000',email:'电子邮箱',age:'孩子年龄',ageChoose:'请选择',age1:'0–3 岁',age2:'4–6 岁',age3:'7–12 岁',age4:'13 岁以上',support:'您最希望获得哪方面的支持？',supportPlaceholder:'例如：沟通、社交、情绪调节、日常生活……',submit:'提交咨询申请 →',formNote:'提交后仅用于联系与安排咨询，我们会尊重并保护您的隐私。',success:'已收到您的咨询申请！我们会尽快与您联系。',footer:'© 2025 Bloom ABA. 以家庭为中心的儿童行为支持。'};
+    translations.zh=original;translations.en.navLogin='Member login ↗';translations.zh.navLogin='后台登录 ↗';
+    const map={artTitle:'.art-title',artTag:'.art-tag',artSub:'.art-sub',artQuote:'.art-quote',artBy:'.art-by',navServices:'.nav-links a:nth-child(1)',navProcess:'.nav-links a:nth-child(2)',navFaq:'.nav-links a:nth-child(3)',navCta:'.nav-cta',heroTitle:'.hero h1',heroCopy:'.hero-copy',heroButton:'.hero-actions .button',heroLink:'.hero-actions .text-link',heroNote:'.hero-note',trustTitle:'.trust-inner b',serviceTitle:'#services .section-head h2',serviceIntro:'#services .section-head p',service1Title:'.service:nth-child(1) h3',service1Copy:'.service:nth-child(1) p',service2Title:'.service:nth-child(2) h3',service2Copy:'.service:nth-child(2) p',service3Title:'.service:nth-child(3) h3',service3Copy:'.service:nth-child(3) p',panelTitle:'.soft-panel h3',panelCopy:'.soft-panel p',panelLink:'.soft-panel a',startTitle:'#process .section-head h2',step1Title:'.step:nth-child(1) h3',step1Copy:'.step:nth-child(1) p',step2Title:'.step:nth-child(2) h3',step2Copy:'.step:nth-child(2) p',step3Title:'.step:nth-child(3) h3',step3Copy:'.step:nth-child(3) p',faqTitle:'#faq .section-head h2',faqIntro:'#faq .section-head p',q1:'.faq:nth-child(1) summary',a1:'.faq:nth-child(1) p',q2:'.faq:nth-child(2) summary',a2:'.faq:nth-child(2) p',q3:'.faq:nth-child(3) summary',a3:'.faq:nth-child(3) p',q4:'.faq:nth-child(4) summary',a4:'.faq:nth-child(4) p',contactEyebrow:'#contact .eyebrow',contactTitle:'.contact h2',contactCopy:'.contact-copy',detail1:'.contact-details div:nth-child(1) span',detail2:'.contact-details div:nth-child(2) span',detail3:'.contact-details div:nth-child(3) span',parentName:'label[for=name]',phone:'label[for=phone]',email:'label[for=email]',age:'label[for=age]',support:'label[for=message]',submit:'#lead-form .button',formNote:'.form-note',success:'#success',footer:'.footer-inner span:last-child'};
+    function setLang(lang){document.documentElement.lang=lang==='en'?'en':'zh-CN';Object.entries(map).forEach(([key,selector])=>{const el=document.querySelector(selector);if(el)el.innerHTML=translations[lang][key]||''});document.querySelectorAll('.service a').forEach(el=>el.innerHTML=translations[lang].learnMore);const values=translations[lang];document.getElementById('name').placeholder=values.parentPlaceholder;document.getElementById('phone').placeholder=values.phonePlaceholder;document.getElementById('email').placeholder='you@example.com';document.getElementById('message').placeholder=values.supportPlaceholder;const opts=document.querySelectorAll('#age option');[values.ageChoose,values.age1,values.age2,values.age3,values.age4].forEach((v,i)=>{if(opts[i])opts[i].textContent=v});document.getElementById('langSwitch').textContent=lang==='en'?'中文':'EN';localStorage.setItem('bloom-lang',lang)}
+    document.getElementById('langSwitch').addEventListener('click',()=>setLang((localStorage.getItem('bloom-lang')||'zh')==='zh'?'en':'zh'));
+    document.getElementById('langSwitch').addEventListener('click',()=>{document.querySelector('.nav-links a:nth-child(4)').textContent=(localStorage.getItem('bloom-lang')==='en'?'Member login ↗':'后台登录 ↗')});
+    document.querySelector('.nav-links a:nth-child(4)').textContent=(localStorage.getItem('bloom-lang')==='en'?'Member login ↗':'后台登录 ↗');
+    const saved=localStorage.getItem('bloom-lang');if(saved==='en')setLang('en');
+    const programsSection=document.getElementById('programs'),contactSection=document.getElementById('contact');if(programsSection&&contactSection)programsSection.after(contactSection);const programCta=document.querySelector('.program-cta .button');if(programCta)programCta.innerHTML='<span class="zh-only">预约免费咨询 →</span><span class="en-only">Book a free consultation →</span>';document.querySelectorAll('.featured-meta').forEach(el=>el.insertAdjacentHTML('beforeend','<span class="schedule zh-only">时间：以当期安排为准 · 费用：请咨询</span><span class="schedule en-only">Schedule: dates announced monthly · Fee: contact us</span>'));
+    document.getElementById('lead-form').addEventListener('submit',function(e){e.preventDefault();this.querySelector('.button').style.display='none';this.querySelector('.form-note').style.display='none';document.getElementById('success').style.display='block'});</script>
+</body>
+</html>
