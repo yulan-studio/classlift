@@ -35,7 +35,7 @@ namespace Core.Services
 
         }
 
-        public async Task<bool> AddAsync(string name, string email, string password, string phone, string wechat, User user)
+        public async Task<bool> AddAsync(string name, string email, string password, string? phone, string? wechat, User user)
         {
             // Check if a user with the same username or email already exists
             var existingUser = await _adminRepository.GetByEmailAsync(email);
@@ -57,8 +57,8 @@ namespace Core.Services
                     {
                         UserID = newUser.Id,
                         Name = name,
-                        Phone = phone,
-                        Wechat = wechat,
+                        Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim(),
+                        Wechat = string.IsNullOrWhiteSpace(wechat) ? null : wechat.Trim(),
                         
                         
                     };

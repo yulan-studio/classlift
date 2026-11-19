@@ -141,10 +141,11 @@ This file is the concise, canonical record of business rules confirmed by the pr
 ## Accounts and user manual
 
 1. Coaches can maintain their chosen name, contact details, city, address, status, and photo consent from Account Settings. The coach address is used only for tax documents and formal document delivery. Member ID and bank payment details remain Staff-managed. Blank optional values clear the corresponding details.
-2. On the Coach List, each Provider Member ID links to that Provider's Calendar for Staff and Admin users. A Coach accessing the Calendar continues to see only their own schedule, even if another Coach ID is supplied in the URL.
-3. On the Child List, each Participant Member ID links to that Participant's Calendar for Staff and Admin users. A Child accessing the Calendar continues to see only their own schedule, even if another Child ID is supplied in the URL.
-4. ClassLift keeps course operations and their directly related financial workflows with the Staff role. Staff who manage attendance, course registration, withdrawals, refunds, balances, and related financial records may complete that workflow without transferring the task to a separate Finance role.
-5. Bank, Transit, and Account details remain restricted sensitive information. They are not part of the ordinary Coach self-service profile and should be visible only to Admin or specifically authorized Staff.
+2. When Staff adds an administrator, Phone and WeChat are optional. Name, email, and password are required and are prompted in the Add Administrator form before submission; failed submissions preserve the values already entered.
+3. On the Coach List, each Provider Member ID links to that Provider's Calendar for Staff and Admin users. A Coach accessing the Calendar continues to see only their own schedule, even if another Coach ID is supplied in the URL.
+4. On the Child List, each Participant Member ID links to that Participant's Calendar for Staff and Admin users. A Child accessing the Calendar continues to see only their own schedule, even if another Child ID is supplied in the URL.
+5. ClassLift keeps course operations and their directly related financial workflows with the Staff role. Staff who manage attendance, course registration, withdrawals, refunds, balances, and related financial records may complete that workflow without transferring the task to a separate Finance role.
+6. Bank, Transit, and Account details remain restricted sensitive information. They are not part of the ordinary Coach self-service profile and should be visible only to Admin or specifically authorized Staff.
 
 ## Payments and balance history
 
