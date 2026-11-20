@@ -1308,14 +1308,14 @@ namespace Web.Controllers.User
                             .AsNoTracking()
                             .FirstOrDefaultAsync(p => p.PackageID == packageId && p.IsActive);
 
-                        if (selectedPackage?.Amount is null || selectedPackage.Amount <= 0)
+                        if (selectedPackage is null || selectedPackage.Amount <= 0)
                         {
                             TempData["ErrorMessage"] = "The selected token payment package is not available.";
                             return RedirectToAction("Participation", new { childId, tab = "ManagePayments" });
                         }
 
                         // Fixed package amounts are authoritative on the server.
-                        amount = selectedPackage.Amount.Value;
+                        amount = selectedPackage.Amount;
                     }
                 }
 

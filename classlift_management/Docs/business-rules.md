@@ -159,6 +159,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 7. In a participant's Registration History, a course registration whose status is Registered and whose fee is already paid cannot be removed. Staff may confirm it on the participant's behalf. Confirming a Group course changes that participant's Registered session copies to Scheduled. Confirming a Staff-managed Private course changes the Registered sessions linked to that root registration to Scheduled.
 8. In a participant's Registration History, the Sessions column provides Manage for Group courses and Staff-managed Private courses. A Staff-managed Private-course link opens that course's Manage Private Sessions page with the participant ID in the URL. The page continues to show all participants' sessions and highlights the selected participant's rows. Coach-managed Private courses do not show this link.
 9. The Private-course View Progress dialog in Registration History displays sessions whose Status is Scheduled, Completed, Deleted, or RequestToReschedule, ordered by scheduled date. It labels Provider Note and Participant Note with the organization's configured singular terminology instead of fixed role names.
+10. When an administrator creates or edits a payment package, Description is optional. The package form labels it as optional and accepts a blank value.
 
 1. Parents use one shared account for the participant portal rather than separate parent accounts.
 2. The initial user manual will be written in English.
