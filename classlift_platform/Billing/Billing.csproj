@@ -58,6 +58,10 @@
     <None Update="TenantScripts\z20261105_AddCourseEnrollmentQueryIndexes.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  
+    <None Update="TenantScripts\z20261119_MakePaymentPackageDescriptionOptionalAndAmountRequired.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
