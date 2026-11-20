@@ -18,10 +18,10 @@ namespace Core.Models
         [StringLength(255)]
         public string Title { get; set; } // Package Title
 
-        public string Description { get; set; } // Package Description
+        public string? Description { get; set; } // Package Description
 
         [Column(TypeName = "decimal(10, 2)")]
-        public decimal? Amount { get; set; } // Package Amount
+        public decimal Amount { get; set; } // Package Amount
 
         public bool IsActive { get; set; } = true; // Active status (default is 1)
 

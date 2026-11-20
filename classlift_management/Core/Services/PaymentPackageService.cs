@@ -45,9 +45,6 @@ namespace Core.Services
             if (string.IsNullOrWhiteSpace(package.Title))
                 throw new ArgumentException("Package title cannot be empty.");
 
-            if (string.IsNullOrWhiteSpace(package.Title))
-                throw new ArgumentException("Package description cannot be empty.");
-
             if (package.Amount <= 0)
                 throw new ArgumentException("Amount must be greater than zero.");
 
