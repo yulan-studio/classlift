@@ -30,7 +30,7 @@ namespace Core.Services
             _activityRepository = activityRepository;
         }
 
-        public async Task<bool> AddAsync(string title, string description, string address, string scheduleType, bool isActive, User user)
+        public async Task<bool> AddAsync(string title, string description, string address, string scheduleType, bool isActive, ScheduleTiming? timing, decimal? scheduledHours, int? maxCapacity, decimal? cost, string? sessionStatus, string? recurrenceFrequency, int? recurrenceCount, User user)
         {
             // Create the activity
             var activity = new Activity
@@ -45,6 +45,32 @@ namespace Core.Services
 
 
             };
+
+            if (scheduleType == ActivityScheduleTypes.OneTime || scheduleType == ActivityScheduleTypes.Recurring)
+            {
+                if (timing == null || !scheduledHours.HasValue || !maxCapacity.HasValue || !cost.HasValue || string.IsNullOrWhiteSpace(sessionStatus))
+                    throw new ArgumentException("A scheduled Activity requires Session details.");
+                var count = scheduleType == ActivityScheduleTypes.Recurring ? recurrenceCount ?? 0 : 1;
+                if (scheduleType == ActivityScheduleTypes.Recurring && (count < 1 || count > 365 || recurrenceFrequency is not ("Weekly" or "Monthly")))
+                    throw new ArgumentException("Recurring Activities require a valid frequency and Session count.");
+                for (var i = 0; i < count; i++)
+                {
+                    var scheduledAt = recurrenceFrequency == "Monthly" ? timing.ScheduledAtUtc.AddMonths(i) : timing.ScheduledAtUtc.AddDays(7 * i);
+                    var scheduledLocal = recurrenceFrequency == "Monthly" ? timing.ScheduledLocalTime.AddMonths(i) : timing.ScheduledLocalTime.AddDays(7 * i);
+                    activity.Sessions.Add(new ActivitySession
+                    {
+                    ScheduledAt = scheduledAt,
+                    ScheduledLocalTime = scheduledLocal,
+                    ScheduledTimeZoneId = timing.TimeZoneId,
+                    ScheduledHours = scheduledHours.Value,
+                    MaxCapacity = maxCapacity.Value,
+                    Cost = cost.Value,
+                    Status = sessionStatus,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                    });
+                }
+            }
 
             // Save to the database
             return await _activityRepository.AddAsync(activity);

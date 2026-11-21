@@ -188,18 +188,19 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Add")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(string? title, string? description, string? address, int? maxCapacity, DateTime? scheduledAt, string? scheduledTimeZoneId, decimal? scheduledHours, decimal? cost, string? status, string? scheduleType, bool? isActive)
+        public async Task<IActionResult> Add(string? title, string? description, string? address, int? maxCapacity, DateTime? scheduledAt, string? scheduledTimeZoneId, decimal? scheduledHours, decimal? cost, string? status, string? scheduleType, bool? isActive, string? recurrenceFrequency, int? recurrenceCount)
         {
             if (string.IsNullOrWhiteSpace(title)) ModelState.AddModelError("title", "Title is required.");
             if (string.IsNullOrWhiteSpace(description)) ModelState.AddModelError("description", "Description is required.");
             if (string.IsNullOrWhiteSpace(address)) ModelState.AddModelError("address", "Address is required.");
-            if (!maxCapacity.HasValue || maxCapacity.Value < 0) ModelState.AddModelError("maxCapacity", "Max Capacity is required and cannot be negative.");
             var ongoing = scheduleType == ActivityScheduleTypes.Ongoing;
+            if (!ongoing && (!maxCapacity.HasValue || maxCapacity.Value < 0)) ModelState.AddModelError("maxCapacity", "Max Capacity is required and cannot be negative.");
             if (!ongoing && !scheduledAt.HasValue) ModelState.AddModelError("scheduledAt", "Scheduled Date is required.");
             if (!ongoing && string.IsNullOrWhiteSpace(scheduledTimeZoneId)) ModelState.AddModelError("scheduledTimeZoneId", "Event Time Zone is required.");
             if (!ongoing && (!scheduledHours.HasValue || scheduledHours.Value <= 0)) ModelState.AddModelError("scheduledHours", "Scheduled Hours is required and must be greater than zero.");
             if (!ongoing && (!cost.HasValue || cost.Value < 0)) ModelState.AddModelError("cost", "Cost is required and cannot be negative.");
-            if (string.IsNullOrWhiteSpace(status)) ModelState.AddModelError("status", "Status is required.");
+            if (scheduleType == ActivityScheduleTypes.Recurring && (!recurrenceCount.HasValue || recurrenceCount < 1 || recurrenceCount > 365)) ModelState.AddModelError("recurrenceCount", "Number of Sessions must be between 1 and 365.");
+            if (!ongoing && string.IsNullOrWhiteSpace(status)) ModelState.AddModelError("status", "Session status is required.");
             if (!isActive.HasValue) ModelState.AddModelError("isActive", "Please select whether the Activity is active.");
 
             //createdBy = 1; //temparary set
@@ -215,7 +216,10 @@ namespace Web.Controllers.Activity
                 var user = await _userManager.GetUserAsync(User);
                 // ScheduleTiming requires a local DateTime for legacy Activity fields.
                 // Ongoing series do not use this placeholder; their real schedule lives in ActivitySession.
-                var result = await _activityService.AddAsync(title!, description!, address!, scheduleType ?? ActivityScheduleTypes.OneTime, isActive!.Value, user!);
+                ScheduleTiming? timing = null;
+                if (!ongoing)
+                    timing = CreateTiming(scheduledAt!.Value, scheduledTimeZoneId!);
+                var result = await _activityService.AddAsync(title!, description!, address!, scheduleType ?? ActivityScheduleTypes.OneTime, isActive!.Value, timing, scheduledHours, maxCapacity, cost, status, recurrenceFrequency, recurrenceCount, user!);
 
                 if (!result)
                 {
