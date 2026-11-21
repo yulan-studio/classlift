@@ -52,8 +52,9 @@ This file is the concise, canonical record of business rules confirmed by the pr
 4. An Activity Session may have its own Staff contact. The Activity Series contact is an optional default or general series contact; a Session-level contact overrides it when provided.
 
 5. Activity Series uses an active/inactive lifecycle rather than a Session status. Activity Sessions reuse the Group-course master-session statuses: Open, Closed, Completed, and Canceled.
-6. Activity enrollment statuses are Registered, Confirmed, Completed, Canceled, and Deleted. Deleted preserves enrollment history without representing an active enrollment.
-7. A participant may remove their own pending activity registration from the Confirmations page before confirmation. The removal removes the pending registration and its associated activity fee record; workflows that retain history mark the enrollment Deleted rather than treating it as an active enrollment.
+6. When Staff creates an Activity Series, Active or Inactive must be selected explicitly. The system must not silently default a new Activity Series to Active.
+7. Activity enrollment statuses are Registered, Confirmed, Completed, Canceled, and Deleted. Deleted preserves enrollment history without representing an active enrollment.
+8. A participant may remove their own pending activity registration from the Confirmations page before confirmation. The removal removes the pending registration and its associated activity fee record; workflows that retain history mark the enrollment Deleted rather than treating it as an active enrollment.
 
 ## Activity completion
 

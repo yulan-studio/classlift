@@ -41,7 +41,7 @@ namespace Core.Models
         public string Address { get; set; }
 
         [Required]
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
 
         public int? ContactID { get; set; }
 

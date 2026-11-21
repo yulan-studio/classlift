@@ -26,6 +26,29 @@
         </tr>
 
         <tr>
+            <td style="padding: 8px;"><label for="ScheduleType">Activity Schedule Type:</label></td>
+            <td style="padding: 8px;">
+                <select id="ScheduleType" name="scheduleType" style="width: 45%;" required>
+                    <option value="OneTime">One-time</option>
+                    <option value="Recurring">Recurring Schedule</option>
+                    <option value="Ongoing">Ongoing / Add Sessions Manually</option>
+                </select>
+                <div style="color:#6b778c; margin-top:4px;">Ongoing activities do not require a session count or recurrence rule. Add each occurrence with Add New Session.</div>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 8px;"><label for="IsActive">Activity Status:</label></td>
+            <td style="padding: 8px;">
+                <select id="IsActive" name="isActive" style="width: 45%;" required>
+                    <option value="" selected>-- Select Status --</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
             <td style="padding: 8px;"><label for="Description">Description:</label></td>
             <td style="padding: 8px;">
                 <textarea name="Description" placeholder="Enter activity description" style="width: 70%;" rows="3" required></textarea>

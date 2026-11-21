@@ -32,6 +32,7 @@ namespace Core.Interfaces
         Task<Activity> GetAsync(int activityId);
 
         Task<bool> HasRegistrationsAsync(int activityId);
+        Task<bool> AddSessionAsync(ActivitySession session);
 
 
         // Get all Activity from the database asynchronously

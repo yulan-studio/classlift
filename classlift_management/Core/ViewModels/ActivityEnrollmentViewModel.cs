@@ -10,6 +10,7 @@ namespace Core.ViewModels
     {
         public int? ChildID { get; set; }
         public int ActivityID { get; set; }
+        public int ActivitySessionID { get; set; }
 
         //public bool IsActive { get; set; }
 

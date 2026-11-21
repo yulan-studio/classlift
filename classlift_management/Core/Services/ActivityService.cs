@@ -30,29 +30,16 @@ namespace Core.Services
             _activityRepository = activityRepository;
         }
 
-        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal scheduledHours, decimal cost, string status, User user)
+        public async Task<bool> AddAsync(string title, string description, string address, string scheduleType, bool isActive, User user)
         {
-            if (scheduledHours <= 0)
-                throw new ArgumentOutOfRangeException(nameof(scheduledHours), "Scheduled hours must be greater than zero.");
-
-            if (cost < 0)
-                throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
-
-
             // Create the activity
             var activity = new Activity
             {
                 Title = title,
+                ScheduleType = scheduleType,
                 Description = description,
                 Address = address,
-                MaxCapacity = maxCapacity,
-                ScheduledAt = timing.ScheduledAtUtc,
-                ScheduledLocalTime = timing.ScheduledLocalTime,
-                ScheduledTimeZoneId = timing.TimeZoneId,
-                ScheduledHours = scheduledHours,
-                Cost = cost,
-                //IsActive = isActive,
-                Status = status,
+                IsActive = isActive,
                 CreatedBy = user.Id,
                 CreatedDate = DateTime.UtcNow
 
@@ -94,20 +81,11 @@ namespace Core.Services
             if (cost < 0)
                 throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
 
-            if (await _activityRepository.HasRegistrationsAsync(id) && (activity.Cost ?? 0) != cost)
-                throw new InvalidOperationException("Cost cannot be changed after the activity has registrations.");
-
             // Update fields
             activity.Title = title;
             activity.Description = description;
             activity.Address = address;
-            activity.MaxCapacity = maxCapacity;
-            activity.ScheduledAt = timing.ScheduledAtUtc;
-            activity.ScheduledLocalTime = timing.ScheduledLocalTime;
-            activity.ScheduledTimeZoneId = timing.TimeZoneId;
-            activity.Cost = cost;
-            //activity.IsActive = isActive;
-            activity.Status = status;
+            activity.IsActive = status != "Canceled";
             activity.UpdatedDate = DateTime.UtcNow;
             activity.UpdatedBy = user.Id;
             // Save changes
@@ -129,6 +107,20 @@ namespace Core.Services
         public Task<bool> HasRegistrationsAsync(int activityId)
         {
             return _activityRepository.HasRegistrationsAsync(activityId);
+        }
+
+        public async Task<ActivitySession> AddSessionAsync(int activityId, ScheduleTiming timing, decimal hours, int capacity, decimal cost, string status, int userId)
+        {
+            if (hours <= 0) throw new ArgumentOutOfRangeException(nameof(hours));
+            if (capacity < 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+            if (cost < 0) throw new ArgumentOutOfRangeException(nameof(cost));
+            var activity = await _activityRepository.GetAsync(activityId) ?? throw new InvalidOperationException("Activity series not found.");
+            var session = new ActivitySession { ActivityID = activityId, Activity = activity, ScheduledAt = timing.ScheduledAtUtc,
+                ScheduledLocalTime = timing.ScheduledLocalTime, ScheduledTimeZoneId = timing.TimeZoneId, ScheduledHours = hours,
+                MaxCapacity = capacity, Cost = cost, Status = status, CreatedDate = DateTime.UtcNow, UpdatedDate = DateTime.UtcNow };
+            activity.Sessions.Add(session);
+            await _activityRepository.AddSessionAsync(session);
+            return session;
         }
 
 

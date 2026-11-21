@@ -14,13 +14,14 @@ namespace Core.ViewModels
 
         public required string Address { get; set; }
 
+        public bool IsActive { get; set; }
+        public string ScheduleType { get; set; } = "OneTime";
+        public DateTime? NextSessionAt { get; set; }
+        public int SessionCount { get; set; }
+        public DateTime ScheduledAt => NextSessionAt ?? DateTime.MinValue;
+        public string Status => IsActive ? "Active" : "Inactive";
         public int MaxCapacity { get; set; }
-        public DateTime ScheduledAt { get; set; }
         public decimal? Cost { get; set; }
-
-        //public bool IsActive { get; set; }
-
-        public required string Status { get; set; }
         public int RegisteredChildrenCount { get; set; }
     }
 }
