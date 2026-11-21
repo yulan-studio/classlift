@@ -48,9 +48,7 @@ namespace Core.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(true);
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("ScheduleType")
                         .IsRequired()
