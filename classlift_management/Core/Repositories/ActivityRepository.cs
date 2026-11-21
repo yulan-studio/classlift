@@ -172,6 +172,7 @@ namespace Core.Repositories
         public async Task<IEnumerable<Activity>> GetAllActiveOpenAsync()
         {
             return await _context.Activities
+                .Include(a => a.Sessions)
                 .Where(a => a.IsActive && a.Sessions.Any(s => s.Status == "Open"))
                 .Select(a => a)
                 .ToListAsync();
