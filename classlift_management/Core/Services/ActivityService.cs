@@ -94,7 +94,7 @@ namespace Core.Services
         }
 
 
-        public async Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, string status, User user)
+        public async Task<bool> UpdateAsync(int id, string title, string description, string address, string scheduleType, bool isActive, User user)
         //public async Task<bool> UpdateAsync(Activity activity)
         {
             //Find the staff by ID
@@ -104,14 +104,11 @@ namespace Core.Services
                 throw new Exception("Activity not found.");
             }
 
-            if (cost < 0)
-                throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
-
             // Update fields
             activity.Title = title;
             activity.Description = description;
             activity.Address = address;
-            activity.IsActive = status != "Canceled";
+            activity.IsActive = isActive;
             activity.UpdatedDate = DateTime.UtcNow;
             activity.UpdatedBy = user.Id;
             // Save changes

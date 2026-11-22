@@ -131,7 +131,7 @@ namespace Core.Repositories
 
         public async Task<Activity> GetAsync(int activityId)
         {
-            return await _context.Activities.FindAsync(activityId);  // Finds by ID asynchronously
+            return await _context.Activities.Include(a => a.Sessions).FirstOrDefaultAsync(a => a.ActivityID == activityId);
                         
         }
 

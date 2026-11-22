@@ -17,7 +17,7 @@ namespace Core.Interfaces
 
         Task<bool> RemoveAsync(int userId);
 
-        Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, /*bool isActive,*/ string status, User user);
+        Task<bool> UpdateAsync(int id, string title, string description, string address, string scheduleType, bool isActive, User user);
 
         Task<Activity> GetAsync(int userId);
 

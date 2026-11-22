@@ -261,6 +261,27 @@ namespace Web.Controllers.Activity
             return RedirectToAction(nameof(Edit), new { activityId });
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpPost("{activityId:int}/EditSession/{sessionId:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditSession(int activityId, int sessionId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, int maxCapacity, decimal cost, string status)
+        {
+            var session = await _db.ActivitySessions.FirstOrDefaultAsync(s => s.ActivityID == activityId && s.ActivitySessionID == sessionId);
+            if (session == null) return NotFound();
+            var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
+            session.ScheduledAt = timing.ScheduledAtUtc;
+            session.ScheduledLocalTime = timing.ScheduledLocalTime;
+            session.ScheduledTimeZoneId = timing.TimeZoneId;
+            session.ScheduledHours = scheduledHours;
+            session.MaxCapacity = maxCapacity;
+            session.Cost = cost;
+            session.Status = status;
+            session.UpdatedDate = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Activity Session updated successfully.";
+            return RedirectToAction(nameof(Edit), new { activityId });
+        }
+
 
 
 
@@ -281,10 +302,7 @@ namespace Web.Controllers.Activity
 
             // Pass the staff details to the Delete.cshtml view
             var user = await _userManager.GetUserAsync(User);
-            var zoneId = activity.ScheduledTimeZoneId ?? user?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
-            SetTimeZoneOptions(zoneId);
-            ViewBag.ScheduledLocalTime = activity.ScheduledLocalTime
-                ?? _timeZoneService.ConvertUtcToLocal(activity.ScheduledAt, zoneId);
+            SetTimeZoneOptions(user?.TimeZoneId);
             ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
             return View(activity);
 
@@ -293,31 +311,19 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Edit/{activityId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, decimal cost, /*bool isActive,*/ string status)
+        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, string scheduleType, bool isActive)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
-                var result = await _activityService.UpdateAsync(activityId, title, description, address, maxCapacity, timing, cost, status, user!);
+                var result = await _activityService.UpdateAsync(activityId, title, description, address, scheduleType, isActive, user!);
 
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, "Failed to update activity information.");
                     var activity = await _activityService.GetAsync(activityId);
-                    SetTimeZoneOptions(scheduledTimeZoneId);
-                    ViewBag.ScheduledLocalTime = scheduledAt;
                     ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
                     return View(activity);
-                }
-
-                if(status == "Canceled")
-                {
-                    await _activityEnrollmentService.UpdateActivityStatusToCanceledAsync(activityId);
-                    if (_currentTenant.HasFeature(Core.FeatureCodes.CreditTracking))
-                    {
-                        await RefundCanceledActivityRegistrationsAsync(activityId, user!.Id);
-                    }
                 }
 
                 TempData["SuccessMessage"] = "Activity information updated successfully.";
@@ -327,8 +333,6 @@ namespace Web.Controllers.Activity
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 var activity = await _activityService.GetAsync(activityId);
-                SetTimeZoneOptions(scheduledTimeZoneId);
-                ViewBag.ScheduledLocalTime = scheduledAt;
                 ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
                 return View(activity);
             }
