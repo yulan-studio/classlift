@@ -179,8 +179,8 @@ namespace Core.Repositories
         {
             return await _context.Activities
                 .Include(a => a.Sessions)
+                    .ThenInclude(s => s.Enrollments)
                 .Where(a => a.IsActive && a.Sessions.Any(s => s.Status == "Open"))
-                .Select(a => a)
                 .ToListAsync();
         }
 
