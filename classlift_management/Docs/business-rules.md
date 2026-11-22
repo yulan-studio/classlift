@@ -27,6 +27,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 5. Local development may intentionally enable all Features so that Management can run without Platform entitlement data. Organization-level Feature setting behavior must be verified on a tenant environment with Platform integration configured.
 6. The Coach Private Course Management feature controls whether Staff can select Coach as the scheduling owner when creating a Private course. When disabled, the Coach option is hidden from the Private scheduling-mode selector. Existing course scheduling and Coach permissions are unchanged. The feature must be defined by Platform and is enabled or disabled through the administrator's Feature Settings page.
 7. Student Schedule Request is dependent on Coach Private Course Management. It is disabled by default and cannot be enabled in Feature Settings until Coach Private Course Management is enabled. If Coach Private Course Management is disabled, Student Schedule Request is treated as disabled.
+8. The Parent Registration Deletion feature controls whether a family may remove its own pending course or activity registration from Confirmations. When disabled, the family-facing Delete action is hidden and the server rejects direct deletion requests; Staff registration-management deletion remains available.
 
 ## Group-course registration
 

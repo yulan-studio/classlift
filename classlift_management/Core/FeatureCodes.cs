@@ -20,5 +20,6 @@ namespace Core
         public const string AiEnhancements = "ai_enhancements";
         public const string StudentScheduleRequest = "student_schedule_request";
         public const string CoachPrivateCourseManagement = "coach_private_course_management";
+        public const string ParentRegistrationDeletion = "parent_registration_deletion";
     }
 }

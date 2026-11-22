@@ -1,6 +1,8 @@
 ﻿@model Core.ViewModels.ChildSchedulesToConfirmViewModel
 
 
+@{ var canDeleteRegistration = CurrentTenant.HasFeature(Core.FeatureCodes.ParentRegistrationDeletion); }
+
 <style>
     .confirmations-page { width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
     .confirmations-page h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; }
@@ -175,11 +177,17 @@
             <div style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
                 <div style="margin-bottom: 16px;">
                     <span style="display: block;">Please click <strong>"Confirm"</strong> and complete the payment together to complete your course registration.</span>
-                    <span style="display: block; color: #b35a6a;">If you want to cancel this registration, please click <strong>"Delete"</strong> and do not make the payment.</span>
+                    @if (canDeleteRegistration)
+                    {
+                        <span style="display: block; color: #b35a6a;">If you want to cancel this registration, please click <strong>"Delete"</strong> and do not make the payment.</span>
+                    }
                 </div>
                 <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
-                <button type="button" class="btn btn-outline-danger mt-2 ms-2"
-                        onclick="openDeleteRegistrationModal(this.form);">Delete</button>
+                @if (canDeleteRegistration)
+                {
+                    <button type="button" class="btn btn-outline-danger mt-2 ms-2"
+                            onclick="openDeleteRegistrationModal(this.form);">Delete</button>
+                }
             </div>
         </form>
 
@@ -279,11 +287,17 @@
 
                  <div style="margin-bottom: 16px;">
                     <span style="display: block;">Please click <strong>"Confirm"</strong> and complete the payment together to complete your course registration.</span>
-                    <span style="display: block; color: #b35a6a;">If you want to cancel this registration, please click <strong>"Delete"</strong> and do not make the payment.</span>
+                    @if (canDeleteRegistration)
+                    {
+                        <span style="display: block; color: #b35a6a;">If you want to cancel this registration, please click <strong>"Delete"</strong> and do not make the payment.</span>
+                    }
                 </div>
                 <button type="submit" name="actionType" value="Confirm" class="btn btn-primary mt-2">Confirm</button>
-                <button type="button" class="btn btn-outline-danger mt-2 ms-2"
-                        onclick="openDeleteRegistrationModal(this.form);">Delete</button>
+                @if (canDeleteRegistration)
+                {
+                    <button type="button" class="btn btn-outline-danger mt-2 ms-2"
+                            onclick="openDeleteRegistrationModal(this.form);">Delete</button>
+                }
 
             </div>
         </form>
@@ -410,11 +424,17 @@
 
             <div @* class="alert alert-danger" *@  style="padding: 20px 20px 20px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
                 Please click 'Confirm' to complete your activity registration.<br />
-                <span style="color: #8b1e2d;">If you want to cancel this activity registration, click <strong>Delete</strong>.</span><br /><br />
+                @if (canDeleteRegistration)
+                {
+                    <span style="color: #8b1e2d;">If you want to cancel this activity registration, click <strong>Delete</strong>.</span><br /><br />
+                }
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <button type="submit" name="actionType" value="Confirm" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Confirm</button>
-                    <button type="button" class="btn btn-outline-danger"
-                            onclick="openDeleteRegistrationModal(this.form);">Delete</button>
+                    @if (canDeleteRegistration)
+                    {
+                        <button type="button" class="btn btn-outline-danger"
+                                onclick="openDeleteRegistrationModal(this.form);">Delete</button>
+                    }
                 </div>
 
             </div>

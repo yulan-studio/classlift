@@ -2363,6 +2363,12 @@ namespace Web.Controllers.User
 
             if (actionType == "Delete")
             {
+                if (!_currentTenant.HasFeature(FeatureCodes.ParentRegistrationDeletion))
+                {
+                    TempData["ErrorMessage2"] = "Registration deletion is not enabled for this organization.";
+                    return RedirectToAction("MyConfirmations");
+                }
+
                 await RemovePendingCourseRegistrationAsync(child.ChildID, model.CourseID);
                 return RedirectToAction("MyConfirmations");
             }
@@ -2467,6 +2473,12 @@ namespace Web.Controllers.User
 
             if (actionType == "Delete")
             {
+                if (!_currentTenant.HasFeature(FeatureCodes.ParentRegistrationDeletion))
+                {
+                    TempData["ErrorMessage2"] = "Registration deletion is not enabled for this organization.";
+                    return RedirectToAction("MyConfirmations");
+                }
+
                 await RemovePendingCourseRegistrationAsync(child.ChildID, model.CourseID);
                 return RedirectToAction("MyConfirmations");
             }
@@ -2576,6 +2588,12 @@ namespace Web.Controllers.User
 
             if (actionType == "Delete")
             {
+                if (!_currentTenant.HasFeature(FeatureCodes.ParentRegistrationDeletion))
+                {
+                    TempData["ErrorMessage3"] = "Registration deletion is not enabled for this organization.";
+                    return RedirectToAction("MyConfirmations");
+                }
+
                 var feeRemoved = await _feeService.DeleteActivityFeeAsync(model.EnrollmentID);
                 var enrollmentRemoved = feeRemoved
                     && await _activityEnrollmentService.RemoveRegisteredEnrollmentAsync(model.EnrollmentID);
