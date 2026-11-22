@@ -380,8 +380,7 @@
                     <tr>
                         <th style="padding: 8px; border: 1px solid #ddd;">Activity</th>
                         <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
-                        <th style="padding: 8px; border: 1px solid #ddd;">Address</th>
-                        <th style="padding: 8px; border: 1px solid #ddd;">Scheduled At</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">Schedule Type</th>
                         @*  <th style="padding: 8px; border: 1px solid #ddd;">Cost</th> *@
                         <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
                         @*  <th style="padding: 8px; border: 1px solid #ddd;">Actions</th> *@
@@ -391,8 +390,7 @@
                     <tr>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Description</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Address</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.ScheduleType == "OneTime" ? "One-time" : enrollment.ScheduleType == "Recurring" ? "Recurring Schedule" : "Ongoing")</td>
                         @*  <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.TotalCost</td> *@
                         <td style="padding: 8px; border: 1px solid #ddd;@(enrollment.Status == "Canceled" ? "color: red" : "")">@enrollment.Status</td>
 

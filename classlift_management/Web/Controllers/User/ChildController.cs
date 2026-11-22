@@ -1663,7 +1663,9 @@ namespace Web.Controllers.User
             notificationCount += await _db.ActivityEnrollments
                 .AsNoTracking()
                 .CountAsync(e => e.ChildID == child.ChildID
-                    && e.Activity.ScheduledAt >= DateTime.UtcNow
+                    && e.ActivitySessionID.HasValue
+                    && e.ActivitySession != null
+                    && e.ActivitySession.ScheduledAt >= DateTime.UtcNow
                     && e.Status == "Canceled");
 
 
@@ -1779,16 +1781,19 @@ namespace Web.Controllers.User
             var activityItems = await _db.ActivityEnrollments
                 .AsNoTracking()
                 .Include(e => e.Activity)
+                .Include(e => e.ActivitySession)
                 .Where(e => e.ChildID == child.ChildID
-                    && e.Activity.ScheduledAt >= now
+                    && e.ActivitySessionID.HasValue
+                    && e.ActivitySession != null
+                    && e.ActivitySession.ScheduledAt >= now
                     && e.Status == "Canceled")
-                .OrderBy(e => e.Activity.ScheduledAt)
+                .OrderBy(e => e.ActivitySession.ScheduledAt)
                 .ThenBy(e => e.Activity.Title)
                 .Select(e => new ChildActivityNotificationItem
                 {
                     ActivityId = e.ActivityID,
                     ActivityTitle = e.Activity.Title,
-                    ScheduledAt = e.Activity.ScheduledAt,
+                    ScheduledAt = e.ActivitySession!.ScheduledAt,
                     Status = e.Status
                 })
                 .ToListAsync();

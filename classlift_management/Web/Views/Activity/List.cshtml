@@ -69,7 +69,6 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Max Capacity</th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
                 <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationSortParm"]" style="color: black; text-decoration: none; ">
                     # of Registrations
@@ -85,20 +84,7 @@
                 </a>
 
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["ScheduledAtSortParm"]" style="color: #000 !important; text-decoration: none; ">
-                    Scheduled At
-                    @if (currentSort == "scheduledAt")
-                    {
-                        <span>▲</span>
-                    }
-                    else if (currentSort == "scheduledAt_desc")
-                    {
-
-                        <span>▼</span>
-                    }
-                </a>
-            </th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Schedule Type</th>
             @* <th style="padding: 8px; border: 1px solid #ddd;">Cost</th> *@
           @*   <th style="padding: 8px; border: 1px solid #ddd;">Contact</th> *@
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Is Active</th> *@
@@ -126,9 +112,8 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Title</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Description</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Address</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">@activity.MaxCapacity</td>
                 <td style="padding: 8px; border: 1px solid #ddd;"><a href="/Activity/Registrations/@activity.ActivityID">@activity.RegisteredChildrenCount</a></td>
-                <td style="padding: 8px; border: 1px solid #ddd; color: #000;">@activity.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@(activity.ScheduleType == "OneTime" ? "One-time" : activity.ScheduleType == "Recurring" ? "Recurring Schedule" : "Ongoing")</td>
               @*   <td style="padding: 8px; border: 1px solid #ddd;">@(activity.Cost.ToString("C"))</td> *@
             @*     <td style="padding: 8px; border: 1px solid #ddd;">@activity.IsActive</td> *@
                 <td style="padding: 8px; border: 1px solid #ddd; color: #000;">@activity.Status</td>
@@ -143,7 +128,7 @@
         @if (TempData["SuccessMessage"] != null)
         {
             <tr>
-                <td colspan="8">
+                <td colspan="7">
                     <div class="alert alert-success">
                         @TempData["SuccessMessage"]
                     </div>
@@ -154,7 +139,7 @@
         @if (TempData["ErrorMessage"] != null)
         {
             <tr>
-                <td colspan="8">
+                <td colspan="7">
                     <div class="alert alert-danger">
                         @TempData["ErrorMessage"]
                     </div>
