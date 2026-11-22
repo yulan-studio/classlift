@@ -30,34 +30,47 @@ namespace Core.Services
             _activityRepository = activityRepository;
         }
 
-        public async Task<bool> AddAsync(string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal scheduledHours, decimal cost, string status, User user)
+        public async Task<bool> AddAsync(string title, string description, string address, string scheduleType, bool isActive, ScheduleTiming? timing, decimal? scheduledHours, int? maxCapacity, decimal? cost, string? sessionStatus, string? recurrenceFrequency, int? recurrenceCount, User user)
         {
-            if (scheduledHours <= 0)
-                throw new ArgumentOutOfRangeException(nameof(scheduledHours), "Scheduled hours must be greater than zero.");
-
-            if (cost < 0)
-                throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
-
-
             // Create the activity
             var activity = new Activity
             {
                 Title = title,
+                ScheduleType = scheduleType,
                 Description = description,
                 Address = address,
-                MaxCapacity = maxCapacity,
-                ScheduledAt = timing.ScheduledAtUtc,
-                ScheduledLocalTime = timing.ScheduledLocalTime,
-                ScheduledTimeZoneId = timing.TimeZoneId,
-                ScheduledHours = scheduledHours,
-                Cost = cost,
-                //IsActive = isActive,
-                Status = status,
+                IsActive = isActive,
                 CreatedBy = user.Id,
                 CreatedDate = DateTime.UtcNow
 
 
             };
+
+            if (scheduleType == ActivityScheduleTypes.OneTime || scheduleType == ActivityScheduleTypes.Recurring)
+            {
+                if (timing == null || !scheduledHours.HasValue || !maxCapacity.HasValue || !cost.HasValue || string.IsNullOrWhiteSpace(sessionStatus))
+                    throw new ArgumentException("A scheduled Activity requires Session details.");
+                var count = scheduleType == ActivityScheduleTypes.Recurring ? recurrenceCount ?? 0 : 1;
+                if (scheduleType == ActivityScheduleTypes.Recurring && (count < 1 || count > 365 || recurrenceFrequency is not ("Weekly" or "Monthly")))
+                    throw new ArgumentException("Recurring Activities require a valid frequency and Session count.");
+                for (var i = 0; i < count; i++)
+                {
+                    var scheduledAt = recurrenceFrequency == "Monthly" ? timing.ScheduledAtUtc.AddMonths(i) : timing.ScheduledAtUtc.AddDays(7 * i);
+                    var scheduledLocal = recurrenceFrequency == "Monthly" ? timing.ScheduledLocalTime.AddMonths(i) : timing.ScheduledLocalTime.AddDays(7 * i);
+                    activity.Sessions.Add(new ActivitySession
+                    {
+                    ScheduledAt = scheduledAt,
+                    ScheduledLocalTime = scheduledLocal,
+                    ScheduledTimeZoneId = timing.TimeZoneId,
+                    ScheduledHours = scheduledHours.Value,
+                    MaxCapacity = maxCapacity.Value,
+                    Cost = cost.Value,
+                    Status = sessionStatus,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                    });
+                }
+            }
 
             // Save to the database
             return await _activityRepository.AddAsync(activity);
@@ -81,7 +94,7 @@ namespace Core.Services
         }
 
 
-        public async Task<bool> UpdateAsync(int id, string title, string description, string address, int maxCapacity, ScheduleTiming timing, decimal cost, string status, User user)
+        public async Task<bool> UpdateAsync(int id, string title, string description, string address, string scheduleType, bool isActive, User user)
         //public async Task<bool> UpdateAsync(Activity activity)
         {
             //Find the staff by ID
@@ -91,23 +104,11 @@ namespace Core.Services
                 throw new Exception("Activity not found.");
             }
 
-            if (cost < 0)
-                throw new ArgumentOutOfRangeException(nameof(cost), "Cost cannot be negative.");
-
-            if (await _activityRepository.HasRegistrationsAsync(id) && (activity.Cost ?? 0) != cost)
-                throw new InvalidOperationException("Cost cannot be changed after the activity has registrations.");
-
             // Update fields
             activity.Title = title;
             activity.Description = description;
             activity.Address = address;
-            activity.MaxCapacity = maxCapacity;
-            activity.ScheduledAt = timing.ScheduledAtUtc;
-            activity.ScheduledLocalTime = timing.ScheduledLocalTime;
-            activity.ScheduledTimeZoneId = timing.TimeZoneId;
-            activity.Cost = cost;
-            //activity.IsActive = isActive;
-            activity.Status = status;
+            activity.IsActive = isActive;
             activity.UpdatedDate = DateTime.UtcNow;
             activity.UpdatedBy = user.Id;
             // Save changes
@@ -129,6 +130,20 @@ namespace Core.Services
         public Task<bool> HasRegistrationsAsync(int activityId)
         {
             return _activityRepository.HasRegistrationsAsync(activityId);
+        }
+
+        public async Task<ActivitySession> AddSessionAsync(int activityId, ScheduleTiming timing, decimal hours, int capacity, decimal cost, string status, int userId)
+        {
+            if (hours <= 0) throw new ArgumentOutOfRangeException(nameof(hours));
+            if (capacity < 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+            if (cost < 0) throw new ArgumentOutOfRangeException(nameof(cost));
+            var activity = await _activityRepository.GetAsync(activityId) ?? throw new InvalidOperationException("Activity series not found.");
+            var session = new ActivitySession { ActivityID = activityId, Activity = activity, ScheduledAt = timing.ScheduledAtUtc,
+                ScheduledLocalTime = timing.ScheduledLocalTime, ScheduledTimeZoneId = timing.TimeZoneId, ScheduledHours = hours,
+                MaxCapacity = capacity, Cost = cost, Status = status, CreatedDate = DateTime.UtcNow, UpdatedDate = DateTime.UtcNow };
+            activity.Sessions.Add(session);
+            await _activityRepository.AddSessionAsync(session);
+            return session;
         }
 
 

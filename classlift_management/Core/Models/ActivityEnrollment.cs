@@ -25,6 +25,11 @@ namespace Core.Models
         [ForeignKey(nameof(ActivityID))]
         public virtual Activity Activity { get; set; }
 
+        // Required for new series sessions; nullable preserves existing one-time records.
+        public int? ActivitySessionID { get; set; }
+        [ForeignKey(nameof(ActivitySessionID))]
+        public virtual ActivitySession? ActivitySession { get; set; }
+
         // Status of the enrollment (e.g., Pending, Approved, Cancelled)
         [StringLength(50)]
         public string Status { get; set; }

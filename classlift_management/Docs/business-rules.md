@@ -46,12 +46,20 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 ## Activity registration
 
-1. A participant may remove their own pending activity registration from the Confirmations page before confirmation. The removal removes the pending registration and its associated activity fee record.
+1. An Activity Series has one of three schedule types: One-time, Recurring Schedule, or Ongoing / Add Sessions Manually.
+2. An Ongoing Activity Series has no required total Session Count or recurrence rule. Staff creates each occurrence with **Add New Session**.
+3. Every Activity Session is independent: it has its own date/time, registration roster, capacity, cost, and payment records. A participant may attend one or multiple Sessions and is not required to register for the entire series.
+4. An Activity Session may have its own Staff contact. The Activity Series contact is an optional default or general series contact; a Session-level contact overrides it when provided.
+
+5. Activity Series uses an active/inactive lifecycle rather than a Session status. Activity Sessions reuse the Group-course master-session statuses: Open, Closed, Completed, and Canceled.
+6. When Staff creates an Activity Series, Active or Inactive must be selected explicitly. The system must not silently default a new Activity Series to Active.
+7. Activity enrollment statuses are Registered, Confirmed, Completed, Canceled, and Deleted. Deleted preserves enrollment history without representing an active enrollment.
+8. A participant may remove their own pending activity registration from the Confirmations page before confirmation. The removal removes the pending registration and its associated activity fee record; workflows that retain history mark the enrollment Deleted rather than treating it as an active enrollment.
 
 ## Activity completion
 
-1. An Activity is considered ended when its scheduled start time plus its Scheduled Hours has passed. The background status updater then changes the Activity and its Confirmed participant registrations to Completed.
-2. All Activity creation fields are required, including description, address, capacity, cost, time zone, scheduled date, scheduled hours, and registration status.
+1. An Activity Session is considered ended when its scheduled start time plus its Scheduled Hours has passed. The background status updater then changes the Session and its Confirmed participant registrations to Completed. The Activity Series remains active or inactive independently.
+2. Activity Series creation requires series information. Session creation requires the Session's capacity, cost, time zone, scheduled date, scheduled hours, contact, and registration status.
 
 ## Canceled activities and refunds
 

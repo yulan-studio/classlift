@@ -1,163 +1,215 @@
-﻿
-
 @model Core.Models.Activity
-
-
-
+@using Core.Models
+@using System.Globalization
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Edit Activity";
+    var zones = (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones;
 }
 
 <h1 class="management-page-title">Edit Activity</h1>
-<div style="padding-top: 20px;">
-  
-</div>
 
+<style>
+    .activity-series-heading,
+    .activity-sessions-heading {
+        font-size: 1.35rem;
+        line-height: 1.3;
+        margin-bottom: 14px;
+    }
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" name="activityId" value="@Model.ActivityID" />
+    .activity-add-session-heading {
+        font-size: 1.1rem;
+        line-height: 1.3;
+        margin-bottom: 12px;
+    }
 
-    <table style="border-collapse: collapse; width: 80%; text-align: left;">
-        <tr>
-            <td style="padding: 8px;"><label for="Title">Title:</label></td>
-            <td style="padding: 8px;">
-                <input type="text" name="title" value="@Model.Title" placeholder="Activity Title" style="width: 100%;" required />
-            </td>
-        </tr>
+    .activity-edit-section {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 24px;
+    }
 
-        <tr>
-            <td style="padding: 8px;"><label for="Description">Description:</label></td>
-            <td style="padding: 8px;">
-                <textarea name="description" placeholder="Enter activity description" style="width: 100%;" rows="3">@Model.Description</textarea>
-            </td>
-        </tr>
+    .activity-series-section {
+        background-color: #f8f8f8;
+    }
 
-        <tr>
-            <td style="padding: 8px;"><label for="Address">Address:</label></td>
-            <td style="padding: 8px;">
-                <input type="text" name="address" value="@Model.Address" placeholder="Activity Address" style="width: 100%;" />
-            </td>
-        </tr>
+    .activity-sessions-section {
+        background-color: #f8f8f8;
+    }
 
-        <tr>
-            <td style="padding: 8px;"><label for="MaxCapacity">Max Capacity:</label></td>
-            <td style="padding: 8px;">
-                <input type="number" name="maxCapacity" step="1" min="0" value="@Model.MaxCapacity" placeholder="Enter max participants" style="width: 100%;" />
-            </td>
-        </tr>
+    .activity-action-button {
+        background-color: var(--classlift-blue, #1b7bab);
+        color: white;
+        border: 1px solid var(--classlift-blue, #1b7bab);
+    }
 
-        <tr>
-            <td style="padding: 8px;"><label for="ScheduledAt">Scheduled At:</label></td>
-            <td style="padding: 8px;">
-                <input type="datetime-local" name="scheduledAt"
-                       value="@(((DateTime)ViewBag.ScheduledLocalTime).ToString("yyyy-MM-ddTHH:mm"))"
-                       style="width: 100%;" />
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 8px;"><label for="scheduledTimeZoneId">Event Time Zone:</label></td>
-            <td style="padding: 8px;">
-                <select id="scheduledTimeZoneId" name="scheduledTimeZoneId" required style="width: 100%;">
-                    @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
-                    {
-                        <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.SelectedTimeZoneId)">@zone.DisplayName (@zone.Id)</option>
-                    }
-                </select>
-            </td>
-        </tr>
+    .activity-action-button:hover,
+    .activity-action-button:focus {
+        background-color: var(--classlift-blue-dark, #155a78);
+        border-color: var(--classlift-blue-dark, #155a78);
+    }
 
-        <tr>
-            <td style="padding: 8px;"><label for="Cost">Cost:</label></td>
-            <td style="padding: 8px;">
-                <input type="number" name="cost" step="0.01" min="0" value="@(Model.Cost ?? 0)" style="width: 100%;" required readonly="@((bool)ViewBag.HasRegistrations)" />
-                @if ((bool)ViewBag.HasRegistrations)
-                {
-                    <small style="display: block; color: darkslategray;">Cost cannot be edited because this activity has registrations.</small>
-                }
-            </td>
-        </tr>
+    .activity-series-form table {
+        width: 100% !important;
+        min-width: 0;
+        table-layout: fixed;
+    }
 
-       @*  <tr>
-            <td style="padding: 8px;"><label for="IsActive">Active:</label></td>
-            <td style="padding: 8px;">
-                <input id="isActive" name="isActive" type="checkbox" value="true" />
-                <input name="isActive" type="hidden" value="false" />
-                <label for="IsActive">Check if the course is active</label>
-            </td>
-        </tr> *@
+    .activity-series-form {
+        width: 80%;
+        max-width: 960px;
+    }
 
-        @* <tr>
-          
-            <td style="padding: 8px;"><label for="isActive">Is Active:</label></td>
-            <td style="padding: 8px;"> <input asp-for="IsActive" type="checkbox" /></td></>
-            <input type="hidden" asp-for="IsActive" value="false" />
-        </tr> *@
+    .activity-series-form td:first-child {
+        width: 22%;
+        white-space: nowrap;
+        padding-right: 12px !important;
+    }
 
+    .activity-series-form td:nth-child(2) {
+        width: 78%;
+        padding-left: 4px !important;
+    }
 
-        <tr>
-           
-            <td style="padding: 8px;"><label for="Status">Status:</label></td>
-            <td style="padding: 8px;">
-                <select name="status" style="width: 100%;">
-                    <option value="">-- Select Status --</option>
-                    <option value="Open" selected="@(Model.Status == "Open" ? "selected" : null)">Open to registration</option>
-                    <option value="Closed" selected="@(Model.Status == "Closed" ? "selected" : null)">Closed to registration</option> 
-                    <option value="Canceled" selected="@(Model.Status == "Canceled" ? "selected" : null)">Canceled</option>
-                    @* <option value="Completed" selected="@(Model.Status == "Completed" ? "selected" : null)">Completed</option> *@
-                </select>
-            </td>
-        </tr>
+    .activity-series-form input,
+    .activity-series-form textarea,
+    .activity-series-form select {
+        width: 100% !important;
+        max-width: 520px;
+        box-sizing: border-box;
+    }
 
-        @*   <tr>
-          
-            <td style="padding: 8px;"> <input id="isActive" name="isActive" type="checkbox" value="@Model.IsActive" /> </td> 
-            <td style="padding: 8px;"><label for="isActive">Is Active:</label></td>
-            <td style="padding: 8px;"> <input asp-for="IsActive" type="checkbox" /></td></>
-            <input type="hidden" asp-for="IsActive" value="false" />
-        </tr>  *@
+    .activity-sessions-section > form {
+        width: 80% !important;
+        max-width: 960px;
+        box-sizing: border-box;
+    }
 
-        @*  <tr>
-            <td style="padding: 8px;"><label for="ContactID">Contact Person:</label></td>
-            <td style="padding: 8px;">
-                <select name="ContactID" style="width: 100%;">
-                    <option value="" selected>Select Contact</option>
-                    @foreach (var user in ViewBag.ContactList)
-                    {
-                        <option value="@user.Value" @(Model.ContactID == int.Parse(user.Value) ? "selected" : "")>@user.Text</option>
-                    }
-                </select>
-            </td>
-        </tr> *@
+    @@media (max-width: 768px) {
+        .activity-edit-section {
+            width: 100%;
+            padding: 14px;
+        }
 
-        <tr>
-            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
-                <button type="submit" class="classlift-button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Save</button>
-                <a href="/Activity/List" class="classlift-button cancel-button" style="background-color: #ddd; color: #000 !important; text-decoration: none; padding: 5px 10px; border: 1px solid #ccc;">Cancel</a>
-            </td>
-        </tr>
+        .activity-sessions-section > form {
+            width: 100% !important;
+            max-width: none;
+        }
 
-        <tr>
-            <td colspan="2" style="text-align: left; padding: 20px 16px 16px 8px;">
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                    {
-                        <div class="alert alert-danger">
-                            @error.ErrorMessage
-                        </div>
-                    }
-                }
-            </td>
-        </tr>
-    </table>
+        .activity-series-form table,
+        .activity-series-form tbody,
+        .activity-series-form tr,
+        .activity-series-form td {
+            display: block;
+            width: 100% !important;
+        }
+
+        .activity-series-form {
+            width: 100%;
+            max-width: none;
+        }
+
+        .activity-series-form td {
+            padding: 6px 0 !important;
+        }
+
+        .activity-series-form td:first-child,
+        .activity-series-form td:nth-child(2) {
+            width: 100% !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        .activity-series-form input,
+        .activity-series-form textarea,
+        .activity-series-form select {
+            width: 100% !important;
+            max-width: none;
+        }
+
+    }
+</style>
+
+<section class="activity-edit-section activity-series-section">
+    <h2 class="activity-series-heading">Activity</h2>
+    <form asp-action="Edit" method="post" class="activity-series-form">
+        <input type="hidden" name="activityId" value="@Model.ActivityID" />
+        <table style="border-collapse:collapse; width:100%;">
+            <tr><td style="padding:8px;">Title:</td><td style="padding:8px;"><input name="title" value="@Model.Title" required style="width:100%;" /></td></tr>
+            <tr><td style="padding:8px;">Description:</td><td style="padding:8px;"><textarea name="description" rows="3" style="width:100%;">@Model.Description</textarea></td></tr>
+            <tr><td style="padding:8px;">Address:</td><td style="padding:8px;"><input name="address" value="@Model.Address" style="width:100%;" /></td></tr>
+            <tr><td style="padding:8px;">Schedule Type:</td><td style="padding:8px;"><select class="form-select" style="width:100%;" disabled><option selected>@(Model.ScheduleType == ActivityScheduleTypes.OneTime ? "One-time" : Model.ScheduleType == ActivityScheduleTypes.Recurring ? "Recurring" : "Ongoing / Add Sessions Manually")</option></select><input type="hidden" name="scheduleType" value="@Model.ScheduleType" /></td></tr>
+            <tr><td style="padding:8px;">Activity Status:</td><td style="padding:8px;"><select name="isActive" class="form-select" style="width:100%;"><option value="true" selected="@Model.IsActive">Active</option><option value="false" selected="@(!Model.IsActive)">Inactive</option></select></td></tr>
+            <tr><td colspan="2" style="padding:16px 8px;"><button type="submit" class="classlift-button activity-action-button">Save Activity</button> <a href="/Activity/List" class="classlift-button cancel-button" style="text-decoration:none;">Return to Activity List</a></td></tr>
+        </table>
+    </form>
+</section>
+
+<section class="activity-edit-section activity-sessions-section">
+<h2 class="activity-sessions-heading">Sessions</h2>
+<style>
+    .activity-session-editor {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .activity-session-editor label {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-weight: 600;
+    }
+
+    .activity-session-editor input,
+    .activity-session-editor select {
+        width: 100%;
+        box-sizing: border-box;
+        font-weight: 400;
+    }
+</style>
+@if (Model.Sessions.Any())
+{
+    foreach (var session in Model.Sessions.OrderBy(s => s.ScheduledAt))
+    {
+        var zoneId = session.ScheduledTimeZoneId ?? (string)ViewBag.SelectedTimeZoneId;
+        var local = session.ScheduledLocalTime ?? session.ScheduledAt;
+        <form method="post" action="/Activity/@Model.ActivityID/EditSession/@session.ActivitySessionID" style="border:1px solid #ddd; padding:12px; margin-bottom:12px; width:80%;">
+            @Html.AntiForgeryToken()
+            <div class="activity-session-editor">
+                <label>Date / Time<input type="datetime-local" name="scheduledAt" value="@local.ToString("yyyy-MM-ddTHH:mm")" required /></label>
+                <label>Time Zone<select name="scheduledTimeZoneId" class="form-select" required>@foreach (var zone in zones) { <option value="@zone.Id" selected="@(zone.Id == zoneId)">@zone.DisplayName</option> }</select></label>
+                <label>Hours<input type="number" name="scheduledHours" step="0.01" min="0.01" value="@session.ScheduledHours.ToString("0.00", CultureInfo.InvariantCulture)" required /></label>
+                <label>Capacity<input type="number" name="maxCapacity" min="0" value="@session.MaxCapacity" required /></label>
+                <label>Price<input type="number" name="cost" min="0" step="0.01" value="@session.Cost" required /></label>
+                <label>Status<select name="status" class="form-select" required><option value="Open" selected="@(session.Status == "Open")">Open</option><option value="Closed" selected="@(session.Status == "Closed")">Closed</option><option value="Completed" selected="@(session.Status == "Completed")">Completed</option><option value="Canceled" selected="@(session.Status == "Canceled")">Canceled</option></select></label>
+            </div>
+            <button type="submit" class="classlift-button activity-action-button" style="margin-top:10px;">Save Session</button>
+            <a href="/Activity/Registrations/@Model.ActivityID" class="classlift-button" style="margin-top:10px;">View Registrations</a>
+        </form>
+    }
+}
+else
+{
+    <p>No Sessions have been added yet.</p>
+}
+
+@if (Model.ScheduleType == ActivityScheduleTypes.Ongoing)
+{
+<h3 class="activity-add-session-heading" style="margin-top:22px;">Add New Session</h3>
+<form method="post" action="/Activity/@Model.ActivityID/AddNewSession" style="width:80%;">
+    @Html.AntiForgeryToken()
+    <div class="activity-session-editor">
+        <label>Date / Time<input type="datetime-local" name="scheduledAt" required /></label>
+        <label>Time Zone<select name="scheduledTimeZoneId" class="form-select" required>@foreach (var zone in zones) { <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.SelectedTimeZoneId)">@zone.DisplayName</option> }</select></label>
+        <label>Hours<input type="number" name="scheduledHours" step="0.01" min="0.01" required /></label>
+        <label>Capacity<input type="number" name="maxCapacity" min="0" required /></label>
+        <label>Price<input type="number" name="cost" min="0" step="0.01" required /></label>
+        <label>Status<select name="status" class="form-select" required><option value="Open">Open</option><option value="Closed">Closed</option></select></label>
+    </div>
+    <button type="submit" class="classlift-button activity-action-button" style="margin-top:10px;">Add New Session</button>
 </form>
-
-
-
-
-@* @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-} *@
-
-
+}
+</section>

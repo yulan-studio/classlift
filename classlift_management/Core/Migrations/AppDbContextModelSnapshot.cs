@@ -38,9 +38,6 @@ namespace Core.Migrations
                     b.Property<int?>("ContactID")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("Cost")
-                        .HasColumnType("decimal(10, 2)");
-
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
@@ -50,25 +47,15 @@ namespace Core.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("MaxCapacity")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime>("ScheduledAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<decimal?>("ScheduledHours")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<DateTime?>("ScheduledLocalTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ScheduledTimeZoneId")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Status")
+                    b.Property<string>("ScheduleType")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)")
+                        .HasDefaultValue("OneTime");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -103,6 +90,9 @@ namespace Core.Migrations
                     b.Property<int>("ActivityID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ActivitySessionID")
+                        .HasColumnType("int");
+
                     b.Property<int>("ChildID")
                         .HasColumnType("int");
 
@@ -126,6 +116,8 @@ namespace Core.Migrations
                     b.HasKey("EnrollmentID");
 
                     b.HasIndex("ActivityID");
+
+                    b.HasIndex("ActivitySessionID");
 
                     b.HasIndex("ChildID");
 
@@ -223,6 +215,59 @@ namespace Core.Migrations
                     b.HasIndex("UpdatedBy");
 
                     b.ToTable("ActivityNotifications");
+                });
+
+            modelBuilder.Entity("Core.Models.ActivitySession", b =>
+                {
+                    b.Property<int>("ActivitySessionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ActivitySessionID"));
+
+                    b.Property<int>("ActivityID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ContactID")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("MaxCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("ScheduledHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime?>("ScheduledLocalTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ScheduledTimeZoneId")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ActivitySessionID");
+
+                    b.HasIndex("ActivityID");
+
+                    b.HasIndex("ContactID");
+
+                    b.ToTable("activity_sessions", (string)null);
                 });
 
             modelBuilder.Entity("Core.Models.Admin", b =>
@@ -712,22 +757,18 @@ namespace Core.Migrations
 
                     b.HasKey("EnrollmentID");
 
-                    b.HasIndex("ChildID");
-
-                    b.HasIndex("CourseID");
-
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("UpdatedBy");
+
+                    b.HasIndex("EnrollmentID_Ref", "Status", "ScheduledAt")
+                        .HasDatabaseName("IX_course_enrollments_Ref_Status_ScheduledAt");
 
                     b.HasIndex("ChildID", "Status", "EnrollmentID_Ref", "ScheduledAt")
                         .HasDatabaseName("IX_course_enrollments_Child_Status_Ref_ScheduledAt");
 
                     b.HasIndex("CourseID", "ChildID", "Status", "EnrollmentID_Ref", "ScheduledAt")
                         .HasDatabaseName("IX_course_enrollments_Course_Child_Status_Ref_ScheduledAt");
-
-                    b.HasIndex("EnrollmentID_Ref", "Status", "ScheduledAt")
-                        .HasDatabaseName("IX_course_enrollments_Ref_Status_ScheduledAt");
 
                     b.ToTable("course_enrollments", (string)null);
                 });
@@ -1501,6 +1542,10 @@ namespace Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Core.Models.ActivitySession", "ActivitySession")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("ActivitySessionID");
+
                     b.HasOne("Core.Models.Child", "Child")
                         .WithMany()
                         .HasForeignKey("ChildID")
@@ -1518,6 +1563,8 @@ namespace Core.Migrations
                         .HasForeignKey("UpdatedBy");
 
                     b.Navigation("Activity");
+
+                    b.Navigation("ActivitySession");
 
                     b.Navigation("Child");
 
@@ -1582,6 +1629,24 @@ namespace Core.Migrations
                     b.Navigation("Enrollment");
 
                     b.Navigation("UpdatedByUser");
+                });
+
+            modelBuilder.Entity("Core.Models.ActivitySession", b =>
+                {
+                    b.HasOne("Core.Models.Activity", "Activity")
+                        .WithMany("Sessions")
+                        .HasForeignKey("ActivityID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("Contact");
                 });
 
             modelBuilder.Entity("Core.Models.Admin", b =>
@@ -2032,6 +2097,16 @@ namespace Core.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Models.Activity", b =>
+                {
+                    b.Navigation("Sessions");
+                });
+
+            modelBuilder.Entity("Core.Models.ActivitySession", b =>
+                {
+                    b.Navigation("Enrollments");
                 });
 
             modelBuilder.Entity("Core.Models.Child", b =>

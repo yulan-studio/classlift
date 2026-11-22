@@ -46,13 +46,13 @@ namespace Core.Repositories
             
 
             var activityEvents = await _context.ActivityEnrollments
-            .Where(e => e.ChildID == childId)
-            .Include(e => e.Activity)
+            .Where(e => e.ChildID == childId && e.ActivitySession != null && e.Status != "Deleted")
+            .Include(e => e.Activity).Include(e => e.ActivitySession)
             .Select(e => new CalendarSchedule
             {
                 Title = e.Activity.Title,
-                Start = e.Activity.ScheduledAt,
-                End = e.Activity.ScheduledAt.AddHours((double)(e.Activity.ScheduledHours ?? 1m)),
+                Start = e.ActivitySession!.ScheduledAt,
+                End = e.ActivitySession.ScheduledAt.AddHours((double)e.ActivitySession.ScheduledHours),
                 Status = e.Status,
                 Type = "Activity",
                 Color = GetColor(e.Status)

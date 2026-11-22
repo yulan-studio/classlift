@@ -76,17 +76,14 @@ namespace Core.Repositories
         {
 
             var torontoNow = DateTime.UtcNow;
-
-            var activities = await _context.Activities
-                .Where(a => a.ScheduledHours.HasValue
-                    && a.ScheduledHours > 0
-                    && a.ScheduledAt.AddHours((double)a.ScheduledHours.Value) <= torontoNow /*&& a.IsActive == true*/)
+            var activities = await _context.ActivitySessions
+                .Where(s => s.ScheduledHours > 0 && s.ScheduledAt.AddHours((double)s.ScheduledHours) <= torontoNow && s.Status == "Open")
                 .ToListAsync();
-
-            foreach (var activity in activities)
+            foreach (var session in activities)
             {
-                //activity.IsActive = false;
-                activity.Status = "Completed";
+                session.Status = "Completed";
+                var series = await _context.Activities.FindAsync(session.ActivityID);
+                if (series != null) series.IsActive = true;
             }
 
             await _context.SaveChangesAsync();
@@ -100,16 +97,12 @@ namespace Core.Repositories
 
             var torontoNow = DateTime.UtcNow;
 
-            var activities = await dbContext.Activities
-                .Where(a => a.ScheduledHours.HasValue
-                    && a.ScheduledHours > 0
-                    && a.ScheduledAt.AddHours((double)a.ScheduledHours.Value) <= torontoNow /*&& a.IsActive == true*/)
+            var activities = await dbContext.ActivitySessions
+                .Where(s => s.ScheduledHours > 0 && s.ScheduledAt.AddHours((double)s.ScheduledHours) <= torontoNow && s.Status == "Open")
                 .ToListAsync(cancellationToken);
-
-            foreach (var activity in activities)
+            foreach (var session in activities)
             {
-                //activity.IsActive = false;
-                activity.Status = "Completed";
+                session.Status = "Completed";
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -138,13 +131,20 @@ namespace Core.Repositories
 
         public async Task<Activity> GetAsync(int activityId)
         {
-            return await _context.Activities.FindAsync(activityId);  // Finds by ID asynchronously
+            return await _context.Activities.Include(a => a.Sessions).FirstOrDefaultAsync(a => a.ActivityID == activityId);
                         
         }
 
         public Task<bool> HasRegistrationsAsync(int activityId)
         {
             return _context.ActivityEnrollments.AnyAsync(e => e.ActivityID == activityId);
+        }
+
+        public async Task<bool> AddSessionAsync(ActivitySession session)
+        {
+            await _context.ActivitySessions.AddAsync(session);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         // Get all activities from the database asynchronously
@@ -159,10 +159,16 @@ namespace Core.Repositories
                             Title = a.Title,
                             Description = a.Description,
                             Address = a.Address,
-                            ScheduledAt = a.ScheduledAt,
-                            Cost = a.Cost,
-                            MaxCapacity = a.MaxCapacity,
-                            Status = a.Status,
+                            IsActive = a.IsActive,
+                            ScheduleType = a.ScheduleType,
+                            NextSessionAt = a.Sessions.Where(s => s.Status != "Canceled" && s.Status != "Completed").OrderBy(s => s.ScheduledAt).Select(s => (DateTime?)s.ScheduledAt).FirstOrDefault(),
+                            SessionCount = a.Sessions.Count(),
+                            Sessions = a.Sessions.OrderBy(s => s.ScheduledAt).Select(s => new ActivitySessionListItemViewModel
+                            {
+                                ActivitySessionID = s.ActivitySessionID,
+                                ScheduledAt = s.ScheduledAt,
+                                RegisteredCount = _context.ActivityEnrollments.Count(e => e.ActivitySessionID == s.ActivitySessionID && e.Status != "Canceled" && e.Status != "Deleted")
+                            }).ToList(),
                             RegisteredChildrenCount = _context.ActivityEnrollments
                                 .Count(e => e.ActivityID == a.ActivityID) // Count registered children
                         })
@@ -172,7 +178,9 @@ namespace Core.Repositories
         public async Task<IEnumerable<Activity>> GetAllActiveOpenAsync()
         {
             return await _context.Activities
-                .Where(a => a.Status == "Open") // ✅ Only fetch active activities
+                .Include(a => a.Sessions)
+                .Where(a => a.IsActive && a.Sessions.Any(s => s.Status == "Open"))
+                .Select(a => a)
                 .ToListAsync();
         }
 

@@ -62,6 +62,14 @@
     <None Update="TenantScripts\z20261119_MakePaymentPackageDescriptionOptionalAndAmountRequired.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  
+    <None Update="TenantScripts\z20261120170000_ActivitySeriesCleanSchema.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  
+    <None Update="TenantScripts\z20261121204501_RequireExplicitActivityActiveState.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
