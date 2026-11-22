@@ -815,7 +815,11 @@ namespace Web.Controllers.User
             {
                 Value = a.ActivityID.ToString(),
                 Text = a.Title,
-                Cost = a.Cost ?? 0
+                Sessions = a.Sessions
+                    .Where(s => s.Status == "Open" && s.ScheduledAt >= DateTime.UtcNow)
+                    .Select(s => new { Id = s.ActivitySessionID, Date = s.ScheduledAt, Hours = s.ScheduledHours, Cost = s.Cost, Capacity = s.MaxCapacity,
+                        Registered = s.Enrollments.Count(e => e.Status != "Canceled" && e.Status != "Deleted") })
+                    .OrderBy(s => s.Date)
             }).ToList();
 
             return View("ManageRegistrations", new ManageRegisterationsViewModel
@@ -1111,7 +1115,7 @@ namespace Web.Controllers.User
 
         [Authorize(Roles = "Staff")]
         [HttpPost("RegisterActivity")]
-        public async Task<IActionResult> RegisterActivity(int childId, int activityId, string paymentModel, decimal totalCost, string? description)
+        public async Task<IActionResult> RegisterActivity(int childId, int activityId, int[] sessionIds, string paymentModel, decimal totalCost, string? description)
         {
             try
             {
@@ -1125,20 +1129,30 @@ namespace Web.Controllers.User
                 if (paymentModel is not ("Token" or "Direct"))
                     throw new ArgumentException("Please select a valid payment model.");
 
-                var activity = await _activityService.GetAsync(activityId);
-                totalCost = activity.Cost ?? 0;
-                description = totalCost == 0
-                    ? "Free registration — no payment is required."
-                    : paymentModel == "Token"
-                        ? $"Use Token - ${totalCost:F2} will be deducted from your balance once confirmed."
-                        : $"Please email transfer ${totalCost:F2} to [youremail_address], and send screenshot to customer service.";
-                
-                int newEnrollmentId = await _activityEnrollmentService.AddRegisteredEnrollmentAsync(childId, activityId, "Registered", user);
+                if (sessionIds == null || sessionIds.Length == 0)
+                    throw new ArgumentException("Please select at least one available Session.");
+                var sessions = await _db.ActivitySessions
+                    .Include(s => s.Enrollments)
+                    .Where(s => s.ActivityID == activityId && sessionIds.Contains(s.ActivitySessionID) && s.Status == "Open" && s.ScheduledAt >= DateTime.UtcNow)
+                    .ToListAsync();
+                if (sessions.Count != sessionIds.Distinct().Count())
+                    throw new ArgumentException("One or more selected Sessions are no longer available.");
+                if (sessions.Any(s => s.Enrollments.Count(e => e.Status != "Canceled" && e.Status != "Deleted") >= s.MaxCapacity))
+                    throw new ArgumentException("One or more selected Sessions are full.");
+                if (await _db.ActivityEnrollments.AnyAsync(e => e.ChildID == childId && sessionIds.Contains(e.ActivitySessionID!.Value) && (e.Status == "Registered" || e.Status == "Confirmed")))
+                    throw new ArgumentException("The participant is already registered for one of the selected Sessions.");
 
-                success1 = await _feeService.AddActivityFeeAsync(newEnrollmentId, paymentModel, totalCost, description, user);
-
-
-                success2 = await _activityEnrollmentService.UpdateActivityStatusToClosedAsync(activityId);
+                success1 = true;
+                foreach (var session in sessions)
+                {
+                    var enrollment = new Core.Models.ActivityEnrollment { ChildID = childId, ActivityID = activityId, ActivitySessionID = session.ActivitySessionID, Status = "Registered", CreatedBy = user.Id, CreatedDate = DateTime.UtcNow, UpdatedDate = DateTime.UtcNow };
+                    _db.ActivityEnrollments.Add(enrollment);
+                    await _db.SaveChangesAsync();
+                    var sessionCost = session.Cost;
+                    var sessionDescription = sessionCost == 0 ? "Free registration — no payment is required." : paymentModel == "Token" ? $"Use Token - ${sessionCost:F2} will be deducted from your balance once confirmed." : $"Please email transfer ${sessionCost:F2} to [youremail_address], and send screenshot to customer service.";
+                    success1 = await _feeService.AddActivityFeeAsync(enrollment.EnrollmentID, paymentModel, sessionCost, description ?? sessionDescription, user) && success1;
+                }
+                success2 = true;
                 if (!success1 || !success2)
                 {
                     TempData["ErrorMessage2"] = "Failed to enroll in activity.";

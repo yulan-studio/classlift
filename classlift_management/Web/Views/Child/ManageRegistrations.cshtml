@@ -121,6 +121,25 @@
         box-sizing: border-box;
     }
 
+    .activity-session-data {
+        width: 470px;
+        max-width: 100%;
+        overflow: visible;
+        margin-top: 16px;
+    }
+
+    .activity-session-table {
+        width: 470px !important;
+        min-width: 470px;
+        table-layout: fixed;
+        word-break: normal;
+    }
+
+    .activity-session-table th,
+    .activity-session-table td {
+        overflow-wrap: anywhere;
+    }
+
     .registration-payment-row {
         display: grid;
         grid-template-columns: 150px minmax(0, 1fr);
@@ -275,6 +294,12 @@
 
         .registration-dropdown {
             width: 100% !important;
+        }
+
+        .activity-session-data,
+        .activity-session-table {
+            width: 100% !important;
+            min-width: 0;
         }
 
         .registration-add-panel label,
@@ -765,13 +790,47 @@
 
     <div class="registration-field-row">
         <label for="activityId">Select Activity:</label>
-    <select id="activityId" name="activityId" class="form-select" required onchange="updateActivityFeeDetails()">
+    <select id="activityId" name="activityId" class="form-select" required onchange="updateActivitySessions()">
         <option value="">-- Select Activity --</option>
         @foreach (var activity in ViewBag.ActivityList)
         {
-            <option value="@activity.Value" data-cost="@activity.Cost">@activity.Text</option>
+            <option value="@activity.Value">@activity.Text</option>
         }
     </select>
+    @foreach (var activity in ViewBag.ActivityList)
+    {
+        <div id="activity-session-data-@activity.Value" class="activity-session-data" style="display:none;">
+            <table class="table table-bordered table-sm activity-session-table" style="margin-top:8px; width:470px; table-layout:auto;">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th style="white-space:nowrap; min-width:170px;">Date / Time</th>
+                        <th>Price</th>
+                        <th>Registered</th>
+                        <th>Capacity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in activity.Sessions)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="sessionIds" value="@session.Id" data-cost="@session.Cost" onchange="updateActivityFeeDetails()" />
+                            </td>
+                            <td style="white-space:nowrap;">@session.Date.ToString("yyyy-MM-dd h:mm tt")</td>
+                            <td>@session.Cost.ToString("C")</td>
+                            <td>@session.Registered</td>
+                            <td>@session.Capacity</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    </div>
+    <div id="activitySessions" class="registration-field-row" style="display:none; margin-top:12px;">
+        <label>Available Sessions:</label>
+        <div id="activitySessionOptions"></div>
     </div>
         <div class="registration-payment-row" style="margin-top: 10px; margin-bottom:20px;">
         <!-- Select Payment Model -->
@@ -932,6 +991,15 @@
 
 
 
+    function updateActivitySessions() {
+        document.querySelectorAll('.activity-session-data').forEach(x => x.style.display = 'none');
+        document.querySelectorAll('input[name="sessionIds"]').forEach(x => { x.checked = false; });
+        const activityId = document.getElementById('activityId').value;
+        const data = document.getElementById(`activity-session-data-${activityId}`);
+        if (data) data.style.display = 'block';
+        updateActivityFeeDetails();
+    }
+
     function updateActivityFeeDetails() {
         const activityDropdown = document.getElementById("activityId");
         const selectedActivity = activityDropdown.options[activityDropdown.selectedIndex];
@@ -950,7 +1018,8 @@
             return;
         }
 
-        const cost = Number(selectedActivity.getAttribute("data-cost") || 0);
+        const cost = Array.from(document.querySelectorAll('input[name="sessionIds"]:checked'))
+            .reduce((sum, checkbox) => sum + Number(checkbox.getAttribute("data-cost") || 0), 0);
         const formattedCost = cost.toFixed(2);
         feeSection.style.display = "grid";
         totalCostInput.setAttribute("required", "required");
