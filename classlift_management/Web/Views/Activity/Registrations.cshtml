@@ -6,7 +6,12 @@
 
 <h1 class="management-page-title">Activity Registrations</h1>
 <p><strong>Activity:</strong> @Model.ActivityTitle</p>
+@if (Model.SessionScheduledAt.HasValue)
+{
+    <p><strong>Session:</strong> @Model.SessionScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</p>
+}
 <a asp-action="Edit" asp-route-activityId="@Model.ActivityID" class="participation-back-link" style="color: #000 !important;">Back to Activity</a>
+<a asp-action="List" class="participation-back-link" style="color: #000 !important; margin-left: 12px;">Back to Activity List</a>
 <div style="border-top: 2px solid #ddd; margin: 20px 0;"></div>
 
 <div class="management-table-wrapper"><table class="management-table">

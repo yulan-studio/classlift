@@ -163,6 +163,12 @@ namespace Core.Repositories
                             ScheduleType = a.ScheduleType,
                             NextSessionAt = a.Sessions.Where(s => s.Status != "Canceled" && s.Status != "Completed").OrderBy(s => s.ScheduledAt).Select(s => (DateTime?)s.ScheduledAt).FirstOrDefault(),
                             SessionCount = a.Sessions.Count(),
+                            Sessions = a.Sessions.OrderBy(s => s.ScheduledAt).Select(s => new ActivitySessionListItemViewModel
+                            {
+                                ActivitySessionID = s.ActivitySessionID,
+                                ScheduledAt = s.ScheduledAt,
+                                RegisteredCount = _context.ActivityEnrollments.Count(e => e.ActivitySessionID == s.ActivitySessionID && e.Status != "Canceled" && e.Status != "Deleted")
+                            }).ToList(),
                             RegisteredChildrenCount = _context.ActivityEnrollments
                                 .Count(e => e.ActivityID == a.ActivityID) // Count registered children
                         })

@@ -70,6 +70,41 @@ namespace Web.Controllers.Activity
             });
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("SessionRegistrations/{activityId:int}/{sessionId:int}")]
+        public async Task<IActionResult> SessionRegistrations(int activityId, int sessionId)
+        {
+            var activity = await _activityService.GetAsync(activityId);
+            var session = await _db.ActivitySessions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ActivityID == activityId && s.ActivitySessionID == sessionId);
+
+            if (activity == null || session == null)
+                return NotFound();
+
+            var students = await _db.ActivityEnrollments
+                .AsNoTracking()
+                .Include(e => e.Child)
+                .Where(e => e.ActivitySessionID == sessionId)
+                .OrderBy(e => e.Child.Name)
+                .Select(e => new ActivityRegisteredStudentViewModel
+                {
+                    ChildID = e.ChildID,
+                    Name = e.Child.Name,
+                    Status = e.Status
+                })
+                .ToListAsync();
+
+            return View("Registrations", new ActivityRegistrationsViewModel
+            {
+                ActivityID = activity.ActivityID,
+                ActivityTitle = activity.Title,
+                ActivitySessionID = session.ActivitySessionID,
+                SessionScheduledAt = session.ScheduledAt,
+                Students = students
+            });
+        }
+
 
         [Authorize(Roles = "Staff")]
         [HttpGet("ConfirmDelete/{activityId}")]
@@ -125,7 +160,7 @@ namespace Web.Controllers.Activity
 
             ViewData["NameSortParm"] = sortOrder == "name" ? "name_desc" : "name";
             ViewData["AddressSortParm"] = sortOrder == "address" ? "address_desc" : "address";
-            ViewData["ScheduledAtSortParm"] = sortOrder == "scheduledAt" ? "scheduledAt_desc" : "scheduledAt";
+            ViewData["ScheduleTypeSortParm"] = sortOrder == "scheduleType" ? "scheduleType_desc" : "scheduleType";
             ViewData["StatusSortParm"] = sortOrder == "status" ? "status_desc" : "status";
             ViewData["RegistrationSortParm"] = sortOrder == "registration" ? "registration_desc" : "registration";
 
@@ -139,8 +174,8 @@ namespace Web.Controllers.Activity
                 "name_desc" => activityList.OrderByDescending(c => c.Title),
                 "address" => activityList.OrderBy(c => c.Address),
                 "address_desc" => activityList.OrderByDescending(c => c.Address),
-                "scheduledAt" => activityList.OrderBy(c => c.ScheduledAt),
-                "scheduledAt_desc" => activityList.OrderByDescending(c => c.ScheduledAt),
+                "scheduleType" => activityList.OrderBy(c => c.ScheduleType),
+                "scheduleType_desc" => activityList.OrderByDescending(c => c.ScheduleType),
                 "status" => activityList.OrderBy(c => c.Status),
                 "status_desc" => activityList.OrderByDescending(c => c.Status),
                 "registration" => activityList.OrderBy(c => c.RegisteredChildrenCount),

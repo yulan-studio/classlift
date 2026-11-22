@@ -139,9 +139,9 @@
             <tr><td style="padding:8px;">Title:</td><td style="padding:8px;"><input name="title" value="@Model.Title" required style="width:100%;" /></td></tr>
             <tr><td style="padding:8px;">Description:</td><td style="padding:8px;"><textarea name="description" rows="3" style="width:100%;">@Model.Description</textarea></td></tr>
             <tr><td style="padding:8px;">Address:</td><td style="padding:8px;"><input name="address" value="@Model.Address" style="width:100%;" /></td></tr>
-            <tr><td style="padding:8px;">Schedule Type:</td><td style="padding:8px;"><select style="width:100%;" disabled><option selected>@(Model.ScheduleType == ActivityScheduleTypes.OneTime ? "One-time" : Model.ScheduleType == ActivityScheduleTypes.Recurring ? "Recurring Schedule" : "Ongoing / Add Sessions Manually")</option></select><input type="hidden" name="scheduleType" value="@Model.ScheduleType" /></td></tr>
+            <tr><td style="padding:8px;">Schedule Type:</td><td style="padding:8px;"><select style="width:100%;" disabled><option selected>@(Model.ScheduleType == ActivityScheduleTypes.OneTime ? "One-time" : Model.ScheduleType == ActivityScheduleTypes.Recurring ? "Recurring" : "Ongoing / Add Sessions Manually")</option></select><input type="hidden" name="scheduleType" value="@Model.ScheduleType" /></td></tr>
             <tr><td style="padding:8px;">Activity Status:</td><td style="padding:8px;"><select name="isActive" style="width:100%;"><option value="true" selected="@Model.IsActive">Active</option><option value="false" selected="@(!Model.IsActive)">Inactive</option></select></td></tr>
-            <tr><td colspan="2" style="padding:16px 8px;"><button type="submit" class="classlift-button activity-action-button">Save Activity</button> <a href="/Activity/List" class="classlift-button cancel-button">Return to Activity List</a></td></tr>
+            <tr><td colspan="2" style="padding:16px 8px;"><button type="submit" class="classlift-button activity-action-button">Save Activity</button> <a href="/Activity/List" class="classlift-button cancel-button" style="text-decoration:none;">Return to Activity List</a></td></tr>
         </table>
     </form>
 </section>

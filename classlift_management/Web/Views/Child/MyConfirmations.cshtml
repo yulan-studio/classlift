@@ -390,7 +390,7 @@
                     <tr>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Description</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.ScheduleType == "OneTime" ? "One-time" : enrollment.ScheduleType == "Recurring" ? "Recurring Schedule" : "Ongoing")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@(enrollment.ScheduleType == "OneTime" ? "One-time" : enrollment.ScheduleType == "Recurring" ? "Recurring" : "Ongoing")</td>
                         @*  <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.TotalCost</td> *@
                         <td style="padding: 8px; border: 1px solid #ddd;@(enrollment.Status == "Canceled" ? "color: red" : "")">@enrollment.Status</td>
 

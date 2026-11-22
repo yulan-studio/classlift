@@ -69,22 +69,20 @@
                     }
                 </a>
             </th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled Time</th>
             <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["RegistrationSortParm"]" style="color: black; text-decoration: none; ">
-                    # of Registrations
-                    @if (currentSort == "registrations")
+                <a asp-action="List" asp-route-sortOrder="@ViewData["ScheduleTypeSortParm"]" style="color: #000 !important; text-decoration: none; ">
+                    Type
+                    @if (currentSort == "scheduleType")
                     {
                         <span>▲</span>
                     }
-                    else if (currentSort == "registeration_desc")
+                    else if (currentSort == "scheduleType_desc")
                     {
-
                         <span>▼</span>
                     }
                 </a>
-
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Schedule Type</th>
             @* <th style="padding: 8px; border: 1px solid #ddd;">Cost</th> *@
           @*   <th style="padding: 8px; border: 1px solid #ddd;">Contact</th> *@
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Is Active</th> *@
@@ -112,8 +110,20 @@
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Title</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Description</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">@activity.Address</td>
-                <td style="padding: 8px; border: 1px solid #ddd;"><a href="/Activity/Registrations/@activity.ActivityID">@activity.RegisteredChildrenCount</a></td>
-                <td style="padding: 8px; border: 1px solid #ddd;">@(activity.ScheduleType == "OneTime" ? "One-time" : activity.ScheduleType == "Recurring" ? "Recurring Schedule" : "Ongoing")</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">
+                    @if (activity.Sessions.Any())
+                    {
+                        foreach (var session in activity.Sessions)
+                        {
+                            <a href="/Activity/SessionRegistrations/@activity.ActivityID/@session.ActivitySessionID" style="display:block; white-space:nowrap; text-decoration:none;">@session.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm") (@session.RegisteredCount registered)</a>
+                        }
+                    }
+                    else
+                    {
+                        <span>N/A</span>
+                    }
+                </td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@(activity.ScheduleType == "OneTime" ? "One-time" : activity.ScheduleType == "Recurring" ? "Recurring" : "Ongoing")</td>
               @*   <td style="padding: 8px; border: 1px solid #ddd;">@(activity.Cost.ToString("C"))</td> *@
             @*     <td style="padding: 8px; border: 1px solid #ddd;">@activity.IsActive</td> *@
                 <td style="padding: 8px; border: 1px solid #ddd; color: #000;">@activity.Status</td>

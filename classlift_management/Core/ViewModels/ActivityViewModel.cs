@@ -23,5 +23,13 @@ namespace Core.ViewModels
         public int MaxCapacity { get; set; }
         public decimal? Cost { get; set; }
         public int RegisteredChildrenCount { get; set; }
+        public List<ActivitySessionListItemViewModel> Sessions { get; set; } = new();
+    }
+
+    public class ActivitySessionListItemViewModel
+    {
+        public int ActivitySessionID { get; set; }
+        public DateTime ScheduledAt { get; set; }
+        public int RegisteredCount { get; set; }
     }
 }
