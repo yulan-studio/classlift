@@ -324,7 +324,11 @@ namespace Web.Controllers.Courses
                 Value = s.SpecialtyID.ToString(),
                 Text = s.Title
             }).ToList();
-            ViewBag.CoachPrivateCourseManagementEnabled = _currentTenant.HasFeature(Core.FeatureCodes.CoachPrivateCourseManagement);
+            // This is an organization override. Read the resolved set directly so
+            // an explicit Disabled setting is respected even on local development,
+            // where HasFeature intentionally enables all features.
+            ViewBag.CoachPrivateCourseManagementEnabled =
+                _currentTenant.EnabledFeatures.Contains(Core.FeatureCodes.CoachPrivateCourseManagement);
 
             return View();
         }

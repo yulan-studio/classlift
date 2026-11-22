@@ -24,10 +24,12 @@ else
         var featureDescription = feature.Description;
         if (string.Equals(feature.FeatureKey, Core.FeatureCodes.StudentScheduleRequest, StringComparison.OrdinalIgnoreCase))
         {
-            featureName = featureName.Replace("Student", CurrentTenant.Terminology.ParticipantSingular, StringComparison.OrdinalIgnoreCase);
             featureDescription = featureDescription?
-                .Replace("Student", CurrentTenant.Terminology.ParticipantSingular, StringComparison.OrdinalIgnoreCase)
-                .Replace("Coach", CurrentTenant.Terminology.ProviderSingular, StringComparison.OrdinalIgnoreCase);
+                .Replace("Student", CurrentTenant.Terminology.ParticipantSingular, StringComparison.OrdinalIgnoreCase);
+        }
+        else if (string.Equals(feature.FeatureKey, Core.FeatureCodes.CoachPrivateCourseManagement, StringComparison.OrdinalIgnoreCase))
+        {
+            featureDescription = featureDescription?.Replace("Coach", CurrentTenant.Terminology.ProviderSingular, StringComparison.OrdinalIgnoreCase);
         }
         <form asp-controller="Account" asp-action="FeatureSettings" method="post" class="settings-form border rounded p-3 mb-3" style="max-width: 720px;">
             @Html.AntiForgeryToken()
