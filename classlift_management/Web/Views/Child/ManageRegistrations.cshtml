@@ -661,7 +661,7 @@
             <!-- Description Textarea -->
             <label for="description" style="margin-top:8px; display:block;">Description:</label>
             <textarea id="description" name="description" rows="5" cols="40"
-                      placeholder="Enter fee details here..."></textarea>
+                      placeholder="Enter fee details here..." readonly></textarea>
         </span>
         </div>
 
@@ -1014,7 +1014,7 @@
             totalCostInput.removeAttribute("required");
             totalCostInput.value = "";
             descriptionInput.value = "";
-            descriptionInput.readOnly = false;
+            descriptionInput.readOnly = true;
             return;
         }
 
@@ -1033,11 +1033,11 @@
             descriptionInput.value = "Free registration — no payment is required.";
             descriptionInput.readOnly = true;
         } else if (paymentModel === "Token") {
-            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}. Each session fee will be deducted separately once confirmed.`;
-            descriptionInput.readOnly = false;
+            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}.\nEach session fee will be deducted separately once confirmed.`;
+            descriptionInput.readOnly = true;
         } else {
-            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}. Please email transfer each session fee to [youremail_address], and send screenshot to customer service.`;
-            descriptionInput.readOnly = false;
+            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}.\nPlease email transfer each session fee to [youremail_address], and send screenshot to customer service.`;
+            descriptionInput.readOnly = true;
         }
     }
 
