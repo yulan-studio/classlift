@@ -66,8 +66,8 @@
     <thead>
         <tr>
             <th style="padding: 8px; border: 1px solid #ddd;">#</th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["MemberIDParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]">
                     ID
                     @if (currentSort == "id")
                     {
@@ -80,8 +80,8 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]">
                     Name
                     @if (currentSort == "name")
                     {
@@ -94,8 +94,8 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["BirthDateSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["BirthDateSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]">
                     Birth Date
                     @if (currentSort == "birthday")
                     {
@@ -108,8 +108,8 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["GenderSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["GenderSortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]">
                     Gender
                     @if (currentSort == "gender")
                     {
@@ -122,8 +122,8 @@
                     }
                 </a>
             </th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["CitySortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["CitySortParm"]" asp-route-searchName="@Context.Request.Query["searchName"]" asp-route-searchCity="@Context.Request.Query["searchCity"]" asp-route-searchGender="@Context.Request.Query["searchGender"]">
                     City
                     @if (currentSort == "city")
                     {

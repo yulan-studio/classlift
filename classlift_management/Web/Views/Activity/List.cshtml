@@ -39,8 +39,8 @@
 <div class="management-table-wrapper"><table class="management-table">
     <thead>
         <tr style="background-color: #f2f2f2;">
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["NameSortParm"]">
                     Name
                     @if (currentSort == "name")
                     {
@@ -55,8 +55,8 @@
             </th>
 
             <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["AddressSortParm"]" style="color: black; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["AddressSortParm"]">
                     Address
                     @if (currentSort == "address")
                     {
@@ -70,8 +70,8 @@
                 </a>
             </th>
             <th style="padding: 8px; border: 1px solid #ddd;">Scheduled Time</th>
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["ScheduleTypeSortParm"]" style="color: #000 !important; text-decoration: none; ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["ScheduleTypeSortParm"]">
                     Type
                     @if (currentSort == "scheduleType")
                     {
@@ -86,8 +86,8 @@
             @* <th style="padding: 8px; border: 1px solid #ddd;">Cost</th> *@
           @*   <th style="padding: 8px; border: 1px solid #ddd;">Contact</th> *@
         @*     <th style="padding: 8px; border: 1px solid #ddd;">Is Active</th> *@
-            <th style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]" style="color: #000 !important; text-decoration: none;  ">
+            <th class="sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["StatusSortParm"]">
                     Status
                     @if (currentSort == "status")
                     {

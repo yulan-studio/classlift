@@ -455,7 +455,10 @@ main.container > h2 {
 .sortable-link:hover,
 .sortable-link:focus,
 .management-table th.sortable-header a,
-.management-table th[data-sort-key] {
+.management-table th[data-sort-key],
+.management-table thead th a,
+.management-table thead th a:hover,
+.management-table thead th a:focus {
     color: #000 !important;
 }
 

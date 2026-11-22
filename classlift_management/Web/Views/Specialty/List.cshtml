@@ -78,8 +78,8 @@
            @*  <th style="padding: 8px; border: 1px solid #ddd;">Specialty Name</th> *@
 
 
-            <th class="specialty-name-column" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
-                <a asp-action="List" asp-route-sortOrder="@ViewData["SpecialtyNameParm"]" style="color: black; text-decoration: none; ">
+            <th class="specialty-name-column sortable-header" style="padding: 8px; border: 1px solid #ddd; background-color:lightblue">
+                <a class="sortable-link" asp-action="List" asp-route-sortOrder="@ViewData["SpecialtyNameParm"]">
                     Specialty Name
                     @if (specialtyNameSort == "name")
                     {

@@ -4,6 +4,10 @@
 @{ var canDeleteRegistration = CurrentTenant.HasFeature(Core.FeatureCodes.ParentRegistrationDeletion); }
 
 <style>
+    .confirmations-page .confirmation-actions-no-delete button:first-of-type {
+        margin-top: 12px;
+    }
+
     .confirmations-page { width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
     .confirmations-page h2 { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; }
     .confirmations-title { margin: 0; color: #152238; font-size: clamp(1.45rem, 2vw, 1.75rem); font-weight: 700; line-height: 1.2; }
@@ -174,7 +178,7 @@
                 </div>
             }
 
-            <div style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
+            <div class="@(canDeleteRegistration ? null : "confirmation-actions-no-delete")" style="padding: 20px; margin: 20px 0; border: 1px solid #ddd; background-color: #f8f9fa;">
                 <div style="margin-bottom: 16px;">
                     <span style="display: block;">Please click <strong>"Confirm"</strong> and complete the payment together to complete your course registration.</span>
                     @if (canDeleteRegistration)
@@ -273,7 +277,7 @@
             </table>
             <br />
 
-            <div  style="padding: 20px 20px 20px 20px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
+            <div class="@(canDeleteRegistration ? null : "confirmation-actions-no-delete")" style="padding: 20px 20px 20px 20px; margin: 0px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
 
                 Total Cost: $@enrollment.TotalCost<br />
                 @(enrollment.PaymentDescription)<br />
@@ -282,7 +286,7 @@
 
 
 
-            <div @* class="alert alert-danger" *@  style="padding: 20px 20px 20px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
+            <div class="confirmation-actions-no-delete-activity" @* class="alert alert-danger" *@  style="padding: 20px 20px 20px 20px; margin: 20px 0px 20px 0px; border: 1px solid #ddd; background-color: #f8f9fa;">
                 
 
                  <div style="margin-bottom: 16px;">
@@ -428,7 +432,7 @@
                 {
                     <span style="color: #8b1e2d;">If you want to cancel this activity registration, click <strong>Delete</strong>.</span><br /><br />
                 }
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="@(canDeleteRegistration ? null : "confirmation-actions-no-delete")" style="display: flex; align-items: center; gap: 8px;">
                     <button type="submit" name="actionType" value="Confirm" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;">Confirm</button>
                     @if (canDeleteRegistration)
                     {
