@@ -14,12 +14,65 @@
 }
 
 <h1 class="management-page-title">Add Activity</h1>
+<style>
+    .activity-add-form {
+        width: min(80%, 960px);
+    }
+
+    .activity-add-table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .activity-add-table input,
+    .activity-add-table select,
+    .activity-add-table textarea {
+        width: 100% !important;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 768px) {
+        .activity-add-form {
+            width: 100%;
+        }
+
+        .activity-add-table,
+        .activity-add-table tbody,
+        .activity-add-table tr,
+        .activity-add-table td {
+            display: block;
+            width: 100% !important;
+        }
+
+        .activity-add-table td {
+            padding: 6px 0 !important;
+        }
+
+        .activity-add-table td:first-child {
+            padding-bottom: 2px !important;
+        }
+
+        .activity-add-table input,
+        .activity-add-table select,
+        .activity-add-table textarea {
+            width: 100% !important;
+            max-width: none;
+        }
+
+        .activity-add-table .recurrence-fields td:nth-child(2) label,
+        .activity-add-table .recurrence-fields td:nth-child(2) input {
+            margin: 6px 0 0 !important;
+        }
+    }
+</style>
 <div style="padding-top: 20px;">
   
 </div>
 
-<form asp-action="Add" method="post">
-    <table style="border-collapse: collapse; width: 80%; text-align: left; width:80%">
+<form asp-action="Add" method="post" class="activity-add-form">
+    <table class="activity-add-table" style="text-align: left;">
         <tr>
             <td style="padding: 8px; width: 20%"><label for="Title">Name:</label></td>
             <td style="padding: 8px; width: 80%"><input type="text" name="Title" placeholder="Activity Name" style="width: 70%;" required /></td>
