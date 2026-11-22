@@ -231,6 +231,10 @@ This file is the concise, canonical record of business rules confirmed by the pr
 
 12. On the Coach Course Attendance page, a Coach Note entered for a session is synchronized to the session's root record and all registered-student session records, so the same note is visible at both levels.
 
+## Authentication and landing page
+
+- After a successful login, Admin, Staff, Coach, Parent, and Child accounts all open the shared Home/Index page. Role-specific pages remain available through navigation after login.
+
 ## Open questions
 
 - For Student Progress, decide which non-numeric status options are available for an observation dimension, if structured statuses are added.

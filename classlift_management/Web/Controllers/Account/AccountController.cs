@@ -98,19 +98,6 @@ namespace Web.Controllers.Account
 
             if (result.Succeeded)
             {
-                if (Url.IsLocalUrl(model.ReturnUrl))
-                    return LocalRedirect(model.ReturnUrl);
-
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Staff"))
-                    return Redirect("/Staff/Notifications");
-
-                if (roles.Contains("Coach"))
-                    return Redirect("/Coach/Notifications");
-
-                if (roles.Contains("Child"))
-                    return Redirect("/Child/MySchedules");
-
                 return Redirect("/Home/Index");
             }
             else
