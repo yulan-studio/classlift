@@ -43,8 +43,8 @@
 </style>
 
 @{
-    var confirmationCount = Model.UnconfirmedPrivate.Count + Model.UnconfirmedGroup.Count + Model.PaidUnconfirmedPrivate.Count + Model.PaidUnconfirmedGroup.Count;
-    var unpaidCount = Model.UnpaidPrivate.Count + Model.UnpaidGroup.Count;
+    var confirmationCount = Model.UnconfirmedPrivate.Count + Model.UnconfirmedGroup.Count + Model.PaidUnconfirmedPrivate.Count + Model.PaidUnconfirmedGroup.Count + Model.ActivityUnconfirmed.Count + Model.ActivityPaidUnconfirmed.Count;
+    var unpaidCount = Model.UnpaidPrivate.Count + Model.UnpaidGroup.Count + Model.ActivityUnpaid.Count;
 }
 
 <div class="notification-page">
@@ -64,7 +64,9 @@
                 ("Unpaid and unconfirmed Private course registrations", Model.UnconfirmedPrivate),
                 ("Unpaid and unconfirmed Group course registrations", Model.UnconfirmedGroup),
                 ("Paid but unconfirmed Private course registrations", Model.PaidUnconfirmedPrivate),
-                ("Paid but unconfirmed Group course registrations", Model.PaidUnconfirmedGroup)
+                ("Paid but unconfirmed Group course registrations", Model.PaidUnconfirmedGroup),
+                ("Unconfirmed activity registrations", Model.ActivityUnconfirmed),
+                ("Paid but unconfirmed activity registrations", Model.ActivityPaidUnconfirmed)
             })
             {
                 @if (group.Item2.Count > 0)
@@ -81,7 +83,8 @@
         {
             @foreach (var group in new[] {
                 ("Confirmed but unpaid Private course registrations", Model.UnpaidPrivate),
-                ("Confirmed but unpaid Group course registrations", Model.UnpaidGroup)
+                ("Confirmed but unpaid Group course registrations", Model.UnpaidGroup),
+                ("Confirmed but unpaid activity registrations", Model.ActivityUnpaid)
             })
             {
                 @if (group.Item2.Count > 0)

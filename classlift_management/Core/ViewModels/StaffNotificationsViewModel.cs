@@ -8,6 +8,9 @@ public class StaffNotificationsViewModel
     public List<StaffNotificationItem> PaidUnconfirmedGroup { get; set; } = new();
     public List<StaffNotificationItem> UnpaidPrivate { get; set; } = new();
     public List<StaffNotificationItem> UnpaidGroup { get; set; } = new();
+    public List<StaffNotificationItem> ActivityUnconfirmed { get; set; } = new();
+    public List<StaffNotificationItem> ActivityPaidUnconfirmed { get; set; } = new();
+    public List<StaffNotificationItem> ActivityUnpaid { get; set; } = new();
     public List<StaffNotificationItem> LeaveRequests { get; set; } = new();
 }
 
@@ -16,6 +19,8 @@ public class StaffNotificationItem
     public int EnrollmentId { get; set; }
     public int ChildId { get; set; }
     public int CourseId { get; set; }
+    public int ActivityId { get; set; }
+    public int? ActivitySessionId { get; set; }
     public string ParticipantName { get; set; } = string.Empty;
     public string CourseTitle { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;

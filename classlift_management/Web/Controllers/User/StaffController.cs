@@ -42,6 +42,9 @@ namespace Web.Controllers.User
             var roots = _db.CourseEnrollments
                 .AsNoTracking()
                 .Where(e => e.EnrollmentID_Ref == null && e.ChildID.HasValue);
+            var activityEnrollments = _db.ActivityEnrollments
+                .AsNoTracking()
+                .Where(e => e.ActivitySessionID.HasValue && e.ChildID > 0);
 
             var model = new StaffNotificationsViewModel
             {
@@ -51,10 +54,38 @@ namespace Web.Controllers.User
                 PaidUnconfirmedGroup = await GetNotificationItems(roots.Where(e => e.Status == "Registered" && e.Course.CourseType == "Group" && _db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
                 UnpaidPrivate = await GetNotificationItems(roots.Where(e => e.Status == "Confirmed" && e.Course.CourseType == "Private" && _db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && !f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
                 UnpaidGroup = await GetNotificationItems(roots.Where(e => e.Status == "Confirmed" && e.Course.CourseType == "Group" && _db.Fees.Any(f => f.CourseEnrollmentID == e.EnrollmentID && !f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations", true),
+                ActivityUnconfirmed = await GetActivityNotificationItems(activityEnrollments.Where(e => e.Status == "Registered" && !_db.Fees.Any(f => f.ActivityEnrollmentID == e.EnrollmentID && f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
+                ActivityPaidUnconfirmed = await GetActivityNotificationItems(activityEnrollments.Where(e => e.Status == "Registered" && _db.Fees.Any(f => f.ActivityEnrollmentID == e.EnrollmentID && f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
+                ActivityUnpaid = await GetActivityNotificationItems(activityEnrollments.Where(e => e.Status == "Confirmed" && _db.Fees.Any(f => f.ActivityEnrollmentID == e.EnrollmentID && !f.IsPaid)), "/Child/Participation/{0}?tab=ManageRegistrations"),
                 LeaveRequests = await GetNotificationItems(_db.CourseEnrollments.AsNoTracking().Where(e => e.EnrollmentID_Ref != null && e.ChildID.HasValue && e.Status == "RequestToLeave"), "/Child/ManageSessionRegistrations?childId={0}&courseId={1}")
             };
 
             return View(model);
+        }
+
+        private async Task<List<StaffNotificationItem>> GetActivityNotificationItems(IQueryable<Core.Models.ActivityEnrollment> query, string linkFormat)
+        {
+            var rows = await query
+                .Include(e => e.Child)
+                .Include(e => e.Activity)
+                .Include(e => e.ActivitySession)
+                .OrderBy(e => e.Child!.Name)
+                .ThenBy(e => e.Activity.Title)
+                .ThenBy(e => e.ActivitySession!.ScheduledAt)
+                .ToListAsync();
+
+            return rows.Select(e => new StaffNotificationItem
+            {
+                EnrollmentId = e.EnrollmentID,
+                ChildId = e.ChildID,
+                ActivityId = e.ActivityID,
+                ActivitySessionId = e.ActivitySessionID,
+                ParticipantName = e.Child!.Name,
+                CourseTitle = e.Activity.Title,
+                Status = e.Status,
+                ScheduledAt = e.ActivitySession!.ScheduledAt,
+                Link = string.Format(linkFormat, e.ChildID)
+            }).ToList();
         }
 
         [Authorize(Roles = "Staff")]
