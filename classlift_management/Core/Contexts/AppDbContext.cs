@@ -81,6 +81,7 @@ namespace Core.Contexts
 
         public DbSet<Course> Courses { get; set; }
         public DbSet<Core.Models.Activity> Activities { get; set; }
+        public DbSet<Core.Models.ActivitySession> ActivitySessions { get; set; }
         public DbSet<Parent> Parents { get; set; }
         public DbSet<ParentChild> ParentChild { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -163,12 +164,16 @@ namespace Core.Contexts
 
             modelBuilder.Entity<Core.Models.Activity>()
             .ToTable("activities"); // Explicitly map to the table name
-
             modelBuilder.Entity<Core.Models.Activity>()
-                .Property(a => a.ScheduledAt)
-                .HasConversion(
-                    value => DateTime.SpecifyKind(value, DateTimeKind.Utc),
-                    value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
+                .Property(a => a.ScheduleType).HasDefaultValue(ActivityScheduleTypes.OneTime);
+
+            modelBuilder.Entity<Core.Models.ActivitySession>().ToTable("activity_sessions");
+            modelBuilder.Entity<Core.Models.ActivitySession>()
+                .HasOne(s => s.Activity).WithMany(a => a.Sessions)
+                .HasForeignKey(s => s.ActivityID).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Core.Models.ActivitySession>()
+                .HasOne(s => s.Contact).WithMany()
+                .HasForeignKey(s => s.ContactID).OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<ActivityEnrollment>()
                 .ToTable("activity_enrollments"); // Explicitly map to the table name

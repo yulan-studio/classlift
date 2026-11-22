@@ -14,6 +14,23 @@ namespace Core.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ActivityID { get; set; }
 
+        // The Activity row is the series. Sessions are stored separately so that
+        // each occurrence can have its own roster, capacity, price and payments.
+        [Required]
+        [MaxLength(40)]
+        public string ScheduleType { get; set; } = ActivityScheduleTypes.OneTime;
+
+        public virtual ICollection<ActivitySession> Sessions { get; set; } = new List<ActivitySession>();
+
+        // Read-only compatibility projections for legacy screens; these are not database columns.
+        [NotMapped] public DateTime ScheduledAt => Sessions.OrderBy(s => s.ScheduledAt).Select(s => s.ScheduledAt).FirstOrDefault();
+        [NotMapped] public DateTime? ScheduledLocalTime => Sessions.OrderBy(s => s.ScheduledAt).Select(s => s.ScheduledLocalTime).FirstOrDefault();
+        [NotMapped] public string? ScheduledTimeZoneId => Sessions.OrderBy(s => s.ScheduledAt).Select(s => s.ScheduledTimeZoneId).FirstOrDefault();
+        [NotMapped] public decimal? ScheduledHours => Sessions.OrderBy(s => s.ScheduledAt).Select(s => (decimal?)s.ScheduledHours).FirstOrDefault();
+        [NotMapped] public decimal? Cost => Sessions.OrderBy(s => s.ScheduledAt).Select(s => (decimal?)s.Cost).FirstOrDefault();
+        [NotMapped] public int MaxCapacity => Sessions.OrderBy(s => s.ScheduledAt).Select(s => s.MaxCapacity).FirstOrDefault();
+        [NotMapped] public string Status => Sessions.OrderBy(s => s.ScheduledAt).Select(s => s.Status).FirstOrDefault() ?? "Closed";
+
         [Required]
         [MaxLength(255)]
         public string Title { get; set; }
@@ -23,23 +40,8 @@ namespace Core.Models
         [MaxLength(255)]
         public string Address { get; set; }
 
-        public int MaxCapacity { get; set; }
-
-        public DateTime ScheduledAt { get; set; }
-
-        public DateTime? ScheduledLocalTime { get; set; }
-
-        [MaxLength(100)]
-        public string? ScheduledTimeZoneId { get; set; }
-
-        public decimal? ScheduledHours { get; set; }
-
-        [Column(TypeName = "decimal(10, 2)")]
-        public decimal? Cost { get; set; }
-
-        //public bool IsActive { get; set; } = true;
-
-        public string Status { get; set; } 
+        [Required]
+        public bool IsActive { get; set; }
 
         public int? ContactID { get; set; }
 

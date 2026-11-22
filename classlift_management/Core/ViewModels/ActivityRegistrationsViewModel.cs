@@ -4,6 +4,8 @@ public class ActivityRegistrationsViewModel
 {
     public int ActivityID { get; set; }
     public string ActivityTitle { get; set; } = string.Empty;
+    public int? ActivitySessionID { get; set; }
+    public DateTime? SessionScheduledAt { get; set; }
     public List<ActivityRegisteredStudentViewModel> Students { get; set; } = new();
 }
 

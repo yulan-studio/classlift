@@ -70,6 +70,41 @@ namespace Web.Controllers.Activity
             });
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpGet("SessionRegistrations/{activityId:int}/{sessionId:int}")]
+        public async Task<IActionResult> SessionRegistrations(int activityId, int sessionId)
+        {
+            var activity = await _activityService.GetAsync(activityId);
+            var session = await _db.ActivitySessions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ActivityID == activityId && s.ActivitySessionID == sessionId);
+
+            if (activity == null || session == null)
+                return NotFound();
+
+            var students = await _db.ActivityEnrollments
+                .AsNoTracking()
+                .Include(e => e.Child)
+                .Where(e => e.ActivitySessionID == sessionId)
+                .OrderBy(e => e.Child.Name)
+                .Select(e => new ActivityRegisteredStudentViewModel
+                {
+                    ChildID = e.ChildID,
+                    Name = e.Child.Name,
+                    Status = e.Status
+                })
+                .ToListAsync();
+
+            return View("Registrations", new ActivityRegistrationsViewModel
+            {
+                ActivityID = activity.ActivityID,
+                ActivityTitle = activity.Title,
+                ActivitySessionID = session.ActivitySessionID,
+                SessionScheduledAt = session.ScheduledAt,
+                Students = students
+            });
+        }
+
 
         [Authorize(Roles = "Staff")]
         [HttpGet("ConfirmDelete/{activityId}")]
@@ -125,7 +160,7 @@ namespace Web.Controllers.Activity
 
             ViewData["NameSortParm"] = sortOrder == "name" ? "name_desc" : "name";
             ViewData["AddressSortParm"] = sortOrder == "address" ? "address_desc" : "address";
-            ViewData["ScheduledAtSortParm"] = sortOrder == "scheduledAt" ? "scheduledAt_desc" : "scheduledAt";
+            ViewData["ScheduleTypeSortParm"] = sortOrder == "scheduleType" ? "scheduleType_desc" : "scheduleType";
             ViewData["StatusSortParm"] = sortOrder == "status" ? "status_desc" : "status";
             ViewData["RegistrationSortParm"] = sortOrder == "registration" ? "registration_desc" : "registration";
 
@@ -139,8 +174,8 @@ namespace Web.Controllers.Activity
                 "name_desc" => activityList.OrderByDescending(c => c.Title),
                 "address" => activityList.OrderBy(c => c.Address),
                 "address_desc" => activityList.OrderByDescending(c => c.Address),
-                "scheduledAt" => activityList.OrderBy(c => c.ScheduledAt),
-                "scheduledAt_desc" => activityList.OrderByDescending(c => c.ScheduledAt),
+                "scheduleType" => activityList.OrderBy(c => c.ScheduleType),
+                "scheduleType_desc" => activityList.OrderByDescending(c => c.ScheduleType),
                 "status" => activityList.OrderBy(c => c.Status),
                 "status_desc" => activityList.OrderByDescending(c => c.Status),
                 "registration" => activityList.OrderBy(c => c.RegisteredChildrenCount),
@@ -188,17 +223,20 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Add")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(string? title, string? description, string? address, int? maxCapacity, DateTime? scheduledAt, string? scheduledTimeZoneId, decimal? scheduledHours, decimal? cost, /*bool isActive,*/ string? status)
+        public async Task<IActionResult> Add(string? title, string? description, string? address, int? maxCapacity, DateTime? scheduledAt, string? scheduledTimeZoneId, decimal? scheduledHours, decimal? cost, string? status, string? scheduleType, bool? isActive, string? recurrenceFrequency, int? recurrenceCount)
         {
             if (string.IsNullOrWhiteSpace(title)) ModelState.AddModelError("title", "Title is required.");
             if (string.IsNullOrWhiteSpace(description)) ModelState.AddModelError("description", "Description is required.");
             if (string.IsNullOrWhiteSpace(address)) ModelState.AddModelError("address", "Address is required.");
-            if (!maxCapacity.HasValue || maxCapacity.Value < 0) ModelState.AddModelError("maxCapacity", "Max Capacity is required and cannot be negative.");
-            if (!scheduledAt.HasValue) ModelState.AddModelError("scheduledAt", "Scheduled Date is required.");
-            if (string.IsNullOrWhiteSpace(scheduledTimeZoneId)) ModelState.AddModelError("scheduledTimeZoneId", "Event Time Zone is required.");
-            if (!scheduledHours.HasValue || scheduledHours.Value <= 0) ModelState.AddModelError("scheduledHours", "Scheduled Hours is required and must be greater than zero.");
-            if (!cost.HasValue || cost.Value < 0) ModelState.AddModelError("cost", "Cost is required and cannot be negative.");
-            if (string.IsNullOrWhiteSpace(status)) ModelState.AddModelError("status", "Status is required.");
+            var ongoing = scheduleType == ActivityScheduleTypes.Ongoing;
+            if (!ongoing && (!maxCapacity.HasValue || maxCapacity.Value < 0)) ModelState.AddModelError("maxCapacity", "Max Capacity is required and cannot be negative.");
+            if (!ongoing && !scheduledAt.HasValue) ModelState.AddModelError("scheduledAt", "Scheduled Date is required.");
+            if (!ongoing && string.IsNullOrWhiteSpace(scheduledTimeZoneId)) ModelState.AddModelError("scheduledTimeZoneId", "Event Time Zone is required.");
+            if (!ongoing && (!scheduledHours.HasValue || scheduledHours.Value <= 0)) ModelState.AddModelError("scheduledHours", "Scheduled Hours is required and must be greater than zero.");
+            if (!ongoing && (!cost.HasValue || cost.Value < 0)) ModelState.AddModelError("cost", "Cost is required and cannot be negative.");
+            if (scheduleType == ActivityScheduleTypes.Recurring && (!recurrenceCount.HasValue || recurrenceCount < 1 || recurrenceCount > 365)) ModelState.AddModelError("recurrenceCount", "Number of Sessions must be between 1 and 365.");
+            if (!ongoing && string.IsNullOrWhiteSpace(status)) ModelState.AddModelError("status", "Session status is required.");
+            if (!isActive.HasValue) ModelState.AddModelError("isActive", "Please select whether the Activity is active.");
 
             //createdBy = 1; //temparary set
 
@@ -211,10 +249,12 @@ namespace Web.Controllers.Activity
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var timing = CreateTiming(scheduledAt!.Value, scheduledTimeZoneId!);
-                if (timing.ScheduledAtUtc <= DateTime.UtcNow)
-                    throw new ArgumentException("Scheduled time must be in the future.");
-                var result = await _activityService.AddAsync(title!, description!, address!, maxCapacity!.Value, timing, scheduledHours!.Value, cost!.Value, status!, user!);
+                // ScheduleTiming requires a local DateTime for legacy Activity fields.
+                // Ongoing series do not use this placeholder; their real schedule lives in ActivitySession.
+                ScheduleTiming? timing = null;
+                if (!ongoing)
+                    timing = CreateTiming(scheduledAt!.Value, scheduledTimeZoneId!);
+                var result = await _activityService.AddAsync(title!, description!, address!, scheduleType ?? ActivityScheduleTypes.OneTime, isActive!.Value, timing, scheduledHours, maxCapacity, cost, status, recurrenceFrequency, recurrenceCount, user!);
 
                 if (!result)
                 {
@@ -237,6 +277,46 @@ namespace Web.Controllers.Activity
 
         }
 
+        [Authorize(Roles = "Staff")]
+        [HttpPost("{activityId:int}/AddNewSession")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddNewSession(int activityId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, int maxCapacity, decimal cost, string status = "Open")
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
+                await _activityService.AddSessionAsync(activityId, timing, scheduledHours, maxCapacity, cost, status, user!.Id);
+                TempData["SuccessMessage"] = "New activity session added successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            return RedirectToAction(nameof(Edit), new { activityId });
+        }
+
+        [Authorize(Roles = "Staff")]
+        [HttpPost("{activityId:int}/EditSession/{sessionId:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditSession(int activityId, int sessionId, DateTime scheduledAt, string scheduledTimeZoneId, decimal scheduledHours, int maxCapacity, decimal cost, string status)
+        {
+            var session = await _db.ActivitySessions.FirstOrDefaultAsync(s => s.ActivityID == activityId && s.ActivitySessionID == sessionId);
+            if (session == null) return NotFound();
+            var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
+            session.ScheduledAt = timing.ScheduledAtUtc;
+            session.ScheduledLocalTime = timing.ScheduledLocalTime;
+            session.ScheduledTimeZoneId = timing.TimeZoneId;
+            session.ScheduledHours = scheduledHours;
+            session.MaxCapacity = maxCapacity;
+            session.Cost = cost;
+            session.Status = status;
+            session.UpdatedDate = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Activity Session updated successfully.";
+            return RedirectToAction(nameof(Edit), new { activityId });
+        }
+
 
 
 
@@ -257,10 +337,7 @@ namespace Web.Controllers.Activity
 
             // Pass the staff details to the Delete.cshtml view
             var user = await _userManager.GetUserAsync(User);
-            var zoneId = activity.ScheduledTimeZoneId ?? user?.TimeZoneId ?? TimeZoneService.DefaultTimeZoneId;
-            SetTimeZoneOptions(zoneId);
-            ViewBag.ScheduledLocalTime = activity.ScheduledLocalTime
-                ?? _timeZoneService.ConvertUtcToLocal(activity.ScheduledAt, zoneId);
+            SetTimeZoneOptions(user?.TimeZoneId);
             ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
             return View(activity);
 
@@ -269,31 +346,19 @@ namespace Web.Controllers.Activity
         [Authorize(Roles = "Staff")]
         [HttpPost("Edit/{activityId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, int maxCapacity, DateTime scheduledAt, string scheduledTimeZoneId, decimal cost, /*bool isActive,*/ string status)
+        public async Task<IActionResult> Edit(int activityId, string title, string description, string address, string scheduleType, bool isActive)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var timing = CreateTiming(scheduledAt, scheduledTimeZoneId);
-                var result = await _activityService.UpdateAsync(activityId, title, description, address, maxCapacity, timing, cost, status, user!);
+                var result = await _activityService.UpdateAsync(activityId, title, description, address, scheduleType, isActive, user!);
 
                 if (!result)
                 {
                     ModelState.AddModelError(string.Empty, "Failed to update activity information.");
                     var activity = await _activityService.GetAsync(activityId);
-                    SetTimeZoneOptions(scheduledTimeZoneId);
-                    ViewBag.ScheduledLocalTime = scheduledAt;
                     ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
                     return View(activity);
-                }
-
-                if(status == "Canceled")
-                {
-                    await _activityEnrollmentService.UpdateActivityStatusToCanceledAsync(activityId);
-                    if (_currentTenant.HasFeature(Core.FeatureCodes.CreditTracking))
-                    {
-                        await RefundCanceledActivityRegistrationsAsync(activityId, user!.Id);
-                    }
                 }
 
                 TempData["SuccessMessage"] = "Activity information updated successfully.";
@@ -303,8 +368,6 @@ namespace Web.Controllers.Activity
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 var activity = await _activityService.GetAsync(activityId);
-                SetTimeZoneOptions(scheduledTimeZoneId);
-                ViewBag.ScheduledLocalTime = scheduledAt;
                 ViewBag.HasRegistrations = await _activityService.HasRegistrationsAsync(activityId);
                 return View(activity);
             }
