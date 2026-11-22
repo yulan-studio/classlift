@@ -2,6 +2,18 @@
 
 <h4>Feature settings</h4>
 <p class="text-muted">Choose which organization-configurable features are enabled for your organization.</p>
+<style>
+    .feature-setting-dependent {
+        margin-left: 2rem;
+        border-left: 3px solid #dee2e6 !important;
+        background-color: #fafafa;
+    }
+
+    .feature-setting-dependent .feature-setting-label::before {
+        content: "↳ ";
+        color: #6c757d;
+    }
+</style>
 
 @if (ViewBag.SuccessMessage != null)
 {
@@ -18,33 +30,47 @@
 }
 else
 {
-    foreach (var feature in Model)
+    var orderedFeatures = Model
+        .OrderBy(feature => string.Equals(feature.FeatureKey, Core.FeatureCodes.CoachPrivateCourseManagement, StringComparison.OrdinalIgnoreCase) ? 0 :
+            string.Equals(feature.FeatureKey, Core.FeatureCodes.StudentScheduleRequest, StringComparison.OrdinalIgnoreCase) ? 1 : 2)
+        .ToList();
+
+    foreach (var feature in orderedFeatures)
     {
+        var isStudentScheduleRequest = string.Equals(feature.FeatureKey, Core.FeatureCodes.StudentScheduleRequest, StringComparison.OrdinalIgnoreCase);
+        var coachManagementEnabled = CurrentTenant.HasFeature(Core.FeatureCodes.CoachPrivateCourseManagement);
+        var isDependencyLocked = isStudentScheduleRequest && !coachManagementEnabled;
         var featureName = feature.FeatureName;
         var featureDescription = feature.Description;
         if (string.Equals(feature.FeatureKey, Core.FeatureCodes.StudentScheduleRequest, StringComparison.OrdinalIgnoreCase))
         {
+            featureName = featureName.Replace("Student", CurrentTenant.Terminology.ParticipantSingular, StringComparison.OrdinalIgnoreCase);
             featureDescription = featureDescription?
                 .Replace("Student", CurrentTenant.Terminology.ParticipantSingular, StringComparison.OrdinalIgnoreCase);
         }
         else if (string.Equals(feature.FeatureKey, Core.FeatureCodes.CoachPrivateCourseManagement, StringComparison.OrdinalIgnoreCase))
         {
+            featureName = featureName.Replace("Coach", CurrentTenant.Terminology.ProviderSingular, StringComparison.OrdinalIgnoreCase);
             featureDescription = featureDescription?.Replace("Coach", CurrentTenant.Terminology.ProviderSingular, StringComparison.OrdinalIgnoreCase);
         }
-        <form asp-controller="Account" asp-action="FeatureSettings" method="post" class="settings-form border rounded p-3 mb-3" style="max-width: 720px;">
+        <form asp-controller="Account" asp-action="FeatureSettings" method="post" class="settings-form border rounded p-3 mb-3 @(isStudentScheduleRequest ? "feature-setting-dependent" : null)" style="max-width: 720px;">
             @Html.AntiForgeryToken()
             <input type="hidden" name="featureKey" value="@feature.FeatureKey" />
             <div class="d-flex justify-content-between align-items-start gap-3">
                 <div>
-                        <label class="form-label fw-semibold mb-1">@featureName</label>
+                        <label class="form-label fw-semibold mb-1 feature-setting-label">@featureName</label>
                     @if (!string.IsNullOrWhiteSpace(featureDescription))
                     {
                         <div class="form-text">@featureDescription</div>
                     }
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="isEnabled" value="true" @(feature.IsEnabled ? "checked" : null) onchange="this.form.requestSubmit()" />
+                    <input class="form-check-input" type="checkbox" name="isEnabled" value="true" @(feature.IsEnabled ? "checked" : null) @(isDependencyLocked ? "disabled" : null) onchange="this.form.requestSubmit()" />
                     <span class="form-check-label">@(feature.IsEnabled ? "Enabled" : "Disabled")</span>
+                    @if (isDependencyLocked)
+                    {
+                        <div class="form-text">Enable Provider-managed Private Courses first.</div>
+                    }
                 </div>
             </div>
         </form>

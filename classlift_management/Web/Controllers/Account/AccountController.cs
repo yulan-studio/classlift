@@ -279,6 +279,7 @@ namespace Web.Controllers.Account
             try
             {
                 var settings = await _organizationFeatureSettingsService.GetAsync(cancellationToken);
+                ApplyFeatureDependencies(settings);
                 return PartialView("_FeatureSettings", settings);
             }
             catch (HttpRequestException)
@@ -296,8 +297,19 @@ namespace Web.Controllers.Account
         {
             try
             {
+                if (string.Equals(featureKey, Core.FeatureCodes.StudentScheduleRequest, StringComparison.OrdinalIgnoreCase)
+                    && isEnabled
+                    && !_currentTenant.HasFeature(Core.FeatureCodes.CoachPrivateCourseManagement))
+                {
+                    var lockedSettings = await _organizationFeatureSettingsService.GetAsync(cancellationToken);
+                    ApplyFeatureDependencies(lockedSettings);
+                    ViewBag.ErrorMessage = "Enable Provider-managed Private Courses before enabling this feature.";
+                    return PartialView("_FeatureSettings", lockedSettings);
+                }
+
                 await _organizationFeatureSettingsService.UpdateAsync(featureKey, isEnabled, cancellationToken);
                 var settings = await _organizationFeatureSettingsService.GetAsync(cancellationToken);
+                ApplyFeatureDependencies(settings);
                 ViewBag.SuccessMessage = "Feature settings have been updated.";
                 return PartialView("_FeatureSettings", settings);
             }
@@ -307,6 +319,16 @@ namespace Web.Controllers.Account
                 ViewBag.ErrorMessage = "Feature settings could not be saved. Please try again.";
                 return PartialView("_FeatureSettings", Array.Empty<OrganizationFeatureSettingDto>());
             }
+        }
+
+        private void ApplyFeatureDependencies(IReadOnlyList<OrganizationFeatureSettingDto> settings)
+        {
+            var coachManagementEnabled = _currentTenant.HasFeature(Core.FeatureCodes.CoachPrivateCourseManagement);
+            var studentScheduleRequest = settings.FirstOrDefault(setting =>
+                string.Equals(setting.FeatureKey, Core.FeatureCodes.StudentScheduleRequest, StringComparison.OrdinalIgnoreCase));
+
+            if (studentScheduleRequest != null && !coachManagementEnabled)
+                studentScheduleRequest.IsEnabled = false;
         }
 
         [Authorize(Roles = "Admin")]

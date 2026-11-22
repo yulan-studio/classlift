@@ -39,9 +39,19 @@ namespace Core.Models
         /// Checks the feature set loaded during tenant resolution.
         /// Feature keys are compared case-insensitively.
         /// </summary>
-        public bool HasFeature(string featureKey) =>
-            !string.IsNullOrWhiteSpace(featureKey) &&
-            (AreAllFeaturesEnabled || EnabledFeatures.Contains(featureKey));
+        public bool HasFeature(string featureKey)
+        {
+            if (string.IsNullOrWhiteSpace(featureKey))
+                return false;
+
+            var enabled = AreAllFeaturesEnabled || EnabledFeatures.Contains(featureKey);
+            return string.Equals(featureKey, Core.FeatureCodes.StudentScheduleRequest, StringComparison.OrdinalIgnoreCase)
+                ? enabled && HasFeatureWithoutDependency(Core.FeatureCodes.CoachPrivateCourseManagement)
+                : enabled;
+        }
+
+        private bool HasFeatureWithoutDependency(string featureKey) =>
+            AreAllFeaturesEnabled || EnabledFeatures.Contains(featureKey);
 
         public bool IsResolved =>
             !string.IsNullOrWhiteSpace(DatabaseName) &&
