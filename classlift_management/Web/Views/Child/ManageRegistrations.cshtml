@@ -648,10 +648,7 @@
             @* <option value="OAP">OAP</option> *@
         </select>
 
-            @if (CurrentTenant.HasFeature(FeatureCodes.CreditTracking))
-            {
-                <label style="font-size:0.9em; color:darkslategray"> - If there is enough balance, choose 'Token'.</label>
-            }
+           
 
         <!-- Fee Input (visible conditionally) -->
         <span id="feeSection" style="display:none; margin-top:10px;">
@@ -841,7 +838,6 @@
             <option value="Direct">Direct</option>
         </select>
 
-        <label style="font-size:0.9em; color:darkslategray"> - If there is enough balance, choose 'Token'.</label>
 
         <!-- Fee Input (visible conditionally) -->
         <span id="activityFeeSection" style="display:none; margin-top:10px;">
