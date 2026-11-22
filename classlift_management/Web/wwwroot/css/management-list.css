@@ -450,6 +450,15 @@ main.container > h2 {
     text-decoration: none;
 }
 
+/* Sortable table headers use black text consistently across management pages. */
+.sortable-link,
+.sortable-link:hover,
+.sortable-link:focus,
+.management-table th.sortable-header a,
+.management-table th[data-sort-key] {
+    color: #000 !important;
+}
+
 .management-table .action-link {
     margin-left: 10px;
 }
