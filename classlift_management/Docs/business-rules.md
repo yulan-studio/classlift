@@ -25,6 +25,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. Organization Feature Settings are applied generically: every configurable Feature returned by the Platform API can override the Plan default through its `IsEnabled` value. This is not limited to Student Schedule Request.
 4. Management pages use the stable Feature key to show or hide the corresponding UI and server-side operation. Adding a new configurable Feature requires its Platform definition and the relevant page-specific UI rule, but does not require new generic Feature-setting loading logic in Management.
 5. Local development may intentionally enable all Features so that Management can run without Platform entitlement data. Organization-level Feature setting behavior must be verified on a tenant environment with Platform integration configured.
+6. The Coach Private Course Management feature controls whether Staff can select Coach as the scheduling owner when creating a Private course. When disabled, the Coach option is hidden from the Private scheduling-mode selector. Existing course scheduling and Coach permissions are unchanged. The feature must be defined by Platform and is enabled or disabled through the administrator's Feature Settings page.
 
 ## Group-course registration
 

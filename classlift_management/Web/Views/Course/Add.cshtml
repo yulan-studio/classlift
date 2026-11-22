@@ -102,7 +102,10 @@
             <td style="padding: 8px;">
                 <select name="PrivateSchedulingMode" id="PrivateSchedulingMode" class="classlift-control form-select">
                     <option value="">-- Select who schedules Private sessions --</option>
-                    <option value="Coach">@CurrentTenant.Terminology.ProviderSingular schedules time and location</option>
+                    @if (ViewBag.CoachPrivateCourseManagementEnabled == true)
+                    {
+                        <option value="Coach">@CurrentTenant.Terminology.ProviderSingular schedules time and location</option>
+                    }
                     <option value="Staff">Staff schedules time and location</option>
                 </select>
             </td>

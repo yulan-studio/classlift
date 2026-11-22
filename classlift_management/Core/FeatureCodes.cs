@@ -19,5 +19,6 @@ namespace Core
         public const string CustomizedWorkflow = "customized_workflow";
         public const string AiEnhancements = "ai_enhancements";
         public const string StudentScheduleRequest = "student_schedule_request";
+        public const string CoachPrivateCourseManagement = "coach_private_course_management";
     }
 }

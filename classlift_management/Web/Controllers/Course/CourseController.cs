@@ -324,6 +324,7 @@ namespace Web.Controllers.Courses
                 Value = s.SpecialtyID.ToString(),
                 Text = s.Title
             }).ToList();
+            ViewBag.CoachPrivateCourseManagementEnabled = _currentTenant.HasFeature(Core.FeatureCodes.CoachPrivateCourseManagement);
 
             return View();
         }
