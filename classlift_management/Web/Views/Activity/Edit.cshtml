@@ -7,7 +7,10 @@
     var zones = (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones;
 }
 
-<h1 class="management-page-title">Edit Activity</h1>
+<div class="activity-edit-header">
+    <h1 class="management-page-title">Edit Activity</h1>
+    <a href="/Activity/List" class="activity-edit-return-link">Return to Activity List</a>
+</div>
 
 <style>
     .activity-series-heading,
@@ -15,6 +18,18 @@
         font-size: 1.35rem;
         line-height: 1.3;
         margin-bottom: 14px;
+    }
+
+    .activity-edit-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .activity-edit-return-link {
+        color: var(--classlift-link, #23a1e0);
+        text-decoration: underline;
     }
 
     .activity-add-session-heading {
@@ -142,7 +157,7 @@
             <tr><td style="padding:8px;">Address:</td><td style="padding:8px;"><input name="address" value="@Model.Address" style="width:100%;" /></td></tr>
             <tr><td style="padding:8px;">Schedule Type:</td><td style="padding:8px;"><select class="form-select" style="width:100%;" disabled><option selected>@(Model.ScheduleType == ActivityScheduleTypes.OneTime ? "One-time" : Model.ScheduleType == ActivityScheduleTypes.Recurring ? "Recurring" : "Ongoing / Add Sessions Manually")</option></select><input type="hidden" name="scheduleType" value="@Model.ScheduleType" /></td></tr>
             <tr><td style="padding:8px;">Activity Status:</td><td style="padding:8px;"><select name="isActive" class="form-select" style="width:100%;"><option value="true" selected="@Model.IsActive">Active</option><option value="false" selected="@(!Model.IsActive)">Inactive</option></select></td></tr>
-            <tr><td colspan="2" style="padding:16px 8px;"><button type="submit" class="classlift-button activity-action-button">Save Activity</button> <a href="/Activity/List" class="classlift-button cancel-button" style="text-decoration:none;">Return to Activity List</a></td></tr>
+            <tr><td colspan="2" style="padding:16px 8px;"><button type="submit" class="classlift-button activity-action-button">Save Activity</button></td></tr>
         </table>
     </form>
 </section>
