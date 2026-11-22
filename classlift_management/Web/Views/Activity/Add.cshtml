@@ -28,9 +28,25 @@
     .activity-add-table input,
     .activity-add-table select,
     .activity-add-table textarea {
-        width: 100% !important;
+        width: 66.6667% !important;
         max-width: 100%;
         box-sizing: border-box;
+    }
+
+    .recurrence-options {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .recurrence-options select {
+        width: 180px !important;
+    }
+
+    .recurrence-options input {
+        width: 120px !important;
     }
 
     @@media (max-width: 768px) {
@@ -81,19 +97,18 @@
         <tr>
             <td style="padding: 8px;"><label for="ScheduleType">Activity Schedule Type:</label></td>
             <td style="padding: 8px;">
-                <select id="ScheduleType" name="scheduleType" style="width: 45%;" required onchange="updateScheduleFields()">
+                <select id="ScheduleType" name="scheduleType" class="form-select" style="width: 45%;" required onchange="updateScheduleFields()">
                     <option value="OneTime" selected>One-time</option>
                     <option value="Recurring">Recurring</option>
                     <option value="Ongoing">Ongoing / Add Sessions Manually</option>
                 </select>
-                <div style="color:#6b778c; margin-top:4px;">Ongoing activities do not require a session count or recurrence rule. Add each occurrence with Add New Session.</div>
             </td>
         </tr>
 
         <tr>
             <td style="padding: 8px;"><label for="IsActive">Activity Status:</label></td>
             <td style="padding: 8px;">
-                <select id="IsActive" name="isActive" style="width: 45%;" required>
+                <select id="IsActive" name="isActive" class="form-select" style="width: 45%;" required>
                     <option value="" selected>-- Select Status --</option>
                     <option value="true">Active</option>
                     <option value="false">Inactive</option>
@@ -126,7 +141,7 @@
         <tr class="session-fields">
             <td style="padding: 8px;"><label for="scheduledTimeZoneId">Event Time Zone:</label></td>
             <td style="padding: 8px;">
-                <select id="scheduledTimeZoneId" name="scheduledTimeZoneId" required style="width: 45%;">
+                <select id="scheduledTimeZoneId" name="scheduledTimeZoneId" class="form-select" required style="width: 45%;">
                     @foreach (var zone in (IReadOnlyList<TimeZoneOption>)ViewBag.TimeZones)
                     {
                         <option value="@zone.Id" selected="@(zone.Id == (string)ViewBag.SelectedTimeZoneId)">@zone.DisplayName (@zone.Id)</option>
@@ -154,12 +169,14 @@
         <tr class="session-fields recurrence-fields" style="display:none;">
             <td style="padding: 8px;"><label for="recurrenceFrequency">Repeat:</label></td>
             <td style="padding: 8px;">
-                <select id="recurrenceFrequency" name="recurrenceFrequency" style="width: 25%;">
-                    <option value="Weekly">Every week</option>
-                    <option value="Monthly">Every month</option>
-                </select>
-                <label for="recurrenceCount" style="margin-left:12px;">Number of Sessions:</label>
-                <input id="recurrenceCount" type="number" name="recurrenceCount" min="1" max="365" style="width: 15%;" />
+                <div class="recurrence-options">
+                    <select id="recurrenceFrequency" name="recurrenceFrequency" class="form-select">
+                        <option value="Weekly">Every week</option>
+                        <option value="Monthly">Every month</option>
+                    </select>
+                    <label for="recurrenceCount">Number of Sessions:</label>
+                    <input id="recurrenceCount" type="number" name="recurrenceCount" min="1" max="365" />
+                </div>
             </td>
         </tr>
 
@@ -167,7 +184,7 @@
 
             <td style="padding: 8px;"><label for="Status">Status:</label></td>
             <td style="padding: 8px;">
-                <select name="status" style="width: 25%;" required>
+                <select name="status" class="form-select" style="width: 25%;" required>
                     <option value="" selected>-- Select Status --</option>
                     <option value="Open">Open to registration</option>
                     <option value="Closed">Closed to registration</option> 
