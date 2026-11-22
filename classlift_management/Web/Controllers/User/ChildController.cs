@@ -1149,8 +1149,12 @@ namespace Web.Controllers.User
                     _db.ActivityEnrollments.Add(enrollment);
                     await _db.SaveChangesAsync();
                     var sessionCost = session.Cost;
-                    var sessionDescription = sessionCost == 0 ? "Free registration — no payment is required." : paymentModel == "Token" ? $"Use Token - ${sessionCost:F2} will be deducted from your balance once confirmed." : $"Please email transfer ${sessionCost:F2} to [youremail_address], and send screenshot to customer service.";
-                    success1 = await _feeService.AddActivityFeeAsync(enrollment.EnrollmentID, paymentModel, sessionCost, description ?? sessionDescription, user) && success1;
+                    var feeDescription = sessionCost == 0
+                        ? "Free registration — no payment is required."
+                        : paymentModel == "Token"
+                            ? $"Use Token - ${sessionCost:F2} for this session will be deducted from your balance once confirmed."
+                            : $"Please email transfer ${sessionCost:F2} for this session to [youremail_address], and send screenshot to customer service.";
+                    success1 = await _feeService.AddActivityFeeAsync(enrollment.EnrollmentID, paymentModel, sessionCost, feeDescription, user) && success1;
                 }
                 success2 = true;
                 if (!success1 || !success2)

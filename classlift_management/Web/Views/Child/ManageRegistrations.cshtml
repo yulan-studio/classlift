@@ -1018,9 +1018,13 @@
             return;
         }
 
-        const cost = Array.from(document.querySelectorAll('input[name="sessionIds"]:checked'))
-            .reduce((sum, checkbox) => sum + Number(checkbox.getAttribute("data-cost") || 0), 0);
+        const selectedSessionCosts = Array.from(document.querySelectorAll('input[name="sessionIds"]:checked'))
+            .map(checkbox => Number(checkbox.getAttribute("data-cost") || 0));
+        const cost = selectedSessionCosts.reduce((sum, sessionCost) => sum + sessionCost, 0);
         const formattedCost = cost.toFixed(2);
+        const sessionFeeText = selectedSessionCosts
+            .map(sessionCost => `$${sessionCost.toFixed(2)}`)
+            .join(", ");
         feeSection.style.display = "grid";
         totalCostInput.setAttribute("required", "required");
         totalCostInput.value = formattedCost;
@@ -1029,10 +1033,10 @@
             descriptionInput.value = "Free registration — no payment is required.";
             descriptionInput.readOnly = true;
         } else if (paymentModel === "Token") {
-            descriptionInput.value = `Use Token - $${formattedCost} will be deducted from your balance once confirmed.`;
+            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}. Each session fee will be deducted separately once confirmed.`;
             descriptionInput.readOnly = false;
         } else {
-            descriptionInput.value = `Please email transfer $${formattedCost} to [youremail_address], and send screenshot to customer service.`;
+            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}. Please email transfer each session fee to [youremail_address], and send screenshot to customer service.`;
             descriptionInput.readOnly = false;
         }
     }
@@ -1050,12 +1054,12 @@
         descriptionInput.readOnly = totalCost !== "" && Number(totalCost) === 0;
 
         if (paymentModel === "Token" && totalCost && Number(totalCost) !== 0) {
-            descriptionInput.value = `Use Token - $${totalCost} will be deducted from your balance once confirmed.`;
+            descriptionInput.value = "Use Token - the fee for this session will be deducted from your balance once confirmed.";
         } else if (paymentModel === "Direct" && totalCost && Number(totalCost) !== 0) {
-            descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
+            descriptionInput.value = "Please email transfer the fee for this session to [youremail_address], and send screenshot to customer service.";
         } 
         else if (paymentModel === "OAP" && totalCost && Number(totalCost) !== 0) {
-            descriptionInput.value = `Please email transfer $${totalCost} to [youremail_address], and send screenshot to customer service.`;
+            descriptionInput.value = "Please email transfer the fee for this session to [youremail_address], and send screenshot to customer service.";
         }
         // else if (paymentModel === "Token" && totalCost === null) {
         //     descriptionInput.value = "To be charged in sessions";
