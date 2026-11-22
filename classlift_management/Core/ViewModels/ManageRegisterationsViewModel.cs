@@ -16,5 +16,6 @@ namespace Core.ViewModels
         public IEnumerable<CourseEnrollmentViewModel> CourseEnrollments { get; set; }
 
         public IEnumerable<ActivityEnrollmentViewModel> ActivityEnrollments { get; set; }
+        public decimal CurrentBalance { get; set; }
     }
 }

@@ -9,7 +9,7 @@
     ViewData["Title"] = "Manage Registrations";
 
     var concernIds = (ViewData["ConcernEnrollmentIds"] as IEnumerable<int>)?.ToList() ?? new List<int>();
-    
+    var currentBalance = Model.CurrentBalance.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }
 
 <style>
@@ -865,6 +865,21 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
 <script>
+    const childCurrentBalance = Number('@currentBalance');
+
+    function updateTokenOptionVisibility(paymentDropdown, fee) {
+        const tokenOption = Array.from(paymentDropdown.options).find(option => option.value === "Token");
+        if (!tokenOption) return;
+
+        const canUseToken = Number.isFinite(fee) && fee <= childCurrentBalance;
+        tokenOption.hidden = !canUseToken;
+        tokenOption.disabled = !canUseToken;
+
+        if (!canUseToken && paymentDropdown.value === "Token") {
+            paymentDropdown.value = "";
+        }
+    }
+
         function fetchCoursesBySpecialty(specialtyId) {
             document.getElementById("openSessionInfo").style.display = "none";
             document.getElementById("openSessionCount").textContent = "0";
@@ -930,6 +945,8 @@
         } else {
             totalCostInput.value = "";
         }
+
+        updateTokenOptionVisibility(paymentModelDropdown, Number(totalCostInput.value || 0));
 
         toggleCourseFeeInput(courseDropdown);
         updateDescription(totalCostInput);
@@ -1028,6 +1045,7 @@
         feeSection.style.display = "grid";
         totalCostInput.setAttribute("required", "required");
         totalCostInput.value = formattedCost;
+        updateTokenOptionVisibility(document.getElementById("activityPaymentModel"), cost);
 
         if (cost === 0) {
             descriptionInput.value = "Free registration — no payment is required.";

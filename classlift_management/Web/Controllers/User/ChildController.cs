@@ -810,6 +810,7 @@ namespace Web.Controllers.User
 
             var activityEnrollments = await _activityEnrollmentService.GetAllEnrollmentsViewByChildAsync(childId);
             var activities = await _activityService.GetAllActiveOpenAsync();
+            var currentBalance = await _balanceService.GetFinalBalanceAsync(childId);
 
             ViewBag.ActivityList = activities.Select(a => new
             {
@@ -826,7 +827,8 @@ namespace Web.Controllers.User
             {
                 Child = child,
                 CourseEnrollments = courseEnrollments,
-                ActivityEnrollments = activityEnrollments
+                ActivityEnrollments = activityEnrollments,
+                CurrentBalance = currentBalance
             });
         }
 
