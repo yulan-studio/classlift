@@ -21,5 +21,6 @@ namespace Core.ViewModels
         public string Status { get; set; } = string.Empty;
 
         public int FeeID { get; set; }
+        public DateTime? ScheduledAt { get; set; }
     }
 }

@@ -149,7 +149,8 @@ namespace Core.Repositories
                                            Title = c.Title,
                                            TotalCost = f.TotalCost,
                                            Status = ce.Status,
-                                           FeeID = f.FeeID
+                                           FeeID = f.FeeID,
+                                           ScheduledAt = (DateTime?)null
                                        }).ToListAsync();
 
             var unpaidActivities = await (from f in _context.Fees
@@ -164,7 +165,10 @@ namespace Core.Repositories
                                               Title = a.Title,
                                               TotalCost = f.TotalCost,
                                               Status = ae.Status,
-                                              FeeID = f.FeeID
+                                              FeeID = f.FeeID,
+                                              ScheduledAt = ae.ActivitySession != null
+                                                  ? ae.ActivitySession.ScheduledAt
+                                                  : (DateTime?)null
                                           }).ToListAsync();
 
             // Combine both lists
