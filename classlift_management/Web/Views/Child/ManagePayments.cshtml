@@ -215,7 +215,7 @@
                                      <label for="fee_@item.FeeID">[@item.Type] @item.Title@if (item.Type == "Activity" && item.ScheduledAt != DateTime.MinValue)
                                      {
                                          <text> — @(((DateTime)item.ScheduledAt).ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm"))</text>
-                                     } (@item.TotalCost.ToString("C"))</label>
+                                     } — Status: @item.Status (@item.TotalCost.ToString("C"))</label>
                                 </div>
                                
                                 @* <label for="fee_@item.FeeID">@item.Type: @item.Title (@item.TotalCost.ToString("C"))</label> *@
