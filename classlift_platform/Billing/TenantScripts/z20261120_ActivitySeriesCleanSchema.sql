@@ -49,5 +49,4 @@ ALTER TABLE `activity_enrollments`
     ADD CONSTRAINT `FK_activity_enrollments_activity_sessions_ActivitySessionID`
     FOREIGN KEY (`ActivitySessionID`) REFERENCES `activity_sessions` (`ActivitySessionID`) ON DELETE SET NULL;
 
-INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-VALUES ('20261120170000_ActivitySeriesCleanSchema', '8.0.2');
+
