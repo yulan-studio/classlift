@@ -63,15 +63,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   
-    <None Update="TenantScripts\z20261120170000_ActivitySeriesCleanSchema.sql">
+    <None Update="TenantScripts\z20261120_ActivitySeriesCleanSchema.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   
-    <None Update="TenantScripts\z20261121204501_RequireExplicitActivityActiveState.sql">
+    <None Update="TenantScripts\z20261121_RequireExplicitActivityActiveState.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   
-    <None Update="TenantScripts\z20261123000000_organization_payment_settings.sql">
+    <None Update="TenantScripts\z20261123_organization_payment_settings.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
