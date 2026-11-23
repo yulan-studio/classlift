@@ -19,6 +19,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 1. Token payments use the participant's Balance and do not use an organization-configured payment-instruction template. The Token payment message remains system-defined.
 2. Direct payments use the organization's configurable Payment Instructions template. The default template is `Please pay {amount} for {payment_scope} using the payment method selected by the organization.` The supported placeholders are `{amount}` for the applicable amount and `{payment_scope}` for the activity session or course registration being paid.
 3. The Direct payment instruction template is configured by Admin under Payment Settings, separate from Email Settings. Token payment instructions remain system-defined and do not use this template.
+4. When Staff registers a participant in a course and selects Direct or Token payment, the system generates the fee description and the description field is not editable.
 
 ## Course registration messaging
 

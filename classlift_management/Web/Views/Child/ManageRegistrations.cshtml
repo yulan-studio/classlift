@@ -659,7 +659,7 @@
             <!-- Description Textarea -->
             <label for="description" style="margin-top:8px; display:block;">Description:</label>
             <textarea id="description" name="description" rows="5" cols="40"
-                      placeholder="Enter fee details here..." readonly></textarea>
+                      placeholder="Enter fee details here..." readonly disabled></textarea>
         </span>
         </div>
 
@@ -1068,7 +1068,10 @@
 
         const paymentModel = paymentModelDropdown.value;
         const totalCost = totalCostInput.value.trim();
-        descriptionInput.readOnly = totalCost !== "" && Number(totalCost) === 0;
+        // Payment descriptions are generated from the selected payment model
+        // and the calculated fee; staff cannot edit the generated text.
+        descriptionInput.readOnly = true;
+        descriptionInput.disabled = !paymentModel;
 
         if (paymentModel === "Token" && totalCost && Number(totalCost) !== 0) {
             descriptionInput.value = "Use Token - the fee for this session will be deducted from your balance once confirmed.";
