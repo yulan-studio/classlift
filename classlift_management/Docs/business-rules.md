@@ -154,6 +154,7 @@ This file is the concise, canonical record of business rules confirmed by the pr
 3. In the participant's Group-course schedule, Staff Note and the Provider Note are displayed as separate columns, with the Provider Note immediately to the right of Staff Note. The Provider Note heading uses the organization's configured Provider terminology on both Private- and Group-course schedules.
 4. The participant's Group-course schedule does not display a My Note column.
 5. A confirmed course is shown on the participant's Schedules page with its basic course information even when it has no upcoming sessions scheduled yet.
+6. Upcoming activity schedules on the participant's My Schedule page include only confirmed activity enrollments with a future activity session. Registered activity enrollments remain on Confirmations and are not shown as scheduled activities.
 
 ## Accounts and user manual
 
