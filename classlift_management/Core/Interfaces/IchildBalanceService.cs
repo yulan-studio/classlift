@@ -19,7 +19,7 @@ namespace Core.Interfaces
 
         Task<bool> DeductCourseCostAsync(int childId, int courseId, decimal cost, int createdBy);
         Task<bool> DeductCourseSessionCostAsync(int enrollmentId, int createdBy);
-        Task<bool> DeductActivityCostAsync(int childId, int activityId, decimal cost, int createdBy);
+        Task<bool> DeductActivityCostAsync(int childId, int activityId, int activityEnrollmentId, decimal cost, int createdBy);
 
         Task<bool> DeductGroupCourseCostAsync(int childId, int courseId, decimal cost, int createdBy);
         Task<bool> RefundCanceledSessionCostAsync(int sessionEnrollmentId, int createdBy);

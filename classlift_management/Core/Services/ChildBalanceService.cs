@@ -117,11 +117,11 @@ namespace Core.Services
         }
 
         //After a child confirms participation in an activity (Token Payment)
-        public async Task<bool> DeductActivityCostAsync(int childId, int activityId, decimal cost, int createdBy)
+        public async Task<bool> DeductActivityCostAsync(int childId, int activityId, int activityEnrollmentId, decimal cost, int createdBy)
         {
             try
             {
-                bool result = await _balanceRepository.DeductActivityCostAsync(childId, activityId, cost, createdBy);
+                bool result = await _balanceRepository.DeductActivityCostAsync(childId, activityId, activityEnrollmentId, cost, createdBy);
                 return result;
             }
             catch (Exception)

@@ -2634,7 +2634,7 @@ namespace Web.Controllers.User
                         return RedirectToAction("MyConfirmations");
                     }
 
-                    result1 = await _balanceService.DeductActivityCostAsync(child.ChildID, model.ActivityID, model.TotalCost.Value, user.Id);
+                    result1 = await _balanceService.DeductActivityCostAsync(child.ChildID, model.ActivityID, model.EnrollmentID, model.TotalCost.Value, user.Id);
                 }
                 bool result2 = await _activityEnrollmentService.UpdateActivityEnrollmentStatusToConfirmedAsync(model.EnrollmentID);
 

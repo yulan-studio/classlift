@@ -209,7 +209,7 @@ namespace Core.Repositories
 
 
 
-        public async Task<bool> DeductActivityCostAsync(int childId, int activityId, decimal cost, int createdBy)
+        public async Task<bool> DeductActivityCostAsync(int childId, int activityId, int activityEnrollmentId, decimal cost, int createdBy)
         {
             decimal latestBalance = await GetFinalBalanceAsync(childId);
 
@@ -217,6 +217,7 @@ namespace Core.Repositories
             {
                 ChildID = childId,
                 ActivityID = activityId,
+                ActivityEnrollmentID = activityEnrollmentId,
                 BalanceChange = -cost,
                 Balance = latestBalance - cost,
                 TransactionType = "Activity",
@@ -277,7 +278,9 @@ namespace Core.Repositories
                             ?? "System"),
                     Remarks = cb.Remarks,
                     Calculation = cb.Calculation,
-                    ScheduledAt = cb.EnrollmentID != null ? cb.CourseEnrollment.ScheduledAt : null,
+                    ScheduledAt = cb.ActivityEnrollmentID != null
+                        ? cb.ActivityEnrollment.ActivitySession.ScheduledAt
+                        : cb.EnrollmentID != null ? cb.CourseEnrollment.ScheduledAt : null,
                     ActualHours = cb.EnrollmentID != null ? cb.CourseEnrollment.ActualHours : null
                 })
                 .ToListAsync();

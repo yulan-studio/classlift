@@ -19,6 +19,7 @@ namespace Core.Models
         public int? CourseID { get; set; }  // Foreign Key to Courses
         public int? ActivityID { get; set; } // Foreign Key to Activities
         public int? EnrollmentID { get; set; } // Foreign Key to CourseEnrollments
+        public int? ActivityEnrollmentID { get; set; } // Foreign Key to ActivityEnrollments
 
         public string? Remarks { get; set; } // Remarks or Description
 
@@ -55,5 +56,8 @@ namespace Core.Models
 
         [ForeignKey("EnrollmentID")]
         public virtual CourseEnrollment CourseEnrollment { get; set; } // Navigation Property to CourseEnrollments
+
+        [ForeignKey("ActivityEnrollmentID")]
+        public virtual ActivityEnrollment ActivityEnrollment { get; set; } // Navigation Property to ActivityEnrollments
     }
 }
