@@ -26,11 +26,12 @@ namespace Web.Controllers.Account
         private readonly OrganizationTerminologyService _terminologyService;
         private readonly IOrganizationEmailSettingsService _organizationEmailSettingsService;
         private readonly IOrganizationFeatureSettingsService _organizationFeatureSettingsService;
+        private readonly IOrganizationPaymentSettingsService _organizationPaymentSettingsService;
         private const string AdminResetPassword = "hello123!";
         private const long MaxLogoSize = 2 * 1024 * 1024;
         private const string DefaultHomePageUrl = "https://courses.roboturtle.ca/";
 
-        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant, OrganizationTerminologyService terminologyService, IOrganizationEmailSettingsService organizationEmailSettingsService, IOrganizationFeatureSettingsService organizationFeatureSettingsService)
+        public AccountController(IUserRegistrationService userRegistrationService, SignInManager<Core.Models.User> signInManager, UserManager<Core.Models.User> userManager, ITimeZoneService timeZoneService, AppDbContext dbContext, R2StorageService storageService, CurrentTenant currentTenant, OrganizationTerminologyService terminologyService, IOrganizationEmailSettingsService organizationEmailSettingsService, IOrganizationFeatureSettingsService organizationFeatureSettingsService, IOrganizationPaymentSettingsService organizationPaymentSettingsService)
         {
             _userRegistrationService = userRegistrationService;
             _signInManager = signInManager;
@@ -42,6 +43,7 @@ namespace Web.Controllers.Account
             _terminologyService = terminologyService;
             _organizationEmailSettingsService = organizationEmailSettingsService;
             _organizationFeatureSettingsService = organizationFeatureSettingsService;
+            _organizationPaymentSettingsService = organizationPaymentSettingsService;
         }
 
         // Show Registration Form (GET)
@@ -270,6 +272,37 @@ namespace Web.Controllers.Account
             }
 
             return PartialView("_EmailSettings", model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("PaymentSettings")]
+        public async Task<IActionResult> PaymentSettings(CancellationToken cancellationToken)
+        {
+            var settings = await _organizationPaymentSettingsService.GetAsync(cancellationToken);
+            return PartialView("_PaymentSettings", new OrganizationPaymentSettingsViewModel
+            {
+                DirectPaymentInstructionTemplate = settings?.DirectPaymentInstructionTemplate ?? OrganizationPaymentSettingsService.DefaultDirectPaymentInstructionTemplate
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("PaymentSettings")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PaymentSettings(OrganizationPaymentSettingsViewModel model, CancellationToken cancellationToken)
+        {
+            model.DirectPaymentInstructionTemplate = model.DirectPaymentInstructionTemplate?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(model.DirectPaymentInstructionTemplate))
+                ModelState.AddModelError(nameof(model.DirectPaymentInstructionTemplate), "Please enter payment instructions.");
+            if (!model.DirectPaymentInstructionTemplate.Contains("{amount}", StringComparison.OrdinalIgnoreCase)
+                || !model.DirectPaymentInstructionTemplate.Contains("{payment_scope}", StringComparison.OrdinalIgnoreCase))
+                ModelState.AddModelError(nameof(model.DirectPaymentInstructionTemplate), "Use both {amount} and {payment_scope} in the template.");
+
+            if (!ModelState.IsValid)
+                return PartialView("_PaymentSettings", model);
+
+            await _organizationPaymentSettingsService.SaveAsync(model.DirectPaymentInstructionTemplate, cancellationToken);
+            ViewBag.SuccessMessage = "Payment settings have been updated.";
+            return PartialView("_PaymentSettings", model);
         }
 
         [Authorize(Roles = "Admin")]

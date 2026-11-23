@@ -212,3 +212,4 @@
 /classlift_portal/.vs/classlift_portal.slnx/FileContentIndex
 /classlift_portal/.vs/classlift_portal.slnx/v18
 /classlift_management/Web/obj/Debug/net8.0/staticwebassets.removed.txt
+/classlift_management/obj/Core.csproj.EntityFrameworkCore.targets

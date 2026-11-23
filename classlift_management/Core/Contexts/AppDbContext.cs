@@ -107,6 +107,7 @@ namespace Core.Contexts
         public DbSet<Fee> Fees { get; set; }
 
         public DbSet<OrganizationEmailSettings> OrganizationEmailSettings { get; set; }
+        public DbSet<OrganizationPaymentSettings> OrganizationPaymentSettings { get; set; }
 
 
 
@@ -133,6 +134,16 @@ namespace Core.Contexts
                     .HasColumnName("CreatedAtUtc");
                 entity.Property(settings => settings.UpdatedAtUtc)
                     .HasColumnName("UpdatedAtUtc");
+            });
+
+            modelBuilder.Entity<OrganizationPaymentSettings>(entity =>
+            {
+                entity.ToTable("organization_payment_settings");
+                entity.HasKey(settings => settings.OrganizationPaymentSettingsId);
+                entity.Property(settings => settings.OrganizationPaymentSettingsId).HasColumnName("OrganizationPaymentSettingsID").ValueGeneratedNever();
+                entity.Property(settings => settings.DirectPaymentInstructionTemplate).HasMaxLength(2000).IsRequired();
+                entity.Property(settings => settings.CreatedAtUtc).HasColumnName("CreatedAtUtc");
+                entity.Property(settings => settings.UpdatedAtUtc).HasColumnName("UpdatedAtUtc");
             });
 
             modelBuilder.Entity<User>()

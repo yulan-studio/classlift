@@ -60,10 +60,11 @@ namespace Web.Controllers.User
         private readonly CurrentTenant _currentTenant;
         private readonly IOrganizationEmailNotificationService _emailNotifications;
         private readonly ILogger<ChildController> _logger;
+        private readonly IOrganizationPaymentSettingsService _organizationPaymentSettingsService;
         //private readonly AppDbContext _context;
 
 
-        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, ILogger<ChildController> logger, AppDbContext db)
+        public ChildController(IChildService childService, IEmergencyContactService emergencyContactService, ICourseService courseService, IChildBalanceService balanceService, IParentService parentService, ICityService cityService, IProvinceService provinceService, IParentChildService parentChildService, ISpecialtyService specialtyService, IActivityService activityService, ICourseEnrollmentService courseEnrollmentService, IActivityEnrollmentService activityEnrollmentService, IFeeService feeService, IPaymentService paymentService, IChildCalendarService calendarService, UserManager<Core.Models.User> userManager, Core.R2.R2StorageService r2UploadService, ITimeZoneService timeZoneService, CurrentTenant currentTenant, IOrganizationEmailNotificationService emailNotifications, IOrganizationPaymentSettingsService organizationPaymentSettingsService, ILogger<ChildController> logger, AppDbContext db)
         {
             _r2UploadService = r2UploadService;
             _childService = childService;
@@ -85,6 +86,7 @@ namespace Web.Controllers.User
             _calendarService = calendarService;
             _timeZoneService = timeZoneService;
             _emailNotifications = emailNotifications;
+            _organizationPaymentSettingsService = organizationPaymentSettingsService;
             _logger = logger;
             _db = db;
 
@@ -803,6 +805,8 @@ namespace Web.Controllers.User
                 Value = s.SpecialtyID.ToString(),
                 Text = s.Title
             }).ToList();
+            var paymentSettings = await _organizationPaymentSettingsService.GetAsync();
+            ViewBag.DirectPaymentInstructionTemplate = paymentSettings?.DirectPaymentInstructionTemplate ?? OrganizationPaymentSettingsService.DefaultDirectPaymentInstructionTemplate;
 
             //var activityRegisteredEnrollments = await _activityEnrollmentService.GetRegisteredEnrollmentsByChildAsync(childId);
             //var activityCanceledEnrollments = await _activityEnrollmentService.GetCanceledEnrollmentsByChildAsync(childId);
@@ -972,6 +976,14 @@ namespace Web.Controllers.User
                 else if (totalCost == 0)
                 {
                     description = "Free registration — no payment is required.";
+                }
+                else if (string.Equals(paymentModel, "Direct", StringComparison.OrdinalIgnoreCase))
+                {
+                    var paymentSettings = await _organizationPaymentSettingsService.GetAsync();
+                    description = DirectPaymentInstructionRenderer.Render(
+                        paymentSettings?.DirectPaymentInstructionTemplate,
+                        totalCost.Value,
+                        "this course registration");
                 }
 
 
@@ -1155,7 +1167,10 @@ namespace Web.Controllers.User
                         ? "Free registration — no payment is required."
                         : paymentModel == "Token"
                             ? $"Use Token - ${sessionCost:F2} for this session will be deducted from your balance once confirmed."
-                            : $"Please email transfer ${sessionCost:F2} for this session to [youremail_address], and send screenshot to customer service.";
+                            : DirectPaymentInstructionRenderer.Render(
+                                (await _organizationPaymentSettingsService.GetAsync())?.DirectPaymentInstructionTemplate,
+                                sessionCost,
+                                "this activity session");
                     success1 = await _feeService.AddActivityFeeAsync(enrollment.EnrollmentID, paymentModel, sessionCost, feeDescription, user) && success1;
                 }
                 success2 = true;

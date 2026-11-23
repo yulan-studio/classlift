@@ -944,6 +944,30 @@ namespace Core.Migrations
                     b.ToTable("organization_email_settings", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Models.OrganizationPaymentSettings", b =>
+                {
+                    b.Property<int>("OrganizationPaymentSettingsId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationPaymentSettingsID");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAtUtc");
+
+                    b.Property<string>("DirectPaymentInstructionTemplate")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedAtUtc");
+
+                    b.HasKey("OrganizationPaymentSettingsId");
+
+                    b.ToTable("organization_payment_settings", (string)null);
+                });
+
             modelBuilder.Entity("Core.Models.Parent", b =>
                 {
                     b.Property<int>("ParentID")

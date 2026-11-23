@@ -229,6 +229,7 @@ builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IOrganizationEmailSettingsService, OrganizationEmailSettingsService>();
+builder.Services.AddScoped<IOrganizationPaymentSettingsService, OrganizationPaymentSettingsService>();
 builder.Services.AddScoped<IOrganizationFeatureSettingsService, OrganizationFeatureSettingsService>();
 builder.Services.AddSingleton<IOrganizationEmailTemplateService, OrganizationEmailTemplateService>();
 builder.Services.AddScoped<IOrganizationEmailNotificationService, OrganizationEmailNotificationService>();

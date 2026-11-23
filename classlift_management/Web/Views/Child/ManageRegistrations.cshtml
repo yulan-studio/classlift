@@ -560,6 +560,7 @@
 </div>
 
 <script>
+    const directPaymentInstructionTemplate = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DirectPaymentInstructionTemplate as string ?? ""));
     document.querySelectorAll('.view-progress-link').forEach(function (link) {
         link.addEventListener('click', async function (event) {
             event.preventDefault();
@@ -1050,7 +1051,9 @@
             descriptionInput.value = `Selected session fee(s): ${sessionFeeText}.\nEach session fee will be deducted separately once confirmed.`;
             descriptionInput.readOnly = true;
         } else {
-            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}.\nPlease email transfer each session fee to [youremail_address], and send screenshot to customer service.`;
+            descriptionInput.value = `Selected session fee(s): ${sessionFeeText}.\n` + directPaymentInstructionTemplate
+                .replaceAll("{amount}", `$${cost.toFixed(2)}`)
+                .replaceAll("{payment_scope}", "this activity session");
             descriptionInput.readOnly = true;
         }
     }
@@ -1070,10 +1073,14 @@
         if (paymentModel === "Token" && totalCost && Number(totalCost) !== 0) {
             descriptionInput.value = "Use Token - the fee for this session will be deducted from your balance once confirmed.";
         } else if (paymentModel === "Direct" && totalCost && Number(totalCost) !== 0) {
-            descriptionInput.value = "Please email transfer the fee for this session to [youremail_address], and send screenshot to customer service.";
+            descriptionInput.value = directPaymentInstructionTemplate
+                .replaceAll("{amount}", `$${Number(totalCost).toFixed(2)}`)
+                .replaceAll("{payment_scope}", "this course registration");
         } 
         else if (paymentModel === "OAP" && totalCost && Number(totalCost) !== 0) {
-            descriptionInput.value = "Please email transfer the fee for this session to [youremail_address], and send screenshot to customer service.";
+            descriptionInput.value = directPaymentInstructionTemplate
+                .replaceAll("{amount}", `$${Number(totalCost).toFixed(2)}`)
+                .replaceAll("{payment_scope}", "this course registration");
         }
         // else if (paymentModel === "Token" && totalCost === null) {
         //     descriptionInput.value = "To be charged in sessions";

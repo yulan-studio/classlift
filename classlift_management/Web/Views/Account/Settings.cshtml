@@ -46,6 +46,10 @@
                data-url="/Account/EmailSettings">Email</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link @(ViewBag.ActiveTab == "PaymentSettings" ? "active" : "")"
+               href="#" data-url="/Account/PaymentSettings">Payment</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link @(ViewBag.ActiveTab == "FeatureSettings" ? "active" : "")"
                href="#"
                data-url="/Account/FeatureSettings">Feature Settings</a>
