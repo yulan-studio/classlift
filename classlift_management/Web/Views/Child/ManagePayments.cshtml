@@ -214,7 +214,7 @@
                                            onchange="updateAmountFromFee(this)" /> 
                                      <label for="fee_@item.FeeID">[@item.Type] @item.Title@if (item.Type == "Activity" && item.ScheduledAt != DateTime.MinValue)
                                      {
-                                         <text> — @item.ScheduledAt.Value.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</text>
+                                         <text> — @item.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</text>
                                      } (@item.TotalCost.ToString("C"))</label>
                                 </div>
                                
