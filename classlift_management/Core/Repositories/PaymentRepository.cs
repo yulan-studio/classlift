@@ -156,6 +156,9 @@ namespace Core.Repositories
             var unpaidActivities = await (from f in _context.Fees
                                           join ae in _context.ActivityEnrollments on f.ActivityEnrollmentID equals ae.EnrollmentID
                                           join a in _context.Activities on ae.ActivityID equals a.ActivityID
+                                          join activitySession in _context.ActivitySessions
+                                              on ae.ActivitySessionID equals activitySession.ActivitySessionID into activitySessions
+                                          from activitySession in activitySessions.DefaultIfEmpty()
                                           where ae.ChildID == childId
                                                 && f.PaymentModel == "Direct"
                                                 && !f.IsPaid
@@ -166,8 +169,8 @@ namespace Core.Repositories
                                               TotalCost = f.TotalCost,
                                               Status = ae.Status,
                                               FeeID = f.FeeID,
-                                              ScheduledAt = ae.ActivitySession != null
-                                                  ? ae.ActivitySession.ScheduledAt
+                                              ScheduledAt = activitySession != null
+                                                  ? activitySession.ScheduledAt
                                                   : (DateTime?)null
                                           }).ToListAsync();
 
