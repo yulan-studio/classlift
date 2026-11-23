@@ -279,6 +279,8 @@ namespace Core.Repositories
                     Remarks = cb.Remarks,
                     Calculation = cb.Calculation,
                     ScheduledAt = cb.ActivityEnrollmentID != null
+                        && cb.ActivityEnrollment != null
+                        && cb.ActivityEnrollment.ActivitySession != null
                         ? cb.ActivityEnrollment.ActivitySession.ScheduledAt
                         : cb.EnrollmentID != null ? cb.CourseEnrollment.ScheduledAt : null,
                     ActualHours = cb.EnrollmentID != null ? cb.CourseEnrollment.ActualHours : null
