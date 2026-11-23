@@ -78,9 +78,9 @@ function loadDeleteSessionConfirm(enrollmentId) {
 }
 
 
-function deleteSession(enrollmentId) {
+function deleteSession(enrollmentId, staffNote) {
    
-    $.post("/Course/DeleteSessionConfirmed/" + enrollmentId, function (response) {
+    $.post("/Course/DeleteSessionConfirmed/" + enrollmentId, { staffNote: staffNote || "" }, function (response) {
         if (response.success) {
             $("#row-" + enrollmentId).remove(); // Remove deleted city row
             location.reload();  // Refresh list after delete

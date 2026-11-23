@@ -11,7 +11,13 @@
     <p><strong>Staff Note:</strong> @Model.StaffNote</p>
 </div>
 
+<div class="mb-3">
+    <label for="privateSessionDeleteStaffNote" class="form-label">Staff Note / Reason</label>
+    <textarea id="privateSessionDeleteStaffNote" class="form-control" rows="3" maxlength="2000"
+              placeholder="Please enter the reason for deleting this session."></textarea>
+</div>
+
 <form id="sessionForm">
-    <button type="button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;" onclick="deleteSession(@Model.EnrollmentID)">Delete</button>
+    <button type="button" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer;" onclick="deleteSession(@Model.EnrollmentID, document.getElementById('privateSessionDeleteStaffNote').value)">Delete</button>
     <button type="button" class="cancel-button" style="background-color: #ddd; color: #000 !important; padding: 5px 10px; border: 1px solid #ccc;" data-bs-dismiss="modal">Cancel</button>
 </form>

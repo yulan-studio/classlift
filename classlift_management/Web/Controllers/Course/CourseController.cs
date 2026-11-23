@@ -1224,7 +1224,7 @@ namespace Web.Controllers.Courses
         // ✅ Delete a course session
         [Authorize(Roles = "Staff")]
         [HttpPost("DeleteSessionConfirmed/{enrollmentId}")]
-        public async Task<IActionResult> DeleteSessionConfirmed(int enrollmentId)
+        public async Task<IActionResult> DeleteSessionConfirmed(int enrollmentId, string? staffNote)
         {
             try
             {
@@ -1232,7 +1232,7 @@ namespace Web.Controllers.Courses
                 if (string.Equals(session.Course.CourseType, "Private", StringComparison.OrdinalIgnoreCase))
                 {
                     var deleteResult = await _courseEnrollmentService
-                        .DeleteStaffManagedPrivateSessionAsync(enrollmentId);
+                        .DeleteStaffManagedPrivateSessionAsync(enrollmentId, staffNote);
 
                     if (deleteResult == StaffManagedPrivateSessionDeleteResult.MarkedDeleted)
                     {
