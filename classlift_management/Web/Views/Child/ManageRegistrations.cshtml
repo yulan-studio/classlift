@@ -682,7 +682,7 @@
         <tr style="background-color: #f2f2f2;">
             <th style="padding: 8px; border: 1px solid #ddd;">Activity Title</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Address</th>
-            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled Date</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Scheduled At</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Total Cost</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Is Paid</th>
             <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
@@ -697,7 +697,7 @@
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Title</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Address</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.ScheduledAt.ToUserTime(User, AppTimeZoneService).ToString("yyyy-MM-dd HH:mm")</td>
                    @*  <td style="padding: 8px; border: 1px solid #ddd;">@enrollment.Activity.Cost</td> *@
                     <td style="padding: 8px; border: 1px solid #ddd;">
 
