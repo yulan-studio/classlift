@@ -74,6 +74,10 @@
     <None Update="TenantScripts\z20261123_organization_payment_settings.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  
+    <None Update="TenantScripts\z20261124_AddActivityEnrollmentToChildBalance.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
