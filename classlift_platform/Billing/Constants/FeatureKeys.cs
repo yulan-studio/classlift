@@ -35,6 +35,9 @@
         public const string PrepaidPerHourPayment = 
             "prepaid_per_hour_payment";
 
+        public const string ActivityManagement =
+            "activity_management";
+
 
     }
 }

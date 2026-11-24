@@ -21,6 +21,9 @@ public partial class BillingDbContext : IdentityDbContext
 
     public virtual DbSet<BillingRun> BillingRuns { get; set; }
     public virtual DbSet<Feature> Features { get; set; }
+    public virtual DbSet<AddOn> AddOns { get; set; }
+    public virtual DbSet<PlanAddOnEligibility> PlanAddOnEligibilities { get; set; }
+    public virtual DbSet<OrganizationAddOnSubscription> OrganizationAddOnSubscriptions { get; set; }
     public virtual DbSet<OrganizationFeatureSetting> OrganizationFeatureSettings { get; set; }
 
     public virtual DbSet<Invoice> Invoices { get; set; }
@@ -110,6 +113,80 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.FeatureKey).HasMaxLength(100);
             entity.Property(e => e.FeatureName).HasMaxLength(200);
             entity.Property(e => e.IsOrganizationConfigurable).HasDefaultValue(false);
+        });
+
+        modelBuilder.Entity<AddOn>(entity =>
+        {
+            entity.HasKey(e => e.AddOnId).HasName("PRIMARY");
+            entity.ToTable("addons");
+            entity.HasIndex(e => e.AddOnKey, "UX_AddOns_AddOnKey").IsUnique();
+            entity.HasIndex(e => e.FeatureId, "IDX_AddOns_FeatureID");
+            entity.Property(e => e.AddOnId).HasColumnName("AddOnID");
+            entity.Property(e => e.AddOnKey).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.FeatureId).HasColumnName("FeatureID");
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.MonthlyPrice).HasPrecision(10, 2);
+            entity.Property(e => e.Currency).HasMaxLength(10).HasDefaultValue("CAD");
+            entity.Property(e => e.BillingCycle).HasMaxLength(20).HasDefaultValue("Monthly");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnType("datetime");
+            entity.HasOne(e => e.Feature).WithMany()
+                .HasForeignKey(e => e.FeatureId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_AddOns_Features");
+        });
+
+        modelBuilder.Entity<PlanAddOnEligibility>(entity =>
+        {
+            entity.HasKey(e => e.PlanAddOnEligibilityId).HasName("PRIMARY");
+            entity.ToTable("plan_addon_eligibilities");
+            entity.HasIndex(e => new { e.PlanId, e.AddOnId }, "UX_PlanAddOnEligibility").IsUnique();
+            entity.HasIndex(e => e.AddOnId, "IDX_PlanAddOnEligibility_AddOnID");
+            entity.Property(e => e.PlanAddOnEligibilityId).HasColumnName("PlanAddOnEligibilityID");
+            entity.Property(e => e.PlanId).HasColumnName("PlanID");
+            entity.Property(e => e.AddOnId).HasColumnName("AddOnID");
+            entity.Property(e => e.IsEligible).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnType("datetime");
+            entity.HasOne(e => e.Plan).WithMany()
+                .HasForeignKey(e => e.PlanId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_PlanAddOnEligibility_Plans");
+            entity.HasOne(e => e.AddOn).WithMany(e => e.PlanEligibilities)
+                .HasForeignKey(e => e.AddOnId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_PlanAddOnEligibility_AddOns");
+        });
+
+        modelBuilder.Entity<OrganizationAddOnSubscription>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationAddOnSubscriptionId).HasName("PRIMARY");
+            entity.ToTable("organization_addon_subscriptions");
+            entity.HasIndex(e => e.OrganizationId, "IDX_OrgAddOnSub_OrganizationID");
+            entity.HasIndex(e => e.AddOnId, "IDX_OrgAddOnSub_AddOnID");
+            entity.HasIndex(e => e.Status, "IDX_OrgAddOnSub_Status");
+            entity.Property(e => e.OrganizationAddOnSubscriptionId).HasColumnName("OrganizationAddOnSubscriptionID");
+            entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
+            entity.Property(e => e.AddOnId).HasColumnName("AddOnID");
+            entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.StartDate).HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.CurrentPeriodEnd).HasColumnType("datetime");
+            entity.Property(e => e.CancelledAt).HasColumnType("datetime");
+            entity.Property(e => e.MonthlyPrice).HasPrecision(10, 2);
+            entity.Property(e => e.Currency).HasMaxLength(10).HasDefaultValue("CAD");
+            entity.Property(e => e.BillingCycle).HasMaxLength(20).HasDefaultValue("Monthly");
+            entity.Property(e => e.AutoRenew).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate().HasColumnType("datetime");
+            entity.HasOne(e => e.Organization).WithMany()
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_OrgAddOnSub_Organizations");
+            entity.HasOne(e => e.AddOn).WithMany(e => e.OrganizationSubscriptions)
+                .HasForeignKey(e => e.AddOnId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_OrgAddOnSub_AddOns");
         });
 
         modelBuilder.Entity<OrganizationFeatureSetting>(entity =>
