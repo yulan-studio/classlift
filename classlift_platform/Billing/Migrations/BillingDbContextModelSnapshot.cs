@@ -24,6 +24,71 @@ namespace Billing.Migrations
             MySqlModelBuilderExtensions.HasCharSet(modelBuilder, "utf8mb4");
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("Billing.Models.AddOn", b =>
+                {
+                    b.Property<int>("AddOnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("AddOnID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AddOnId"));
+
+                    b.Property<string>("AddOnKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("BillingCycle")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("Monthly");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasDefaultValue("CAD");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("FeatureId")
+                        .HasColumnType("int")
+                        .HasColumnName("FeatureID");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("AddOnId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex(new[] { "FeatureId" }, "IDX_AddOns_FeatureID");
+
+                    b.HasIndex(new[] { "AddOnKey" }, "UX_AddOns_AddOnKey")
+                        .IsUnique();
+
+                    b.ToTable("addons", (string)null);
+                });
+
             modelBuilder.Entity("Billing.Models.BillingRun", b =>
                 {
                     b.Property<int>("BillingRunId")
@@ -174,6 +239,14 @@ namespace Billing.Migrations
                         .HasColumnType("int")
                         .HasColumnName("PromotionID");
 
+                    b.Property<string>("StripeCheckoutSessionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("StripePaymentIntentId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<decimal>("Subtotal")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -184,6 +257,12 @@ namespace Billing.Migrations
 
                     b.HasKey("InvoiceId")
                         .HasName("PRIMARY");
+
+                    b.HasIndex("StripeCheckoutSessionId")
+                        .IsUnique();
+
+                    b.HasIndex("StripePaymentIntentId")
+                        .IsUnique();
 
                     b.HasIndex(new[] { "PlanId" }, "FK_Invoices_Plans");
 
@@ -258,6 +337,88 @@ namespace Billing.Migrations
                     b.HasIndex(new[] { "IsActive" }, "IDX_Organizations_IsActive");
 
                     b.ToTable("organizations", (string)null);
+                });
+
+            modelBuilder.Entity("Billing.Models.OrganizationAddOnSubscription", b =>
+                {
+                    b.Property<int>("OrganizationAddOnSubscriptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationAddOnSubscriptionID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("OrganizationAddOnSubscriptionId"));
+
+                    b.Property<int>("AddOnId")
+                        .HasColumnType("int")
+                        .HasColumnName("AddOnID");
+
+                    b.Property<bool>("AutoRenew")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("BillingCycle")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("Monthly");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasDefaultValue("CAD");
+
+                    b.Property<DateTime?>("CurrentPeriodEnd")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationID");
+
+                    b.Property<DateTime>("StartDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime?>("UpdatedAt"));
+
+                    b.HasKey("OrganizationAddOnSubscriptionId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex(new[] { "AddOnId" }, "IDX_OrgAddOnSub_AddOnID");
+
+                    b.HasIndex(new[] { "OrganizationId" }, "IDX_OrgAddOnSub_OrganizationID");
+
+                    b.HasIndex(new[] { "Status" }, "IDX_OrgAddOnSub_Status");
+
+                    b.ToTable("organization_addon_subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("Billing.Models.OrganizationAdmin", b =>
@@ -466,6 +627,44 @@ namespace Billing.Migrations
                     b.HasIndex(new[] { "InvoiceId" }, "IDX_Payments_InvoiceID");
 
                     b.ToTable("payments", (string)null);
+                });
+
+            modelBuilder.Entity("Billing.Models.PlanAddOnEligibility", b =>
+                {
+                    b.Property<int>("PlanAddOnEligibilityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("PlanAddOnEligibilityID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PlanAddOnEligibilityId"));
+
+                    b.Property<int>("AddOnId")
+                        .HasColumnType("int")
+                        .HasColumnName("AddOnID");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsEligible")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("PlanId")
+                        .HasColumnType("int")
+                        .HasColumnName("PlanID");
+
+                    b.HasKey("PlanAddOnEligibilityId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex(new[] { "AddOnId" }, "IDX_PlanAddOnEligibility_AddOnID");
+
+                    b.HasIndex(new[] { "PlanId", "AddOnId" }, "UX_PlanAddOnEligibility")
+                        .IsUnique();
+
+                    b.ToTable("plan_addon_eligibilities", (string)null);
                 });
 
             modelBuilder.Entity("Billing.Models.Planfeature", b =>
@@ -937,6 +1136,18 @@ namespace Billing.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Billing.Models.AddOn", b =>
+                {
+                    b.HasOne("Billing.Models.Feature", "Feature")
+                        .WithMany()
+                        .HasForeignKey("FeatureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_AddOns_Features");
+
+                    b.Navigation("Feature");
+                });
+
             modelBuilder.Entity("Billing.Models.Invoice", b =>
                 {
                     b.HasOne("Billing.Models.Organization", "Organization")
@@ -979,6 +1190,27 @@ namespace Billing.Migrations
                         .HasConstraintName("FK_Organizations_Plans");
 
                     b.Navigation("CurrentPlan");
+                });
+
+            modelBuilder.Entity("Billing.Models.OrganizationAddOnSubscription", b =>
+                {
+                    b.HasOne("Billing.Models.AddOn", "AddOn")
+                        .WithMany("OrganizationSubscriptions")
+                        .HasForeignKey("AddOnId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_OrgAddOnSub_AddOns");
+
+                    b.HasOne("Billing.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_OrgAddOnSub_Organizations");
+
+                    b.Navigation("AddOn");
+
+                    b.Navigation("Organization");
                 });
 
             modelBuilder.Entity("Billing.Models.OrganizationAdmin", b =>
@@ -1041,6 +1273,27 @@ namespace Billing.Migrations
                         .HasConstraintName("FK_Payments_Invoices");
 
                     b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("Billing.Models.PlanAddOnEligibility", b =>
+                {
+                    b.HasOne("Billing.Models.AddOn", "AddOn")
+                        .WithMany("PlanEligibilities")
+                        .HasForeignKey("AddOnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_PlanAddOnEligibility_AddOns");
+
+                    b.HasOne("Billing.Models.Subscriptionplan", "Plan")
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_PlanAddOnEligibility_Plans");
+
+                    b.Navigation("AddOn");
+
+                    b.Navigation("Plan");
                 });
 
             modelBuilder.Entity("Billing.Models.Planfeature", b =>
@@ -1171,6 +1424,13 @@ namespace Billing.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Billing.Models.AddOn", b =>
+                {
+                    b.Navigation("OrganizationSubscriptions");
+
+                    b.Navigation("PlanEligibilities");
                 });
 
             modelBuilder.Entity("Billing.Models.Feature", b =>
