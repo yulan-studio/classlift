@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using System.Globalization;
@@ -24,6 +25,21 @@ using System.Threading.RateLimiting;
 
 //For api call, determine the environment from the request's host
 var builder = WebApplication.CreateBuilder(args);
+
+// Keep authentication cookies, antiforgery tokens, and Identity tokens valid
+// across Railway restarts and deployments. Railway mounts a persistent Volume
+// at /app/keys for each environment; local development uses a project-local
+// folder that must not be committed to source control.
+var dataProtectionPath = builder.Environment.IsDevelopment()
+    ? Path.Combine(builder.Environment.ContentRootPath, "data-protection-keys")
+    : "/app/keys";
+
+Directory.CreateDirectory(dataProtectionPath);
+
+builder.Services
+    .AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath))
+    .SetApplicationName("ClassLift.Platform");
 
 
 builder.Services.AddHttpContextAccessor();
