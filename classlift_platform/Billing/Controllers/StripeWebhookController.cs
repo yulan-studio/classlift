@@ -14,18 +14,37 @@ namespace Billing.Controllers;
 public sealed class StripeWebhookController : Controller
 {
     private readonly StripeService _stripe;
-    public StripeWebhookController(StripeService stripe) => _stripe = stripe;
+    private readonly ILogger<StripeWebhookController> _logger;
+
+    public StripeWebhookController(
+        StripeService stripe,
+        ILogger<StripeWebhookController> logger)
+    {
+        _stripe = stripe;
+        _logger = logger;
+    }
 
     [HttpPost]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         using var reader = new StreamReader(Request.Body);
         var payload = await reader.ReadToEndAsync(cancellationToken);
+        var signature = Request.Headers["Stripe-Signature"].ToString();
+        var traceId = HttpContext.TraceIdentifier;
+
         try
         {
 			//验证请求是否真的来自 Stripe。
 			//Stripe 会发送 Stripe - Signature，系统使用 WebhookSecret 验证它，防止别人伪造“付款成功”通知。
-            var stripeEvent = _stripe.VerifyWebhook(payload, Request.Headers["Stripe-Signature"].ToString());
+            var stripeEvent = _stripe.VerifyWebhook(payload, signature);
+
+            _logger.LogInformation(
+                "Stripe webhook received. TraceId={TraceId}, EventId={EventId}, EventType={EventType}, PayloadLength={PayloadLength}",
+                traceId,
+                stripeEvent.Id,
+                stripeEvent.Type,
+                payload.Length);
+
             if (stripeEvent.Type == "checkout.session.completed" && stripeEvent.Data.Object is Session session)
 				//找到对应的发票
 				//确认发票金额和 Stripe 付款对应
@@ -35,7 +54,51 @@ public sealed class StripeWebhookController : Controller
 				await _stripe.ProcessCheckoutCompletedAsync(session, cancellationToken);
             return Ok();
         }
-        catch (StripeException) { return BadRequest(); }
-        catch (InvalidOperationException) { return BadRequest(); }
+        catch (StripeException ex)
+        {
+            _logger.LogError(
+                ex,
+                "Stripe webhook failed with StripeException. TraceId={TraceId}, PayloadLength={PayloadLength}, HasSignature={HasSignature}, StripeErrorCode={StripeErrorCode}",
+                traceId,
+                payload.Length,
+                !string.IsNullOrWhiteSpace(signature),
+                ex.StripeError?.Code);
+
+            return BadRequest(new
+            {
+                error = "stripe_webhook_error",
+                traceId
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(
+                ex,
+                "Stripe webhook failed with business or configuration error. TraceId={TraceId}, PayloadLength={PayloadLength}, HasSignature={HasSignature}",
+                traceId,
+                payload.Length,
+                !string.IsNullOrWhiteSpace(signature));
+
+            return BadRequest(new
+            {
+                error = "stripe_webhook_configuration_or_business_error",
+                traceId
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Unexpected Stripe webhook failure. TraceId={TraceId}, PayloadLength={PayloadLength}, HasSignature={HasSignature}",
+                traceId,
+                payload.Length,
+                !string.IsNullOrWhiteSpace(signature));
+
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                error = "unexpected_stripe_webhook_error",
+                traceId
+            });
+        }
     }
 }
