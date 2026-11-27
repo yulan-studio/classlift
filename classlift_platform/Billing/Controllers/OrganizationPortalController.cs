@@ -118,7 +118,7 @@ public sealed class OrganizationPortalController : Controller
         if (!await OrganizationAuthorization.HasAccessAsync(_context, User, invoice.OrganizationId, cancellationToken)) return Forbid();
         try
         {
-            await _stripe.CreateCheckoutSessionAsync(invoice, cancellationToken);
+            await _stripe.CreatePlanInvoiceCheckoutSessionAsync(invoice, cancellationToken);
         }
         catch (InvalidOperationException ex)
         {
@@ -141,7 +141,7 @@ public sealed class OrganizationPortalController : Controller
 
         try
         {
-            var checkoutUrl = await _stripe.CreateCheckoutSessionAsync(invoice, cancellationToken);
+            var checkoutUrl = await _stripe.CreatePlanInvoiceCheckoutSessionAsync(invoice, cancellationToken);
             return Redirect(checkoutUrl);
         }
         catch (InvalidOperationException ex)

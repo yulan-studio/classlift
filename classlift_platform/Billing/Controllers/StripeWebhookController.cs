@@ -51,6 +51,8 @@ public sealed class StripeWebhookController : Controller
 				var scope = GetScope(session.Metadata);
 				if (scope == BillingScope.AddOn)
 					await _stripe.ProcessActivityManagementCheckoutCompletedAsync(session, cancellationToken);
+				else if (scope == BillingScope.Plan && session.Metadata.ContainsKey("plan_id"))
+					await _stripe.ProcessPlanCheckoutCompletedAsync(session, cancellationToken);
 				else if (scope == BillingScope.Plan ||
 				         (scope == null && session.Metadata.ContainsKey("invoice_id")))
 				//找到对应的发票
@@ -58,35 +60,45 @@ public sealed class StripeWebhookController : Controller
 				//创建 Payment 记录
                 //把发票状态改成 Paid
                 //保存 Stripe 的交易编号
-				await _stripe.ProcessCheckoutCompletedAsync(session, cancellationToken);
+				await _stripe.ProcessPlanInvoiceCheckoutCompletedAsync(session, cancellationToken);
 				else
 					_logger.LogWarning("Ignoring checkout.session.completed without a supported billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "invoice.paid" && stripeEvent.Data.Object is Stripe.Invoice paidInvoice)
 			{
-				if (GetScope(paidInvoice.Parent?.SubscriptionDetails?.Metadata) == BillingScope.AddOn)
-					await _stripe.ProcessRecurringInvoicePaidAsync(paidInvoice, cancellationToken);
+				var scope = GetScope(paidInvoice.Parent?.SubscriptionDetails?.Metadata);
+				if (scope == BillingScope.AddOn)
+					await _stripe.ProcessAddOnRecurringInvoicePaidAsync(paidInvoice, cancellationToken);
+				else if (scope == BillingScope.Plan)
+					await _stripe.ProcessPlanRecurringInvoicePaidAsync(paidInvoice, cancellationToken);
 				else
 					_logger.LogInformation("Ignoring invoice.paid outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "invoice.payment_failed" && stripeEvent.Data.Object is Stripe.Invoice failedInvoice)
 			{
-				if (GetScope(failedInvoice.Parent?.SubscriptionDetails?.Metadata) == BillingScope.AddOn)
-					await _stripe.ProcessRecurringInvoicePaymentFailedAsync(failedInvoice, cancellationToken);
+				var scope = GetScope(failedInvoice.Parent?.SubscriptionDetails?.Metadata);
+				if (scope == BillingScope.AddOn)
+					await _stripe.ProcessAddOnRecurringInvoicePaymentFailedAsync(failedInvoice, cancellationToken);
+				else if (scope == BillingScope.Plan)
+					await _stripe.ProcessPlanRecurringInvoicePaymentFailedAsync(failedInvoice, cancellationToken);
 				else
 					_logger.LogInformation("Ignoring invoice.payment_failed outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "customer.subscription.updated" && stripeEvent.Data.Object is Subscription updatedSubscription)
 			{
 				if (GetScope(updatedSubscription.Metadata) == BillingScope.AddOn)
-					await _stripe.ProcessSubscriptionUpdatedAsync(updatedSubscription, cancellationToken);
+					await _stripe.ProcessAddOnSubscriptionUpdatedAsync(updatedSubscription, cancellationToken);
+				else if (GetScope(updatedSubscription.Metadata) == BillingScope.Plan)
+					await _stripe.ProcessPlanSubscriptionUpdatedAsync(updatedSubscription, cancellationToken);
 				else
 					_logger.LogInformation("Ignoring customer.subscription.updated outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "customer.subscription.deleted" && stripeEvent.Data.Object is Subscription deletedSubscription)
 			{
 				if (GetScope(deletedSubscription.Metadata) == BillingScope.AddOn)
-					await _stripe.ProcessSubscriptionDeletedAsync(deletedSubscription, cancellationToken);
+					await _stripe.ProcessAddOnSubscriptionDeletedAsync(deletedSubscription, cancellationToken);
+				else if (GetScope(deletedSubscription.Metadata) == BillingScope.Plan)
+					await _stripe.ProcessPlanSubscriptionDeletedAsync(deletedSubscription, cancellationToken);
 				else
 					_logger.LogInformation("Ignoring customer.subscription.deleted outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}

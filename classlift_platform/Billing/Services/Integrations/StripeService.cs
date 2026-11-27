@@ -116,7 +116,7 @@ public sealed class StripeService
     /// 该方法需要保留，用于历史 Invoice、手动补缴、一次性费用以及 QR Code
     /// 付款流程；不能把它当作 Plan 自动订阅方法使用。
     /// </summary>
-    public async Task<string> CreateCheckoutSessionAsync(PlatformInvoice invoice, CancellationToken cancellationToken = default)
+    public async Task<string> CreatePlanInvoiceCheckoutSessionAsync(PlatformInvoice invoice, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_settings.SecretKey))
             throw new InvalidOperationException("Stripe payments are not configured. Please contact support.");
@@ -248,7 +248,7 @@ public sealed class StripeService
         return session.Url;
     }
 
-    public async Task ProcessCheckoutCompletedAsync(Session session, CancellationToken cancellationToken = default)
+    public async Task ProcessPlanInvoiceCheckoutCompletedAsync(Session session, CancellationToken cancellationToken = default)
     {
         var rawId = session.Metadata.TryGetValue("invoice_id", out var metadataId) ? metadataId : session.ClientReferenceId;
         if (!int.TryParse(rawId, out var invoiceId)) throw new InvalidOperationException("Stripe session is missing invoice metadata.");
@@ -259,6 +259,120 @@ public sealed class StripeService
         invoice.StripeCheckoutSessionId ??= session.Id;
         invoice.StripePaymentIntentId = session.PaymentIntentId;
         await _payments.RecordPaymentAsync(invoice.InvoiceId, "Stripe", session.PaymentIntentId ?? session.Id, invoice.TotalAmount, "CAD", $"Stripe Checkout session {session.Id}", cancellationToken: cancellationToken);
+    }
+
+    /// <summary>付款成功后创建或激活 Plan 的本地订阅记录。</summary>
+    public async Task ProcessPlanCheckoutCompletedAsync(Session session, CancellationToken cancellationToken = default)
+    {
+        if (!session.Metadata.TryGetValue("organization_id", out var rawOrganizationId) ||
+            !int.TryParse(rawOrganizationId, out var organizationId) ||
+            !session.Metadata.TryGetValue("plan_id", out var rawPlanId) ||
+            !int.TryParse(rawPlanId, out var planId) ||
+            string.IsNullOrWhiteSpace(session.SubscriptionId))
+            throw new InvalidOperationException("Stripe plan session is missing subscription metadata.");
+
+        if (session.PaymentStatus != "paid" && session.Status != "complete") return;
+
+        var plan = await _db.Subscriptionplans.SingleOrDefaultAsync(p => p.PlanId == planId && p.IsActive, cancellationToken);
+        if (plan == null) throw new InvalidOperationException("Stripe plan does not exist.");
+
+        var existingByStripeId = await _db.OrganizationSubscriptions
+            .SingleOrDefaultAsync(s => s.StripeSubscriptionId == session.SubscriptionId, cancellationToken);
+        if (existingByStripeId != null) return;
+
+        var now = DateTime.UtcNow;
+        var current = await _db.OrganizationSubscriptions
+            .Where(s => s.OrganizationId == organizationId &&
+                        (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (current != null)
+        {
+            current.Status = SubscriptionStatus.Cancelled;
+            current.EndDate = now;
+            current.AutoRenew = 0;
+            current.UpdatedAt = now;
+        }
+
+        var subscription = new OrganizationSubscription
+        {
+            OrganizationId = organizationId,
+            PlanId = planId,
+            StartDate = now,
+            Status = SubscriptionStatus.Active,
+            IsTrial = 0,
+            ActivatedAt = now,
+            AutoRenew = 1,
+            MonthlyPricePerCoach = plan.PricePerCoach,
+            StripeSubscriptionId = session.SubscriptionId,
+            CancelAtPeriodEnd = false,
+            CreatedAt = now
+        };
+        _db.OrganizationSubscriptions.Add(subscription);
+        var organization = await _db.Organizations.SingleAsync(o => o.OrganizationId == organizationId, cancellationToken);
+        organization.CurrentPlanId = planId;
+        organization.UpdatedAt = now;
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>Plan Subscription 自动续费成功时，保持本地订阅为 Active。</summary>
+    public async Task ProcessPlanRecurringInvoicePaidAsync(Stripe.Invoice invoice, CancellationToken cancellationToken = default)
+    {
+        var subscriptionId = invoice.Parent?.SubscriptionDetails?.SubscriptionId;
+        if (string.IsNullOrWhiteSpace(subscriptionId)) return;
+        var local = await _db.OrganizationSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        if (local == null) return;
+        local.Status = SubscriptionStatus.Active;
+        local.LastBilledDate = DateTime.UtcNow;
+        local.EndDate = null;
+        local.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>Plan 自动续费失败时暂停本地订阅，阻止继续使用需付费功能。</summary>
+    public async Task ProcessPlanRecurringInvoicePaymentFailedAsync(Stripe.Invoice invoice, CancellationToken cancellationToken = default)
+    {
+        var subscriptionId = invoice.Parent?.SubscriptionDetails?.SubscriptionId;
+        if (string.IsNullOrWhiteSpace(subscriptionId)) return;
+        var local = await _db.OrganizationSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        if (local == null) return;
+        local.Status = SubscriptionStatus.Expired;
+        local.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>同步 Plan Stripe Subscription 的状态和按周期取消标记。</summary>
+    public async Task ProcessPlanSubscriptionUpdatedAsync(Subscription stripeSubscription, CancellationToken cancellationToken = default)
+    {
+        var local = await _db.OrganizationSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == stripeSubscription.Id, cancellationToken);
+        if (local == null) return;
+        local.Status = stripeSubscription.Status switch
+        {
+            "active" or "trialing" => SubscriptionStatus.Active,
+            "canceled" => SubscriptionStatus.Cancelled,
+            _ => SubscriptionStatus.Expired
+        };
+        local.CancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
+        local.AutoRenew = stripeSubscription.CancelAtPeriodEnd ? (sbyte)0 : (sbyte)1;
+        local.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>Stripe 删除 Plan Subscription 后结束本地 Plan 订阅。</summary>
+    public async Task ProcessPlanSubscriptionDeletedAsync(Subscription stripeSubscription, CancellationToken cancellationToken = default)
+    {
+        var local = await _db.OrganizationSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == stripeSubscription.Id, cancellationToken);
+        if (local == null) return;
+        local.Status = SubscriptionStatus.Cancelled;
+        local.CancelAtPeriodEnd = false;
+        local.AutoRenew = 0;
+        local.EndDate ??= DateTime.UtcNow;
+        local.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
     }
 
 //	负责“支付成功后的处理”。
@@ -333,7 +447,7 @@ public sealed class StripeService
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task ProcessRecurringInvoicePaidAsync(
+    public async Task ProcessAddOnRecurringInvoicePaidAsync(
         Stripe.Invoice invoice,
         CancellationToken cancellationToken = default)
     {
@@ -354,7 +468,7 @@ public sealed class StripeService
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task ProcessRecurringInvoicePaymentFailedAsync(
+    public async Task ProcessAddOnRecurringInvoicePaymentFailedAsync(
         Stripe.Invoice invoice,
         CancellationToken cancellationToken = default)
     {
@@ -370,7 +484,7 @@ public sealed class StripeService
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task ProcessSubscriptionUpdatedAsync(
+    public async Task ProcessAddOnSubscriptionUpdatedAsync(
         Subscription stripeSubscription,
         CancellationToken cancellationToken = default)
     {
@@ -387,7 +501,7 @@ public sealed class StripeService
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task ProcessSubscriptionDeletedAsync(
+    public async Task ProcessAddOnSubscriptionDeletedAsync(
         Subscription stripeSubscription,
         CancellationToken cancellationToken = default)
     {
