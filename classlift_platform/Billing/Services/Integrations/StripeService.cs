@@ -37,7 +37,11 @@ public sealed class StripeService
             SuccessUrl = $"{baseUrl}/organization/invoice/{invoice.InvoiceId}?payment=success",
             CancelUrl = $"{baseUrl}/organization/invoice/{invoice.InvoiceId}?payment=cancelled",
             ClientReferenceId = invoice.InvoiceId.ToString(),
-            Metadata = new Dictionary<string, string> { ["invoice_id"] = invoice.InvoiceId.ToString() },
+            Metadata = new Dictionary<string, string>
+            {
+                ["billing_scope"] = BillingScope.Plan,
+                ["invoice_id"] = invoice.InvoiceId.ToString()
+            },
             LineItems = new List<SessionLineItemOptions> { new()
             {
                 Quantity = 1,
@@ -109,8 +113,18 @@ public sealed class StripeService
             ClientReferenceId = $"organization:{organizationId}:addon:{addOn.AddOnKey}",
             Metadata = new Dictionary<string, string>
             {
+                ["billing_scope"] = BillingScope.AddOn,
                 ["organization_id"] = organizationId.ToString(),
                 ["addon_key"] = addOn.AddOnKey
+            },
+            SubscriptionData = new SessionSubscriptionDataOptions
+            {
+                Metadata = new Dictionary<string, string>
+                {
+                    ["billing_scope"] = BillingScope.AddOn,
+                    ["organization_id"] = organizationId.ToString(),
+                    ["addon_key"] = addOn.AddOnKey
+                }
             },
             LineItems = new List<SessionLineItemOptions>
             {

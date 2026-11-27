@@ -1,4 +1,5 @@
 using Billing.Models;
+using Billing.Constants;
 using Billing.Services.Integrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,31 +48,47 @@ public sealed class StripeWebhookController : Controller
 
             if (stripeEvent.Type == "checkout.session.completed" && stripeEvent.Data.Object is Session session)
 			{
-				if (session.Metadata.ContainsKey("addon_key"))
+				var scope = GetScope(session.Metadata);
+				if (scope == BillingScope.AddOn)
 					await _stripe.ProcessActivityManagementCheckoutCompletedAsync(session, cancellationToken);
-				else
+				else if (scope == BillingScope.Plan ||
+				         (scope == null && session.Metadata.ContainsKey("invoice_id")))
 				//找到对应的发票
 				//确认发票金额和 Stripe 付款对应
 				//创建 Payment 记录
                 //把发票状态改成 Paid
                 //保存 Stripe 的交易编号
 				await _stripe.ProcessCheckoutCompletedAsync(session, cancellationToken);
+				else
+					_logger.LogWarning("Ignoring checkout.session.completed without a supported billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "invoice.paid" && stripeEvent.Data.Object is Stripe.Invoice paidInvoice)
 			{
-				await _stripe.ProcessRecurringInvoicePaidAsync(paidInvoice, cancellationToken);
+				if (GetScope(paidInvoice.Parent?.SubscriptionDetails?.Metadata) == BillingScope.AddOn)
+					await _stripe.ProcessRecurringInvoicePaidAsync(paidInvoice, cancellationToken);
+				else
+					_logger.LogInformation("Ignoring invoice.paid outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "invoice.payment_failed" && stripeEvent.Data.Object is Stripe.Invoice failedInvoice)
 			{
-				await _stripe.ProcessRecurringInvoicePaymentFailedAsync(failedInvoice, cancellationToken);
+				if (GetScope(failedInvoice.Parent?.SubscriptionDetails?.Metadata) == BillingScope.AddOn)
+					await _stripe.ProcessRecurringInvoicePaymentFailedAsync(failedInvoice, cancellationToken);
+				else
+					_logger.LogInformation("Ignoring invoice.payment_failed outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "customer.subscription.updated" && stripeEvent.Data.Object is Subscription updatedSubscription)
 			{
-				await _stripe.ProcessSubscriptionUpdatedAsync(updatedSubscription, cancellationToken);
+				if (GetScope(updatedSubscription.Metadata) == BillingScope.AddOn)
+					await _stripe.ProcessSubscriptionUpdatedAsync(updatedSubscription, cancellationToken);
+				else
+					_logger.LogInformation("Ignoring customer.subscription.updated outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "customer.subscription.deleted" && stripeEvent.Data.Object is Subscription deletedSubscription)
 			{
-				await _stripe.ProcessSubscriptionDeletedAsync(deletedSubscription, cancellationToken);
+				if (GetScope(deletedSubscription.Metadata) == BillingScope.AddOn)
+					await _stripe.ProcessSubscriptionDeletedAsync(deletedSubscription, cancellationToken);
+				else
+					_logger.LogInformation("Ignoring customer.subscription.deleted outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
 			}
             return Ok();
         }
@@ -122,4 +139,9 @@ public sealed class StripeWebhookController : Controller
             });
         }
     }
+
+    private static string? GetScope(IReadOnlyDictionary<string, string>? metadata)
+        => metadata != null && metadata.TryGetValue("billing_scope", out var scope)
+            ? scope.Trim().ToLowerInvariant()
+            : null;
 }
