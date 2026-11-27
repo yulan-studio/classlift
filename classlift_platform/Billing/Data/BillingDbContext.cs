@@ -173,10 +173,14 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.CurrentPeriodEnd).HasColumnType("datetime");
             entity.Property(e => e.CancelledAt).HasColumnType("datetime");
+            entity.Property(e => e.StripeSubscriptionId).HasMaxLength(255);
+            entity.HasIndex(e => e.StripeSubscriptionId, "UX_OrgAddOnSub_StripeSubscriptionId")
+                .IsUnique();
             entity.Property(e => e.MonthlyPrice).HasPrecision(10, 2);
             entity.Property(e => e.Currency).HasMaxLength(10).HasDefaultValue("CAD");
             entity.Property(e => e.BillingCycle).HasMaxLength(20).HasDefaultValue("Monthly");
             entity.Property(e => e.AutoRenew).HasDefaultValue(true);
+            entity.Property(e => e.CancelAtPeriodEnd).HasDefaultValue(false);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).ValueGeneratedOnAddOrUpdate().HasColumnType("datetime");
             entity.HasOne(e => e.Organization).WithMany()

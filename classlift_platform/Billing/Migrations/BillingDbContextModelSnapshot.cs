@@ -364,6 +364,11 @@ namespace Billing.Migrations
                         .HasColumnType("varchar(20)")
                         .HasDefaultValue("Monthly");
 
+                    b.Property<bool>("CancelAtPeriodEnd")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime");
 
@@ -403,6 +408,10 @@ namespace Billing.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime");
@@ -417,6 +426,9 @@ namespace Billing.Migrations
                     b.HasIndex(new[] { "OrganizationId" }, "IDX_OrgAddOnSub_OrganizationID");
 
                     b.HasIndex(new[] { "Status" }, "IDX_OrgAddOnSub_Status");
+
+                    b.HasIndex(new[] { "StripeSubscriptionId" }, "UX_OrgAddOnSub_StripeSubscriptionId")
+                        .IsUnique();
 
                     b.ToTable("organization_addon_subscriptions", (string)null);
                 });

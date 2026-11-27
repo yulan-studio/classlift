@@ -10,6 +10,8 @@ public partial class OrganizationAddOnSubscription
     public DateTime? EndDate { get; set; }
     public DateTime? CurrentPeriodEnd { get; set; }
     public DateTime? CancelledAt { get; set; }
+    public string? StripeSubscriptionId { get; set; }
+    public bool CancelAtPeriodEnd { get; set; }
     public decimal MonthlyPrice { get; set; }
     public string Currency { get; set; } = "CAD";
     public string BillingCycle { get; set; } = "Monthly";
