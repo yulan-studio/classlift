@@ -1,4 +1,5 @@
 using Billing.Configuration;
+using Billing.Constants;
 using Billing.Data;
 using Billing.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -59,12 +60,36 @@ public sealed class OrganizationPortalController : Controller
             .OrderByDescending(s => s.CreatedAt)
             .FirstOrDefaultAsync(cancellationToken);
 
+        var addOns = await _context.AddOns
+            .AsNoTracking()
+            .Where(a => a.IsActive)
+            .Select(a => new
+            {
+                AddOn = a,
+                IsEligible = subscription != null && _context.PlanAddOnEligibilities.Any(e =>
+                    e.PlanId == subscription.PlanId && e.AddOnId == a.AddOnId && e.IsEligible),
+                IsActive = _context.OrganizationAddOnSubscriptions.Any(s =>
+                    s.OrganizationId == organizationId && s.AddOnId == a.AddOnId &&
+                    s.Status == AddOnStatus.Active)
+            })
+            .ToListAsync(cancellationToken);
+
         return View(new OrganizationPortalViewModel
         {
             Organization = organization,
             Invoices = invoices,
             Payments = payments,
-            CurrentSubscription = subscription
+            CurrentSubscription = subscription,
+            AddOns = addOns.Select(item => new OrganizationAddOnViewModel
+            {
+                AddOnKey = item.AddOn.AddOnKey,
+                Name = item.AddOn.Name,
+                Status = item.IsActive ? "Enabled" : "Disabled",
+                IsEligible = item.IsEligible,
+                ManagementUrl = item.AddOn.AddOnKey == FeatureKeys.ActivityManagement
+                    ? "/organization/addons/activity-management"
+                    : "/organization"
+            }).ToList()
         });
     }
 
