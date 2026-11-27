@@ -46,12 +46,17 @@ public sealed class StripeWebhookController : Controller
                 payload.Length);
 
             if (stripeEvent.Type == "checkout.session.completed" && stripeEvent.Data.Object is Session session)
+			{
+				if (session.Metadata.ContainsKey("addon_key"))
+					await _stripe.ProcessActivityManagementCheckoutCompletedAsync(session, cancellationToken);
+				else
 				//找到对应的发票
 				//确认发票金额和 Stripe 付款对应
 				//创建 Payment 记录
                 //把发票状态改成 Paid
                 //保存 Stripe 的交易编号
 				await _stripe.ProcessCheckoutCompletedAsync(session, cancellationToken);
+			}
             return Ok();
         }
         catch (StripeException ex)

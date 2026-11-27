@@ -1,7 +1,9 @@
 using Billing.Configuration;
+using Billing.Constants;
 using Billing.Data;
 using Billing.Models;
 using Billing.Services.Billing;
+using Microsoft.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -52,6 +54,86 @@ public sealed class StripeService
         return session.Url;
     }
 
+//	负责“创建支付页面”。
+
+//它会：
+//- 检查 Stripe 配置；
+//- 检查当前 Plan 是否 eligible；
+//- 检查是否已经购买 Add-on；
+//- 创建数据库中配置的月度 Stripe Subscription Checkout Session；
+//- 返回 Stripe Checkout URL。
+//它不会授予 Activity Management 权限。
+
+	public async Task<string> CreateActivityManagementCheckoutSessionAsync(
+        int organizationId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_settings.SecretKey))
+            throw new InvalidOperationException("Stripe payments are not configured. Please contact support.");
+        if (!Uri.TryCreate(_settings.PublicBaseUrl, UriKind.Absolute, out var baseUri) ||
+            (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
+            throw new InvalidOperationException("Stripe payment URL is not configured correctly. Please contact support.");
+
+        var addOn = await _db.AddOns
+            .Include(a => a.PlanEligibilities)
+            .SingleOrDefaultAsync(a =>
+                a.AddOnKey == FeatureKeys.ActivityManagement && a.IsActive,
+                cancellationToken);
+        if (addOn == null)
+            throw new InvalidOperationException("Activity Management add-on is not available.");
+
+        var planSubscription = await _db.OrganizationSubscriptions
+            .Where(s => s.OrganizationId == organizationId &&
+                        (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (planSubscription == null || !addOn.PlanEligibilities.Any(e =>
+                e.PlanId == planSubscription.PlanId && e.IsEligible))
+            throw new InvalidOperationException("The current plan is not eligible for Activity Management.");
+
+        var alreadySubscribed = await _db.OrganizationAddOnSubscriptions.AnyAsync(s =>
+            s.OrganizationId == organizationId &&
+            s.AddOnId == addOn.AddOnId &&
+            (s.Status == AddOnStatus.Active || s.Status == AddOnStatus.Trial),
+            cancellationToken);
+        if (alreadySubscribed)
+            throw new InvalidOperationException("Activity Management is already active for this organization.");
+
+        StripeConfiguration.ApiKey = _settings.SecretKey;
+        var baseUrl = baseUri.ToString().TrimEnd('/');
+        var session = await new SessionService().CreateAsync(new SessionCreateOptions
+        {
+            Mode = "subscription",
+            SuccessUrl = $"{baseUrl}/organization/addons/activity-management?payment=success",
+            CancelUrl = $"{baseUrl}/organization/addons/activity-management?payment=cancelled",
+            ClientReferenceId = $"organization:{organizationId}:addon:{addOn.AddOnKey}",
+            Metadata = new Dictionary<string, string>
+            {
+                ["organization_id"] = organizationId.ToString(),
+                ["addon_key"] = addOn.AddOnKey
+            },
+            LineItems = new List<SessionLineItemOptions>
+            {
+                new()
+                {
+                    Quantity = 1,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = addOn.Currency.ToLowerInvariant(),
+                        UnitAmount = checked((long)Math.Round(addOn.MonthlyPrice * 100m, 0)),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = addOn.Name
+                        },
+                        Recurring = new SessionLineItemPriceDataRecurringOptions { Interval = "month" }
+                    }
+                }
+            }
+        }, cancellationToken: cancellationToken);
+
+        return session.Url;
+    }
+
     public async Task ProcessCheckoutCompletedAsync(Session session, CancellationToken cancellationToken = default)
     {
         var rawId = session.Metadata.TryGetValue("invoice_id", out var metadataId) ? metadataId : session.ClientReferenceId;
@@ -63,6 +145,67 @@ public sealed class StripeService
         invoice.StripeCheckoutSessionId ??= session.Id;
         invoice.StripePaymentIntentId = session.PaymentIntentId;
         await _payments.RecordPaymentAsync(invoice.InvoiceId, "Stripe", session.PaymentIntentId ?? session.Id, invoice.TotalAmount, "CAD", $"Stripe Checkout session {session.Id}", cancellationToken: cancellationToken);
+    }
+
+//	负责“支付成功后的处理”。
+
+//它由 Stripe Webhook 调用，会：
+//- 验证 Stripe 支付事件；
+//- 读取 organization_id 和 addon_key；
+//- 确认付款已完成；
+//- 再次检查 Plan eligibility；
+//- 创建 OrganizationAddOnSubscription；
+//- 将 Add-on 状态设为 Active。
+
+	public async Task ProcessActivityManagementCheckoutCompletedAsync(
+        Session session,
+        CancellationToken cancellationToken = default)
+    {
+        if (!session.Metadata.TryGetValue("organization_id", out var rawOrganizationId) ||
+            !int.TryParse(rawOrganizationId, out var organizationId) ||
+            !session.Metadata.TryGetValue("addon_key", out var addOnKey))
+            throw new InvalidOperationException("Stripe add-on session is missing metadata.");
+
+        if (session.PaymentStatus != "paid" && session.Status != "complete")
+            return;
+
+        var addOn = await _db.AddOns.SingleOrDefaultAsync(a =>
+            a.AddOnKey == addOnKey && a.IsActive, cancellationToken);
+        if (addOn == null)
+            throw new InvalidOperationException("Stripe add-on does not exist.");
+
+        var planSubscription = await _db.OrganizationSubscriptions
+            .Where(s => s.OrganizationId == organizationId &&
+                        (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (planSubscription == null || !await _db.PlanAddOnEligibilities.AnyAsync(e =>
+                e.PlanId == planSubscription.PlanId && e.AddOnId == addOn.AddOnId && e.IsEligible,
+                cancellationToken))
+            throw new InvalidOperationException("The organization plan is not eligible for this add-on.");
+
+        var existing = await _db.OrganizationAddOnSubscriptions.SingleOrDefaultAsync(s =>
+            s.OrganizationId == organizationId && s.AddOnId == addOn.AddOnId &&
+            (s.Status == AddOnStatus.Active || s.Status == AddOnStatus.Trial), cancellationToken);
+        if (existing != null)
+            return;
+
+        var subscription = new OrganizationAddOnSubscription
+        {
+            OrganizationId = organizationId,
+            AddOnId = addOn.AddOnId,
+            Status = AddOnStatus.Active,
+            StartDate = DateTime.UtcNow,
+            CurrentPeriodEnd = DateTime.UtcNow.AddMonths(1),
+            MonthlyPrice = addOn.MonthlyPrice,
+            Currency = addOn.Currency,
+            BillingCycle = addOn.BillingCycle,
+            AutoRenew = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.OrganizationAddOnSubscriptions.Add(subscription);
+        await _db.SaveChangesAsync(cancellationToken);
     }
 
     public Event VerifyWebhook(string payload, string signature)

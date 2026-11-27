@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Activity Management";
+}
+
+<h1>Activity Management</h1>
+<p>Activity Management is an optional add-on billed monthly.</p>
+<p id="status">Loading availability...</p>
+<button id="buy" type="button" disabled>Purchase Activity Management</button>
+<p id="message"></p>
+
+<script>
+    const status = document.getElementById('status');
+    const buy = document.getElementById('buy');
+    const message = document.getElementById('message');
+
+    fetch('/api/organization/addons/activity-management')
+        .then(response => response.json().then(body => ({ ok: response.ok, body })))
+        .then(result => {
+            if (!result.ok) throw new Error(result.body.error || 'Unable to load add-on status.');
+            if (result.body.active) {
+                status.textContent = 'Activity Management is active.';
+                return;
+            }
+            if (!result.body.eligible) {
+                status.textContent = 'Your current plan is not eligible for this add-on.';
+                return;
+            }
+            status.textContent = `Eligible: ${result.body.currency} ${result.body.monthlyPrice} per month.`;
+            buy.disabled = false;
+        })
+        .catch(error => status.textContent = error.message);
+
+    buy.addEventListener('click', async () => {
+        buy.disabled = true;
+        message.textContent = 'Opening secure Stripe checkout...';
+        const response = await fetch('/api/organization/addons/activity-management/checkout', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' }
+        });
+        const body = await response.json();
+        if (!response.ok) {
+            message.textContent = body.error || 'Unable to create checkout.';
+            buy.disabled = false;
+            return;
+        }
+        window.location.href = body.checkoutUrl;
+    });
+</script>
