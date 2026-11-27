@@ -158,18 +158,15 @@ public sealed class StripeService
         return session.Url;
     }
 
-//	负责“创建支付页面”。
-
-//它会：
-//- 检查 Stripe 配置；
-//- 检查当前 Plan 是否 eligible；
-//- 检查是否已经购买 Add-on；
-//- 创建数据库中配置的月度 Stripe Subscription Checkout Session；
-//- 返回 Stripe Checkout URL。
-//它不会授予 Activity Management 权限。
-
-	public async Task<string> CreateActivityManagementCheckoutSessionAsync(
+	/// <summary>
+	/// 创建通用 Add-on 的 Stripe Subscription Checkout Session。
+	/// 具体购买哪一个 Add-on 由 addOnKey 决定；价格、币种和 Plan eligibility
+	/// 均从数据库中的 Add-on 定义读取。此方法只创建 Stripe Checkout，
+	/// 不直接授予任何具体功能权限。
+	/// </summary>
+	public async Task<string> CreateAddOnCheckoutSessionAsync(
         int organizationId,
+        string addOnKey,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_settings.SecretKey))
@@ -181,10 +178,10 @@ public sealed class StripeService
         var addOn = await _db.AddOns
             .Include(a => a.PlanEligibilities)
             .SingleOrDefaultAsync(a =>
-                a.AddOnKey == FeatureKeys.ActivityManagement && a.IsActive,
+                a.AddOnKey == addOnKey && a.IsActive,
                 cancellationToken);
         if (addOn == null)
-            throw new InvalidOperationException("Activity Management add-on is not available.");
+            throw new InvalidOperationException($"The requested add-on '{addOnKey}' is not available.");
 
         var planSubscription = await _db.OrganizationSubscriptions
             .Where(s => s.OrganizationId == organizationId &&
@@ -193,7 +190,7 @@ public sealed class StripeService
             .FirstOrDefaultAsync(cancellationToken);
         if (planSubscription == null || !addOn.PlanEligibilities.Any(e =>
                 e.PlanId == planSubscription.PlanId && e.IsEligible))
-            throw new InvalidOperationException("The current plan is not eligible for Activity Management.");
+            throw new InvalidOperationException($"The current plan is not eligible for the '{addOn.Name}' add-on.");
 
         var alreadySubscribed = await _db.OrganizationAddOnSubscriptions.AnyAsync(s =>
             s.OrganizationId == organizationId &&
@@ -201,15 +198,15 @@ public sealed class StripeService
             (s.Status == AddOnStatus.Active || s.Status == AddOnStatus.Trial),
             cancellationToken);
         if (alreadySubscribed)
-            throw new InvalidOperationException("Activity Management is already active for this organization.");
+            throw new InvalidOperationException($"The '{addOn.Name}' add-on is already active for this organization.");
 
         StripeConfiguration.ApiKey = _settings.SecretKey;
         var baseUrl = baseUri.ToString().TrimEnd('/');
         var session = await new SessionService().CreateAsync(new SessionCreateOptions
         {
             Mode = "subscription",
-            SuccessUrl = $"{baseUrl}/organization/addons/activity-management?payment=success",
-            CancelUrl = $"{baseUrl}/organization/addons/activity-management?payment=cancelled",
+            SuccessUrl = $"{baseUrl}/organization/addons/{Uri.EscapeDataString(addOn.AddOnKey)}?payment=success",
+            CancelUrl = $"{baseUrl}/organization/addons/{Uri.EscapeDataString(addOn.AddOnKey)}?payment=cancelled",
             ClientReferenceId = $"organization:{organizationId}:addon:{addOn.AddOnKey}",
             Metadata = new Dictionary<string, string>
             {
@@ -375,17 +372,12 @@ public sealed class StripeService
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-//	负责“支付成功后的处理”。
-
-//它由 Stripe Webhook 调用，会：
-//- 验证 Stripe 支付事件；
-//- 读取 organization_id 和 addon_key；
-//- 确认付款已完成；
-//- 再次检查 Plan eligibility；
-//- 创建 OrganizationAddOnSubscription；
-//- 将 Add-on 状态设为 Active。
-
-	public async Task ProcessActivityManagementCheckoutCompletedAsync(
+	/// <summary>
+	/// 处理通用 Add-on 的首次 Checkout 成功事件。
+	/// 方法通过 Stripe Checkout metadata 中的 addon_key 找到具体 Add-on，
+	/// 验证 Plan eligibility 后创建对应的本地 Add-on Subscription。
+	/// </summary>
+	public async Task ProcessAddOnCheckoutCompletedAsync(
         Session session,
         CancellationToken cancellationToken = default)
     {

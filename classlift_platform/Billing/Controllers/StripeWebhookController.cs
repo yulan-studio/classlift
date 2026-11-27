@@ -50,7 +50,7 @@ public sealed class StripeWebhookController : Controller
 			{
 				var scope = GetScope(session.Metadata);
 				if (scope == BillingScope.AddOn)
-					await _stripe.ProcessActivityManagementCheckoutCompletedAsync(session, cancellationToken);
+					await _stripe.ProcessAddOnCheckoutCompletedAsync(session, cancellationToken);
 				else if (scope == BillingScope.Plan && session.Metadata.ContainsKey("plan_id"))
 					await _stripe.ProcessPlanCheckoutCompletedAsync(session, cancellationToken);
 				else if (scope == BillingScope.Plan ||
@@ -72,7 +72,7 @@ public sealed class StripeWebhookController : Controller
 				else if (scope == BillingScope.Plan)
 					await _stripe.ProcessPlanRecurringInvoicePaidAsync(paidInvoice, cancellationToken);
 				else
-					_logger.LogInformation("Ignoring invoice.paid outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
+					_logger.LogInformation("Ignoring invoice.paid outside a supported billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "invoice.payment_failed" && stripeEvent.Data.Object is Stripe.Invoice failedInvoice)
 			{
@@ -82,7 +82,7 @@ public sealed class StripeWebhookController : Controller
 				else if (scope == BillingScope.Plan)
 					await _stripe.ProcessPlanRecurringInvoicePaymentFailedAsync(failedInvoice, cancellationToken);
 				else
-					_logger.LogInformation("Ignoring invoice.payment_failed outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
+					_logger.LogInformation("Ignoring invoice.payment_failed outside a supported billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "customer.subscription.updated" && stripeEvent.Data.Object is Subscription updatedSubscription)
 			{
@@ -91,7 +91,7 @@ public sealed class StripeWebhookController : Controller
 				else if (GetScope(updatedSubscription.Metadata) == BillingScope.Plan)
 					await _stripe.ProcessPlanSubscriptionUpdatedAsync(updatedSubscription, cancellationToken);
 				else
-					_logger.LogInformation("Ignoring customer.subscription.updated outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
+					_logger.LogInformation("Ignoring customer.subscription.updated outside a supported billing scope. EventId={EventId}", stripeEvent.Id);
 			}
 			else if (stripeEvent.Type == "customer.subscription.deleted" && stripeEvent.Data.Object is Subscription deletedSubscription)
 			{
@@ -100,7 +100,7 @@ public sealed class StripeWebhookController : Controller
 				else if (GetScope(deletedSubscription.Metadata) == BillingScope.Plan)
 					await _stripe.ProcessPlanSubscriptionDeletedAsync(deletedSubscription, cancellationToken);
 				else
-					_logger.LogInformation("Ignoring customer.subscription.deleted outside the add-on billing scope. EventId={EventId}", stripeEvent.Id);
+					_logger.LogInformation("Ignoring customer.subscription.deleted outside a supported billing scope. EventId={EventId}", stripeEvent.Id);
 			}
             return Ok();
         }

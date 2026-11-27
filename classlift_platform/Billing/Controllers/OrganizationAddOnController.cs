@@ -70,8 +70,8 @@ public sealed class OrganizationAddOnController : ControllerBase
 
         try
         {
-            var url = await _stripe.CreateActivityManagementCheckoutSessionAsync(
-                organizationId.Value, cancellationToken);
+            var url = await _stripe.CreateAddOnCheckoutSessionAsync(
+                organizationId.Value, FeatureKeys.ActivityManagement, cancellationToken);
             return Ok(new { checkoutUrl = url });
         }
         catch (InvalidOperationException ex)
