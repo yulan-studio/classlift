@@ -68,6 +68,30 @@ namespace Billing.Services.Billing
                 .Select(f => f.FeatureKey)
                 .ToHashSet();
 
+            // Add-ons are separate from the features included by a plan.
+            // Activity Management is available only when the organization's
+            // current plan is eligible and the organization has purchased an
+            // active Activity Management add-on subscription.
+            var activityManagementPurchased =
+                await _context.OrganizationAddOnSubscriptions
+                    .AnyAsync(addOnSubscription =>
+                        addOnSubscription.OrganizationId == organizationId &&
+                        addOnSubscription.AddOn.AddOnKey == FeatureKeys.ActivityManagement &&
+                        addOnSubscription.Status == AddOnStatus.Active &&
+                        addOnSubscription.AddOn.IsActive &&
+                        addOnSubscription.AddOn.PlanEligibilities.Any(eligibility =>
+                            eligibility.PlanId == subscription.PlanId &&
+                            eligibility.IsEligible), cancellationToken: default);
+
+            if (activityManagementPurchased)
+            {
+                features.Add(FeatureKeys.ActivityManagement);
+            }
+            else
+            {
+                features.Remove(FeatureKeys.ActivityManagement);
+            }
+
             var context = new OrganizationFeatureContext
             {
                 OrganizationId = organizationId,
