@@ -65,6 +65,20 @@ public sealed class StripeService
             throw new InvalidOperationException("Organization is already subscribed to this plan.");
 
         var coachCount = Math.Max(1, await _invoices.GetCoachCountAsync(organizationId));
+        var pendingChange = new PendingPlanChange
+        {
+            OrganizationId = organizationId,
+            CurrentPlanId = existing?.PlanId,
+            RequestedPlanId = planId,
+            CoachCount = coachCount,
+            MonthlyAmount = plan.PricePerCoach * coachCount,
+            Status = "PendingPayment",
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(1)
+        };
+        _db.PendingPlanChanges.Add(pendingChange);
+        await _db.SaveChangesAsync(cancellationToken);
+
         StripeConfiguration.ApiKey = _settings.SecretKey;
         var baseUrl = baseUri.ToString().TrimEnd('/');
         var metadata = new Dictionary<string, string>
@@ -72,7 +86,8 @@ public sealed class StripeService
             ["billing_scope"] = BillingScope.Plan,
             ["organization_id"] = organizationId.ToString(),
             ["plan_id"] = planId.ToString(),
-            ["coach_count"] = coachCount.ToString()
+            ["coach_count"] = coachCount.ToString(),
+            ["pending_plan_change_id"] = pendingChange.PendingPlanChangeId.ToString()
         };
         var session = await new SessionService().CreateAsync(new SessionCreateOptions
         {
@@ -97,6 +112,9 @@ public sealed class StripeService
                 }
             }
         }, cancellationToken: cancellationToken);
+
+        pendingChange.StripeCheckoutSessionId = session.Id;
+        await _db.SaveChangesAsync(cancellationToken);
 
         return session.Url;
     }
@@ -277,6 +295,11 @@ public sealed class StripeService
             .SingleOrDefaultAsync(s => s.StripeSubscriptionId == session.SubscriptionId, cancellationToken);
         if (existingByStripeId != null) return;
 
+        var pendingChange = await _db.PendingPlanChanges.SingleOrDefaultAsync(p =>
+            p.StripeCheckoutSessionId == session.Id && p.Status == "PendingPayment", cancellationToken);
+        if (pendingChange == null)
+            throw new InvalidOperationException("Pending Plan change was not found for the Stripe Checkout session.");
+
         var now = DateTime.UtcNow;
         var current = await _db.OrganizationSubscriptions
             .Where(s => s.OrganizationId == organizationId &&
@@ -309,6 +332,9 @@ public sealed class StripeService
         var organization = await _db.Organizations.SingleAsync(o => o.OrganizationId == organizationId, cancellationToken);
         organization.CurrentPlanId = planId;
         organization.UpdatedAt = now;
+        pendingChange.Status = "Paid";
+        pendingChange.StripeSubscriptionId = session.SubscriptionId;
+        pendingChange.CompletedAt = now;
         await _db.SaveChangesAsync(cancellationToken);
     }
 

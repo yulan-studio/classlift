@@ -33,6 +33,7 @@ public partial class BillingDbContext : IdentityDbContext
     public virtual DbSet<OrganizationAdmin> OrganizationAdmins { get; set; }
 
     public virtual DbSet<OrganizationSubscription> OrganizationSubscriptions { get; set; }
+    public virtual DbSet<PendingPlanChange> PendingPlanChanges { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
 
@@ -356,6 +357,31 @@ public partial class BillingDbContext : IdentityDbContext
                 .HasForeignKey(d => d.PlanId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OrgSub_Plans");
+        });
+
+        modelBuilder.Entity<PendingPlanChange>(entity =>
+        {
+            entity.HasKey(e => e.PendingPlanChangeId).HasName("PRIMARY");
+            entity.ToTable("pending_plan_changes");
+            entity.Property(e => e.PendingPlanChangeId).HasColumnName("PendingPlanChangeID");
+            entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
+            entity.Property(e => e.CurrentPlanId).HasColumnName("CurrentPlanID");
+            entity.Property(e => e.RequestedPlanId).HasColumnName("RequestedPlanID");
+            entity.Property(e => e.MonthlyAmount).HasPrecision(10, 2);
+            entity.Property(e => e.Status).HasMaxLength(30).IsRequired();
+            entity.Property(e => e.StripeCheckoutSessionId).HasMaxLength(255);
+            entity.Property(e => e.StripeSubscriptionId).HasMaxLength(255);
+            entity.Property(e => e.CreatedByUserId).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnType("datetime");
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
+            entity.Property(e => e.CompletedAt).HasColumnType("datetime");
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => e.StripeCheckoutSessionId).IsUnique();
+            entity.HasIndex(e => e.StripeSubscriptionId).IsUnique();
+            entity.HasOne(e => e.Organization).WithMany()
+                .HasForeignKey(e => e.OrganizationId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.RequestedPlan).WithMany()
+                .HasForeignKey(e => e.RequestedPlanId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Payment>(entity =>

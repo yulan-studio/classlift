@@ -651,6 +651,78 @@ namespace Billing.Migrations
                     b.ToTable("payments", (string)null);
                 });
 
+            modelBuilder.Entity("Billing.Models.PendingPlanChange", b =>
+                {
+                    b.Property<int>("PendingPlanChangeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("PendingPlanChangeID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PendingPlanChangeId"));
+
+                    b.Property<int>("CoachCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int?>("CurrentPlanId")
+                        .HasColumnType("int")
+                        .HasColumnName("CurrentPlanID");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal>("MonthlyAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationID");
+
+                    b.Property<int>("RequestedPlanId")
+                        .HasColumnType("int")
+                        .HasColumnName("RequestedPlanID");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("StripeCheckoutSessionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("PendingPlanChangeId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("RequestedPlanId");
+
+                    b.HasIndex("StripeCheckoutSessionId")
+                        .IsUnique();
+
+                    b.HasIndex("StripeSubscriptionId")
+                        .IsUnique();
+
+                    b.ToTable("pending_plan_changes", (string)null);
+                });
+
             modelBuilder.Entity("Billing.Models.PlanAddOnEligibility", b =>
                 {
                     b.Property<int>("PlanAddOnEligibilityId")
@@ -1295,6 +1367,25 @@ namespace Billing.Migrations
                         .HasConstraintName("FK_Payments_Invoices");
 
                     b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("Billing.Models.PendingPlanChange", b =>
+                {
+                    b.HasOne("Billing.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Billing.Models.Subscriptionplan", "RequestedPlan")
+                        .WithMany()
+                        .HasForeignKey("RequestedPlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("RequestedPlan");
                 });
 
             modelBuilder.Entity("Billing.Models.PlanAddOnEligibility", b =>
