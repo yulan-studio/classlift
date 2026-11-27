@@ -57,6 +57,22 @@ public sealed class StripeWebhookController : Controller
                 //保存 Stripe 的交易编号
 				await _stripe.ProcessCheckoutCompletedAsync(session, cancellationToken);
 			}
+			else if (stripeEvent.Type == "invoice.paid" && stripeEvent.Data.Object is Stripe.Invoice paidInvoice)
+			{
+				await _stripe.ProcessRecurringInvoicePaidAsync(paidInvoice, cancellationToken);
+			}
+			else if (stripeEvent.Type == "invoice.payment_failed" && stripeEvent.Data.Object is Stripe.Invoice failedInvoice)
+			{
+				await _stripe.ProcessRecurringInvoicePaymentFailedAsync(failedInvoice, cancellationToken);
+			}
+			else if (stripeEvent.Type == "customer.subscription.updated" && stripeEvent.Data.Object is Subscription updatedSubscription)
+			{
+				await _stripe.ProcessSubscriptionUpdatedAsync(updatedSubscription, cancellationToken);
+			}
+			else if (stripeEvent.Type == "customer.subscription.deleted" && stripeEvent.Data.Object is Subscription deletedSubscription)
+			{
+				await _stripe.ProcessSubscriptionDeletedAsync(deletedSubscription, cancellationToken);
+			}
             return Ok();
         }
         catch (StripeException ex)

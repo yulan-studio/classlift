@@ -219,6 +219,86 @@ public sealed class StripeService
         await _db.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task ProcessRecurringInvoicePaidAsync(
+        Stripe.Invoice invoice,
+        CancellationToken cancellationToken = default)
+    {
+        var subscriptionId = invoice.Parent?.SubscriptionDetails?.SubscriptionId;
+        if (string.IsNullOrWhiteSpace(subscriptionId)) return;
+
+        var local = await _db.OrganizationAddOnSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        if (local == null) return;
+
+        local.Status = AddOnStatus.Active;
+        local.CancelledAt = null;
+        local.EndDate = null;
+        local.UpdatedAt = DateTime.UtcNow;
+        if (invoice.PeriodEnd != default)
+            local.CurrentPeriodEnd = invoice.PeriodEnd;
+
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ProcessRecurringInvoicePaymentFailedAsync(
+        Stripe.Invoice invoice,
+        CancellationToken cancellationToken = default)
+    {
+        var subscriptionId = invoice.Parent?.SubscriptionDetails?.SubscriptionId;
+        if (string.IsNullOrWhiteSpace(subscriptionId)) return;
+
+        var local = await _db.OrganizationAddOnSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        if (local == null) return;
+
+        local.Status = AddOnStatus.PastDue;
+        local.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ProcessSubscriptionUpdatedAsync(
+        Subscription stripeSubscription,
+        CancellationToken cancellationToken = default)
+    {
+        var local = await _db.OrganizationAddOnSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == stripeSubscription.Id, cancellationToken);
+        if (local == null) return;
+
+        local.Status = MapStripeSubscriptionStatus(stripeSubscription.Status);
+        local.CancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
+        local.UpdatedAt = DateTime.UtcNow;
+        if (stripeSubscription.CancelAtPeriodEnd)
+            local.EndDate = local.CurrentPeriodEnd;
+
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ProcessSubscriptionDeletedAsync(
+        Subscription stripeSubscription,
+        CancellationToken cancellationToken = default)
+    {
+        var local = await _db.OrganizationAddOnSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == stripeSubscription.Id, cancellationToken);
+        if (local == null) return;
+
+        var now = DateTime.UtcNow;
+        local.Status = AddOnStatus.Cancelled;
+        local.AutoRenew = false;
+        local.CancelAtPeriodEnd = false;
+        local.CancelledAt ??= now;
+        local.EndDate ??= now;
+        local.UpdatedAt = now;
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static string MapStripeSubscriptionStatus(string? status) => status switch
+    {
+        "active" or "trialing" => AddOnStatus.Active,
+        "past_due" or "unpaid" => AddOnStatus.PastDue,
+        "canceled" or "incomplete_expired" => AddOnStatus.Cancelled,
+        _ => AddOnStatus.PastDue
+    };
+
     public Event VerifyWebhook(string payload, string signature)
     {
         if (string.IsNullOrWhiteSpace(_settings.WebhookSecret)) throw new InvalidOperationException("Stripe webhook is not configured.");
