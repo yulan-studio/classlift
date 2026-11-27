@@ -31,6 +31,10 @@ public partial class OrganizationSubscription
 
     public sbyte AutoRenew { get; set; }
 
+    public string? StripeSubscriptionId { get; set; }
+
+    public bool CancelAtPeriodEnd { get; set; }
+
     public decimal MonthlyPricePerCoach { get; set; }
 
     public DateTime CreatedAt { get; set; }

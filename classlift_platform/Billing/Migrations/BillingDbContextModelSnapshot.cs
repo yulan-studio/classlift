@@ -517,6 +517,9 @@ namespace Billing.Migrations
                     b.Property<sbyte>("AutoRenew")
                         .HasColumnType("tinyint");
 
+                    b.Property<bool>("CancelAtPeriodEnd")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime(6)");
 
@@ -562,6 +565,10 @@ namespace Billing.Migrations
                         .HasColumnType("enum('Active','Cancelled','Expired')")
                         .HasDefaultValueSql("'Active'");
 
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<DateTime?>("TrialEndDate")
                         .HasColumnType("datetime(6)");
 
@@ -576,6 +583,9 @@ namespace Billing.Migrations
 
                     b.HasKey("OrganizationSubscriptionId")
                         .HasName("PRIMARY");
+
+                    b.HasIndex("StripeSubscriptionId")
+                        .IsUnique();
 
                     b.HasIndex(new[] { "OrganizationId" }, "IDX_OrgSub_OrganizationID");
 

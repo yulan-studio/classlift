@@ -326,6 +326,8 @@ public partial class BillingDbContext : IdentityDbContext
 
 
             entity.Property(e => e.OrganizationSubscriptionId).HasColumnName("OrganizationSubscriptionID");
+            entity.Property(e => e.StripeSubscriptionId).HasMaxLength(255);
+            entity.HasIndex(e => e.StripeSubscriptionId).IsUnique();
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
