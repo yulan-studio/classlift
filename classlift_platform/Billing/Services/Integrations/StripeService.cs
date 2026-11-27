@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 using PlatformInvoice = Billing.Models.Invoice;
+using PlatformInvoiceService = Billing.Services.Billing.InvoiceService;
 
 namespace Billing.Services.Integrations;
 
@@ -17,10 +18,104 @@ public sealed class StripeService
     private readonly BillingDbContext _db;
     private readonly StripeSettings _settings;
     private readonly PaymentService _payments;
+    private readonly PlatformInvoiceService _invoices;
 
-    public StripeService(BillingDbContext db, IOptions<StripeSettings> settings, PaymentService payments)
-    { _db = db; _settings = settings.Value; _payments = payments; }
+    public StripeService(BillingDbContext db, IOptions<StripeSettings> settings, PaymentService payments, PlatformInvoiceService invoices)
+    { _db = db; _settings = settings.Value; _payments = payments; _invoices = invoices; }
 
+    /// <summary>
+    /// 创建 Plan 的 Stripe Subscription Checkout Session。
+    ///
+    /// 用途：机构第一次购买 Plan，或更换到新的 Plan 时使用。
+    /// 付款模式：Stripe subscription（订阅模式），不是一次性付款。
+    /// 计费方式：根据机构 tenant 数据库中实际的 Coach 数量计算，
+    /// 月费等于 Plan.PricePerCoach 乘以 Coach 数量。
+    ///
+    /// 付款成功后，后续的每个计费周期由 Stripe 自动扣款。
+    /// 该方法会在 Checkout Session 和 Stripe Subscription metadata 中写入
+    /// billing_scope=plan，供 Webhook 区分 Plan 订阅事件和 Add-on 订阅事件。
+    ///
+    /// 注意：这个方法只负责创建 Stripe Checkout 页面，不直接把本地 Plan
+    /// 标记为已付款或正式激活；本地状态应由 checkout.session.completed
+    /// Webhook 在确认付款成功后更新。
+    /// </summary>
+    public async Task<string> CreatePlanCheckoutSessionAsync(
+        int organizationId,
+        int planId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_settings.SecretKey))
+            throw new InvalidOperationException("Stripe payments are not configured. Please contact support.");
+        if (!Uri.TryCreate(_settings.PublicBaseUrl, UriKind.Absolute, out var baseUri) ||
+            (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
+            throw new InvalidOperationException("Stripe payment URL is not configured correctly. Please contact support.");
+
+        var plan = await _db.Subscriptionplans.SingleOrDefaultAsync(p => p.PlanId == planId && p.IsActive, cancellationToken);
+        if (plan == null) throw new InvalidOperationException("The selected plan is not available.");
+
+        var organization = await _db.Organizations.SingleOrDefaultAsync(o => o.OrganizationId == organizationId, cancellationToken);
+        if (organization == null) throw new InvalidOperationException("Organization not found.");
+
+        var existing = await _db.OrganizationSubscriptions
+            .Where(s => s.OrganizationId == organizationId &&
+                        (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (existing?.PlanId == planId && !string.IsNullOrWhiteSpace(existing.StripeSubscriptionId))
+            throw new InvalidOperationException("Organization is already subscribed to this plan.");
+
+        var coachCount = Math.Max(1, await _invoices.GetCoachCountAsync(organizationId));
+        StripeConfiguration.ApiKey = _settings.SecretKey;
+        var baseUrl = baseUri.ToString().TrimEnd('/');
+        var metadata = new Dictionary<string, string>
+        {
+            ["billing_scope"] = BillingScope.Plan,
+            ["organization_id"] = organizationId.ToString(),
+            ["plan_id"] = planId.ToString(),
+            ["coach_count"] = coachCount.ToString()
+        };
+        var session = await new SessionService().CreateAsync(new SessionCreateOptions
+        {
+            Mode = "subscription",
+            SuccessUrl = $"{baseUrl}/organization?payment=success",
+            CancelUrl = $"{baseUrl}/organization?payment=cancelled",
+            ClientReferenceId = $"organization:{organizationId}:plan:{planId}",
+            Metadata = metadata,
+            SubscriptionData = new SessionSubscriptionDataOptions { Metadata = metadata },
+            LineItems = new List<SessionLineItemOptions>
+            {
+                new()
+                {
+                    Quantity = coachCount,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = "cad",
+                        UnitAmount = checked((long)Math.Round(plan.PricePerCoach * 100m, 0)),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions { Name = plan.PlanName },
+                        Recurring = new SessionLineItemPriceDataRecurringOptions { Interval = "month" }
+                    }
+                }
+            }
+        }, cancellationToken: cancellationToken);
+
+        return session.Url;
+    }
+
+    /// <summary>
+    /// 为一张普通 Invoice 创建 Stripe 一次性付款 Checkout Session。
+    ///
+    /// 用途：支付某一张已经生成的 Invoice，例如管理员点击 Pay Invoice，
+    /// 或现场收费时生成 Payment QR Code 让家长扫码付款。
+    /// 付款模式：Stripe payment（一次性付款），不会创建订阅，也不会自动续费。
+    ///
+    /// 付款成功后，checkout.session.completed Webhook 会根据 invoice_id
+    /// 找到对应 Invoice，并创建 Payment 记录、更新 Invoice 状态。
+    /// 此方法写入 billing_scope=plan，是因为这类 Invoice 属于 Plan Billing，
+    /// 但它和 CreatePlanCheckoutSessionAsync 创建的自动续费 Subscription 不同。
+    ///
+    /// 该方法需要保留，用于历史 Invoice、手动补缴、一次性费用以及 QR Code
+    /// 付款流程；不能把它当作 Plan 自动订阅方法使用。
+    /// </summary>
     public async Task<string> CreateCheckoutSessionAsync(PlatformInvoice invoice, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_settings.SecretKey))

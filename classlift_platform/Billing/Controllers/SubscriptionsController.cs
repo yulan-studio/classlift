@@ -1,6 +1,9 @@
 ﻿using Billing.Data;
 using Billing.Services.Billing;
+using Billing.Services.Integrations;
+using Stripe;
 using Billing.ViewModels;
+using PlatformSubscriptionService = Billing.Services.Billing.SubscriptionService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,14 +14,17 @@ namespace Billing.Controllers
     public class SubscriptionsController : Controller
     {
         private readonly BillingDbContext _context;
-        private readonly SubscriptionService _subscriptionService;
+        private readonly PlatformSubscriptionService _subscriptionService;
+        private readonly StripeService _stripe;
 
         public SubscriptionsController(
             BillingDbContext context,
-            SubscriptionService subscriptionService)
+            PlatformSubscriptionService subscriptionService,
+            StripeService stripe)
         {
             _context = context;
             _subscriptionService = subscriptionService;
+            _stripe = stripe;
         }
 
         [HttpGet("ChangePlan/{organizationId:int}")]
@@ -88,6 +94,28 @@ namespace Billing.Controllers
             TempData["Success"] = "Subscription plan changed successfully.";
 
             return RedirectToAction("Details", "Organizations", new { id = model.OrganizationId });
+        }
+
+        [HttpPost("CheckoutPlan")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckoutPlan(ChangePlanViewModel model, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var url = await _stripe.CreatePlanCheckoutSessionAsync(
+                    model.OrganizationId, model.NewPlanId, cancellationToken);
+                return Redirect(url);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(ChangePlan), new { organizationId = model.OrganizationId });
+            }
+            catch (StripeException)
+            {
+                TempData["Error"] = "Stripe could not create the subscription checkout. Please try again.";
+                return RedirectToAction(nameof(ChangePlan), new { organizationId = model.OrganizationId });
+            }
         }
     }
 }

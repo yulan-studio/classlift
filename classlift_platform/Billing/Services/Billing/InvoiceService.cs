@@ -272,7 +272,7 @@ namespace Billing.Services.Billing
             return invoice;
         }
 
-        private async Task<int> GetCoachCountAsync(int organizationId)
+        public async Task<int> GetCoachCountAsync(int organizationId)
         {
             // Unit tests that call the billing calculation directly do not have a tenant database.
             if (_tenantConnectionFactory == null)

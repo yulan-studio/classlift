@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <form action="/Subscriptions/ChangePlan" method="post" class="mt-4">
+    <form action="/Subscriptions/CheckoutPlan" method="post" class="mt-4">
 
         <input type="hidden" asp-for="OrganizationId" />
         <input type="hidden" asp-for="OrganizationName" />
@@ -34,8 +34,9 @@
             <textarea asp-for="Reason" class="form-control" rows="3"></textarea>
         </div>
 
+        @Html.AntiForgeryToken()
         <button type="submit" class="btn btn-primary">
-            Change Plan
+            Continue to payment
         </button>
 
         <a class="btn btn-secondary" href="/Organizations/Details/@Model.OrganizationId">
