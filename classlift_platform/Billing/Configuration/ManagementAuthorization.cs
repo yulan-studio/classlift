@@ -17,8 +17,17 @@ public static class ManagementAuthorization
                     ?? (context.Resource as AuthorizationFilterContext)?.HttpContext;
                 var controller = httpContext?.Request.RouteValues["controller"]?.ToString();
 
-                return context.User.IsInRole("OrganizationAdmin") &&
-                    string.Equals(controller, "OrganizationPortal", StringComparison.OrdinalIgnoreCase);
+                var organizationControllers = new[]
+                {
+                    "OrganizationPortal",
+                    "OrganizationAddOnPage",
+                    "OrganizationAddOn"
+                };
+
+                return context.User.Identity?.IsAuthenticated == true &&
+                    organizationControllers.Contains(
+                        controller,
+                        StringComparer.OrdinalIgnoreCase);
             })
             .Build();
 }
