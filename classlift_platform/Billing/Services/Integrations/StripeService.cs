@@ -30,6 +30,11 @@ public sealed class StripeService
             throw new InvalidOperationException("Stripe payment URL is not configured correctly. Please contact support.");
         if (invoice.InvoiceStatus is "Paid" or "Cancelled") throw new InvalidOperationException("This invoice cannot be paid.");
         StripeConfiguration.ApiKey = _settings.SecretKey;
+        if (!string.IsNullOrWhiteSpace(invoice.StripeCheckoutSessionId))
+        {
+            var existingUrl = await GetCheckoutUrlAsync(invoice.StripeCheckoutSessionId, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(existingUrl)) return existingUrl;
+        }
         var baseUrl = baseUri.ToString().TrimEnd('/');
         var session = await new SessionService().CreateAsync(new SessionCreateOptions
         {

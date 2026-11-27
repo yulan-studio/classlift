@@ -131,6 +131,31 @@ public sealed class OrganizationPortalController : Controller
         return RedirectToAction(nameof(Invoice), new { id, checkout = "created" });
     }
 
+    [HttpPost("invoice/{id:int}/pay")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> PayInvoice(int id, CancellationToken cancellationToken)
+    {
+        var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.InvoiceId == id, cancellationToken);
+        if (invoice == null) return NotFound();
+        if (!await OrganizationAuthorization.HasAccessAsync(_context, User, invoice.OrganizationId, cancellationToken)) return Forbid();
+
+        try
+        {
+            var checkoutUrl = await _stripe.CreateCheckoutSessionAsync(invoice, cancellationToken);
+            return Redirect(checkoutUrl);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (StripeException)
+        {
+            TempData["Error"] = "Stripe could not create the payment session. Please try again or contact support.";
+        }
+
+        return RedirectToAction(nameof(Invoice), new { id });
+    }
+
     [HttpGet("invoice/{id:int}/qr")]
     public async Task<IActionResult> QrCode(int id, CancellationToken cancellationToken)
     {
