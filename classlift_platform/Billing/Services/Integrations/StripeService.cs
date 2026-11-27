@@ -190,18 +190,29 @@ public sealed class StripeService
         if (existing != null)
             return;
 
+        if (string.IsNullOrWhiteSpace(session.SubscriptionId))
+            throw new InvalidOperationException("Stripe checkout session is missing its subscription ID.");
+
+        var existingStripeSubscription = await _db.OrganizationAddOnSubscriptions.AnyAsync(s =>
+            s.StripeSubscriptionId == session.SubscriptionId, cancellationToken);
+        if (existingStripeSubscription)
+            return;
+
+        var now = DateTime.UtcNow;
         var subscription = new OrganizationAddOnSubscription
         {
             OrganizationId = organizationId,
             AddOnId = addOn.AddOnId,
             Status = AddOnStatus.Active,
-            StartDate = DateTime.UtcNow,
-            CurrentPeriodEnd = DateTime.UtcNow.AddMonths(1),
+            StartDate = now,
+            CurrentPeriodEnd = now.AddMonths(1),
             MonthlyPrice = addOn.MonthlyPrice,
             Currency = addOn.Currency,
             BillingCycle = addOn.BillingCycle,
             AutoRenew = true,
-            CreatedAt = DateTime.UtcNow
+            CancelAtPeriodEnd = false,
+            StripeSubscriptionId = session.SubscriptionId,
+            CreatedAt = now
         };
 
         _db.OrganizationAddOnSubscriptions.Add(subscription);
