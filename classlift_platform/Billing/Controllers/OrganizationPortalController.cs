@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Billing.Services.Integrations;
+using Billing.Services.Billing;
+using PlatformInvoiceService = Billing.Services.Billing.InvoiceService;
 using QRCoder;
 using Stripe;
 
@@ -17,8 +19,66 @@ public sealed class OrganizationPortalController : Controller
 {
     private readonly BillingDbContext _context;
     private readonly StripeService _stripe;
+    private readonly PlatformInvoiceService _invoices;
 
-    public OrganizationPortalController(BillingDbContext context, StripeService stripe) { _context = context; _stripe = stripe; }
+    public OrganizationPortalController(BillingDbContext context, StripeService stripe, PlatformInvoiceService invoices)
+    { _context = context; _stripe = stripe; _invoices = invoices; }
+
+    [HttpGet("plan")]
+    public async Task<IActionResult> Plan(CancellationToken cancellationToken)
+    {
+        var organizationId = await GetOrganizationIdAsync(cancellationToken);
+        if (organizationId == null) return Forbid();
+        var organization = await _context.Organizations.Include(o => o.CurrentPlan)
+            .SingleOrDefaultAsync(o => o.OrganizationId == organizationId, cancellationToken);
+        if (organization == null) return NotFound();
+        var current = await _context.OrganizationSubscriptions.Include(s => s.Plan)
+            .Where(s => s.OrganizationId == organizationId && (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
+            .OrderByDescending(s => s.CreatedAt).FirstOrDefaultAsync(cancellationToken);
+        var coachCount = await _invoices.GetCoachCountAsync(organizationId.Value);
+        var pending = await _context.PendingPlanChanges.Include(p => p.RequestedPlan)
+            .Where(p => p.OrganizationId == organizationId && p.Status == "PendingPayment")
+            .OrderByDescending(p => p.CreatedAt).FirstOrDefaultAsync(cancellationToken);
+        return View(new OrganizationPlanViewModel
+        {
+            Organization = organization,
+            CurrentSubscription = current,
+            Plans = await _context.Subscriptionplans.Where(p => p.IsActive).OrderBy(p => p.PricePerCoach).ToListAsync(cancellationToken),
+            CoachCount = coachCount,
+            PendingChange = pending
+        });
+    }
+
+    [HttpPost("plan/checkout")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> PlanCheckout(int planId, CancellationToken cancellationToken)
+    {
+        var organizationId = await GetOrganizationIdAsync(cancellationToken);
+        if (organizationId == null) return Forbid();
+        try
+        {
+            var url = await _stripe.CreatePlanCheckoutSessionAsync(organizationId.Value, planId, cancellationToken);
+            return Redirect(url);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Plan));
+        }
+        catch (StripeException)
+        {
+            TempData["Error"] = "Stripe could not create the Plan payment session. Please try again.";
+            return RedirectToAction(nameof(Plan));
+        }
+    }
+
+    private async Task<int?> GetOrganizationIdAsync(CancellationToken cancellationToken)
+    {
+        var userId = OrganizationAuthorization.GetUserId(User);
+        if (userId == null) return null;
+        return await _context.OrganizationAdmins.Where(a => a.UserId == userId && a.IsActive)
+            .Select(a => (int?)a.OrganizationId).FirstOrDefaultAsync(cancellationToken);
+    }
 
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
