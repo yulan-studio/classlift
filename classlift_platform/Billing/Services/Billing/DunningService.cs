@@ -21,6 +21,7 @@ namespace Billing.Services.Billing
             var overdueInvoices = await _context.Invoices
                 .Where(i =>
                     i.InvoiceStatus == InvoiceStatus.Pending &&
+                    i.TotalAmount > 0 &&
                     i.DueDate < today)
                 .ToListAsync();
 

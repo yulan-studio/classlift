@@ -258,7 +258,9 @@ namespace Billing.Services.Billing
                 DiscountAmount = 0,
                 TotalAmount = total,
 
-                InvoiceStatus = InvoiceStatus.Pending,
+                // 零金额账单不需要客户付款，直接视为已支付，避免显示为
+                // Pending/Overdue 或向客户显示 Pay Invoice 按钮。
+                InvoiceStatus = total == 0m ? InvoiceStatus.Paid : InvoiceStatus.Pending,
                 GeneratedAt = DateTime.UtcNow
             };
 

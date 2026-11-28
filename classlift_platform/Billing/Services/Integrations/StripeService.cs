@@ -492,13 +492,16 @@ public sealed class StripeService
             // PaymentService 会在成功插入 payments 后，把 Invoice 更新为 Paid。
             // 如果这里提前设置为 Paid，PaymentService 会认为账单已经支付，
             // 从而直接抛出异常，导致 payments 记录无法插入。
-            InvoiceStatus = InvoiceStatus.Pending,
+            // Stripe Invoice 金额为零时不需要再次收款，直接标记为 Paid。
+            InvoiceStatus = amount == 0m ? InvoiceStatus.Paid : InvoiceStatus.Pending,
             GeneratedAt = DateTime.UtcNow,
-            PaidAt = null,
+            PaidAt = amount == 0m ? DateTime.UtcNow : null,
             StripeInvoiceId = stripeInvoice.Id
         };
         _db.Invoices.Add(localInvoice);
         await _db.SaveChangesAsync(cancellationToken);
+        if (amount == 0m)
+            return;
         await _payments.RecordPaymentAsync(
             localInvoice.InvoiceId,
             "Stripe",

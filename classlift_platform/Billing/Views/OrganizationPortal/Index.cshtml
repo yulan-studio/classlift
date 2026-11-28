@@ -14,7 +14,7 @@
 
 <div class="row g-3 mb-4">
     <div class="col-md-4"><div class="card card-body"><small class="text-muted">Plan</small><strong>@(Model.CurrentSubscription?.Plan?.PlanName ?? "No active plan")</strong></div></div>
-    <div class="col-md-4"><div class="card card-body"><small class="text-muted">Unpaid invoices</small><strong>@Model.Invoices.Count(i => i.InvoiceStatus != "Paid" && i.InvoiceStatus != "Cancelled")</strong></div></div>
+    <div class="col-md-4"><div class="card card-body"><small class="text-muted">Unpaid invoices</small><strong>@Model.Invoices.Count(i => i.TotalAmount > 0 && i.InvoiceStatus != "Paid" && i.InvoiceStatus != "Cancelled")</strong></div></div>
     <div class="col-md-4"><div class="card card-body"><small class="text-muted">Successful payments</small><strong>@Model.SuccessfulPayments.ToString("C")</strong></div></div>
 </div>
 
