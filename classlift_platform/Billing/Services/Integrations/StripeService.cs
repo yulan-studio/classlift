@@ -499,9 +499,13 @@ public sealed class StripeService
             Subtotal = amount,
             DiscountAmount = 0,
             TotalAmount = amount,
-            InvoiceStatus = InvoiceStatus.Paid,
+            // 先以 Pending 保存本地 Invoice，再调用 RecordPaymentAsync。
+            // PaymentService 会在成功插入 payments 后，把 Invoice 更新为 Paid。
+            // 如果这里提前设置为 Paid，PaymentService 会认为账单已经支付，
+            // 从而直接抛出异常，导致 payments 记录无法插入。
+            InvoiceStatus = InvoiceStatus.Pending,
             GeneratedAt = DateTime.UtcNow,
-            PaidAt = DateTime.UtcNow,
+            PaidAt = null,
             StripeInvoiceId = stripeInvoice.Id
         };
         _db.Invoices.Add(localInvoice);
