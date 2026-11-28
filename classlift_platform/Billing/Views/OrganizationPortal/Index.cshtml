@@ -45,12 +45,14 @@
     <div class="card-header"><h2 class="h5 mb-0">Invoices</h2></div>
     <div class="table-responsive">
         <table class="table table-hover mb-0">
-            <thead><tr><th>Period</th><th>Due</th><th>Total</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th>Period</th><th>Instructors</th><th>Price / Instructor</th><th>Due</th><th>Total</th><th>Status</th><th></th></tr></thead>
             <tbody>
             @foreach (var invoice in Model.Invoices)
             {
                 <tr>
                     <td>@invoice.BillingPeriodStart.ToString("yyyy-MM-dd") – @invoice.BillingPeriodEnd.ToString("yyyy-MM-dd")</td>
+                    <td>@invoice.CoachCount</td>
+                    <td>@invoice.PricePerCoach.ToString("C")</td>
                     <td>@invoice.DueDate.ToString("yyyy-MM-dd")</td>
                     <td>@invoice.TotalAmount.ToString("C")</td>
                     <td><span class="badge bg-light text-dark">@invoice.InvoiceStatus</span></td>
