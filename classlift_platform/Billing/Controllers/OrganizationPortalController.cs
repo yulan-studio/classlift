@@ -141,6 +141,13 @@ public sealed class OrganizationPortalController : Controller
             .OrderByDescending(p => p.PaymentDate)
             .ToListAsync(cancellationToken);
 
+        var addOnPayments = await _context.AddOnPayments
+            .Include(p => p.AddOnInvoice)
+                .ThenInclude(i => i.AddOn)
+            .Where(p => p.AddOnInvoice.OrganizationId == organizationId)
+            .OrderByDescending(p => p.PaymentDate)
+            .ToListAsync(cancellationToken);
+
         var subscription = await _context.OrganizationSubscriptions
             .Include(s => s.Plan)
             .Where(s => s.OrganizationId == organizationId)
@@ -166,6 +173,7 @@ public sealed class OrganizationPortalController : Controller
             Organization = organization,
             Invoices = invoices,
             Payments = payments,
+            AddOnPayments = addOnPayments,
             CurrentSubscription = subscription,
             AddOns = addOns.Select(item => new OrganizationAddOnViewModel
             {

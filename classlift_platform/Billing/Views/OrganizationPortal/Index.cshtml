@@ -41,6 +41,34 @@
     </div>
 </div>
 
+<div class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Add-on payments</h2></div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Add-on</th><th>Date</th><th>Provider</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+            @if (Model.AddOnPayments.Count == 0)
+            {
+                <tr><td colspan="5" class="text-muted">No add-on payments</td></tr>
+            }
+            else
+            {
+                @foreach (var payment in Model.AddOnPayments)
+                {
+                    <tr>
+                        <td>@payment.AddOnInvoice.AddOn.Name</td>
+                        <td>@payment.PaymentDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@payment.PaymentProvider</td>
+                        <td>@payment.Amount.ToString("C") @payment.Currency</td>
+                        <td><span class="badge bg-light text-dark">@payment.PaymentStatus</span></td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header"><h2 class="h5 mb-0">Invoices</h2></div>
     <div class="table-responsive">

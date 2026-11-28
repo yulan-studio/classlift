@@ -7,6 +7,7 @@ public sealed class OrganizationPortalViewModel
     public required Organization Organization { get; init; }
     public required IReadOnlyList<Invoice> Invoices { get; init; }
     public required IReadOnlyList<Payment> Payments { get; init; }
+    public required IReadOnlyList<AddOnPayment> AddOnPayments { get; init; }
     public OrganizationSubscription? CurrentSubscription { get; init; }
     public required IReadOnlyList<OrganizationAddOnViewModel> AddOns { get; init; }
     public decimal SuccessfulPayments => Payments
