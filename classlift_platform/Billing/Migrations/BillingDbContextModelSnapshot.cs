@@ -373,15 +373,7 @@ namespace Billing.Migrations
                         .HasColumnType("int")
                         .HasColumnName("PromotionID");
 
-                    b.Property<string>("StripeCheckoutSessionId")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
                     b.Property<string>("StripeInvoiceId")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("StripePaymentIntentId")
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
@@ -396,13 +388,7 @@ namespace Billing.Migrations
                     b.HasKey("InvoiceId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("StripeCheckoutSessionId")
-                        .IsUnique();
-
                     b.HasIndex("StripeInvoiceId")
-                        .IsUnique();
-
-                    b.HasIndex("StripePaymentIntentId")
                         .IsUnique();
 
                     b.HasIndex(new[] { "PlanId" }, "FK_Invoices_Plans");

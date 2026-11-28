@@ -143,11 +143,6 @@ public sealed class StripeService
             throw new InvalidOperationException("Stripe payment URL is not configured correctly. Please contact support.");
         if (invoice.InvoiceStatus is "Paid" or "Cancelled") throw new InvalidOperationException("This invoice cannot be paid.");
         StripeConfiguration.ApiKey = _settings.SecretKey;
-        if (!string.IsNullOrWhiteSpace(invoice.StripeCheckoutSessionId))
-        {
-            var existingUrl = await GetCheckoutUrlAsync(invoice.StripeCheckoutSessionId, cancellationToken);
-            if (!string.IsNullOrWhiteSpace(existingUrl)) return existingUrl;
-        }
         var baseUrl = baseUri.ToString().TrimEnd('/');
         var session = await new SessionService().CreateAsync(new SessionCreateOptions
         {
@@ -171,8 +166,6 @@ public sealed class StripeService
                 }
             }}
         }, cancellationToken: cancellationToken);
-        invoice.StripeCheckoutSessionId = session.Id;
-        await _db.SaveChangesAsync(cancellationToken);
         return session.Url;
     }
 
@@ -269,10 +262,7 @@ public sealed class StripeService
         if (!int.TryParse(rawId, out var invoiceId)) throw new InvalidOperationException("Stripe session is missing invoice metadata.");
         var invoice = await _db.Invoices.Include(i => i.Payments).SingleOrDefaultAsync(i => i.InvoiceId == invoiceId, cancellationToken);
         if (invoice == null) throw new InvalidOperationException("Invoice not found.");
-        if (invoice.StripeCheckoutSessionId != null && invoice.StripeCheckoutSessionId != session.Id) throw new InvalidOperationException("Stripe session mismatch.");
         if (session.PaymentStatus != "paid" || invoice.InvoiceStatus == "Paid") return;
-        invoice.StripeCheckoutSessionId ??= session.Id;
-        invoice.StripePaymentIntentId = session.PaymentIntentId;
         await _payments.RecordPaymentAsync(invoice.InvoiceId, "Stripe", session.PaymentIntentId ?? session.Id, invoice.TotalAmount, "CAD", $"Stripe Checkout session {session.Id}", cancellationToken: cancellationToken);
     }
 

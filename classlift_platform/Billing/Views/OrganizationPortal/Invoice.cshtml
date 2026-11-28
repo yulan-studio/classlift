@@ -15,18 +15,10 @@
 </dl>
 @if (Model.InvoiceStatus != "Paid" && Model.InvoiceStatus != "Cancelled")
 {
-    <form asp-action="Checkout" asp-route-id="@Model.InvoiceId" method="post" class="mb-3">
-        @Html.AntiForgeryToken()
-        <button class="btn btn-outline-primary">Create Stripe payment QR code</button>
-    </form>
     <form asp-action="PayInvoice" asp-route-id="@Model.InvoiceId" method="post" class="mb-3">
         @Html.AntiForgeryToken()
         <button class="btn btn-primary">Pay Invoice</button>
     </form>
-    @if (Model.StripeCheckoutSessionId != null)
-    {
-        <p>Scan to pay:</p><img src="/organization/invoice/@Model.InvoiceId/qr" alt="Stripe payment QR code" width="220" height="220" />
-    }
 }
 <h2 class="h5">Payments</h2>
 <table class="table"><thead><tr><th>Date</th><th>Provider</th><th>Amount</th><th>Status</th></tr></thead><tbody>

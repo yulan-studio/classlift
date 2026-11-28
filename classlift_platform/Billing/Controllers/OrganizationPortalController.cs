@@ -196,28 +196,6 @@ public sealed class OrganizationPortalController : Controller
         return View(invoice);
     }
 
-    [HttpPost("invoice/{id:int}/checkout")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Checkout(int id, CancellationToken cancellationToken)
-    {
-        var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.InvoiceId == id, cancellationToken);
-        if (invoice == null) return NotFound();
-        if (!await OrganizationAuthorization.HasAccessAsync(_context, User, invoice.OrganizationId, cancellationToken)) return Forbid();
-        try
-        {
-            await _stripe.CreatePlanInvoiceCheckoutSessionAsync(invoice, cancellationToken);
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
-        catch (StripeException)
-        {
-            TempData["Error"] = "Stripe could not create the payment session. Please try again or contact support.";
-        }
-        return RedirectToAction(nameof(Invoice), new { id, checkout = "created" });
-    }
-
     [HttpPost("invoice/{id:int}/pay")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PayInvoice(int id, CancellationToken cancellationToken)
@@ -243,16 +221,4 @@ public sealed class OrganizationPortalController : Controller
         return RedirectToAction(nameof(Invoice), new { id });
     }
 
-    [HttpGet("invoice/{id:int}/qr")]
-    public async Task<IActionResult> QrCode(int id, CancellationToken cancellationToken)
-    {
-        var invoice = await _context.Invoices.AsNoTracking().FirstOrDefaultAsync(i => i.InvoiceId == id, cancellationToken);
-        if (invoice?.StripeCheckoutSessionId == null || !await OrganizationAuthorization.HasAccessAsync(_context, User, invoice.OrganizationId, cancellationToken)) return NotFound();
-        var url = await _stripe.GetCheckoutUrlAsync(invoice.StripeCheckoutSessionId, cancellationToken);
-        if (url == null) return NotFound();
-        using var generator = new QRCodeGenerator();
-        using var data = generator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-        using var qr = new PngByteQRCode(data);
-        return File(qr.GetGraphic(8), "image/png");
-    }
 }
