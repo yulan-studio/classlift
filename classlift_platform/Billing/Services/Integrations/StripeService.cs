@@ -120,19 +120,18 @@ public sealed class StripeService
     }
 
     /// <summary>
-    /// 为一张普通 Invoice 创建 Stripe 一次性付款 Checkout Session。
+    /// 为一张已经存在的 Plan Invoice 创建 Stripe 一次性付款 Checkout Session。
     ///
-    /// 用途：支付某一张已经生成的 Invoice，例如管理员点击 Pay Invoice，
-    /// 或现场收费时生成 Payment QR Code 让家长扫码付款。
-    /// 付款模式：Stripe payment（一次性付款），不会创建订阅，也不会自动续费。
+    /// 这个方法不是用来创建 Plan Subscription 的；它不会建立订阅，也不会开启
+    /// Stripe 自动续费。Plan Subscription 应使用 CreatePlanCheckoutSessionAsync。
     ///
-    /// 付款成功后，checkout.session.completed Webhook 会根据 invoice_id
-    /// 找到对应 Invoice，并创建 Payment 记录、更新 Invoice 状态。
-    /// 此方法写入 billing_scope=plan，是因为这类 Invoice 属于 Plan Billing，
-    /// 但它和 CreatePlanCheckoutSessionAsync 创建的自动续费 Subscription 不同。
+    /// 保留这个方法主要有两个用途：
+    /// 1. 自动扣款失败后，为客户提供人工补缴入口；
+    /// 2. 为系统过去生成但尚未支付的历史 Invoice 提供支付入口。
     ///
-    /// 该方法需要保留，用于历史 Invoice、手动补缴、一次性费用以及 QR Code
-    /// 付款流程；不能把它当作 Plan 自动订阅方法使用。
+    /// 付款成功后，checkout.session.completed webhook 会通过 invoice_id 找到本地
+    /// Invoice，创建 Payment 记录，并把 Invoice 状态更新为 Paid。
+    /// 这是一笔一次性 Invoice 付款，不会改变 Plan Subscription 的订阅周期。
     /// </summary>
     public async Task<string> CreatePlanInvoiceCheckoutSessionAsync(PlatformInvoice invoice, CancellationToken cancellationToken = default)
     {
