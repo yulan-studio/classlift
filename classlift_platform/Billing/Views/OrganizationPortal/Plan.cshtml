@@ -17,6 +17,10 @@
     <div class="alert alert-warning">
         A payment is pending for <strong>@Model.PendingChange.RequestedPlan.PlanName</strong>.
         Please complete that payment before creating another Plan change.
+        <form asp-action="ResumePendingPlanPayment" method="post" class="d-inline ms-2">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-warning btn-sm">Complete pending payment</button>
+        </form>
     </div>
 }
 <div class="row g-3">

@@ -72,6 +72,33 @@ public sealed class OrganizationPortalController : Controller
         }
     }
 
+    [HttpPost("plan/pending-payment")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResumePendingPlanPayment(CancellationToken cancellationToken)
+    {
+        var organizationId = await GetOrganizationIdAsync(cancellationToken);
+        if (organizationId == null) return Forbid();
+        var pending = await _context.PendingPlanChanges
+            .SingleOrDefaultAsync(p => p.OrganizationId == organizationId && p.Status == "PendingPayment",
+                cancellationToken);
+        if (pending == null || string.IsNullOrWhiteSpace(pending.StripeCheckoutSessionId))
+        {
+            TempData["Error"] = "The pending Plan payment could not be found.";
+            return RedirectToAction(nameof(Plan));
+        }
+
+        var checkoutUrl = await _stripe.GetCheckoutUrlAsync(pending.StripeCheckoutSessionId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(checkoutUrl))
+        {
+            TempData["Error"] = "The pending Stripe Checkout session is no longer available. Please start a new Plan change.";
+            pending.Status = "Expired";
+            await _context.SaveChangesAsync(cancellationToken);
+            return RedirectToAction(nameof(Plan));
+        }
+
+        return Redirect(checkoutUrl);
+    }
+
     private async Task<int?> GetOrganizationIdAsync(CancellationToken cancellationToken)
     {
         var userId = OrganizationAuthorization.GetUserId(User);
