@@ -54,6 +54,8 @@ public partial class Invoice
 
 	public string? StripePaymentIntentId { get; set; }
 
+    public string? StripeInvoiceId { get; set; }
+
     public virtual Organization Organization { get; set; } = null!;
 
     public virtual OrganizationSubscription OrganizationSubscription { get; set; } = null!;

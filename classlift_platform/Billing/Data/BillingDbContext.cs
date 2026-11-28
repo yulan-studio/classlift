@@ -25,6 +25,7 @@ public partial class BillingDbContext : IdentityDbContext
     public virtual DbSet<PlanAddOnEligibility> PlanAddOnEligibilities { get; set; }
     public virtual DbSet<OrganizationAddOnSubscription> OrganizationAddOnSubscriptions { get; set; }
     public virtual DbSet<AddOnInvoice> AddOnInvoices { get; set; }
+    public virtual DbSet<AddOnPayment> AddOnPayments { get; set; }
     public virtual DbSet<OrganizationFeatureSetting> OrganizationFeatureSettings { get; set; }
 
     public virtual DbSet<Invoice> Invoices { get; set; }
@@ -224,6 +225,25 @@ public partial class BillingDbContext : IdentityDbContext
                 .HasForeignKey(e => e.AddOnId).OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<AddOnPayment>(entity =>
+        {
+            entity.HasKey(e => e.AddOnPaymentId).HasName("PRIMARY");
+            entity.ToTable("addon_payments");
+            entity.Property(e => e.AddOnPaymentId).HasColumnName("AddOnPaymentID");
+            entity.Property(e => e.AddOnInvoiceId).HasColumnName("AddOnInvoiceID");
+            entity.Property(e => e.PaymentProvider).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.ProviderTransactionId).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.Amount).HasPrecision(10, 2);
+            entity.Property(e => e.Currency).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.PaymentStatus).HasMaxLength(30).IsRequired();
+            entity.Property(e => e.PaymentDate).HasColumnType("datetime");
+            entity.Property(e => e.Notes).HasMaxLength(1000);
+            entity.HasIndex(e => e.AddOnInvoiceId);
+            entity.HasIndex(e => e.ProviderTransactionId).IsUnique();
+            entity.HasOne(e => e.AddOnInvoice).WithMany()
+                .HasForeignKey(e => e.AddOnInvoiceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<OrganizationFeatureSetting>(entity =>
         {
             entity.HasKey(e => e.OrganizationFeatureSettingId).HasName("PRIMARY");
@@ -273,8 +293,10 @@ public partial class BillingDbContext : IdentityDbContext
             entity.Property(e => e.TotalAmount).HasPrecision(10, 2);
             entity.Property(e => e.StripeCheckoutSessionId).HasMaxLength(255);
             entity.Property(e => e.StripePaymentIntentId).HasMaxLength(255);
+            entity.Property(e => e.StripeInvoiceId).HasMaxLength(255);
             entity.HasIndex(e => e.StripeCheckoutSessionId).IsUnique();
             entity.HasIndex(e => e.StripePaymentIntentId).IsUnique();
+            entity.HasIndex(e => e.StripeInvoiceId).IsUnique();
 
             entity.HasOne(d => d.Organization).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.OrganizationId)

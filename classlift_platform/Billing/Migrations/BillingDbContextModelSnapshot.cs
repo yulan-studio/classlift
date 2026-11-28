@@ -168,6 +168,61 @@ namespace Billing.Migrations
                     b.ToTable("addon_invoices", (string)null);
                 });
 
+            modelBuilder.Entity("Billing.Models.AddOnPayment", b =>
+                {
+                    b.Property<int>("AddOnPaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("AddOnPaymentID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AddOnPaymentId"));
+
+                    b.Property<int>("AddOnInvoiceId")
+                        .HasColumnType("int")
+                        .HasColumnName("AddOnInvoiceID");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("PaymentProvider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("ProviderTransactionId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("AddOnPaymentId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("AddOnInvoiceId");
+
+                    b.HasIndex("ProviderTransactionId")
+                        .IsUnique();
+
+                    b.ToTable("addon_payments", (string)null);
+                });
+
             modelBuilder.Entity("Billing.Models.BillingRun", b =>
                 {
                     b.Property<int>("BillingRunId")
@@ -322,6 +377,10 @@ namespace Billing.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("StripeInvoiceId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("StripePaymentIntentId")
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
@@ -338,6 +397,9 @@ namespace Billing.Migrations
                         .HasName("PRIMARY");
 
                     b.HasIndex("StripeCheckoutSessionId")
+                        .IsUnique();
+
+                    b.HasIndex("StripeInvoiceId")
                         .IsUnique();
 
                     b.HasIndex("StripePaymentIntentId")
@@ -1346,6 +1408,17 @@ namespace Billing.Migrations
                     b.Navigation("Organization");
 
                     b.Navigation("OrganizationAddOnSubscription");
+                });
+
+            modelBuilder.Entity("Billing.Models.AddOnPayment", b =>
+                {
+                    b.HasOne("Billing.Models.AddOnInvoice", "AddOnInvoice")
+                        .WithMany()
+                        .HasForeignKey("AddOnInvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AddOnInvoice");
                 });
 
             modelBuilder.Entity("Billing.Models.Invoice", b =>

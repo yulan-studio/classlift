@@ -276,9 +276,20 @@ public sealed class StripeService
         await _payments.RecordPaymentAsync(invoice.InvoiceId, "Stripe", session.PaymentIntentId ?? session.Id, invoice.TotalAmount, "CAD", $"Stripe Checkout session {session.Id}", cancellationToken: cancellationToken);
     }
 
-    /// <summary>付款成功后创建或激活 Plan 的本地订阅记录。</summary>
+    /// <summary>
+    /// 处理 Stripe 的 checkout.session.completed webhook event。
+    ///
+    /// 这个 event 表示用户完成了 Stripe Checkout。此方法负责在本地创建或激活
+    /// Plan subscription、更新机构当前 Plan，并完成 PendingPlanChange。
+    /// 它主要处理首次购买或更换 Plan，不负责创建本地 Invoice/Payment 记录。
+    /// 本地 Invoice/Payment 由 invoice.paid event 处理。
+    /// </summary>
     public async Task ProcessPlanCheckoutCompletedAsync(Session session, CancellationToken cancellationToken = default)
     {
+        // 事件顺序 A：checkout.session.completed 先到。
+        // 本方法负责首次建立 Plan subscription、更新 Organization.CurrentPlanId，
+        // 并把 PendingPlanChange 标记为 Paid。之后 invoice.paid 到达时，
+        // 会通过 StripeSubscriptionId 找到这条记录，因此不会再次创建 subscription。
         if (!session.Metadata.TryGetValue("organization_id", out var rawOrganizationId) ||
             !int.TryParse(rawOrganizationId, out var organizationId) ||
             !session.Metadata.TryGetValue("plan_id", out var rawPlanId) ||
@@ -338,19 +349,171 @@ public sealed class StripeService
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>Plan Subscription 自动续费成功时，保持本地订阅为 Active。</summary>
+    /// <summary>
+    /// 处理 Stripe 的 invoice.paid webhook event。
+    ///
+    /// 这个 event 表示 Stripe 的 Invoice 已经成功付款。此方法负责将 Plan
+    /// subscription 保持为 Active，并创建或更新本地 Plan Invoice 和 Payment。
+    /// 它既可能处理首次订阅产生的第一张 Invoice，也可能处理之后每月自动续费的 Invoice。
+    /// 它与 checkout.session.completed 是不同的 webhook event，不能相互替代。
+    /// </summary>
     public async Task ProcessPlanRecurringInvoicePaidAsync(Stripe.Invoice invoice, CancellationToken cancellationToken = default)
     {
         var subscriptionId = invoice.Parent?.SubscriptionDetails?.SubscriptionId;
         if (string.IsNullOrWhiteSpace(subscriptionId)) return;
         var local = await _db.OrganizationSubscriptions.SingleOrDefaultAsync(
             s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        // 事件顺序 B：invoice.paid 先到。
+        // 如果 checkout.session.completed 尚未建立本地 subscription，则根据
+        // Stripe Subscription metadata 补建 Plan subscription、更新当前 Plan，
+        // 并把 PendingPlanChange 标记为 Paid。
+        // 如果 checkout.session.completed 已经先完成，local 不为空，下面的补建方法
+        // 不会执行；本次只更新订阅状态并写入本地 invoice/payment。
+        local ??= await EnsurePlanSubscriptionFromInvoiceAsync(invoice, subscriptionId, cancellationToken);
         if (local == null) return;
         local.Status = SubscriptionStatus.Active;
         local.LastBilledDate = DateTime.UtcNow;
         local.EndDate = null;
         local.UpdatedAt = DateTime.UtcNow;
+        await UpsertPlanInvoiceAndPaymentAsync(invoice, local, cancellationToken);
         await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<OrganizationSubscription?> EnsurePlanSubscriptionFromInvoiceAsync(
+        Stripe.Invoice invoice,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        // 这是 invoice.paid 先到时的补偿路径。它只在本地找不到相同
+        // StripeSubscriptionId 时执行，保证无论 Webhook 顺序如何都不会重复插入。
+        var metadata = invoice.Parent?.SubscriptionDetails?.Metadata;
+        if (metadata == null ||
+            !metadata.TryGetValue("organization_id", out var organizationValue) ||
+            !int.TryParse(organizationValue, out var organizationId) ||
+            !metadata.TryGetValue("plan_id", out var planValue) ||
+            !int.TryParse(planValue, out var planId))
+            return null;
+
+        var plan = await _db.Subscriptionplans.SingleOrDefaultAsync(
+            p => p.PlanId == planId && p.IsActive, cancellationToken);
+        if (plan == null) return null;
+
+        var existing = await _db.OrganizationSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        if (existing != null) return existing;
+
+        var now = DateTime.UtcNow;
+        var current = await _db.OrganizationSubscriptions
+            .Where(s => s.OrganizationId == organizationId &&
+                        (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (current != null)
+        {
+            current.Status = SubscriptionStatus.Cancelled;
+            current.EndDate = now;
+            current.AutoRenew = 0;
+            current.UpdatedAt = now;
+        }
+
+        var subscription = new OrganizationSubscription
+        {
+            OrganizationId = organizationId,
+            PlanId = planId,
+            StartDate = now,
+            Status = SubscriptionStatus.Active,
+            IsTrial = 0,
+            ActivatedAt = now,
+            AutoRenew = 1,
+            MonthlyPricePerCoach = plan.PricePerCoach,
+            StripeSubscriptionId = subscriptionId,
+            CancelAtPeriodEnd = false,
+            CreatedAt = now
+        };
+        _db.OrganizationSubscriptions.Add(subscription);
+
+        var organization = await _db.Organizations.SingleOrDefaultAsync(
+            o => o.OrganizationId == organizationId, cancellationToken);
+        if (organization == null) return null;
+        organization.CurrentPlanId = planId;
+        organization.UpdatedAt = now;
+
+        var pending = await FindPendingPlanChangeAsync(metadata, organizationId, planId, cancellationToken);
+        if (pending != null)
+        {
+            pending.Status = "Paid";
+            pending.StripeSubscriptionId = subscriptionId;
+            pending.CompletedAt = now;
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return subscription;
+    }
+
+    private Task<PendingPlanChange?> FindPendingPlanChangeAsync(
+        IReadOnlyDictionary<string, string> metadata,
+        int organizationId,
+        int planId,
+        CancellationToken cancellationToken)
+    {
+        if (metadata.TryGetValue("pending_plan_change_id", out var pendingValue) &&
+            int.TryParse(pendingValue, out var pendingId))
+            return _db.PendingPlanChanges.SingleOrDefaultAsync(
+                p => p.PendingPlanChangeId == pendingId, cancellationToken);
+
+        return _db.PendingPlanChanges
+            .Where(p => p.OrganizationId == organizationId &&
+                        p.RequestedPlanId == planId &&
+                        p.Status == "PendingPayment")
+            .OrderByDescending(p => p.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task UpsertPlanInvoiceAndPaymentAsync(
+        Stripe.Invoice stripeInvoice,
+        OrganizationSubscription subscription,
+        CancellationToken cancellationToken)
+    {
+        if (await _db.Invoices.AnyAsync(i => i.StripeInvoiceId == stripeInvoice.Id, cancellationToken))
+            return;
+
+        var pending = await _db.PendingPlanChanges
+            .Where(p => p.StripeSubscriptionId == subscription.StripeSubscriptionId ||
+                        p.RequestedPlanId == subscription.PlanId && p.OrganizationId == subscription.OrganizationId)
+            .OrderByDescending(p => p.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        var coachCount = pending?.CoachCount ?? 1;
+        var amount = stripeInvoice.AmountPaid / 100m;
+        var start = stripeInvoice.PeriodStart == default ? DateTime.UtcNow : stripeInvoice.PeriodStart.ToUniversalTime();
+        var end = stripeInvoice.PeriodEnd == default ? start.AddMonths(1) : stripeInvoice.PeriodEnd.ToUniversalTime();
+        var localInvoice = new PlatformInvoice
+        {
+            OrganizationId = subscription.OrganizationId,
+            OrganizationSubscriptionId = subscription.OrganizationSubscriptionId,
+            PlanId = subscription.PlanId,
+            BillingPeriodStart = DateOnly.FromDateTime(start),
+            BillingPeriodEnd = DateOnly.FromDateTime(end),
+            DueDate = DateOnly.FromDateTime(start),
+            CoachCount = coachCount,
+            PricePerCoach = subscription.MonthlyPricePerCoach,
+            Subtotal = amount,
+            DiscountAmount = 0,
+            TotalAmount = amount,
+            InvoiceStatus = InvoiceStatus.Paid,
+            GeneratedAt = DateTime.UtcNow,
+            PaidAt = DateTime.UtcNow,
+            StripeInvoiceId = stripeInvoice.Id
+        };
+        _db.Invoices.Add(localInvoice);
+        await _db.SaveChangesAsync(cancellationToken);
+        await _payments.RecordPaymentAsync(
+            localInvoice.InvoiceId,
+            "Stripe",
+            stripeInvoice.Id,
+            amount,
+            (stripeInvoice.Currency ?? "cad").ToUpperInvariant(),
+            $"Stripe subscription invoice {stripeInvoice.Id}",
+            cancellationToken: cancellationToken);
     }
 
     /// <summary>Plan 自动续费失败时暂停本地订阅，阻止继续使用需付费功能。</summary>
@@ -407,6 +570,9 @@ public sealed class StripeService
         Session session,
         CancellationToken cancellationToken = default)
     {
+        // 事件顺序 A：checkout.session.completed 先到。
+        // 本方法负责首次建立 Add-on subscription。之后 invoice.paid 到达时，
+        // 会用 StripeSubscriptionId 找到已有记录，不会重复创建 Add-on subscription。
         if (!session.Metadata.TryGetValue("organization_id", out var rawOrganizationId) ||
             !int.TryParse(rawOrganizationId, out var organizationId) ||
             !session.Metadata.TryGetValue("addon_key", out var addOnKey))
@@ -474,6 +640,12 @@ public sealed class StripeService
 
         var local = await _db.OrganizationAddOnSubscriptions.SingleOrDefaultAsync(
             s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        // 事件顺序 B：invoice.paid 先到。
+        // 如果 checkout.session.completed 尚未建立本地 Add-on subscription，
+        // 则根据 Stripe Subscription metadata 补建它，然后写入本地 Add-on invoice/payment。
+        // 如果 checkout.session.completed 已先完成，local 不为空，补建方法不会执行，
+        // 本次只更新状态和账单记录。
+        local ??= await EnsureAddOnSubscriptionFromInvoiceAsync(invoice, subscriptionId, cancellationToken);
         if (local == null) return;
 
         local.Status = AddOnStatus.Active;
@@ -485,6 +657,59 @@ public sealed class StripeService
 
         await UpsertAddOnInvoiceAsync(invoice, local, "Paid", cancellationToken);
         await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<OrganizationAddOnSubscription?> EnsureAddOnSubscriptionFromInvoiceAsync(
+        Stripe.Invoice invoice,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        // 这是 invoice.paid 先到时的补偿路径。通过 StripeSubscriptionId 的存在性
+        // 保证重复 Webhook 或相反事件顺序都不会重复插入 subscription。
+        var metadata = invoice.Parent?.SubscriptionDetails?.Metadata;
+        if (metadata == null ||
+            !metadata.TryGetValue("organization_id", out var organizationValue) ||
+            !int.TryParse(organizationValue, out var organizationId) ||
+            !metadata.TryGetValue("addon_key", out var addOnKey))
+            return null;
+
+        var addOn = await _db.AddOns.SingleOrDefaultAsync(
+            a => a.AddOnKey == addOnKey && a.IsActive, cancellationToken);
+        if (addOn == null) return null;
+
+        var planSubscription = await _db.OrganizationSubscriptions
+            .Where(s => s.OrganizationId == organizationId &&
+                        (s.Status == SubscriptionStatus.Active || s.Status == SubscriptionStatus.Trial))
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (planSubscription == null || !await _db.PlanAddOnEligibilities.AnyAsync(
+                e => e.PlanId == planSubscription.PlanId && e.AddOnId == addOn.AddOnId && e.IsEligible,
+                cancellationToken))
+            return null;
+
+        var existing = await _db.OrganizationAddOnSubscriptions.SingleOrDefaultAsync(
+            s => s.StripeSubscriptionId == subscriptionId, cancellationToken);
+        if (existing != null) return existing;
+
+        var now = DateTime.UtcNow;
+        var subscription = new OrganizationAddOnSubscription
+        {
+            OrganizationId = organizationId,
+            AddOnId = addOn.AddOnId,
+            Status = AddOnStatus.Active,
+            StartDate = now,
+            CurrentPeriodEnd = invoice.PeriodEnd == default ? now.AddMonths(1) : invoice.PeriodEnd.ToUniversalTime(),
+            MonthlyPrice = addOn.MonthlyPrice,
+            Currency = addOn.Currency,
+            BillingCycle = addOn.BillingCycle,
+            AutoRenew = true,
+            CancelAtPeriodEnd = false,
+            StripeSubscriptionId = subscriptionId,
+            CreatedAt = now
+        };
+        _db.OrganizationAddOnSubscriptions.Add(subscription);
+        await _db.SaveChangesAsync(cancellationToken);
+        return subscription;
     }
 
     public async Task ProcessAddOnRecurringInvoicePaymentFailedAsync(
@@ -550,6 +775,25 @@ public sealed class StripeService
         local.PaidAt = status == "Paid" ? now : local.PaidAt;
         local.PaymentFailedAt = status == "Failed" ? now : local.PaymentFailedAt;
         local.UpdatedAt = now;
+        if (status == "Paid")
+        {
+            var paymentExists = await _db.AddOnPayments.AnyAsync(
+                p => p.ProviderTransactionId == stripeInvoice.Id, cancellationToken);
+            if (!paymentExists)
+            {
+                _db.AddOnPayments.Add(new AddOnPayment
+                {
+                    AddOnInvoice = local,
+                    PaymentProvider = "Stripe",
+                    ProviderTransactionId = stripeInvoice.Id,
+                    Amount = local.Amount,
+                    Currency = local.Currency,
+                    PaymentStatus = "Succeeded",
+                    PaymentDate = now,
+                    Notes = $"Stripe add-on invoice {stripeInvoice.Id}"
+                });
+            }
+        }
     }
 
     public async Task ProcessAddOnSubscriptionUpdatedAsync(
