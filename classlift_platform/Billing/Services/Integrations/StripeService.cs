@@ -212,11 +212,17 @@ public sealed class StripeService
 
         StripeConfiguration.ApiKey = _settings.SecretKey;
         var baseUrl = baseUri.ToString().TrimEnd('/');
+        // Add-on key 是数据库中的稳定标识（activity_management），而页面路由使用
+        // URL-friendly 的短横线格式（activity-management）。Checkout 返回地址必须
+        // 使用页面路由，否则付款成功后会出现 404。
+        var addOnPageSlug = addOn.AddOnKey == FeatureKeys.ActivityManagement
+            ? "activity-management"
+            : Uri.EscapeDataString(addOn.AddOnKey);
         var session = await new SessionService().CreateAsync(new SessionCreateOptions
         {
             Mode = "subscription",
-            SuccessUrl = $"{baseUrl}/organization/addons/{Uri.EscapeDataString(addOn.AddOnKey)}?payment=success",
-            CancelUrl = $"{baseUrl}/organization/addons/{Uri.EscapeDataString(addOn.AddOnKey)}?payment=cancelled",
+            SuccessUrl = $"{baseUrl}/organization/addons/{addOnPageSlug}?payment=success",
+            CancelUrl = $"{baseUrl}/organization/addons/{addOnPageSlug}?payment=cancelled",
             ClientReferenceId = $"organization:{organizationId}:addon:{addOn.AddOnKey}",
             Metadata = new Dictionary<string, string>
             {
