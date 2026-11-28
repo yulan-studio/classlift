@@ -24,6 +24,7 @@ public partial class BillingDbContext : IdentityDbContext
     public virtual DbSet<AddOn> AddOns { get; set; }
     public virtual DbSet<PlanAddOnEligibility> PlanAddOnEligibilities { get; set; }
     public virtual DbSet<OrganizationAddOnSubscription> OrganizationAddOnSubscriptions { get; set; }
+    public virtual DbSet<AddOnInvoice> AddOnInvoices { get; set; }
     public virtual DbSet<OrganizationFeatureSetting> OrganizationFeatureSettings { get; set; }
 
     public virtual DbSet<Invoice> Invoices { get; set; }
@@ -192,6 +193,35 @@ public partial class BillingDbContext : IdentityDbContext
                 .HasForeignKey(e => e.AddOnId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_OrgAddOnSub_AddOns");
+        });
+
+        modelBuilder.Entity<AddOnInvoice>(entity =>
+        {
+            entity.HasKey(e => e.AddOnInvoiceId).HasName("PRIMARY");
+            entity.ToTable("addon_invoices");
+            entity.Property(e => e.AddOnInvoiceId).HasColumnName("AddOnInvoiceID");
+            entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
+            entity.Property(e => e.OrganizationAddOnSubscriptionId).HasColumnName("OrganizationAddOnSubscriptionID");
+            entity.Property(e => e.AddOnId).HasColumnName("AddOnID");
+            entity.Property(e => e.StripeInvoiceId).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.StripeSubscriptionId).HasMaxLength(255);
+            entity.Property(e => e.Amount).HasPrecision(10, 2);
+            entity.Property(e => e.Currency).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.Status).HasMaxLength(30).IsRequired();
+            entity.Property(e => e.BillingPeriodStart).HasColumnType("datetime");
+            entity.Property(e => e.BillingPeriodEnd).HasColumnType("datetime");
+            entity.Property(e => e.PaidAt).HasColumnType("datetime");
+            entity.Property(e => e.PaymentFailedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.HasIndex(e => e.StripeInvoiceId).IsUnique();
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasOne(e => e.Organization).WithMany()
+                .HasForeignKey(e => e.OrganizationId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.OrganizationAddOnSubscription).WithMany()
+                .HasForeignKey(e => e.OrganizationAddOnSubscriptionId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.AddOn).WithMany()
+                .HasForeignKey(e => e.AddOnId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<OrganizationFeatureSetting>(entity =>

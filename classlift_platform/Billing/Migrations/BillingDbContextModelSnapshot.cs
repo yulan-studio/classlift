@@ -89,6 +89,85 @@ namespace Billing.Migrations
                     b.ToTable("addons", (string)null);
                 });
 
+            modelBuilder.Entity("Billing.Models.AddOnInvoice", b =>
+                {
+                    b.Property<int>("AddOnInvoiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("AddOnInvoiceID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AddOnInvoiceId"));
+
+                    b.Property<int>("AddOnId")
+                        .HasColumnType("int")
+                        .HasColumnName("AddOnID");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("BillingPeriodEnd")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("BillingPeriodStart")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<int>("OrganizationAddOnSubscriptionId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationAddOnSubscriptionID");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrganizationID");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("PaymentFailedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("StripeInvoiceId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("AddOnInvoiceId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("AddOnId");
+
+                    b.HasIndex("OrganizationAddOnSubscriptionId");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("StripeInvoiceId")
+                        .IsUnique();
+
+                    b.ToTable("addon_invoices", (string)null);
+                });
+
             modelBuilder.Entity("Billing.Models.BillingRun", b =>
                 {
                     b.Property<int>("BillingRunId")
@@ -1240,6 +1319,33 @@ namespace Billing.Migrations
                         .HasConstraintName("FK_AddOns_Features");
 
                     b.Navigation("Feature");
+                });
+
+            modelBuilder.Entity("Billing.Models.AddOnInvoice", b =>
+                {
+                    b.HasOne("Billing.Models.AddOn", "AddOn")
+                        .WithMany()
+                        .HasForeignKey("AddOnId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Billing.Models.OrganizationAddOnSubscription", "OrganizationAddOnSubscription")
+                        .WithMany()
+                        .HasForeignKey("OrganizationAddOnSubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Billing.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AddOn");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("OrganizationAddOnSubscription");
                 });
 
             modelBuilder.Entity("Billing.Models.Invoice", b =>

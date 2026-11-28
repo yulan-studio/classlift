@@ -483,6 +483,7 @@ public sealed class StripeService
         if (invoice.PeriodEnd != default)
             local.CurrentPeriodEnd = invoice.PeriodEnd;
 
+        await UpsertAddOnInvoiceAsync(invoice, local, "Paid", cancellationToken);
         await _db.SaveChangesAsync(cancellationToken);
     }
 
@@ -499,7 +500,56 @@ public sealed class StripeService
 
         local.Status = AddOnStatus.PastDue;
         local.UpdatedAt = DateTime.UtcNow;
+        await UpsertAddOnInvoiceAsync(invoice, local, "Failed", cancellationToken);
         await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// 创建或更新本地 Add-on Invoice 记录。
+    ///
+    /// 方法根据 StripeInvoiceId 查找本地记录：
+    /// - 如果记录不存在，则插入新的 AddOnInvoice；
+    /// - 如果记录已经存在，则更新金额、计费周期和付款状态。
+    ///
+    /// 采用 Upsert 而不是单纯 Insert，是因为 Stripe Webhook 可能因网络问题
+    /// 或未及时收到 2xx 响应而重复发送。同一张 Stripe Invoice 重复到达时，
+    /// 本方法会更新原记录，不会创建重复账单，从而保证 Webhook 处理幂等。
+    ///
+    /// status 通常为 Paid 或 Failed：
+    /// - Paid：记录付款时间；
+    /// - Failed：记录付款失败时间。
+    /// </summary>
+    private async Task UpsertAddOnInvoiceAsync(
+        Stripe.Invoice stripeInvoice,
+        OrganizationAddOnSubscription subscription,
+        string status,
+        CancellationToken cancellationToken)
+    {
+        var local = await _db.AddOnInvoices.SingleOrDefaultAsync(
+            i => i.StripeInvoiceId == stripeInvoice.Id, cancellationToken);
+        var now = DateTime.UtcNow;
+        if (local == null)
+        {
+            local = new AddOnInvoice
+            {
+                OrganizationId = subscription.OrganizationId,
+                OrganizationAddOnSubscriptionId = subscription.OrganizationAddOnSubscriptionId,
+                AddOnId = subscription.AddOnId,
+                StripeInvoiceId = stripeInvoice.Id,
+                StripeSubscriptionId = subscription.StripeSubscriptionId,
+                CreatedAt = now
+            };
+            _db.AddOnInvoices.Add(local);
+        }
+
+        local.Amount = stripeInvoice.AmountPaid / 100m;
+        local.Currency = (stripeInvoice.Currency ?? subscription.Currency).ToUpperInvariant();
+        local.Status = status;
+        local.BillingPeriodStart = stripeInvoice.PeriodStart == default ? null : stripeInvoice.PeriodStart;
+        local.BillingPeriodEnd = stripeInvoice.PeriodEnd == default ? null : stripeInvoice.PeriodEnd;
+        local.PaidAt = status == "Paid" ? now : local.PaidAt;
+        local.PaymentFailedAt = status == "Failed" ? now : local.PaymentFailedAt;
+        local.UpdatedAt = now;
     }
 
     public async Task ProcessAddOnSubscriptionUpdatedAsync(
